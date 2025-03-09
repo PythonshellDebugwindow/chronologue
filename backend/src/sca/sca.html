@@ -1,0 +1,149 @@
+<h3>Introduction</h3>
+<p>
+  Sound change applicators work by applying a list of rules to a word. They can be used to
+  estimate pronunciation, derive grammatical forms, or simulate historical sound changes.
+</p>
+
+<h4>Rule structure</h4>
+<p>
+  Rules are made up of up to five segments, separated by slashes. The general structure of
+  a rule is as follows:
+</p>
+<p style="text-align: center">
+  <code>target/change/environment (ENV)/exception (EXC)/else</code>
+</p>
+<p>
+  The <b>target</b> segment specifies what to search for within a word.
+</p>
+<p>
+  The <b>change</b> segment specifies what to replace the target with.
+</p>
+<p>
+  The <b>environment</b> segment (or <b>ENV</b> for short) specifies what condition(s) must
+  be fulfilled in order for a change to occur.
+</p>
+<p>
+  The <b>exception</b> segment (or <b>EXC</b> for short) specifies what condition(s) must
+  <b>not</b> be fulfilled in order for a change to occur.
+</p>
+<p>
+  The <b>else</b> segment specifies an alternate change to be used if the exception is
+  fulfilled.
+</p>
+<p>
+  Basically, a rule replaces the target with the change if the environment is fulfilled, unless
+  the exception is fulfilled, in which case it will be replaced by the else instead.
+</p>
+<p>
+  All segments can be empty. An empty target means that the change or else should be inserted;
+  an empty change or else means that the target will be deleted; and an empty environment or
+  exception will be ignored.
+</p>
+
+<h3>Local replacements</h3>
+<p>Local replace rules are used to replace all instances of text.</p>
+
+<h4>Simple replacement</h4>
+<p>
+  To replace constant text with constant text, use a slash.
+</p>
+<p>
+  For example, <code>p/f</code> will replace all instances of <code>p</code> with <code>f</code>.
+</p>
+
+<h4>Category replacement</h4>
+<p>
+  To replace all members of a category with constant text, use a slash.
+</p>
+<p>
+  For example, <code>V/o</code> will replace all members of <code>V</code> with <code>o</code>.
+</p>
+<p>
+  It is also possible to perform a 1-to-1 replacement of category members.
+  For example, if <code>P</code> is <code>p,t,k</code> and <code>B</code> is <code>b,d,g</code>
+  then <code>P/B</code> will replace <code>p</code> with <code>b</code> and so on.
+</p>
+<p>
+  In a category replacement, if the change or target contains a category name, it must not
+  contain anything else. For example, <code>P/ʰP</code> and <code>Bh/P</code> would be invalid.
+</p>
+
+<h3>Global rules</h3>
+<p>Global rules are used to add affixes, and to perform global replacements.</p>
+
+<h4>Affixes</h4>
+<p>
+  Unconditional affixes use <code>#</code> as the target, and a <code>#</code>-separated
+  prefix and suffix as the change.
+</p>
+<p>
+  For example, <code>#/#ing</code> will suffix <code>ing</code>, and
+  <code>#/ge#t</code> will prefix <code>ge</code> and suffix <code>t</code>.
+</p>
+
+<h4>Global replacements</h4>
+<p>
+  Global replacements can be used to replace the entire word. For example, <code>#/abc</code>
+  will replace the entire word with <code>abc</code>. Categories are not supported here.
+</p>
+
+<h3>Conditions</h3>
+<p>
+  There are two types of conditions: local and global. Affix and global replacement rules
+  require global conditions, while local replacement rules can use either type.
+</p>
+
+<h4>Local conditions</h4>
+<p>
+  Local conditions check the target's local environment (e.g., whether it is before or after
+  a certain letter).
+</p>
+<p>
+  In local conditions, the character <code>_</code> indicates the target, and <code>#</code>
+  marks a word boundary. For example:
+</p>
+<ul>
+  <li>
+    <code>s_</code> means that the target must be directly after <code>s</code>;
+  </li>
+  <li>
+    <code>_V</code> means that it must be before a member of <code>V</code>;
+  </li>
+  <li>
+    and <code>#p_r</code> means that the target must be between <code>p</code> and <code>r</code>,
+    and that it must be at the start of the word.
+  </li>
+</ul>
+<p>
+  All global conditions are also valid as local conditions.
+</p>
+
+<h4>Global conditions</h4>
+<p>
+  Global conditions check the word as a whole (e.g., whether it starts with a
+  certain letter). Any condition without <code>_</code> is global.
+</p>
+<p>
+  <code>#</code> indicates a word boundary. For example:
+</p>
+<ul>
+  <li>
+    <code>x</code> means that the word must contain <code>x</code>;
+  </li>
+  <li>
+    <code>#st</code> means that the word must start with <code>st</code>;
+  </li>
+  <li>
+    and <code>V#</code> means that the word must end with a member of <code>V</code>.
+  </li>
+</ul>
+
+<h4>Environment, exception, and else</h4>
+<p>
+  The environment and exception sections of a rule are pipe-separated lists of conditions.
+  For one of these sections to be fulfilled, at least one of its conditions must be satisfied.
+</p>
+<p>
+  For example, <code>o/u/w_|_#</code> would change <code>o</code> to <code>u</code> before
+  <code>w</code> or word-finally.
+</p>

@@ -1,0 +1,28 @@
+{
+  "compilerOptions": {
+    /* Projects */
+    "composite": true,
+    
+    /* Language and Environment */
+    "target": "es2016",
+    
+    /* Modules */
+    "module": "node16",
+    "rootDir": "./src",
+    "moduleResolution": "node16",
+    "baseUrl": "./",
+    
+    /* Emit */
+    "outDir": "./dist",
+    
+    /* Interop Constraints */
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+
+    /* Type Checking */
+    "strict": true,
+    
+    /* Completeness */
+    "skipLibCheck": true
+  }
+}

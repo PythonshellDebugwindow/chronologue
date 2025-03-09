@@ -1,0 +1,366 @@
+#root {
+  width: 100%;
+  margin: 0 auto 15px;
+  text-align: center;
+}
+
+#selected-language {
+  position: absolute;
+  right: 0;
+  margin-right: 1em;
+}
+
+.top-left-logo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #646cff !important;
+  margin: 10px 0;
+}
+.logo {
+  margin-right: 10px;
+  height: 75px;
+}
+.header-menu {
+  display: flex;
+  margin: 0 auto;
+  border-top: 1px solid #000;
+  border-bottom: 1px solid #000;
+  height: 2em;
+  margin-top: 5px;
+  overflow-x: clip;
+  position: sticky;
+  top: 0;
+}
+.header-menu-item {
+  flex: 1 1 0px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  background: #fff;
+}
+.header-menu-item:hover {
+  background: #ddd;
+}
+.header-menu-item:not(:first-child) {
+  border-left: 1px solid #000;
+}
+.header-submenu {
+  display: none;
+}
+.header-menu:not(.no-dropdown) .header-menu-item:hover .header-submenu {
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  left: -1px;
+  top: calc(100% + 1px);
+  width: 100%;
+  background: #fff;
+  padding-right: 1px;
+}
+.header-menu-item:nth-child(3) .header-submenu {
+  width: calc(100% + 0.5px) !important;
+}
+.header-menu-item:nth-child(4) .header-submenu {
+  left: -0.5px !important;
+}
+.header-submenu-item {
+  min-width: 100%;
+  height: 2em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #000;
+  border-top: none;
+}
+.header-submenu-item:hover {
+  background: #ddd;
+}
+.header-submenu-item a {
+  display: block;
+  width: 100%;
+  height: 100%;
+  line-height: 2em;
+}
+
+.chronologue-form {
+  display: inline-flex;
+  flex-direction: column;
+  text-align: left;
+}
+.chronologue-form .textarea-label {
+  position: relative;
+  top: -2px;
+}
+.chronologue-form .textarea-parent {
+  position: relative;
+  display: block;
+  width: 100%;
+}
+.chronologue-form textarea {
+  margin-top: 4px;
+  resize: vertical;
+  width: calc(100% - 1.5px);
+  box-sizing: border-box;
+}
+.chronologue-form button {
+  margin-top: 20px;
+}
+
+.language-tree-root {
+  display: inline-block;
+  text-align: left;
+  margin-bottom: 0;
+}
+.language-tree-root ul {
+  list-style-type: disc;
+}
+
+.info-table {
+  display: inline-table;
+  max-width: 50%;
+}
+.info-table th {
+  display: flex;
+  justify-content: flex-end;
+}
+.info-table td {
+  text-align: left;
+}
+
+.enable-dictionary-field-button {
+  padding: 0.1em 0.3em 0.3em;
+  margin-left: 0.5em;
+}
+
+.dictionary-table {
+  display: inline-table;
+  border-collapse: collapse;
+}
+.dictionary-table tr {
+  border-bottom: 1px solid #eee;
+}
+.dictionary-table tr:hover {
+  border-bottom-color: lightgrey;
+}
+.dictionary-table th:nth-child(even),
+.dictionary-table td:nth-child(even)
+{
+  background: #fafafa;
+}
+.dictionary-table th,
+.dictionary-table td
+{
+  padding: 1px 5px;
+}
+.dictionary-table td
+{
+  text-align: left;
+}
+
+.letter-button {
+  border-radius: 0;
+  padding: 0.1ex;
+  margin-left: 0.5ex;
+  width: 1em;
+  height: 1em;
+  display: inline-flex;
+  position: relative;
+  top: -1px;
+  text-align: center;
+  font-weight: 500;
+}
+.letter-button::after {
+  line-height: 1ex;
+  width: 100%;
+  height: 100%;
+  position: relative;
+  left: -0.2px;
+}
+.letter-button:focus {
+  outline: none;
+}
+.letter-button::-moz-focus-inner {
+  border: none;
+}
+.letter-button-small {
+  width: 0.8em;
+  height: 0.8em;
+}
+.letter-button-small::after {
+  left: 0;
+}
+
+.letter-button-x {
+  border: 1px solid red;
+  color: red;
+}
+.letter-button-x::after {
+  content: 'x';
+}
+.letter-button-x:hover,
+.hover-light-grey:hover .letter-button-x
+{
+  border-color: #e00;
+  color: #e00;
+  background: #eee;
+}
+
+.letter-button-t {
+  border: 1px solid green;
+  color: green;
+}
+.letter-button-t::after {
+  content: '+';
+  top: 1px;
+}
+.letter-button-t:hover,
+.hover-light-grey:hover .letter-button-t
+{
+  border-color: #050;
+  color: #050;
+  background: #eee;
+}
+
+.letter-button-refresh {
+  border: 1px solid black;
+}
+.letter-button-refresh::after {
+  content: '↻';
+  top: 1px;
+}
+
+.settings-table {
+  display: inline-table;
+  border-collapse: collapse;
+  margin: 0;
+}
+.settings-table td {
+  text-align: left;
+}
+.settings-table th,
+.settings-table td {
+  padding: 1px 10px;
+}
+.settings-table .deleted-row td:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  display: block;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: grey;
+}
+.hover-light-grey {
+  cursor: pointer;
+  padding: 0 4px 4px 0;
+}
+.hover-light-grey:hover {
+  background: #eee;
+  position: relative;
+}
+
+.phone-table {
+  margin: 0 auto;
+  border-collapse: collapse;
+  font-size: 0.95em;
+}
+.phone-table tr:first-child {
+  vertical-align: top;
+}
+.phone-table th,
+.phone-table td
+{
+  padding: 2px;
+  border: 1px solid #999;
+  min-width: 1.5em;
+}
+.phone-table th {
+  padding: 2px 3px;
+  font-weight: normal;
+  background: #fafafa;
+}
+.phone-table th:first-child {
+  text-align: left;
+}
+.phone-table .phone-cell {
+  background-color: #fafafa;
+}
+.phone-table .phone-cell-added {
+  background-color: #5d5;
+}
+.phone-table .phone-cell sup {
+  position: relative;
+  top: -4px;
+  vertical-align: text-top;
+}
+
+.phone-notes-list {
+  display: inline-block;
+  text-align: left;
+  margin-bottom: 0;
+}
+
+.phone-list-table {
+  display: inline-block;
+  margin-top: 10px;
+}
+.phone-list-table td > input[type="text"] {
+  top: -2px;
+  position: relative;
+}
+
+.graph-table {
+  border-spacing: 5px;
+  border-collapse: separate;
+}
+.phone-table .graph-cell {
+  padding: 4px 7px;
+  min-width: 2em;
+  position: relative;
+  height: 2.5em;
+  line-height: 2.5em;
+}
+.phone-table .graph-cell-dragged {
+  z-index: 1000;
+  top: 0;
+  left: 0;
+  min-width: 2em;
+  padding: 4px 7px;
+  height: 100%;
+  position: absolute;
+  background: #fafafa;
+}
+
+.wide-textarea-label {
+  display: block;
+}
+.wide-textarea-label p {
+  margin-bottom: 2px;
+  font-weight: bold;
+}
+.wide-textarea {
+  width: 50%;
+  height: 8em;
+}
+.user-notes-paragraph {
+  white-space: pre-wrap;
+  max-width: 75%;
+  text-align: left;
+  margin: auto;
+  display: inline-block;
+}
+
+.deleted-pos-row td {
+  position: relative;
+}
+.deleted-pos-row td:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  border-bottom: 1px solid #000;
+  top: 50%;
+  left: 0;
+  width: 100%;
+}
