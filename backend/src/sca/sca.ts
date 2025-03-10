@@ -135,9 +135,7 @@ export class SCA {
   constructor(categories: ICategory[]) {
     this.#categories = new Map();
     for(const category of categories) {
-      const members = category.members.filter(c => c.length === 1);
-      members.sort((c1, c2) => c1.length - c2.length);
-      this.#categories.set(category.letter, members);
+      this.#categories.set(category.letter, category.members);
     }
     this.#hasRules = false;
     this.#result = "";

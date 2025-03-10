@@ -103,9 +103,9 @@ export const editWord: RequestHandler = async (req, res) => {
         [ wordId, req.body.classIds ]
       );
     }
-
-    res.status(204).send();
   });
+
+  res.status(204).send();
 };
 
 export const getLanguageWords: RequestHandler = async (req, res) => {

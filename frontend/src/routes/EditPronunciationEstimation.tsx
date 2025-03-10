@@ -40,7 +40,10 @@ function EditPronunciationEstimationInner({ language, initialSettings }: IEditPr
         pronunciation estimation.
       </p>
       <h4>Rewrite Rules</h4>
-      <p>Rewrite the generated IPA after initial estimation.</p>
+      <p>
+        Rewrite the generated IPA after initial estimation using ChronoSCA rules.
+        Rules can be tested on the <Link to={ '/chronosca/' + language.id }>ChronoSCA testing page</Link>.
+      </p>
       <textarea
         value={rewriteRules}
         onChange={ e => { setRewriteRules(e.target.value); setIsSaved(false); } }

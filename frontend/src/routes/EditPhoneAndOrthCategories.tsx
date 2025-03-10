@@ -312,7 +312,7 @@ function EditCategoriesInner({ language, orthCategories, phoneCategories }: IEdi
         initialCategories={orthCategories}
         />
       <h4>Phone Categories</h4>
-      <p>Used when estimating pronunciation.</p>
+      <p>Used when <Link to={ '/estimate-ipa/' + language.id }>estimating pronunciation</Link>.</p>
       <EditSpecificCategories
         language={language}
         categoryType="phone"

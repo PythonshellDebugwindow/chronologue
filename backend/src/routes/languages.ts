@@ -116,8 +116,9 @@ export const deleteLanguage: RequestHandler = async (req, res) => {
       "DELETE FROM languages WHERE id = $1",
       [ req.params.id ]
     );
-    res.status(204).send();
   });
+  
+  res.status(204).send();
 };
 
 export const editLanguage: RequestHandler = async (req, res, next) => {
@@ -209,9 +210,9 @@ export const editLanguage: RequestHandler = async (req, res, next) => {
         [ req.body.name, req.body.autonym, req.body.familyId, req.body.parentId,
           req.body.status, req.body.era, langId ]
       );
-
-      res.status(204).end();
     });
+
+    res.status(204).end();
   } catch(err) {
     if((err as IQueryError).code === '23505') {
       res.status(400).json({ message: `The name '${req.body.name}' is already taken.` });

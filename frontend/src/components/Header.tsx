@@ -57,7 +57,8 @@ export default function Header() {
             <Link to="/phonology">Edit Phonology</Link>,
             <Link to="/alphabetical-order">Alphabetical Order</Link>,
             <Link to="/edit-categories">Edit Categories</Link>,
-            <Link to="/estimate-ipa">IPA Estimation</Link>
+            <Link to="/estimate-ipa">IPA Estimation</Link>,
+            <Link to="/chronosca">Test ChronoSCA</Link>
           ]}
           setCanHover={setCanHover}
         />

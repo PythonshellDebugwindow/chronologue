@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 
 import {
   CFormBody, CIpaTextInput, CMultilineTextInput, CTextInput
@@ -22,12 +23,15 @@ interface IAddWordInner {
 
 function EditWordInner({ initialWord, initialClassIds, langClasses, langPartsOfSpeech }: IAddWordInner) {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   
   const [ word, setWord ] = useState(initialWord.word);
   const [ meaning, setMeaning ] = useState(initialWord.meaning);
   const [ ipa, setIpa ] = useState(initialWord.ipa);
   const [ pos, setPos ] = useState(initialWord.pos);
-  const [ classes, setClasses ] = useState(langClasses.filter(cls => initialClassIds.includes(cls.id)));
+  const [ classes, setClasses ] = useState(
+    langClasses.filter(cls => initialClassIds.includes(cls.id))
+  );
   const [ etymology, setEtymology ] = useState(initialWord.etymology);
   const [ notes, setNotes ] = useState(initialWord.notes);
   const [ errorMessage, setErrorMessage ] = useState("");
@@ -61,6 +65,7 @@ function EditWordInner({ initialWord, initialClassIds, langClasses, langPartsOfS
       return;
     }
     
+    queryClient.resetQueries({ queryKey: ['words', initialWord.id] });
     navigate(`/word/${initialWord.id}`);
   }
   

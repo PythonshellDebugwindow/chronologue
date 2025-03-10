@@ -48,8 +48,9 @@ export const deleteFamily: RequestHandler = async (req, res) => {
       "DELETE FROM families WHERE id = $1",
       [ req.params.id ]
     );
-    res.status(204).send();
   });
+  
+  res.status(204).send();
 };
 
 export const editFamily: RequestHandler = async (req, res, next) => {

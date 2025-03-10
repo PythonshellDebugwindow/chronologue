@@ -45,6 +45,24 @@ export async function sendBackendJson(
   }
 };
 
+export async function sendBackendJsonForQuery(
+  url: string, method: 'POST' | 'PUT', requestBody: { [key: string]: any }
+) {
+  const response = await fetch(BACKEND_URL + url, {
+    method,
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(requestBody)
+  });
+  const json = response.status !== 204 ? await response.json() : null;
+  if(!response.ok) {
+    throw json;
+  }
+  return json;
+};
+
 export async function sendBackendRequest(url: string, method: 'DELETE') {
   try {
     const response = await fetch(BACKEND_URL + url, {

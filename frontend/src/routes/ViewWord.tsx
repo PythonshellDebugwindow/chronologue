@@ -25,13 +25,13 @@ function formatClasses(classes: IWordClassNoPOS[]) {
   );
 }
 
-interface IRealViewWord {
+interface IViewWordInner {
   word: IWord;
   classes: IWordClassNoPOS[];
   partsOfSpeech: IPartOfSpeech[];
 }
 
-function RealViewWord({ word, classes, partsOfSpeech }: IRealViewWord) {
+function ViewWordInner({ word, classes, partsOfSpeech }: IViewWordInner) {
   const fields = [
     'word', 'ipa', 'meaning', 'pos', 'classes',
     'etymology', 'notes', 'created', 'updated'
@@ -115,7 +115,7 @@ export default function ViewWord() {
   }
   
   return (
-    <RealViewWord
+    <ViewWordInner
       word={ wordResponse.data }
       classes={ classesResponse.data }
       partsOfSpeech={ partsOfSpeechResponse.data }

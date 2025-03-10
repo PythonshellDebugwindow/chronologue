@@ -5,7 +5,7 @@ import {
   consonantPhones, phoneToString, vowelPhones
 } from '@shared/phones.ts';
 
-import { getBackendJson, ITitledError } from './utils.tsx';
+import { getBackendJson, sendBackendJsonForQuery, ITitledError } from './utils.tsx';
 
 export interface ICategory {
   letter: string;
@@ -101,12 +101,36 @@ export function formatPhoneForPhonologyTable(phone: IPhone) {
   }
 };
 
+export type ApplySCARulesQueryResult = {
+  success: true;
+  result: string;
+} | {
+  success: false;
+  message: string;
+};
+
+export function useApplySCARulesQuery(
+  langId: string, input: string, rules: string, categories: 'orth' | 'phone',
+  enabled: boolean
+) {
+  return useQuery<ApplySCARulesQueryResult[], ITitledError>({
+    queryKey: ['languages', langId, 'apply-sca-rules'],
+    queryFn: async () => await sendBackendJsonForQuery(
+      `languages/${langId}/apply-sca-rules`,
+      'POST',
+      { words: input.split("\n"), rules, categories }
+    ),
+    enabled
+  });
+};
+
 export function useEstimateWordIPAQuery(langId: string, word: string, enabled: boolean) {
   return useQuery<string, ITitledError>({
     queryKey: ['languages', langId, 'estimate-ipa', word],
-    queryFn: async () => await getBackendJson(
-      `languages/${langId}/estimate-ipa?${new URLSearchParams({ word })}`
+    queryFn: async () => await sendBackendJsonForQuery(
+      `languages/${langId}/estimate-ipa`, 'POST', { word }
     ),
+    staleTime: 0,
     enabled
   });
 };

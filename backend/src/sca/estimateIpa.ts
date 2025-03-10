@@ -98,17 +98,12 @@ export async function estimatePronunciations(langId: string, words: string[]) {
           ++i;
         }
       }
-      try {
-        const rewriteResult = sca.applySoundChanges(estimation);
-        if(!rewriteResult.success) {
-          errorMessage = rewriteResult.message;
-          return;
-        }
-        result.push(rewriteResult.result);
-      } catch(err) {
-        errorMessage = (err as Error).message;
+      const rewriteResult = sca.applySoundChanges(estimation);
+      if(!rewriteResult.success) {
+        errorMessage = rewriteResult.message;
         return;
       }
+      result.push(rewriteResult.result);
     }
   });
 

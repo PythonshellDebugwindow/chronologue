@@ -1,5 +1,6 @@
 import { Dispatch, SetStateAction, useContext, useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 
 import { CFormBody, CSelect, CTextInput } from '../components/CForm.tsx';
 
@@ -92,6 +93,7 @@ function FamilyAndLanguageSelect({ familyId, setFamilyId, parentId, setParentId,
 
 function EditLanguageInner({ initialLanguage }: { initialLanguage: ILanguage }) {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   
   const { selectedLanguage, setSelectedLanguage } = useContext(SelectedLanguageContext);
 
@@ -122,10 +124,11 @@ function EditLanguageInner({ initialLanguage }: { initialLanguage: ILanguage }) 
       return;
     }
     
-    navigate(`/language/${initialLanguage.id}`);
+    queryClient.resetQueries({ queryKey: ['languages', initialLanguage.id] });
     if(selectedLanguage?.id === initialLanguage.id) {
       setSelectedLanguage({ id: selectedLanguage.id, name });
     }
+    navigate(`/language/${initialLanguage.id}`);
   }
 
   return (

@@ -2,9 +2,65 @@ import type { RequestHandler } from 'express';
 import pg from 'pg';
 const { escapeIdentifier } = pg;
 
+import { estimatePronunciations } from '../sca/estimateIpa.js';
+import { SCA } from '../sca/sca.js';
+
 import query, { transact } from '../db/index.js';
 import { hasAllFields, IQueryError } from '../utils.js';
-import { estimatePronunciations } from '../sca/estimate-ipa.js';
+
+export const applySCARules: RequestHandler = async (req, res) => {
+  if(!/^[0-9a-f]{32}$/.test(req.params.id)) {
+    res.status(400).json({ title: "Invalid ID", message: "The given language ID is not valid." });
+    return;
+  }
+  if(req.body.categories !== "orth" && req.body.categories !== "phone") {
+    res.status(400).json({ message: "Invalid request body." });
+    return;
+  }
+  if(!(req.body.words instanceof Array) || typeof req.body.rules !== "string") {
+    res.status(400).json({ message: "Invalid request body." });
+  }
+
+  const tableName = escapeIdentifier(
+    req.body.categories === "phone" ? "phonology_categories" : "orthography_categories"
+  );
+
+  const categories = await query(
+    `
+      SELECT letter, string_to_array(members, ',') AS members
+      FROM ${tableName}
+      WHERE lang_id = $1
+    `,
+    [ req.params.id ]
+  );
+
+  const sca = new SCA(categories.rows);
+  const setRulesResult = sca.setRules(req.body.rules);
+  if(!setRulesResult.success) {
+    res.status(400).json({ message: setRulesResult.message });
+    return;
+  }
+  const rewritten = req.body.words.map((word: string) => sca.applySoundChanges(word));
+  res.json(rewritten);
+};
+
+export const estimateWordIPA: RequestHandler = async (req, res) => {
+  if(!/^[0-9a-f]{32}$/.test(req.params.id)) {
+    res.status(400).json({ title: "Invalid ID", message: "The given language ID is not valid." });
+    return;
+  }
+  if(typeof req.body.word !== 'string') {
+    res.status(400).json({ message: "Invalid request body." });
+    return;
+  }
+
+  const result = await estimatePronunciations(req.params.id, [req.body.word]);
+  if(result.success) {
+    res.json(result.result[0]);
+  } else {
+    res.status(400).json({ message: result.message });
+  }
+};
 
 export const getOrthographyCategories: RequestHandler = async (req, res) => {
   if(!/^[0-9a-f]{32}$/.test(req.params.id)) {
@@ -77,24 +133,6 @@ export const getPronunciationEstimation: RequestHandler = async (req, res) => {
     res.json(value.rows[0]);
   } else {
     res.json({ letterReplacements: "", rewriteRules: "" });
-  }
-};
-
-export const estimateWordIPA: RequestHandler = async (req, res) => {
-  if(!/^[0-9a-f]{32}$/.test(req.params.id)) {
-    res.status(400).json({ title: "Invalid ID", message: "The given language ID is not valid." });
-    return;
-  }
-  if(typeof req.query.word !== 'string') {
-    res.status(400).json({ message: "Invalid request body." });
-    return;
-  }
-
-  const result = await estimatePronunciations(req.params.id, [req.query.word]);
-  if(result.success) {
-    res.json(result.result[0]);
-  } else {
-    res.status(400).json({ message: result.message });
   }
 };
 

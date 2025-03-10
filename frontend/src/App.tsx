@@ -28,6 +28,7 @@ import EditSummaryNotes from './routes/EditSummaryNotes.tsx';
 import EditWord from './routes/EditWord.tsx';
 import ErrorPage from './routes/ErrorPage.tsx';
 import MainPage from './routes/MainPage.tsx';
+import TestChronoSCA from './routes/TestChronoSCA.tsx';
 import ViewDictionary from './routes/ViewDictionary.tsx';
 import ViewFamily from './routes/ViewFamily.tsx';
 import ViewLanguage from './routes/ViewLanguage.tsx';
@@ -129,6 +130,10 @@ const router = createBrowserRouter([
         element: <EditSummaryNotes />
       },
       {
+        path: "chronosca/:id?",
+        element: <TestChronoSCA />
+      },
+      {
         path: "word/:id",
         element: <ViewWord />
       }
@@ -145,7 +150,8 @@ export default function App() {
       queries: {
         retry: false,
         staleTime: Infinity,
-        gcTime: 0
+        gcTime: 0,
+        refetchOnWindowFocus: false
       }
     }
   });

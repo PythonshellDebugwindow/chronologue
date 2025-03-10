@@ -1,0 +1,202 @@
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
+
+import { getLanguageById, ILanguage } from '../languageData.tsx';
+import { useGetParamsOrSelectedId, useSetPageTitle } from '../utils.tsx';
+import {
+  getOrthographyCategories, getPhoneCategories, useApplySCARulesQuery,
+  ApplySCARulesQueryResult, ICategory
+} from '../phoneData.tsx';
+import { useQueryClient } from '@tanstack/react-query';
+
+function DisplayCategories({ categories }: { categories: ICategory[] }) {
+  return (
+    <table className="settings-table">
+      <tbody>
+        {
+          categories.map(category => (
+            <tr key={ category.letter }>
+              <td>{ category.letter }</td>
+              <td>
+                <input
+                  value={ category.members.join(",") }
+                  disabled
+                  style={{ color: "black" }}
+                />
+              </td>
+            </tr>
+          ))
+        }
+      </tbody>
+    </table>
+  );
+}
+
+function ScaQueryOutput(
+  { inputs, queryResults }: { inputs: string[], queryResults: ApplySCARulesQueryResult[] }
+) {
+  return (
+    <table style={{ textAlign: "left" }} className="settings-table">
+      <tbody>
+        <tr>
+          <th>Input</th>
+          <th>Output</th>
+        </tr>
+        {
+          queryResults.map((qr, i) => (
+            <tr key={i}>
+              <td>{ inputs[i] }</td>
+              <td style={ qr.success ? undefined : { color: "red" } }>{ qr.success ? qr.result : qr.message }</td>
+            </tr>
+          ))
+        }
+      </tbody>
+    </table>
+  );
+}
+
+interface ITestChronoSCAInner {
+  language: ILanguage;
+  orthCategories: ICategory[];
+  phoneCategories: ICategory[];
+}
+
+function TestChronoSCAInner({ language, orthCategories, phoneCategories }: ITestChronoSCAInner) {
+  const queryClient = useQueryClient();
+
+  const [ rules, setRules ] = useState("");
+  const [ input, setInput ] = useState("");
+  const [ lastInput, setLastInput ] = useState("");
+  const [ categoryType, setCategoryType ] = useState<'orth' | 'phone'>('orth');
+  const [ queryIsEnabled, setQueryIsEnabled ] = useState(false);
+  
+  const scaQuery = useApplySCARulesQuery(
+    language.id, input, rules, categoryType, queryIsEnabled
+  );
+  const queryOutput = (() => {
+    if(!queryIsEnabled) {
+      return null;
+    } else if(scaQuery.status === 'pending') {
+      return <p>Loading...</p>;
+    } else if(scaQuery.status === 'error') {
+      return <p>Error: { scaQuery.error.message }</p>;
+    } else {
+      return (
+        <ScaQueryOutput
+          inputs={ lastInput.split("\n") }
+          queryResults={ scaQuery.data }
+        />
+      );
+    }
+  })();
+
+  const currentCategories = categoryType === 'orth' ? orthCategories : phoneCategories;
+
+  function applySCARules() {
+    setLastInput(input);
+    setQueryIsEnabled(true);
+    queryClient.resetQueries({ queryKey: ['languages', language.id, 'apply-sca-rules'] });
+  }
+  
+  return (
+    <>
+      <h2>ChronoSCA Testing</h2>
+      <p>
+        Test ChronoSCA rules for <Link to={ '/language/' + language.id }>{ language.name }</Link>.
+        One input per line.
+      </p>
+
+      <h4>Rules:</h4>
+      <textarea
+        value={rules}
+        onChange={ e => setRules(e.target.value) }
+        style={{ width: "20em", height: "10em" }}
+      ></textarea>
+
+      <h4>Input:</h4>
+      <textarea
+        value={input}
+        onChange={ e => setInput(e.target.value) }
+        style={{ width: "20em", height: "10em" }}
+      ></textarea>
+
+      <h4>Categories:</h4>
+      <select
+        value={categoryType}
+        onChange={ e => setCategoryType(e.target.value as 'orth' | 'phone') }
+        style={{ display: "block", margin: "0.5em auto 0.5em" }}
+      >
+        <option value="orth">Orthography</option>
+        <option value="phone">Phonology</option>
+      </select>
+      <DisplayCategories categories={currentCategories} />
+      <p style={{ marginTop: "0.4em" }}>
+        <small><Link to={ '/edit-categories/' + language.id }>[edit categories]</Link></small>
+      </p>
+      
+      <p>
+        <button onClick={ _ => applySCARules() }>
+          Apply
+        </button>
+      </p>
+      {
+        queryOutput && <>
+          <h4>Output:</h4>
+          { queryOutput }
+        </>
+      }
+    </>
+  );
+}
+
+export default function TestChronoSCA() {
+  const languageId = useGetParamsOrSelectedId();
+  if(!languageId) {
+    throw new Error("No language ID was provided");
+  }
+  
+  const languageResponse = getLanguageById(languageId);
+  const orthCategoriesResponse = getOrthographyCategories(languageId);
+  const phoneCategoriesResponse = getPhoneCategories(languageId);
+  
+  useSetPageTitle("ChronoSCA Testing");
+
+  if(languageResponse.status === 'pending') {
+    return <p>Loading...</p>;
+  } else if(languageResponse.status === 'error') {
+    return (
+      <>
+        <h2>{ languageResponse.error.title }</h2>
+        <p>{ languageResponse.error.message }</p>
+      </>
+    );
+  }
+  if(orthCategoriesResponse.status === 'pending') {
+    return <p>Loading...</p>;
+  } else if(orthCategoriesResponse.status === 'error') {
+    return (
+      <>
+        <h2>{ orthCategoriesResponse.error.title }</h2>
+        <p>{ orthCategoriesResponse.error.message }</p>
+      </>
+    );
+  }
+  if(phoneCategoriesResponse.status === 'pending') {
+    return <p>Loading...</p>;
+  } else if(phoneCategoriesResponse.status === 'error') {
+    return (
+      <>
+        <h2>{ phoneCategoriesResponse.error.title }</h2>
+        <p>{ phoneCategoriesResponse.error.message }</p>
+      </>
+    );
+  }
+
+  return (
+    <TestChronoSCAInner
+      language={ languageResponse.data }
+      orthCategories={ orthCategoriesResponse.data }
+      phoneCategories={ phoneCategoriesResponse.data }
+    />
+  );
+};

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 
 import { CFormBody, CMultilineTextInput, CTextInput } from '../components/CForm.tsx';
 
@@ -8,6 +9,7 @@ import { useSetPageTitle } from '../utils.tsx';
 
 function EditFamilyInner({ initialFamily }: { initialFamily: IFamily }) {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const [ name, setName ] = useState(initialFamily.name);
   const [ description, setDescription ] = useState(initialFamily.description);
@@ -28,6 +30,7 @@ function EditFamilyInner({ initialFamily }: { initialFamily: IFamily }) {
       return;
     }
     
+    queryClient.resetQueries({ queryKey: ['families', initialFamily.id] });
     navigate(`/family/${initialFamily.id}`);
   }
 
