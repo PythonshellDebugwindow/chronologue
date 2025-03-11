@@ -53,7 +53,6 @@ interface IRealViewLanguage {
 
 function RealViewLanguage({ language, summaryNotes }: IRealViewLanguage) {
   const { selectedLanguage, setSelectedLanguage } = useContext(SelectedLanguageContext);
-  console.log(language, "viewing")
   
   return (
     <>

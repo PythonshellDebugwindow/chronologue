@@ -98,7 +98,6 @@ function AddWordInner({ language, langClasses, langPartsOfSpeech }: IAddWordInne
   }
 
   async function addFormWord() {
-    console.log(JSON.stringify(classes))
     if(!word) {
       setMessage("Please enter a word");
       return;

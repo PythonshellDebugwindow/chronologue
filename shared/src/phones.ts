@@ -93,14 +93,14 @@ export const qualityData = new Map([
 const combiningQualities = [...qualityData.keys()].filter(
   name => /\p{M}/u.test(qualityData.get(name)!)
 );
-const finalQualities = [ "Aspirated", "Breathy voiced", "Ejective", "Preaspirated", "Prenasalised" ];
+const finalQualities = ["Aspirated", "Breathy voiced", "Ejective", "Preaspirated", "Prenasalised"];
 const noncombiningQualities = [...qualityData.keys()].filter(
   name => !/\p{M}/u.test(qualityData.get(name)!) &&
           !finalQualities.includes(name)
 );
 
 function getPrenasalSymbol(base: string) {
-  if([ "ʃ", "ʒ", "t͡ʃ", "d͡ʒ" ].includes(base)) {
+  if(["ʃ", "ʒ", "t͡ʃ", "d͡ʒ"].includes(base)) {
     return "ᶮ";
   }
   const baseRow = consonantPhones.find(row => row.includes(base));

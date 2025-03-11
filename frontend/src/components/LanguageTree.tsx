@@ -26,7 +26,6 @@ function AllChildBranches({ root, descendants, showSelect }: ILanguageTreeBranch
 
 function LanguageTreeBranch({ root, descendants, showSelect }: ILanguageTreeBranch) {
   const { selectedLanguage, setSelectedLanguage } = useContext(SelectedLanguageContext);
-  console.log(root)
   
   return (
     <li>

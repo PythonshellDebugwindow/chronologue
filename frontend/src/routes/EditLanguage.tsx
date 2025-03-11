@@ -21,11 +21,11 @@ function ParentSelect({ familyId, parentId, setParentId, child }: IParentSelect)
   const languages = response.data?.filter(lang => lang.id !== child.id);
 
   useEffect(() => {
-    if(languages && familyId && familyId !== child.familyId && !parentId && languages.length > 0) {
-      console.log(familyId !== child.familyId)
+    if(languages && familyId && familyId !== child.familyId && !parentId &&
+       languages.length > 0) {
       setParentId(languages[0].id);
     }
-  }, [ languages, familyId, parentId ]);
+  }, [languages, familyId, child, parentId]);
   
   if(response.status === 'pending') {
     return <tr><td>Parent:</td><td>Loading...</td></tr>;

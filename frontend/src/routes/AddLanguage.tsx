@@ -10,13 +10,13 @@ import { getFormJson, useSetPageTitle } from '../utils.tsx';
 
 export async function action({ request }: ActionFunctionArgs) {
   const formJson = await getFormJson(request);
-  console.log(formJson)
+
   if(!formJson.name) {
     return json({ message: "Please enter a language name" });
   }
   
   const result = await addLanguage(formJson as any);
-  if(result.status !== 201) {
+  if(!result.ok) {
     return json({ message: result.body.message });
   }
 

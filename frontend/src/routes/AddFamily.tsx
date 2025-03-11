@@ -7,7 +7,6 @@ import { getFormJson, useSetPageTitle } from '../utils.tsx';
 
 export async function action({ request }: ActionFunctionArgs) {
   const formJson = await getFormJson(request);
-  console.log(formJson)
   
   if(!formJson.name) {
     return json({ message: "Please enter a language name" });

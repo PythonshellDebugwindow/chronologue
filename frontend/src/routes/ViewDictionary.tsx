@@ -341,8 +341,6 @@ export default function ViewDictionary() {
   
   useSetPageTitle("Dictionary");
 
-  console.log("vd")
-
   if(!id) {
     return (
       <>
