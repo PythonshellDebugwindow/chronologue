@@ -47,8 +47,8 @@ export const consonantData: IPhoneTableData = {
   ],
   vertical: [
     "Nasal", "Plosive", "Affricate", "Fricative", "Approximant", "Tap/flap",
-    "Trill", "Lateral fricative", "Lateral approximant", "Lateral tap/flap",
-    "Click", "Implosive"
+    "Trill", "Lateral affricate", "Lateral fricative", "Lateral approximant",
+    "Lateral tap/flap", "Click", "Implosive"
   ],
   phones: consonantPhones
 };
