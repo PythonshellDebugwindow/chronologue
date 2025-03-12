@@ -329,7 +329,7 @@ function getPhoneTableDataByType(type: PhoneType) {
 
 async function sendSavePhonesRequest(state: IPhonesReducerState, langId: string) {
   const reqBody = {
-    new: state.phones.reverse(),
+    new: state.phones.slice().reverse(),
     deleted: state.deleted
   };
   const res = await sendBackendJson(`languages/${langId}/phones`, 'PUT', reqBody);

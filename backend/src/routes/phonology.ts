@@ -223,6 +223,10 @@ export const updatePhones: RequestHandler = async (req, res) => {
     res.status(400).json({ message: "Invalid request body." });
     return;
   }
+  if(req.body.new.some((p: any) => !p.base)) {
+    res.status(400).json({ message: "Phones cannot be blank." });
+    return;
+  }
   
   await transact(async client => {
     const langId = req.params.id;
