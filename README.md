@@ -24,6 +24,7 @@ Setup Postgres:
 
 # Running
 
+* To build the `shared` folder: `npm run shared`
 * To run the frontend and backend in development mode: `npm run dev`
   * Just the frontend: `npm run frontend-dev`
   * Just the backend: `npm run backend-dev`
@@ -33,7 +34,6 @@ Setup Postgres:
 * To preview the frontend and backend: `npm run preview`
   * Just the frontend: `npm run frontend-preview`
   * Just the backend: `npm run backend-preview`
-* To build the `shared` folder: `npm run shared`
 * To run ESLint: `npm run lint`
 
 By default, the frontend runs on port 5173 in development mode and on port 4173 in preview mode; this can be changed in `frontend/vite.config.ts`.

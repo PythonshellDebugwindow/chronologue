@@ -88,6 +88,16 @@
   display: inline-flex;
   flex-direction: column;
   text-align: left;
+  width: 350px;
+  max-width: 75%;
+}
+.chronologue-form tr td:first-child {
+  width: 0;
+  padding-right: 10px;
+}
+.chronologue-form input[type="text"] {
+  width: calc(100% - 7px);
+  resize: none;
 }
 .chronologue-form .textarea-label {
   position: relative;
@@ -102,6 +112,7 @@
   margin-top: 4px;
   resize: vertical;
   width: calc(100% - 1.5px);
+  height: 7em;
   box-sizing: border-box;
 }
 .chronologue-form button {

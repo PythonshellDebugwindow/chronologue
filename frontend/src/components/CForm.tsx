@@ -1,4 +1,4 @@
-import { Dispatch, ReactNode, SetStateAction } from 'react';
+import { Dispatch, ReactNode, SetStateAction, useEffect, useState } from 'react';
 import { Form } from 'react-router-dom';
 
 import LinkButton from '../components/LinkButton.tsx';
@@ -51,18 +51,27 @@ interface IIpaTextInput {
 
 function IpaEstimationText({ languageId, setIpa, word }: IIpaTextInput) {
   const query = useEstimateWordIPAQuery(languageId, word, word.length > 0);
+  const [ estimation, setEstimation ] = useState("");
+  
+  useEffect(() => {
+    if(query.data && estimation !== query.data) {
+      setEstimation(query.data);
+    }
+  }, [estimation, query]);
 
-  if(query.status === 'pending') {
+  if(estimation) {
+    return (
+      <small>
+        [{estimation}]{" "}
+        <LinkButton onClick={ () => setIpa(estimation) }>[fill]</LinkButton>
+      </small>
+    );
+  } else if(query.status === 'pending') {
     return <small>Estimating IPA...</small>;
   } else if(query.status === 'error') {
     return <small>Could not estimate IPA: { query.error.message }</small>;
   } else {
-    return (
-      <small>
-        [{ query.data }]{" "}
-        <LinkButton onClick={ () => setIpa(query.data) }>[fill]</LinkButton>
-      </small>
-    );
+    return <small>Could not estimate IPA</small>;
   }
 }
 
@@ -128,7 +137,7 @@ interface ICSelect {
   name: string;
   children: ReactNode;
   state?: string;
-  setState?: (value: string) => void; // Dispatch<SetStateAction<string>>;
+  setState?: (value: string) => void;
 }
 
 export function CSelect({ label, name, children, state, setState }: ICSelect) {

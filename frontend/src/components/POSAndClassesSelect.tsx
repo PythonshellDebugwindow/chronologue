@@ -61,15 +61,16 @@ export default function POSAndClassesSelect(
               styles={{
                 control: styles => ({ ...styles, minHeight: "unset", maxWidth: "15em", borderColor: "#767676" }),
                 dropdownIndicator: styles => ({ ...styles, padding: "0" }),
-                valueContainer: styles => ({ ...styles, padding: "2px" }),
                 input: styles => ({
                   ...styles, margin: "0", paddingBottom: "0", paddingTop: "0"
                 }),
-                option: styles => ({ ...styles, fontSize: "0.8rem", padding: "5px" }),
                 menu: styles => ({ ...styles, top: "auto", bottom: "100%", width: "12em" }),
                 multiValueLabel: styles => ({ ...styles, padding: "0", paddingLeft: "3px", paddingRight: "2px" }),
                 multiValueRemove: styles => ({ ...styles, paddingLeft: "3px", paddingRight: "3px"}),
-                placeholder: styles => ({ ...styles, fontSize: "0.9em"})
+                noOptionsMessage: styles => ({ ...styles, paddingTop: "1px", paddingBottom: "1px" }),
+                option: styles => ({ ...styles, fontSize: "0.8rem", padding: "5px" }),
+                placeholder: styles => ({ ...styles, fontSize: "0.9em"}),
+                valueContainer: styles => ({ ...styles, padding: "2px" })
               }}
               onChange={ e => setClasses(e.map(option => option.value)) }
             />

@@ -57,17 +57,19 @@ export function getPartsOfSpeech() {
   });
 };
 
-export function getWordById(id: string) {
+export function getWordById(id: string, enabled: boolean = true) {
   return useQuery<IWord, ITitledError>({
     queryKey: ['words', id],
-    queryFn: async () => parseSingleRecordDates(await getBackendJson(`words/${id}`))
+    queryFn: async () => parseSingleRecordDates(await getBackendJson(`words/${id}`)),
+    enabled
   });
 };
 
-export function getWordClassIdsByWord(id: string) {
+export function getWordClassIdsByWord(id: string, enabled: boolean = true) {
   return useQuery<string[], ITitledError>({
     queryKey: ['words', id, 'class-ids'],
-    queryFn: async () => await getBackendJson(`words/${id}/class-ids`)
+    queryFn: async () => await getBackendJson(`words/${id}/class-ids`),
+    enabled
   });
 };
 

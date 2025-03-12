@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 
 import {
@@ -11,7 +11,8 @@ import {
   getLanguageById, getWordClassesByLanguage, ILanguage
 } from '../languageData.tsx';
 import {
-  addWord, getPartsOfSpeech, getWordById, IPartOfSpeech, IWord, IWordClass
+  addWord, getPartsOfSpeech, getWordById, getWordClassIdsByWord,
+  IPartOfSpeech, IWord, IWordClass
 } from '../wordData.tsx';
 import { useGetParamsOrSelectedId, useSetPageTitle } from '../utils.tsx';
 
@@ -27,11 +28,18 @@ function wordName(query: ReturnType<typeof getWordById>) {
 
 interface IWordAddedMessage { 
   prevId: string;
-  copyWordData: (word: IWord) => void;
+  copyWordData: (word: IWord, classIds: string[]) => void;
 }
 
 function WordAddedMessage({ prevId, copyWordData }: IWordAddedMessage) {
   const prevWordQuery = getWordById(prevId);
+  const prevWordClassesQuery = getWordClassIdsByWord(prevId);
+
+  function copyFields() {
+    if(prevWordQuery.data && prevWordClassesQuery.data) {
+      copyWordData(prevWordQuery.data, prevWordClassesQuery.data);
+    }
+  }
   
   return (
     <p>
@@ -45,7 +53,7 @@ function WordAddedMessage({ prevId, copyWordData }: IWordAddedMessage) {
           <>
             <br />
             <small>
-              <LinkButton onClick={ () => prevWordQuery.data && copyWordData(prevWordQuery.data) }>
+              <LinkButton onClick={copyFields}>
                 (copy fields)
               </LinkButton>
             </small>
@@ -65,6 +73,14 @@ interface IAddWordInner {
 function AddWordInner({ language, langClasses, langPartsOfSpeech }: IAddWordInner) {
   const [ searchParams ] = useSearchParams();
   const navigate = useNavigate();
+
+  const copyWordQuery = getWordById(
+    searchParams.get('copy') ?? "", searchParams.has('copy')
+  );
+  const copyWordClassesQuery = getWordClassIdsByWord(
+    searchParams.get('copy') ?? "", searchParams.has('copy')
+  );
+  const [ shouldCopyWord, setShouldCopyWord ] = useState(searchParams.has('copy'));
   
   const [ word, setWord ] = useState("");
   const [ meaning, setMeaning ] = useState("");
@@ -73,28 +89,55 @@ function AddWordInner({ language, langClasses, langPartsOfSpeech }: IAddWordInne
   const [ classes, setClasses ] = useState([] as IWordClass[]);
   const [ etymology, setEtymology ] = useState("");
   const [ notes, setNotes ] = useState("");
+
   const [ preserveFields, setPreserveFields ] = useState(false);
   const [ message, setMessage ] = useState("");
+  const [ copyingMessage, setCopyingMessage ] = useState<ReactNode>(null);
 
   useEffect(() => {
-    if(searchParams.has('prev') && !preserveFields) {
-      setWord("");
-      setMeaning("");
-      setIpa("");
-      setPos("");
-      setClasses([]);
-      setEtymology("");
-      setNotes("");
+    if(shouldCopyWord) {
+      if(copyWordQuery.error) {
+        setCopyingMessage("Could not copy word: " + copyWordQuery.error.message);
+        setShouldCopyWord(false);
+      } else if(copyWordClassesQuery.error) {
+        setCopyingMessage("Could not copy word: " + copyWordClassesQuery.error.message);
+        setShouldCopyWord(false);
+      } else if(copyWordQuery.status === 'pending') {
+        setCopyingMessage("Copying word...");
+      } else if(copyWordClassesQuery.status === 'pending') {
+        setCopyingMessage("Copying word...");
+      } else {
+        const copied = copyWordQuery.data;
+        setShouldCopyWord(false);
+        copyWordData(copied, copyWordClassesQuery.data);
+        setCopyingMessage(
+          <>
+            Copying: <Link to={ '/words/' + copied.id }>{ copied.word }</Link>{" "}
+            ({ copied.meaning })
+          </>
+        );
+      }
     }
-  }, [searchParams]);
+  }, [copyWordQuery, copyWordClassesQuery, shouldCopyWord]);
   
-  function copyWordData(word: IWord) {
+  function copyWordData(word: IWord, classIds: string[]) {
     setWord(word.word);
     setIpa(word.ipa);
     setMeaning(word.meaning);
     setPos(word.pos);
+    setClasses(langClasses.filter(cls => classIds.includes(cls.id)));
     setEtymology(word.etymology);
     setNotes(word.notes);
+  }
+  
+  function resetFields() {
+    setWord("");
+    setMeaning("");
+    setIpa("");
+    setPos("");
+    setClasses([]);
+    setEtymology("");
+    setNotes("");
   }
 
   async function addFormWord() {
@@ -125,6 +168,10 @@ function AddWordInner({ language, langClasses, langPartsOfSpeech }: IAddWordInne
       setMessage(result.body.message);
       return;
     }
+
+    if(!preserveFields) {
+      resetFields();
+    }
     
     navigate(`/add-word/${language.id}/?prev=${result.body}`);
   }
@@ -141,6 +188,7 @@ function AddWordInner({ language, langClasses, langPartsOfSpeech }: IAddWordInne
           />
         )
       }
+      { copyingMessage && <p>{copyingMessage}</p> }
       { message && <p>{message}</p> }
       <form className="chronologue-form">
         <CFormBody>

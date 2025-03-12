@@ -70,6 +70,7 @@ function ViewWordInner({ word, classes, partsOfSpeech }: IViewWordInner) {
         </tbody>
       </table>
       <p><Link to={ '/edit-word/' + word.id }>Edit word</Link></p>
+      <p><Link to={ `/add-word/${word.langId}?copy=${word.id}` }>Copy word</Link></p>
       <p><Link to={ '/delete-word/' + word.id }>Delete word</Link></p>
     </>
   );
