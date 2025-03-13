@@ -145,14 +145,16 @@ export function getPhonesByLanguage(id: string) {
 export function getOrthographyCategories(id: string) {
   return useQuery<ICategory[], ITitledError>({
     queryKey: ['languages', id, 'orth-categories'],
-    queryFn: async () => await getBackendJson(`languages/${id}/orth-categories`)
+    queryFn: async () => await getBackendJson(`languages/${id}/orth-categories`),
+    staleTime: 0
   });
 };
 
 export function getPhoneCategories(id: string) {
   return useQuery<ICategory[], ITitledError>({
     queryKey: ['languages', id, 'phone-categories'],
-    queryFn: async () => await getBackendJson(`languages/${id}/phone-categories`)
+    queryFn: async () => await getBackendJson(`languages/${id}/phone-categories`),
+    staleTime: 0
   });
 };
 

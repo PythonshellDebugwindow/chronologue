@@ -52,7 +52,8 @@ export function getLanguageById(id: string) {
 export function getLanguageSummaryNotes(id: string) {
   return useQuery<ILanguageSummaryNotes, ITitledError>({
     queryKey: ['languages', id, 'summary-notes'],
-    queryFn: async () => parseSingleRecordDates(await getBackendJson(`languages/${id}/summary-notes`))
+    queryFn: async () => parseSingleRecordDates(await getBackendJson(`languages/${id}/summary-notes`)),
+    staleTime: 0
   });
 };
 

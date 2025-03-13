@@ -105,6 +105,9 @@ function TestChronoSCAInner({ language, orthCategories, phoneCategories }: ITest
         Test ChronoSCA rules for <Link to={ '/language/' + language.id }>{ language.name }</Link>.
         One input per line.
       </p>
+      <p>
+        For help, see the <Link to="/chronosca-help">ChronoSCA help page</Link>.
+      </p>
 
       <h4>Rules:</h4>
       <textarea

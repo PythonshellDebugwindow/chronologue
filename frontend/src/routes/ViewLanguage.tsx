@@ -122,7 +122,13 @@ function RealViewLanguage({ language, summaryNotes }: IRealViewLanguage) {
           </tr>
         </tbody>
       </table>
-      { summaryNotes.description && <p>{ summaryNotes.description }</p> }
+      {
+        summaryNotes.description && (
+          <p className="user-notes-paragraph" style={{ marginTop: "1em" }}>
+            { summaryNotes.description }
+          </p>
+        )
+      }
       <p><Link to={ '/edit-language/' + language.id }>Edit language</Link></p>
       <LanguageTree root={language} />
       <h3>Dictionary</h3>

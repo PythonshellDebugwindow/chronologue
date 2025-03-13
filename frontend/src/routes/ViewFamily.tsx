@@ -38,7 +38,13 @@ export default function ViewFamily() {
           </tr>
         </tbody>
       </table>
-      { family.description && <p>{ family.description }</p> }
+      {
+        family.description && (
+          <p className="user-notes-paragraph" style={{ marginTop: "1em" }}>
+            { family.description }
+          </p>
+        )
+      }
       <p><Link to={ '/edit-family/' + id }>Edit family</Link></p>
       <h3>Languages</h3>
       <FamilyTree id={ family.id } showSelect={true} />

@@ -78,8 +78,9 @@ export async function estimatePronunciations(langId: string, words: string[]) {
           ++i;
           continue;
         }
+        const lowercaseWord = word.toLowerCase();
         const replacement = letterReplacements.find(
-          lr => lr[0] === word.substring(i, i + lr[0].length)
+          lr => lr[0].toLowerCase() === lowercaseWord.substring(i, i + lr[0].length)
         );
         if(replacement) {
           estimation += replacement[1];
@@ -87,12 +88,12 @@ export async function estimatePronunciations(langId: string, words: string[]) {
           continue;
         }
         const phone = phones.find(
-          p => p.graph && word.substring(i, i + p.graph.length) === p.graph
+          p => p.graph && lowercaseWord.substring(i, i + p.graph.length) === p.graph
         );
         if(phone) {
           const phoneString = phoneToString(phone);
           estimation += phoneString;
-          i += phoneString.length;
+          i += phone.graph.length;
         } else {
           estimation += "*";
           ++i;

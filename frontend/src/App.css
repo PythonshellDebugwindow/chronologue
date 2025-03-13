@@ -85,11 +85,12 @@
 }
 
 .chronologue-form {
-  display: inline-flex;
+  display: flex;
   flex-direction: column;
   text-align: left;
   width: 350px;
   max-width: 75%;
+  margin: 0 auto;
 }
 .chronologue-form tr td:first-child {
   width: 0;
@@ -129,8 +130,8 @@
 }
 
 .info-table {
-  display: inline-table;
   max-width: 50%;
+  margin: 0 auto;
 }
 .info-table th {
   display: flex;
@@ -146,8 +147,8 @@
 }
 
 .dictionary-table {
-  display: inline-table;
   border-collapse: collapse;
+  margin: 0 auto;
 }
 .dictionary-table tr {
   border-bottom: 1px solid #eee;
@@ -243,9 +244,8 @@
 }
 
 .settings-table {
-  display: inline-table;
   border-collapse: collapse;
-  margin: 0;
+  margin: 0 auto;
 }
 .settings-table td {
   text-align: left;
@@ -315,8 +315,7 @@
 }
 
 .phone-list-table {
-  display: inline-block;
-  margin-top: 10px;
+  margin: 10px auto 0;
 }
 .phone-list-table td > input[type="text"] {
   top: -2px;

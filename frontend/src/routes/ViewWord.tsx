@@ -53,7 +53,7 @@ function ViewWordInner({ word, classes, partsOfSpeech }: IViewWordInner) {
               (field === 'classes' ? classes.length > 0 : word[field]) && (
                 <tr key={field}>
                   <th>{ userFacingFieldName(field) }:</th>
-                  <td>
+                  <td style={{ whiteSpace: "pre-wrap" }}>
                     {
                       field === 'pos'
                       ? formatPosFieldValue(word, partsOfSpeech)

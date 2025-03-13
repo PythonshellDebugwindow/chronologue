@@ -160,6 +160,15 @@ function EditLanguageInner({ initialLanguage }: { initialLanguage: ILanguage }) 
           Save
         </button>
       </form>
+      <h4>Summary Notes</h4>
+      <p>
+        Provide a description of { initialLanguage.name } as a whole, and notes
+        about its phonology and orthography.</p>
+      <p>
+        <Link to={ '/summary-notes/' + initialLanguage.id }>
+          Edit summary notes
+        </Link>
+      </p>
       <h4>Delete Language</h4>
       <p>
         <Link to={ '/delete-language/' + initialLanguage.id }>

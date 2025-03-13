@@ -132,8 +132,14 @@ function EditAlphabeticalOrderInner({ language, orthSettings }: IEditAlphabetica
   return (
     <>
       <h2>Edit Alphabetical Order</h2>
-      <p>Editing <Link to={ '/language/' + language.id }>{ language.name }</Link>'s alphabetical order.</p>
-      <p>You should only do this once you've finalised your orthography, as adding or removing letters will reset the order.</p>
+      <p>
+        Editing <Link to={ '/language/' + language.id }>{ language.name }</Link>'s
+        alphabetical order.
+      </p>
+      <p>
+        You should only do this once you've finalised your orthography, as adding
+        or removing letters will reset the order.
+      </p>
       {
         !graphsAreSaved && <>
           <SaveChangesButton<string[]>
