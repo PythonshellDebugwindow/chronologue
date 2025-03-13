@@ -67,7 +67,6 @@ app.get('/words/:id/classes', words.getWordClassesByWord);
 app.get('/words/:id/class-ids', words.getWordClassIdsByWord);
 
 app.get('/sca', sca.testSCA);
-app.get('/sca/page', sca.scaPage);
 
 app.use(((err, req, res, _next) => {
   res.status(500).json({ title: "Internal error", message: err.message });

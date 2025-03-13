@@ -1,10 +1,10 @@
-<h3>Introduction</h3>
+<h3 id="csca-introduction">Introduction</h3>
 <p>
   Sound change applicators work by applying a list of rules to a word. They can be used to
   estimate pronunciation, derive grammatical forms, or simulate historical sound changes.
 </p>
 
-<h4>Rule structure</h4>
+<h4 id="csca-rule-structure">Rule structure</h4>
 <p>
   Rules are made up of up to five segments, separated by slashes. The general structure of
   a rule is as follows:
@@ -40,10 +40,73 @@
   exception will be ignored.
 </p>
 
-<h3>Local replacements</h3>
+<h4 id="csca-categories">Categories</h4>
+<p>
+  Categories are sets of sounds which can be referenced en masse in a rule. They can be edited
+  on the Edit Categories page.
+</p>
+  All categories have a name (a single uppercase letter) and a list of members (single letters).
+  Categories can either be phonological or orthographical; the former are used in pronunciation
+  estimation, while the latter are used by grammar tables.
+</p>
+<p>
+  While not strictly necessary, categories can reduce the length of rulesets. For example, if
+  the category <code>N</code> contains the members <code>m,n,ŋ</code>, then the rule
+  <code>N/m/_p</code> would change all three nasals to <code>m</code> before <code>p</code>.
+</p>
+<p>
+  Category members should be single letters only. Things like digraphs and secondary articulations
+  will not work correctly.
+</p>
+
+<h4 id="csca-examples">Examples</h4>
+<p>
+  The following examples should give a general idea of ChronoSCA's syntax.
+</p>
+<table>
+  <tbody>
+    <tr>
+      <th>Rule</th>
+      <th>Meaning</th>
+      <th>Example</th>
+    </tr>
+    <tr>
+      <td><code>d/t</code></td>
+      <td>Change all <code>d</code> to <code>t</code></td>
+      <td><code>detado</code> → <code>tetato</code></td>
+    </tr>
+    <tr>
+      <td><code>#/#ai</code></td>
+      <td>Suffix -<code>ai</code></td>
+      <td><code>aider</code> → <code>aiderai</code></td>
+    </tr>
+    <tr>
+      <td><code>C/h/V_V</code></td>
+      <td>Change all <code>C</code> to <code>h</code> between two <code>V</code></td>
+      <td><code>tapa</code> → <code>taha</code></td>
+    </tr>
+    <tr>
+      <td><code>C//_#</code></td>
+      <td>Delete <code>C</code> word-finally</td>
+      <td><code>apat</code> → <code>apa</code></td>
+    </tr>
+    <tr>
+      <td><code>/ə/C_C</code></td>
+      <td>Insert <code>ə</code> between two <code>C</code></td>
+      <td><code>aptak</code> → <code>apətak</code></td>
+    </tr>
+    <tr>
+      <td><code>/ə/C_#</code></td>
+      <td>Insert <code>ə</code> after word-final <code>C</code></td>
+      <td><code>apat</code> → <code>apatə</code></td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="csca-local-replacements">Local replacements</h3>
 <p>Local replace rules are used to replace all instances of text.</p>
 
-<h4>Simple replacement</h4>
+<h4 id="csca-simple-replacement">Simple replacement</h4>
 <p>
   To replace constant text with constant text, use a slash.
 </p>
@@ -51,7 +114,7 @@
   For example, <code>p/f</code> will replace all instances of <code>p</code> with <code>f</code>.
 </p>
 
-<h4>Category replacement</h4>
+<h4 id="csca-category-replacement">Category replacement</h4>
 <p>
   To replace all members of a category with constant text, use a slash.
 </p>
@@ -68,10 +131,10 @@
   contain anything else. For example, <code>P/ʰP</code> and <code>Bh/P</code> would be invalid.
 </p>
 
-<h3>Global rules</h3>
+<h3 id="csca-global-rules">Global rules</h3>
 <p>Global rules are used to add affixes, and to perform global replacements.</p>
 
-<h4>Affixes</h4>
+<h4 id="csca-affixes">Affixes</h4>
 <p>
   Unconditional affixes use <code>#</code> as the target, and a <code>#</code>-separated
   prefix and suffix as the change.
@@ -81,19 +144,19 @@
   <code>#/ge#t</code> will prefix <code>ge</code> and suffix <code>t</code>.
 </p>
 
-<h4>Global replacements</h4>
+<h4 id="csca-global-replacements">Global replacements</h4>
 <p>
   Global replacements can be used to replace the entire word. For example, <code>#/abc</code>
   will replace the entire word with <code>abc</code>. Categories are not supported here.
 </p>
 
-<h3>Conditions</h3>
+<h3 id="csca-conditions">Conditions</h3>
 <p>
   There are two types of conditions: local and global. Affix and global replacement rules
   require global conditions, while local replacement rules can use either type.
 </p>
 
-<h4>Local conditions</h4>
+<h4 id="csca-local-conditions">Local conditions</h4>
 <p>
   Local conditions check the target's local environment (e.g., whether it is before or after
   a certain letter).
@@ -104,13 +167,13 @@
 </p>
 <ul>
   <li>
-    <code>s_</code> means that the target must be directly after <code>s</code>;
+    <code>s_</code> means that the target must be directly after <code>s</code>.
   </li>
   <li>
-    <code>_V</code> means that it must be before a member of <code>V</code>;
+    <code>_V</code> means that it must be before a member of <code>V</code>.
   </li>
   <li>
-    and <code>#p_r</code> means that the target must be between <code>p</code> and <code>r</code>,
+    <code>#p_r</code> means that the target must be between <code>p</code> and <code>r</code>,
     and that it must be at the start of the word.
   </li>
 </ul>
@@ -118,32 +181,36 @@
   All global conditions are also valid as local conditions.
 </p>
 
-<h4>Global conditions</h4>
+<h4 id="csca-global-conditions">Global conditions</h4>
 <p>
-  Global conditions check the word as a whole (e.g., whether it starts with a
-  certain letter). Any condition without <code>_</code> is global.
+  Global conditions check the word as a whole (e.g., whether it starts with a certain letter).
+  Any condition without <code>_</code> is global.
 </p>
 <p>
   <code>#</code> indicates a word boundary. For example:
 </p>
 <ul>
   <li>
-    <code>x</code> means that the word must contain <code>x</code>;
+    <code>x</code> means that the word must contain <code>x</code>.
   </li>
   <li>
-    <code>#st</code> means that the word must start with <code>st</code>;
+    <code>#st</code> means that the word must start with <code>st</code>.
   </li>
   <li>
-    and <code>V#</code> means that the word must end with a member of <code>V</code>.
+    <code>V#</code> means that the word must end with a member of <code>V</code>.
   </li>
 </ul>
 
-<h4>Environment, exception, and else</h4>
+<h4 id="csca-env-exc-else">Environment, exception, and else</h4>
 <p>
   The environment and exception sections of a rule are pipe-separated lists of conditions.
   For one of these sections to be fulfilled, at least one of its conditions must be satisfied.
 </p>
 <p>
-  For example, <code>o/u/w_|_#</code> would change <code>o</code> to <code>u</code> before
+  For example, <code>o/u/w_|_#</code> would change <code>o</code> to <code>u</code> after
   <code>w</code> or word-finally.
+</p>
+<p>
+  The else must be of the same form as the change; for example, the rule <code>B/P/V_V//h</code>
+  would be invalid.
 </p>

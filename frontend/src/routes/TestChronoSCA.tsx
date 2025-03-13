@@ -32,7 +32,7 @@ function DisplayCategories({ categories }: { categories: ICategory[] }) {
   );
 }
 
-function ScaQueryOutput(
+function ScaQueryResults(
   { inputs, queryResults }: { inputs: string[], queryResults: ApplySCARulesQueryResult[] }
 ) {
   return (
@@ -73,7 +73,7 @@ function TestChronoSCAInner({ language, orthCategories, phoneCategories }: ITest
   const scaQuery = useApplySCARulesQuery(
     language.id, input, rules, categoryType, queryIsEnabled
   );
-  const queryOutput = (() => {
+  const queryResults = (() => {
     if(!queryIsEnabled) {
       return null;
     } else if(scaQuery.status === 'pending') {
@@ -82,7 +82,7 @@ function TestChronoSCAInner({ language, orthCategories, phoneCategories }: ITest
       return <p>Error: { scaQuery.error.message }</p>;
     } else {
       return (
-        <ScaQueryOutput
+        <ScaQueryResults
           inputs={ lastInput.split("\n") }
           queryResults={ scaQuery.data }
         />
@@ -111,14 +111,14 @@ function TestChronoSCAInner({ language, orthCategories, phoneCategories }: ITest
         value={rules}
         onChange={ e => setRules(e.target.value) }
         style={{ width: "20em", height: "10em" }}
-      ></textarea>
+      />
 
       <h4>Input:</h4>
       <textarea
         value={input}
         onChange={ e => setInput(e.target.value) }
         style={{ width: "20em", height: "10em" }}
-      ></textarea>
+      />
 
       <h4>Categories:</h4>
       <select
@@ -129,7 +129,11 @@ function TestChronoSCAInner({ language, orthCategories, phoneCategories }: ITest
         <option value="orth">Orthography</option>
         <option value="phone">Phonology</option>
       </select>
-      <DisplayCategories categories={currentCategories} />
+      {
+        currentCategories.length > 0
+        ? <DisplayCategories categories={currentCategories} />
+        : <p>No categories set</p>
+      }
       <p style={{ marginTop: "0.4em" }}>
         <small><Link to={ '/edit-categories/' + language.id }>[edit categories]</Link></small>
       </p>
@@ -140,9 +144,9 @@ function TestChronoSCAInner({ language, orthCategories, phoneCategories }: ITest
         </button>
       </p>
       {
-        queryOutput && <>
-          <h4>Output:</h4>
-          { queryOutput }
+        queryResults && <>
+          <h4>Results:</h4>
+          { queryResults }
         </>
       }
     </>

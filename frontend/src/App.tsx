@@ -16,6 +16,7 @@ import AddWord from './routes/AddWord.tsx';
 import DeleteFamily from './routes/DeleteFamily.tsx';
 import DeleteLanguage from './routes/DeleteLanguage.tsx';
 import DeleteWord from './routes/DeleteWord.tsx';
+import ChronoSCAHelpPage from './routes/ChronoSCAHelpPage.tsx';
 import EditAlphabeticalOrder from './routes/EditAlphabeticalOrder.tsx';
 import EditDictionarySettings from './routes/EditDictionarySettings.tsx';
 import EditFamily from './routes/EditFamily.tsx';
@@ -64,6 +65,14 @@ const router = createBrowserRouter([
       {
         path: "alphabetical-order/:id?",
         element: <EditAlphabeticalOrder />
+      },
+      {
+        path: "chronosca/:id?",
+        element: <TestChronoSCA />
+      },
+      {
+        path: "chronosca-help",
+        element: <ChronoSCAHelpPage />
       },
       {
         path: "delete-family/:id",
@@ -128,10 +137,6 @@ const router = createBrowserRouter([
       {
         path: "summary-notes/:id?",
         element: <EditSummaryNotes />
-      },
-      {
-        path: "chronosca/:id?",
-        element: <TestChronoSCA />
       },
       {
         path: "word/:id",

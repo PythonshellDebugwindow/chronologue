@@ -552,10 +552,6 @@ function runTests() {
 
 runTests();
 
-export const scaPage: RequestHandler = (req, res) => {
-  res.send(readFileSync("src/sca/sca.html").toString());
-};
-
 export const testSCA: RequestHandler = (req, res) => {
   const setRulesResult = theSca.setRules(`
 V/W/_s/c_/X
