@@ -36,12 +36,12 @@ function DeleteLanguageInner({ language }: { language: ILanguage }) {
       </p>
       <button
         style={{ marginBottom: "15px" }}
-        onClick={ e => { deleteFormLanguage(); e.preventDefault(); return false; } }
+        onClick={deleteFormLanguage}
       >
         Delete language
       </button>
       <br />
-      <button onClick={ e => { navigate(-1); e.preventDefault(); return false; }}>
+      <button onClick={ () => navigate(-1) }>
         Go back
       </button>
       { errorMessage && <p><b>Error: {errorMessage}</b></p> }

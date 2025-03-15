@@ -43,10 +43,7 @@ function EditFamilyInner({ initialFamily }: { initialFamily: IFamily }) {
           <CTextInput label="Name" name="name" state={name} setState={setName} />
           <CMultilineTextInput label="Description" name="description" state={description} setState={setDescription} />
         </CFormBody>
-        <button
-          type="button"
-          onClick={ e => { editFormFamily(); e.preventDefault(); return false; }}
-        >
+        <button type="button" onClick={editFormFamily}>
           Save
         </button>
       </form>

@@ -30,12 +30,12 @@ function DeleteWordInner({ word }: { word: IWord }) {
       </p>
       <button
         style={{ marginBottom: "15px" }}
-        onClick={ e => { deleteFormWord(); e.preventDefault(); return false; } }
+        onClick={deleteFormWord}
       >
         Delete word
       </button>
       <br />
-      <button onClick={ e => { navigate(-1); e.preventDefault(); return false; }}>
+      <button onClick={ () => navigate(-1) }>
         Go back
       </button>
       { errorMessage && <p><b>Error: {errorMessage}</b></p> }

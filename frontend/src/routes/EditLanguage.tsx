@@ -153,10 +153,7 @@ function EditLanguageInner({ initialLanguage }: { initialLanguage: ILanguage }) 
           </CSelect>
           <CTextInput label="Era" name="era" state={era} setState={setEra} />
         </CFormBody>
-        <button
-          type="button"
-          onClick={ e => { editFormLanguage(); e.preventDefault(); return false; }}
-        >
+        <button type="button" onClick={editFormLanguage}>
           Save
         </button>
       </form>

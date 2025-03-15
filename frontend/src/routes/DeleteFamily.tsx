@@ -30,12 +30,12 @@ function DeleteFamilyInner({ family }: { family: IFamily }) {
       </p>
       <button
         style={{ marginBottom: "15px" }}
-        onClick={ e => { deleteFormFamily(); e.preventDefault(); return false; } }
+        onClick={deleteFormFamily}
       >
         Delete family
       </button>
       <br />
-      <button onClick={ e => { navigate(-1); e.preventDefault(); return false; }}>
+      <button onClick={ () => navigate(-1) }>
         Go back
       </button>
       { errorMessage && <p><b>Error: {errorMessage}</b></p> }
