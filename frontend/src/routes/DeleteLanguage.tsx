@@ -34,10 +34,7 @@ function DeleteLanguageInner({ language }: { language: ILanguage }) {
       <p>
         <b>This action cannot be undone!</b>
       </p>
-      <button
-        style={{ marginBottom: "15px" }}
-        onClick={deleteFormLanguage}
-      >
+      <button onClick={deleteFormLanguage} style={{ marginBottom: "15px" }}>
         Delete language
       </button>
       <br />

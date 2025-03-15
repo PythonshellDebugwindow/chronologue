@@ -1,7 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
 
 import { IWordClass } from './wordData.tsx';
-import { ITitledError, getBackendJson, sendBackendJson } from './utils.tsx';
+import {
+  ITitledError, getBackendJson, sendBackendJson, sendBackendRequest
+} from './utils.tsx';
 
 export interface IGrammarForm {
   id: string;
@@ -35,6 +37,10 @@ type AddGrammarTableArgument = Omit<IGrammarTable, 'id' | 'preRules' | 'postRule
 
 export async function addGrammarTable(data: AddGrammarTableArgument) {
   return await sendBackendJson('grammar-tables', 'POST', data);
+};
+
+export async function deleteGrammarTable(id: string) {
+  return await sendBackendRequest(`grammar-tables/${id}`, 'DELETE');
 };
 
 type EditGrammarTableArgument = Omit<IGrammarTable, 'id' | 'langId'> & {

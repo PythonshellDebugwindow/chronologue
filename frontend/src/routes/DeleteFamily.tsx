@@ -28,10 +28,7 @@ function DeleteFamilyInner({ family }: { family: IFamily }) {
       <p>
         <b>This action cannot be undone!</b>
       </p>
-      <button
-        style={{ marginBottom: "15px" }}
-        onClick={deleteFormFamily}
-      >
+      <button onClick={deleteFormFamily} style={{ marginBottom: "15px" }}>
         Delete family
       </button>
       <br />

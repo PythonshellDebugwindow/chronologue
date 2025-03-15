@@ -18,6 +18,7 @@ import DeleteFamily from './routes/DeleteFamily.tsx';
 import DeleteLanguage from './routes/DeleteLanguage.tsx';
 import DeleteWord from './routes/DeleteWord.tsx';
 import ChronoSCAHelpPage from './routes/ChronoSCAHelpPage.tsx';
+import DeleteGrammarTable from './routes/DeleteGrammarTable.tsx';
 import EditAlphabeticalOrder from './routes/EditAlphabeticalOrder.tsx';
 import EditDictionarySettings from './routes/EditDictionarySettings.tsx';
 import EditFamily from './routes/EditFamily.tsx';
@@ -84,6 +85,10 @@ const router = createBrowserRouter([
       {
         path: "delete-family/:id",
         element: <DeleteFamily />
+      },
+      {
+        path: "delete-grammar-table/:id",
+        element: <DeleteGrammarTable />
       },
       {
         path: "delete-language/:id",

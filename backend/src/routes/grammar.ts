@@ -66,6 +66,20 @@ export const addGrammarTable: RequestHandler = async (req, res) => {
   });
 };
 
+export const deleteGrammarTable: RequestHandler = async (req, res) => {
+  if(!/^[0-9a-f]{32}$/.test(req.params.id)) {
+    res.status(400).json({ title: "Invalid ID", message: "The given table ID is not valid." });
+    return;
+  }
+  
+  await query(
+    "DELETE FROM grammar_tables WHERE id = $1",
+    [ req.params.id ]
+  );
+  
+  res.status(204).send();
+};
+
 export const editGrammarTable: RequestHandler = async (req, res) => {
   if(!/^[0-9a-f]{32}$/.test(req.params.id)) {
     res.status(400).json({ title: "Invalid ID", message: "The given table ID is not valid." });

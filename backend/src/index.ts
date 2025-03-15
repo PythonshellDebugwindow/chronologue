@@ -36,6 +36,7 @@ app.put('/grammar-forms', grammar.updateGrammarForms);
 app.post('/grammar-tables', grammar.addGrammarTable);
 app.get('/grammar-tables/:id', grammar.getGrammarTable);
 app.put('/grammar-tables/:id', grammar.editGrammarTable);
+app.delete('/grammar-tables/:id', grammar.deleteGrammarTable);
 app.get('/grammar-tables/:id/classes', grammar.getGrammarTableClasses);
 app.get('/grammar-tables/:id/class-ids', grammar.getGrammarTableClassIds);
 app.get('/grammar-tables/:id/filled-cells', grammar.getGrammarTableFilledCells);

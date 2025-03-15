@@ -28,10 +28,7 @@ function DeleteWordInner({ word }: { word: IWord }) {
       <p>
         <b>This action cannot be undone!</b>
       </p>
-      <button
-        style={{ marginBottom: "15px" }}
-        onClick={deleteFormWord}
-      >
+      <button onClick={deleteFormWord} style={{ marginBottom: "15px" }}>
         Delete word
       </button>
       <br />
