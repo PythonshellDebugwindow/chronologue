@@ -6,6 +6,18 @@ export function hasAllFields(body: { [key: string]: string }, fields: string[]) 
   return fields.every(field => field in body);
 };
 
+export function hasAllArrays(body: { [key: string]: any }, fields: string[]) {
+  return fields.every(field => body[field] instanceof Array);
+};
+
+export function hasAllBooleans(body: { [key: string]: any }, fields: string[]) {
+  return fields.every(field => typeof body[field] === 'boolean');
+};
+
+export function hasAllStrings(body: { [key: string]: any }, fields: string[]) {
+  return fields.every(field => typeof body[field] === 'string');
+};
+
 export const partsOfSpeech = [
   ['abb', 'abbreviation'],
   ['adj', 'adjective'],

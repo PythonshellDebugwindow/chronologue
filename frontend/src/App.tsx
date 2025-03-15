@@ -9,6 +9,7 @@ import Header from './components/Header.tsx';
 import AddFamily, {
   action as addFamilyAction
 } from './routes/AddFamily.tsx';
+import AddGrammarTable from './routes/AddGrammarTable.tsx';
 import AddLanguage, {
   action as addLanguageAction
 } from './routes/AddLanguage.tsx';
@@ -21,6 +22,7 @@ import EditAlphabeticalOrder from './routes/EditAlphabeticalOrder.tsx';
 import EditDictionarySettings from './routes/EditDictionarySettings.tsx';
 import EditFamily from './routes/EditFamily.tsx';
 import EditGrammarForms from './routes/EditGrammarForms.tsx';
+import EditGrammarTable from './routes/EditGrammarTable.tsx';
 import EditLanguage from './routes/EditLanguage.tsx';
 import EditPhoneAndOrthCategories from './routes/EditPhoneAndOrthCategories.tsx';
 import EditPhonology from './routes/EditPhonology.tsx';
@@ -32,6 +34,7 @@ import MainPage from './routes/MainPage.tsx';
 import TestChronoSCA from './routes/TestChronoSCA.tsx';
 import ViewDictionary from './routes/ViewDictionary.tsx';
 import ViewFamily from './routes/ViewFamily.tsx';
+import ViewGrammarTable from './routes/ViewGrammarTable.tsx';
 import ViewLanguage from './routes/ViewLanguage.tsx';
 import ViewLanguages from './routes/ViewLanguages.tsx';
 import ViewWord from './routes/ViewWord.tsx';
@@ -52,6 +55,10 @@ const router = createBrowserRouter([
         path: "add-family",
         element: <AddFamily />,
         action: addFamilyAction
+      },
+      {
+        path: "add-grammar-table",
+        element: <AddGrammarTable />
       },
       {
         path: "add-language",
@@ -103,6 +110,10 @@ const router = createBrowserRouter([
         element: <EditFamily />
       },
       {
+        path: "edit-grammar-table/:id",
+        element: <EditGrammarTable />
+      },
+      {
         path: "edit-language/:id?",
         element: <EditLanguage />
       },
@@ -121,6 +132,10 @@ const router = createBrowserRouter([
       {
         path: "grammar-forms",
         element: <EditGrammarForms />
+      },
+      {
+        path: "grammar-table/:id",
+        element: <ViewGrammarTable />
       },
       {
         path: "language/:id?",

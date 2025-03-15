@@ -89,10 +89,7 @@ function EditWordInner({ initialWord, initialClassIds, langClasses, langPartsOfS
           <CMultilineTextInput label="Etymology" name="etymology" state={etymology} setState={setEtymology} />
           <CMultilineTextInput label="Notes" name="notes" state={notes} setState={setNotes} />
         </CFormBody>
-        <button
-          type="submit"
-          onClick={ e => { editFormWord(); e.preventDefault(); return false; }}
-        >
+        <button type="button" onClick={editFormWord}>
           Save
         </button>
       </form>

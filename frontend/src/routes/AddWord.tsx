@@ -206,11 +206,7 @@ function AddWordInner({ language, langClasses, langPartsOfSpeech }: IAddWordInne
           <CMultilineTextInput label="Etymology" name="etymology" state={etymology} setState={setEtymology} />
           <CMultilineTextInput label="Notes" name="notes" state={notes} setState={setNotes} />
         </CFormBody>
-        <input type="hidden" name="langId" value={ language.id } />
-        <button
-          type="submit"
-          onClick={ e => { addFormWord(); e.preventDefault(); return false; }}
-        >
+        <button type="button" onClick={addFormWord}>
           Add Word
         </button>
         <label style={{ margin: "10px auto 0" }}>

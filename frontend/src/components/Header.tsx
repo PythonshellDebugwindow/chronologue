@@ -57,7 +57,7 @@ export default function Header() {
             <Link to="/phonology">Edit Phonology</Link>,
             <Link to="/alphabetical-order">Alphabetical Order</Link>,
             <Link to="/edit-categories">Edit Categories</Link>,
-            <Link to="/estimate-ipa">IPA Estimation</Link>,
+            <Link to="/estimate-ipa">Edit IPA Estimation</Link>,
             <Link to="/chronosca">Test ChronoSCA</Link>
           ]}
           setCanHover={setCanHover}
@@ -74,7 +74,8 @@ export default function Header() {
         <MenuBarItem
           name="Grammar"
           items={[
-            <Link to="/grammar-forms">Grammar Forms</Link>
+            <Link to="/grammar-forms">Grammar Forms</Link>,
+            <Link to="/add-grammar-table">Add Grammar Table</Link>
           ]}
           setCanHover={setCanHover}
         />

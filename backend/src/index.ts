@@ -32,6 +32,14 @@ app.get('/families/:id/members', families.getFamilyMembers);
 
 app.get('/grammar-forms', grammar.getGrammarForms);
 app.put('/grammar-forms', grammar.updateGrammarForms);
+
+app.post('/grammar-tables', grammar.addGrammarTable);
+app.get('/grammar-tables/:id', grammar.getGrammarTable);
+app.put('/grammar-tables/:id', grammar.editGrammarTable);
+app.get('/grammar-tables/:id/classes', grammar.getGrammarTableClasses);
+app.get('/grammar-tables/:id/class-ids', grammar.getGrammarTableClassIds);
+app.get('/grammar-tables/:id/filled-cells', grammar.getGrammarTableFilledCells);
+
 app.get('/language-isolates', families.getLanguageIsolates);
 
 app.post('/languages', languages.addLanguage);

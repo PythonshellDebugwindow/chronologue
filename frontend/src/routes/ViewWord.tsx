@@ -3,27 +3,11 @@ import { useParams, Link } from 'react-router-dom';
 import LanguageLink from '../components/LanguageLink.tsx';
 
 import {
-  formatDictionaryFieldValue, getPartsOfSpeech, getWordById, getWordClassesByWord,
-  userFacingFieldName, IPartOfSpeech, IWord, IWordClassNoPOS
+  formatDictionaryFieldValue, formatPosFieldValue, formatWordClasses,
+  getPartsOfSpeech, getWordById, getWordClassesByWord, userFacingFieldName,
+  IPartOfSpeech, IWord, IWordClassNoPOS
 } from '../wordData.tsx';
 import { useSetPageTitle } from '../utils.tsx';
-
-function formatPosFieldValue(word: IWord, partsOfSpeech: IPartOfSpeech[]) {
-  const pos = partsOfSpeech.find(pos => pos.code === word.pos);
-  return pos ? pos.name : `unknown (${word.pos})`;
-}
-
-function formatClasses(classes: IWordClassNoPOS[]) {
-  return (
-    <ul style={{ listStyle: "none", margin: "0", padding: "0" }}>
-      {
-        classes.map(cls => <li key={cls.code}>
-          { `[${cls.code}] ${cls.name}` }
-        </li>)
-      }
-    </ul>
-  );
-}
 
 interface IViewWordInner {
   word: IWord;
@@ -56,9 +40,9 @@ function ViewWordInner({ word, classes, partsOfSpeech }: IViewWordInner) {
                   <td style={{ whiteSpace: "pre-wrap" }}>
                     {
                       field === 'pos'
-                      ? formatPosFieldValue(word, partsOfSpeech)
+                      ? formatPosFieldValue(word.pos, partsOfSpeech)
                       : (field === 'classes'
-                         ? formatClasses(classes)
+                         ? formatWordClasses(classes)
                          : formatDictionaryFieldValue(word, field)
                         )
                     }

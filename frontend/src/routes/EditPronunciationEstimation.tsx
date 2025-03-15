@@ -41,8 +41,8 @@ function EditPronunciationEstimationInner({ language, initialSettings }: IEditPr
       </p>
       <h4>Rewrite Rules</h4>
       <p>
-        Rewrite the generated IPA after initial estimation using ChronoSCA rules.
-        Rules can be tested on the <Link to={ '/chronosca/' + language.id }>ChronoSCA testing page</Link>.
+        Rewrite the generated IPA after initial estimation using ChronoSCA rules. Rules can be
+        tested on the <Link to={ '/chronosca/' + language.id }>ChronoSCA testing page</Link>.
       </p>
       <textarea
         value={rewriteRules}

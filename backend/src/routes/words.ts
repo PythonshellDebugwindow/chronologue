@@ -4,7 +4,11 @@ import query, { transact } from '../db/index.js';
 import { partsOfSpeech, hasAllFields, IQueryError } from '../utils.js';
 
 export const addWord: RequestHandler = async (req, res) => {
-  if(!req.body.word || !req.body.meaning || !req.body.pos || !req.body.langId ||
+  if(!/^[0-9a-f]{32}$/.test(req.body.langId)) {
+    res.status(400).json({ title: "Invalid ID", message: "The given language ID is not valid." });
+    return;
+  }
+  if(!req.body.word || !req.body.meaning || !req.body.pos ||
       !hasAllFields(req.body, [ 'ipa', 'etymology', 'notes' ]) ||
       !(req.body.classIds instanceof Array)) {
     res.status(400).json({ message: "Please provide all required fields." });
@@ -66,15 +70,14 @@ export const editWord: RequestHandler = async (req, res) => {
     res.status(400).json({ message: "Please provide all required fields." });
     return;
   }
+  if(!partsOfSpeech.some(pos => req.body.pos === pos.code)) {
+    res.status(400).json({ message: "Please provide a valid part of speech." });
+    return;
+  }
+  
+  const wordId = req.params.id;
   
   await transact(async client => {
-    if(!partsOfSpeech.some(pos => req.body.pos === pos.code)) {
-      res.status(400).json({ message: "Please provide a valid part of speech." });
-      return;
-    }
-
-    const wordId = req.params.id;
-    
     await client.query(
       `
         UPDATE words
@@ -234,7 +237,7 @@ export const updateWordClasses: RequestHandler = async (req, res, next) => {
           message: `Invalid code '${cls.code}': must be at most 5 characters long.`
         });
         return;
-      } else if(!/^(\p{L}\p{M}?|\p{N})+$/u.test(cls.code)) {
+      } else if(!/^(?:\p{L}\p{M}?|\p{N})+$/u.test(cls.code)) {
         res.status(400).json({
           message: `Invalid code '${cls.code}': must be alphanumeric.`
         });

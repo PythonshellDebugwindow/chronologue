@@ -16,8 +16,8 @@ interface IPronunciationEstimation {
 
 function splitLetterReplacements(pe: IPronunciationEstimation) {
   return {
-    letterReplacements: pe.letterReplacements.split("\n").map(
-      r => r.split("|", 2)
+    letterReplacements: pe.letterReplacements.split("\n").flatMap(
+      r => r.includes("|") ? [r.split("|", 2)] : []
     ).sort((r1, r2) => r2[0].length - r1[0].length),
     rewriteRules: pe.rewriteRules
   };
@@ -38,6 +38,7 @@ export async function estimatePronunciations(langId: string, words: string[]) {
       [ langId ]
     );
     const phones = phonesQuery.rows as IPartialPhone[];
+    phones.sort((p1, p2) => p2.graph.length - p1.graph.length);
 
     const peQuery = await client.query(
       `
@@ -52,7 +53,7 @@ export async function estimatePronunciations(langId: string, words: string[]) {
       ? splitLetterReplacements(peQuery.rows[0] as IPronunciationEstimation)
       : { letterReplacements: [], rewriteRules: "" }
     );
-
+    
     const categoriesQuery = await client.query(
       `
         SELECT letter, string_to_array(members, ',') AS members

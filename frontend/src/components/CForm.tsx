@@ -27,16 +27,24 @@ interface ICCheckbox {
   label: ReactNode;
   labelColon?: boolean;
   name: string;
+  state?: boolean;
+  setState?: Dispatch<SetStateAction<boolean>>;
 }
 
-export function CCheckbox({ label, labelColon, name }: ICCheckbox) {
+export function CCheckbox({ label, labelColon, name, state, setState }: ICCheckbox) {
   return (
     <tr>
       <td>
         <label htmlFor={"ccb-" + name}>{label}{ (labelColon ?? true) && ":" }</label>
       </td>
       <td>
-        <input type="checkbox" name={name} id={"ccb-" + name} />
+        <input
+          type="checkbox"
+          name={name}
+          id={"ccb-" + name}
+          checked={state}
+          onChange={ setState && (e => setState(e.target.checked)) }
+        />
       </td>
     </tr>
   );
@@ -112,9 +120,10 @@ interface ITextInput {
   name: string;
   state?: string;
   setState?: Dispatch<SetStateAction<string>>;
+  height?: string;
 }
 
-export function CMultilineTextInput({ label, name, state, setState }: ITextInput) {
+export function CMultilineTextInput({ label, name, state, setState, height }: ITextInput) {
   return (
     <tr>
       <td>
@@ -126,7 +135,8 @@ export function CMultilineTextInput({ label, name, state, setState }: ITextInput
           id={"cmti-" + name}
           value={state}
           onChange={ setState && (e => setState(e.target.value)) }
-        ></textarea>
+          style={ height ? { height } : undefined }
+        />
       </td>
     </tr>
   );
