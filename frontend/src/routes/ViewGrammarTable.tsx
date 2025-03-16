@@ -3,7 +3,8 @@ import { useParams, Link } from 'react-router-dom';
 import LanguageLink from '../components/LanguageLink.tsx';
 
 import {
-  getGrammarTableById, getGrammarTableClasses, getGrammarTableFilledCells,
+  formatPeriodSeparatedGrammarForms, getGrammarForms, getGrammarTableById,
+  getGrammarTableClasses, getGrammarTableFilledCells, IGrammarForm,
   IGrammarTable, IGrammarTableCell
 } from '../grammarData.tsx';
 import {
@@ -12,7 +13,13 @@ import {
 } from '../wordData.tsx';
 import { useSetPageTitle } from '../utils.tsx';
 
-function GrammarTable({ table, filledCells }: { table: IGrammarTable, filledCells: IGrammarTableCell[] }) {
+interface IGrammarTableDisplay {
+  table: IGrammarTable;
+  filledCells: IGrammarTableCell[];
+  grammarForms: IGrammarForm[];
+}
+
+function GrammarTableDisplay({ table, filledCells, grammarForms }: IGrammarTableDisplay) {
   return (
     <table className="grammar-table grammar-table-non-editable">
       <tbody>
@@ -20,14 +27,16 @@ function GrammarTable({ table, filledCells }: { table: IGrammarTable, filledCell
           <th>&nbsp;</th>
           {
             table.columns.map((column, i) => (
-              <th key={i}>{column}</th>
+              <th key={i}>
+                { formatPeriodSeparatedGrammarForms(column, grammarForms) }
+              </th>
             ))
           }
         </tr>
         {
           table.rows.map((row, i) => (
             <tr key={i}>
-              <th>{row}</th>
+              <th>{ formatPeriodSeparatedGrammarForms(row, grammarForms) }</th>
               {
                 table.columns.map((_, j) => (
                   filledCells.some(c => i === c.row && j === c.column)
@@ -47,10 +56,13 @@ interface IViewGrammarTableInner {
   table: IGrammarTable;
   classes: IWordClassNoPOS[];
   filledCells: IGrammarTableCell[];
+  grammarForms: IGrammarForm[];
   partsOfSpeech: IPartOfSpeech[];
 }
 
-function ViewGrammarTableInner({ table, classes, filledCells, partsOfSpeech }: IViewGrammarTableInner) {
+function ViewGrammarTableInner(
+  { table, classes, filledCells, grammarForms, partsOfSpeech }: IViewGrammarTableInner
+) {
   return (
     <>
       <h2>View Grammar Table{ table.name && `: ${table.name}` }</h2>
@@ -76,7 +88,11 @@ function ViewGrammarTableInner({ table, classes, filledCells, partsOfSpeech }: I
           }
         </tbody>
       </table>
-      <GrammarTable table={table} filledCells={filledCells} />
+      <GrammarTableDisplay
+        table={table}
+        filledCells={filledCells}
+        grammarForms={grammarForms}
+      />
       {
         table.notes && (
           <p
@@ -103,6 +119,7 @@ export default function ViewGrammarTable() {
   const tableResponse = getGrammarTableById(id);
   const classesResponse = getGrammarTableClasses(id);
   const filledCellsResponse = getGrammarTableFilledCells(id);
+  const grammarFormsResponse = getGrammarForms();
   const partsOfSpeechResponse = getPartsOfSpeech();
   
   useSetPageTitle("View Grammar Table");
@@ -126,14 +143,6 @@ export default function ViewGrammarTable() {
     );
   }
   
-  if(partsOfSpeechResponse.status === 'pending') {
-    return <p>Loading...</p>;
-  } else if(partsOfSpeechResponse.status === 'error') {
-    return (
-      <p>{ partsOfSpeechResponse.error.message }</p>
-    );
-  }
-  
   if(filledCellsResponse.status === 'pending') {
     return <p>Loading...</p>;
   } else if(filledCellsResponse.status === 'error') {
@@ -142,11 +151,28 @@ export default function ViewGrammarTable() {
     );
   }
   
+  if(grammarFormsResponse.status === 'pending') {
+    return <p>Loading...</p>;
+  } else if(grammarFormsResponse.status === 'error') {
+    return (
+      <p>{ grammarFormsResponse.error.message }</p>
+    );
+  }
+  
+  if(partsOfSpeechResponse.status === 'pending') {
+    return <p>Loading...</p>;
+  } else if(partsOfSpeechResponse.status === 'error') {
+    return (
+      <p>{ partsOfSpeechResponse.error.message }</p>
+    );
+  }
+  
   return (
     <ViewGrammarTableInner
       table={ tableResponse.data }
       classes={ classesResponse.data }
       filledCells={ filledCellsResponse.data }
+      grammarForms={ grammarFormsResponse.data }
       partsOfSpeech={ partsOfSpeechResponse.data }
     />
   );

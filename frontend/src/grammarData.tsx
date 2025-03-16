@@ -1,3 +1,4 @@
+import { Fragment } from 'react';
 import { useQuery } from '@tanstack/react-query';
 
 import { IWordClass } from './wordData.tsx';
@@ -85,4 +86,31 @@ export function getGrammarTableFilledCells(id: string) {
     queryKey: ['grammar-tables', id, 'filled-cells'],
     queryFn: async () => await getBackendJson(`grammar-tables/${id}/filled-cells`)
   });
+};
+
+export interface IGrammarTableOverview {
+  id: string;
+  name: string;
+  pos: string;
+  rows: string[];
+  columns: string[];
+};
+
+export function getGrammarTablesByLanguage(id: string) {
+  return useQuery<IGrammarTableOverview[], ITitledError>({
+    queryKey: ['languages', id, 'grammar-tables'],
+    queryFn: async () => await getBackendJson(`languages/${id}/grammar-tables`)
+  });
+};
+
+export function formatPeriodSeparatedGrammarForms(code: string, grammarForms: IGrammarForm[]) {
+  return code.split(".").map((code, i) => {
+    const period = i > 0 && ".";
+    if(code === "Ø") {
+      return <Fragment key={i}>{period}{code}</Fragment>
+    }
+    const posName = grammarForms.find(form => form.code === code)?.name ?? "unknown";
+    const posNode = <abbr title={posName}>{code}</abbr>;
+    return <Fragment key={i}>{period}{posNode}</Fragment>
+  })
 };

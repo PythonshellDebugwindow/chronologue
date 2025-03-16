@@ -18,7 +18,7 @@ function DeleteGrammarTableInner({ table }: { table: IGrammarTable }) {
       return;
     }
     
-    navigate("/grammar-tables");
+    navigate("/grammar-tables/" + table.langId);
   }
   
   return (

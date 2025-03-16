@@ -260,6 +260,24 @@ export const getGrammarTableFilledCells: RequestHandler = async (req, res) => {
   res.json(value.rows);
 };
 
+export const getLanguageGrammarTables: RequestHandler = async (req, res) => {
+  if(!/^[0-9a-f]{32}$/.test(req.params.id)) {
+    res.status(400).json({ title: "Invalid ID", message: "The given language ID is not valid." });
+    return;
+  }
+  
+  const value = await query(
+    `
+      SELECT translate(id::text, '-', '') AS id,
+             name, pos, rows, columns
+      FROM grammar_tables
+      WHERE lang_id = $1
+    `,
+    [ req.params.id ]
+  );
+  res.json(value.rows);
+};
+
 export const updateGrammarForms: RequestHandler = async (req, res, next) => {
   try {
     if(!(req.body.new instanceof Array && req.body.deleted instanceof Array)) {
@@ -272,6 +290,9 @@ export const updateGrammarForms: RequestHandler = async (req, res, next) => {
         return;
       } else if(!cls.name) {
         res.status(400).json({ message: "All grammar forms must have a name."});
+        return;
+      } else if(cls.code === "Ø") {
+        res.status(400).json({ message: "The code 'Ø' is reserved." });
         return;
       } else if(!/^(?:\p{Lu}|\p{N})+$/u.test(cls.code)) {
         res.status(400).json({

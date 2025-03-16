@@ -51,6 +51,7 @@ app.put('/languages/:id/alphabetical-order', languages.updateAlphabeticalOrder);
 app.post('/languages/:id/apply-sca-rules', phonology.applySCARules);
 app.get('/languages/:id/descendants', languages.getDescendants);
 app.post('/languages/:id/estimate-ipa', phonology.estimateWordIPA);
+app.get('/languages/:id/grammar-tables', grammar.getLanguageGrammarTables);
 app.get('/languages/:id/orth-categories', phonology.getOrthographyCategories);
 app.put('/languages/:id/orth-categories', phonology.updateOrthographyCategories);
 app.get('/languages/:id/orth-settings', languages.getOrthographySettings);

@@ -36,6 +36,7 @@ import TestChronoSCA from './routes/TestChronoSCA.tsx';
 import ViewDictionary from './routes/ViewDictionary.tsx';
 import ViewFamily from './routes/ViewFamily.tsx';
 import ViewGrammarTable from './routes/ViewGrammarTable.tsx';
+import ViewGrammarTables from './routes/ViewGrammarTables.tsx';
 import ViewLanguage from './routes/ViewLanguage.tsx';
 import ViewLanguages from './routes/ViewLanguages.tsx';
 import ViewWord from './routes/ViewWord.tsx';
@@ -58,7 +59,7 @@ const router = createBrowserRouter([
         action: addFamilyAction
       },
       {
-        path: "add-grammar-table",
+        path: "add-grammar-table/id?",
         element: <AddGrammarTable />
       },
       {
@@ -141,6 +142,10 @@ const router = createBrowserRouter([
       {
         path: "grammar-table/:id",
         element: <ViewGrammarTable />
+      },
+      {
+        path: "grammar-tables/:id?",
+        element: <ViewGrammarTables />
       },
       {
         path: "language/:id?",
