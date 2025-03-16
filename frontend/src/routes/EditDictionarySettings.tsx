@@ -235,7 +235,7 @@ function EditWordClasses({ language, initialClasses, partsOfSpeech }: IEditWordC
             <th>Code</th>
             <th>Name</th>
             <th><abbr title="part of speech">POS</abbr></th>
-            <th></th>
+            <th>&nbsp;</th>
           </tr>
           <tr>
             <td>
@@ -268,7 +268,7 @@ function EditWordClasses({ language, initialClasses, partsOfSpeech }: IEditWordC
             </td>
             <td>
               <span className="hover-light-grey" onClick={ () => addNewClass() }>
-                <span className="letter-button letter-button-small letter-button-t"></span>
+                <span className="letter-button letter-button-small letter-button-t" />
               </span>
             </td>
           </tr>
@@ -315,10 +315,10 @@ function EditWordClasses({ language, initialClasses, partsOfSpeech }: IEditWordC
                     {
                       isDeleted
                       ? <span onClick={ () => restoreClass(cls) } className="hover-light-grey">
-                          <span className="letter-button letter-button-small letter-button-refresh"></span>
+                          <span className="letter-button letter-button-small letter-button-refresh" />
                         </span>
                       : <span onClick={ () => deleteClass(cls) } className="hover-light-grey">
-                          <span className="letter-button letter-button-small letter-button-x"></span>
+                          <span className="letter-button letter-button-small letter-button-x" />
                         </span>
                     }
                   </td>

@@ -48,7 +48,7 @@ function EditPronunciationEstimationInner({ language, initialSettings }: IEditPr
         value={rewriteRules}
         onChange={ e => { setRewriteRules(e.target.value); setIsSaved(false); } }
         style={{ width: "20em", height: "10em" }}
-      ></textarea>
+      />
       {
         !isSaved && (
           <SaveChangesButton<string[]>
@@ -72,7 +72,7 @@ function EditPronunciationEstimationInner({ language, initialSettings }: IEditPr
         value={letterReplacements}
         onChange={ e => { setLetterReplacements(e.target.value); setIsSaved(false); } }
         style={{ width: "20em", height: "10em" }}
-      ></textarea>
+      />
       {
         !isSaved && (
           <SaveChangesButton<string[]>

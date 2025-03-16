@@ -265,7 +265,7 @@ function ViewLanguageDictionary({ language, words, partsOfSpeech }: IViewLanguag
                         <button
                           className="letter-button letter-button-x"
                           onClick={ () => disableField(field) }
-                        ></button>
+                        />
                       )
                     }
                   </th>

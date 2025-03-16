@@ -62,7 +62,7 @@ function EditSummaryNotesInner({ language, summaryNotes }: IEditSummaryNotesInne
           className="wide-textarea"
           value={description}
           onChange={ e => { setDescription(e.target.value); setIsSaved(false); } }
-        ></textarea>
+        />
       </label>
       <label className="wide-textarea-label">
         <p>Phonology notes</p>
@@ -70,7 +70,7 @@ function EditSummaryNotesInner({ language, summaryNotes }: IEditSummaryNotesInne
           className="wide-textarea"
           value={phonologyNotes}
           onChange={ e => { setPhonologyNotes(e.target.value); setIsSaved(false); } }
-        ></textarea>
+        />
       </label>
       <label className="wide-textarea-label">
         <p>Orthography notes</p>
@@ -78,7 +78,7 @@ function EditSummaryNotesInner({ language, summaryNotes }: IEditSummaryNotesInne
           className="wide-textarea"
           value={orthographyNotes}
           onChange={ e => { setOrthographyNotes(e.target.value); setIsSaved(false); } }
-        ></textarea>
+        />
       </label>
       {
         !isSaved && (

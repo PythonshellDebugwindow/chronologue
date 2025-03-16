@@ -206,7 +206,7 @@ function EditDictionarySettingsInner({ initialForms }: { initialForms: IGrammarF
           <tr>
             <th>Code</th>
             <th>Name</th>
-            <th></th>
+            <th>&nbsp;</th>
           </tr>
           <tr>
             <td>
@@ -226,7 +226,7 @@ function EditDictionarySettingsInner({ initialForms }: { initialForms: IGrammarF
             </td>
             <td>
               <span className="hover-light-grey" onClick={ () => addNewForm() }>
-                <span className="letter-button letter-button-small letter-button-t"></span>
+                <span className="letter-button letter-button-small letter-button-t" />
               </span>
             </td>
           </tr>
@@ -256,10 +256,10 @@ function EditDictionarySettingsInner({ initialForms }: { initialForms: IGrammarF
                     {
                       isDeleted
                       ? <span onClick={ () => restoreForm(form) } className="hover-light-grey">
-                          <span className="letter-button letter-button-small letter-button-refresh"></span>
+                          <span className="letter-button letter-button-small letter-button-refresh" />
                         </span>
                       : <span onClick={ () => deleteForm(form) } className="hover-light-grey">
-                          <span className="letter-button letter-button-small letter-button-x"></span>
+                          <span className="letter-button letter-button-small letter-button-x" />
                         </span>
                     }
                   </td>

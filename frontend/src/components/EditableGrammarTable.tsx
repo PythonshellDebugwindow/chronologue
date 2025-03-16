@@ -40,7 +40,7 @@ export default function EditableGrammarTable(
                 cells && setCells(cells.map(row => [ ...row, "" ]));
               } }
             >
-              <span className="letter-button letter-button-small letter-button-t"></span>
+              <span className="letter-button letter-button-small letter-button-t" />
             </span>
           </th>
         </tr>
@@ -82,7 +82,7 @@ export default function EditableGrammarTable(
                       } }
                       className="hover-light-grey"
                     >
-                      <span className="letter-button letter-button-small letter-button-x"></span>
+                      <span className="letter-button letter-button-small letter-button-x" />
                     </span>
                   : <>&nbsp;</>
                 }
@@ -99,7 +99,7 @@ export default function EditableGrammarTable(
                 cells && setCells([ ...cells, Array(columns.length).fill("")]);
               } }
             >
-              <span className="letter-button letter-button-small letter-button-t"></span>
+              <span className="letter-button letter-button-small letter-button-t" />
             </span>
           </th>
           {
@@ -116,7 +116,7 @@ export default function EditableGrammarTable(
                       } }
                       className="hover-light-grey"
                     >
-                      <span className="letter-button letter-button-small letter-button-x"></span>
+                      <span className="letter-button letter-button-small letter-button-x" />
                     </span>
                   : <>&nbsp;</>
                 }

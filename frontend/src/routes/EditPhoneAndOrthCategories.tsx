@@ -195,15 +195,15 @@ function EditSpecificCategories({
       <table className="settings-table">
         <tbody>
           <tr>
-            <th></th>
+            <th>&nbsp;</th>
             <th>Letter</th>
             <th>Members</th>
-            <th></th>
+            <th>&nbsp;</th>
           </tr>
           <tr>
             <td>
               <span style={{ visibility: "hidden" }}>
-                <span className="letter-button letter-button-small letter-button-t"></span>
+                <span className="letter-button letter-button-small letter-button-t" />
               </span>
             </td>
             <td style={{ textAlign: "center" }}>
@@ -223,18 +223,14 @@ function EditSpecificCategories({
             </td>
             <td>
               <span className="hover-light-grey" onClick={ () => addNewCategory() }>
-                <span className="letter-button letter-button-small letter-button-t"></span>
+                <span className="letter-button letter-button-small letter-button-t" />
               </span>
             </td>
           </tr>
           {
             categories.map((category, i) => (
               <tr key={i}>
-                <td>
-                  <span style={{ visibility: "hidden" }}>
-                    <span className="letter-button letter-button-small letter-button-t"></span>
-                  </span>
-                </td>
+                <td>&nbsp;</td>
                 <td style={{ textAlign: "center" }}>
                   <input
                     type="text"
@@ -250,6 +246,7 @@ function EditSpecificCategories({
                     onChange={ e => editCategoryMembers(category, e.target.value) }
                   />
                 </td>
+                <td>&nbsp;</td>
               </tr>
             ))
           }
@@ -310,7 +307,7 @@ function EditCategoriesInner({ language, orthCategories, phoneCategories }: IEdi
         language={language}
         categoryType="orth"
         initialCategories={orthCategories}
-        />
+      />
       <h4>Phone Categories</h4>
       <p>Used when <Link to={ '/estimate-ipa/' + language.id }>estimating pronunciation</Link>.</p>
       <EditSpecificCategories

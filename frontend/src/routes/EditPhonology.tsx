@@ -276,7 +276,7 @@ function PhoneListRow({ phone, allPhones, dispatchPhones }: IPhoneListRow) {
           title="Delete"
           className="letter-button letter-button-small letter-button-x"
           style={{ cursor: "pointer" }}
-        ></span>
+        />
       </td>
     </tr>
   );
