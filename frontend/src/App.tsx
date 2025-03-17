@@ -59,7 +59,7 @@ const router = createBrowserRouter([
         action: addFamilyAction
       },
       {
-        path: "add-grammar-table/id?",
+        path: "add-grammar-table/:id?",
         element: <AddGrammarTable />
       },
       {

@@ -60,10 +60,11 @@ export function getGrammarForms() {
   });
 };
 
-export function getGrammarTableById(id: string) {
+export function getGrammarTableById(id: string, enabled: boolean = true) {
   return useQuery<IGrammarTable, ITitledError>({
     queryKey: ['grammar-tables', id],
-    queryFn: async () => await getBackendJson(`grammar-tables/${id}`)
+    queryFn: async () => await getBackendJson(`grammar-tables/${id}`),
+    enabled
   });
 };
 
@@ -74,17 +75,19 @@ export function getGrammarTableClasses(id: string) {
   });
 };
 
-export function getGrammarTableClassIds(id: string) {
+export function getGrammarTableClassIds(id: string, enabled: boolean = true) {
   return useQuery<string[], ITitledError>({
     queryKey: ['grammar-tables', id, 'class-ids'],
-    queryFn: async () => await getBackendJson(`grammar-tables/${id}/class-ids`)
+    queryFn: async () => await getBackendJson(`grammar-tables/${id}/class-ids`),
+    enabled
   });
 };
 
-export function getGrammarTableFilledCells(id: string) {
+export function getGrammarTableFilledCells(id: string, enabled: boolean = true) {
   return useQuery<IGrammarTableCell[], ITitledError>({
     queryKey: ['grammar-tables', id, 'filled-cells'],
-    queryFn: async () => await getBackendJson(`grammar-tables/${id}/filled-cells`)
+    queryFn: async () => await getBackendJson(`grammar-tables/${id}/filled-cells`),
+    enabled
   });
 };
 
@@ -101,6 +104,16 @@ export function getGrammarTablesByLanguage(id: string) {
     queryKey: ['languages', id, 'grammar-tables'],
     queryFn: async () => await getBackendJson(`languages/${id}/grammar-tables`)
   });
+};
+
+export function compareGrammarTables(t1: IGrammarTableOverview, t2: IGrammarTableOverview) {
+  if(t1.pos !== t2.pos) {
+    return t1.pos.localeCompare(t2.pos);
+  } else if(t1.name !== t2.name) {
+    return t1.name.localeCompare(t2.name);
+  } else {
+    return t1.id.localeCompare(t2.id);
+  }
 };
 
 export function formatPeriodSeparatedGrammarForms(code: string, grammarForms: IGrammarForm[]) {

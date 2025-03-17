@@ -82,7 +82,10 @@ function ViewGrammarTableInner(
             classes.length > 0 && (
               <tr>
                 <th>Classes:</th>
-                <td>{ formatWordClasses(classes) }</td>
+                <td>
+                  { formatWordClasses(classes) }
+                  { table.invertClasses && "(exclusive)" }
+                </td>
               </tr>
             )
           }

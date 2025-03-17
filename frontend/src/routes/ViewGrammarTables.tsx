@@ -2,8 +2,8 @@ import { Fragment } from 'react';
 import { Link } from 'react-router-dom';
 
 import {
-  formatPeriodSeparatedGrammarForms, getGrammarForms, getGrammarTablesByLanguage,
-  IGrammarForm, IGrammarTableOverview
+  compareGrammarTables, formatPeriodSeparatedGrammarForms, getGrammarForms,
+  getGrammarTablesByLanguage, IGrammarForm, IGrammarTableOverview
 } from '../grammarData.tsx';
 import { ILanguage, getLanguageById } from '../languageData.tsx';
 import { useGetParamsOrSelectedId, useSetPageTitle } from '../utils.tsx';
@@ -26,15 +26,7 @@ interface IViewGrammarTablesInner {
 }
 
 function ViewGrammarTablesInner({ language, tables, grammarForms, partsOfSpeech }: IViewGrammarTablesInner) {
-  tables.sort((t1, t2) => {
-    if(t1.pos !== t2.pos) {
-      return t1.pos.localeCompare(t2.pos);
-    } else if(t1.name !== t2.name) {
-      return t1.name.localeCompare(t2.name);
-    } else {
-      return t1.id.localeCompare(t2.id);
-    }
-  });
+  tables.sort(compareGrammarTables);
 
   return (
     <>

@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useEffect, useState, ReactNode } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 
 import {
   CCheckbox, CFormBody, CMultilineTextInput, CTextInput
@@ -8,13 +9,15 @@ import EditableGrammarTable from '../components/EditableGrammarTable.tsx';
 import POSAndClassesSelect from '../components/POSAndClassesSelect.tsx';
 
 import {
-  editGrammarTable, getGrammarTableById, getGrammarTableClassIds,
-  getGrammarTableFilledCells, IGrammarTable, IGrammarTableCell
+  compareGrammarTables, editGrammarTable, getGrammarTableById,
+  getGrammarTableClassIds, getGrammarTableFilledCells, getGrammarTablesByLanguage,
+  IGrammarTable, IGrammarTableCell, IGrammarTableOverview
 } from '../grammarData.tsx';
-import { useGetParamsOrSelectedId, useSetPageTitle } from '../utils.tsx';
-import { getPartsOfSpeech, IPartOfSpeech, IWordClass } from '../wordData.tsx';
 import { getWordClassesByLanguage } from '../languageData.tsx';
-import { useQueryClient } from '@tanstack/react-query';
+import { useGetParamsOrSelectedId, useSetPageTitle } from '../utils.tsx';
+import {
+  formatPosFieldValue, getPartsOfSpeech, IPartOfSpeech, IWordClass
+} from '../wordData.tsx';
 
 function createCellMatrix(table: IGrammarTable, filledCells: IGrammarTableCell[]) {
   const result: string[][] = [];
@@ -32,14 +35,27 @@ interface IEditGrammarTableInner {
   initialTableClassIds: string[];
   initialFilledCells: IGrammarTableCell[];
   langClasses: IWordClass[];
-  langPartsOfSpeech: IPartOfSpeech[];
+  langTables: IGrammarTableOverview[];
+  partsOfSpeech: IPartOfSpeech[];
 }
 
 function EditGrammarTableInner({
-  table, initialTableClassIds, initialFilledCells, langClasses, langPartsOfSpeech
+  table, initialTableClassIds, initialFilledCells, langClasses, langTables, partsOfSpeech
 }: IEditGrammarTableInner) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  
+  const [ tableIdToCopy, setTableIdToCopy ] = useState("");
+  const copyTableQuery = getGrammarTableById(
+    tableIdToCopy, tableIdToCopy !== ""
+  );
+  const copyTableClassesQuery = getGrammarTableClassIds(
+    tableIdToCopy, tableIdToCopy !== ""
+  );
+  const copyTableCellsQuery = getGrammarTableFilledCells(
+    tableIdToCopy, tableIdToCopy !== ""
+  );
+  const [ shouldCopyTable, setShouldCopyTable ] = useState(false);
   
   const [ name, setName ] = useState(table.name);
   const [ pos, setPos ] = useState(table.pos);
@@ -56,6 +72,66 @@ function EditGrammarTableInner({
   const [ cells, setCells ] = useState(createCellMatrix(table, initialFilledCells));
 
   const [ message, setMessage ] = useState("");
+  const [ copyingMessage, setCopyingMessage ] = useState<ReactNode>(null);
+
+  langTables.sort(compareGrammarTables);
+
+  useEffect(() => {
+    if(shouldCopyTable) {
+      if(copyTableQuery.error) {
+        setCopyingMessage("Could not copy table: " + copyTableQuery.error.message);
+        setShouldCopyTable(false);
+      } else if(copyTableClassesQuery.error) {
+        setCopyingMessage("Could not copy table: " + copyTableClassesQuery.error.message);
+        setShouldCopyTable(false);
+      } else if(copyTableCellsQuery.error) {
+        setCopyingMessage("Could not copy table: " + copyTableCellsQuery.error.message);
+        setShouldCopyTable(false);
+      } else if(copyTableQuery.status === 'pending') {
+        setCopyingMessage("Copying table...");
+      } else if(copyTableClassesQuery.status === 'pending') {
+        setCopyingMessage("Copying table...");
+      } else if(copyTableCellsQuery.status === 'pending') {
+        setCopyingMessage("Copying table...");
+      } else {
+        const copied = copyTableQuery.data;
+        setShouldCopyTable(false);
+        copyTableData(copied, copyTableClassesQuery.data, copyTableCellsQuery.data);
+        setCopyingMessage(
+          <>
+            Copying:{" "}
+            <Link to={ '/grammar-table/' + copied.id}>
+              { copied.name && (copied.name + " ") }
+              [{ formatPosFieldValue(copied.pos, partsOfSpeech) }]
+            </Link>
+          </>
+        );
+      }
+    }
+  }, [copyTableQuery, copyTableClassesQuery, shouldCopyTable]);
+
+  function copyTableData(table: IGrammarTable, classIds: string[], cells: IGrammarTableCell[]) {
+    setPos(table.pos);
+    setRows(table.rows);
+    setColumns(table.columns);
+    setPreRules(table.preRules);
+    setPostRules(table.postRules);
+    setShowIpa(table.showIpa);
+    setInvertClasses(table.invertClasses);
+    setNotes(table.notes);
+    setClasses(langClasses.filter(cls => classIds.includes(cls.id)));
+    setCells(createCellMatrix(table, cells));
+  }
+
+  function submitCopyTableForm() {
+    if(tableIdToCopy === "") {
+      alert("Please select a table first.");
+      return;
+    }
+    if(confirm("This will overwrite anything already entered below. Continue?")) {
+      setShouldCopyTable(true);
+    }
+  }
 
   async function editFormTable() {
     if(!pos) {
@@ -88,14 +164,39 @@ function EditGrammarTableInner({
   return (
     <>
       <h2>Edit Grammar Table</h2>
+      { copyingMessage && <p>{copyingMessage}</p> }
       { message && <p><b>{message}</b></p> }
+      <p>
+        <label>
+          Copy table:{" "}
+          <select value={tableIdToCopy} onChange={ e => setTableIdToCopy(e.target.value) }>
+            <option value="">---</option>
+            {
+              langTables.map(langTable => langTable.id !== table.id && (
+                <option value={langTable.id} key={langTable.id}>
+                  { langTable.name && (langTable.name + " ") }
+                  [{ formatPosFieldValue(langTable.pos, partsOfSpeech) }]
+                </option>
+              ))
+            }
+          </select>
+        </label>
+        {" "}
+        <button
+          type="button"
+          onClick={submitCopyTableForm}
+          style={{ padding: "2px 4px", borderRadius: "5px", fontSize: "0.9em" }}
+        >
+          Copy
+        </button>
+      </p>
       <form className="chronologue-form" style={{ marginBottom: "1em" }}>
         <CFormBody>
           <CTextInput label="Name" name="name" state={name} setState={setName} />
           <POSAndClassesSelect
             pos={pos}
             setPos={setPos}
-            allLangPos={langPartsOfSpeech}
+            allLangPos={partsOfSpeech}
             classes={classes}
             setClasses={setClasses}
             allLangClasses={langClasses}
@@ -167,6 +268,7 @@ function EditGrammarTableWithTable({ table }: { table: IGrammarTable }) {
   const tableClassIdsResponse = getGrammarTableClassIds(table.id);
   const langClassesResponse = getWordClassesByLanguage(table.langId);
   const cellsResponse = getGrammarTableFilledCells(table.id);
+  const tablesResponse = getGrammarTablesByLanguage(table.langId);
   const partsOfSpeechResponse = getPartsOfSpeech();
   
   if(tableClassIdsResponse.status === 'pending') {
@@ -193,6 +295,14 @@ function EditGrammarTableWithTable({ table }: { table: IGrammarTable }) {
     );
   }
   
+  if(tablesResponse.status === 'pending') {
+    return <p>Loading...</p>;
+  } else if(tablesResponse.status === 'error') {
+    return (
+      <p>{ tablesResponse.error.message }</p>
+    );
+  }
+  
   if(partsOfSpeechResponse.status === 'pending') {
     return <p>Loading...</p>;
   } else if(partsOfSpeechResponse.status === 'error') {
@@ -207,7 +317,8 @@ function EditGrammarTableWithTable({ table }: { table: IGrammarTable }) {
       initialTableClassIds={ tableClassIdsResponse.data }
       initialFilledCells={ cellsResponse.data }
       langClasses={ langClassesResponse.data }
-      langPartsOfSpeech={ partsOfSpeechResponse.data }
+      langTables={ tablesResponse.data }
+      partsOfSpeech={ partsOfSpeechResponse.data }
     />
   );
 }
