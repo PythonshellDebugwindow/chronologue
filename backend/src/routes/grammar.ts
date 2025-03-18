@@ -1,5 +1,7 @@
 import type { RequestHandler } from 'express';
 
+import { SCA } from '../sca/sca.js';
+
 import query, { transact } from '../db/index.js';
 import {
   hasAllArrays, hasAllBooleans, hasAllStrings, IQueryError
@@ -260,6 +262,34 @@ export const getGrammarTableFilledCells: RequestHandler = async (req, res) => {
   res.json(value.rows);
 };
 
+export const getGrammarTablesForWord: RequestHandler = async (req, res) => {
+  if(!/^[0-9a-f]{32}$/.test(req.params.id)) {
+    res.status(400).json({ title: "Invalid ID", message: "The given word ID is not valid." });
+    return;
+  }
+  
+  const value = await query(
+    `
+      SELECT translate(gt.id::text, '-', '') AS id, gt.name
+      FROM grammar_table_classes AS gtc
+      RIGHT JOIN grammar_tables AS gt
+      ON gtc.table_id = gt.id
+      WHERE gt.pos IN (SELECT pos FROM words WHERE id = $1)
+      GROUP BY gt.id
+      HAVING array_agg(gtc.class_id) @> (
+        SELECT ARRAY(
+          SELECT class_id
+          FROM word_classes_by_word
+          WHERE word_id = $1
+        )
+      )
+      ORDER BY gt.name
+    `,
+    [ req.params.id ]
+  );
+  res.json(value.rows);
+};
+
 export const getLanguageGrammarTables: RequestHandler = async (req, res) => {
   if(!/^[0-9a-f]{32}$/.test(req.params.id)) {
     res.status(400).json({ title: "Invalid ID", message: "The given language ID is not valid." });
@@ -276,6 +306,72 @@ export const getLanguageGrammarTables: RequestHandler = async (req, res) => {
     [ req.params.id ]
   );
   res.json(value.rows);
+};
+
+export const runGrammarTableOnWord: RequestHandler = async (req, res) => {
+  if(!/^[0-9a-f]{32}$/.test(req.params.id)) {
+    res.status(400).json({ title: "Invalid ID", message: "The given table ID is not valid." });
+    return;
+  }
+  if(!hasAllStrings(req.body, [ "word" ])) {
+    res.status(400).json({ message: "Invalid request body." });
+    return;
+  }
+  
+  await transact(async client => {
+    const tableDataResult = await client.query(
+      `
+        SELECT lang_id as "langId",
+               cardinality(rows) as "numRows",
+               cardinality(columns) as "numColumns"
+        FROM grammar_tables
+        WHERE id = $1
+      `,
+      [ req.params.id ]
+    );
+    if(tableDataResult.rows.length !== 1) {
+      res.status(400).json({ message: "The requested table was not found." });
+      return;
+    }
+    const tableData = tableDataResult.rows[0];
+
+    const filledCellsResult = await client.query(
+      `
+        SELECT row_index AS "row",
+               column_index AS "column",
+               rules AS "rules"
+        FROM grammar_table_cells
+        WHERE table_id = $1
+      `,
+      [ req.params.id ]
+    );
+
+    const categoriesResult = await client.query(
+      `
+        SELECT letter, string_to_array(members, ',') AS members
+        FROM orthography_categories
+        WHERE lang_id = $1
+      `,
+      [ tableData.langId ]
+    );
+
+    const tableSCA = new SCA(categoriesResult.rows);
+
+    const result = [];
+    for(let row = 0; row < tableData.numRows; ++row) {
+      result.push(Array(tableData.numColumns).fill(null));
+    }
+    for(const cell of filledCellsResult.rows) {
+      const setRulesResult = tableSCA.setRules(cell.rules);
+      if(setRulesResult.success) {
+        result[cell.row][cell.column] = tableSCA.applySoundChanges(req.body.word);
+      } else {
+        result[cell.row][cell.column] = setRulesResult;
+      }
+    }
+
+    res.json(result);
+  });
 };
 
 export const updateGrammarForms: RequestHandler = async (req, res, next) => {

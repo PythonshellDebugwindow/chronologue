@@ -34,7 +34,7 @@ function ViewGrammarTablesInner({ language, tables, grammarForms, partsOfSpeech 
       <p>
         Viewing <Link to={ '/language/' + language.id }>{ language.name }</Link>'s grammar tables.
       </p>
-      <div className="grammar-tables-list">
+      <div className="grammar-tables-grid">
         {
           tables.map(table => (
             <div key={table.id}>

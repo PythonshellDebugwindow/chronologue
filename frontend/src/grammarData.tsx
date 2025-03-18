@@ -1,10 +1,11 @@
 import { Fragment } from 'react';
 import { useQuery } from '@tanstack/react-query';
 
-import { IWordClass } from './wordData.tsx';
 import {
-  ITitledError, getBackendJson, sendBackendJson, sendBackendRequest
+  ITitledError, getBackendJson, sendBackendJson, sendBackendJsonForQuery,
+  sendBackendRequest
 } from './utils.tsx';
+import { IWordClass } from './wordData.tsx';
 
 export interface IGrammarForm {
   id: string;
@@ -53,10 +54,11 @@ export async function editGrammarTable(id: string, data: EditGrammarTableArgumen
   return await sendBackendJson(`grammar-tables/${id}`, 'PUT', data);
 };
 
-export function getGrammarForms() {
+export function getGrammarForms(enabled: boolean = true) {
   return useQuery<IGrammarForm[], ITitledError>({
     queryKey: ['grammar-forms'],
-    queryFn: async () => await getBackendJson('grammar-forms')
+    queryFn: async () => await getBackendJson('grammar-forms'),
+    enabled
   });
 };
 
@@ -103,6 +105,37 @@ export function getGrammarTablesByLanguage(id: string) {
   return useQuery<IGrammarTableOverview[], ITitledError>({
     queryKey: ['languages', id, 'grammar-tables'],
     queryFn: async () => await getBackendJson(`languages/${id}/grammar-tables`)
+  });
+};
+
+export interface IGrammarTableIdAndName {
+  id: string;
+  name: string;
+};
+
+export function getGrammarTablesForWord(id: string) {
+  return useQuery<IGrammarTableIdAndName[], ITitledError>({
+    queryKey: ['words', id, 'grammar-tables'],
+    queryFn: async () => await getBackendJson(`words/${id}/grammar-tables`)
+  });
+};
+
+export type RunGrammarTableResultCell = {
+  success: true;
+  result: string;
+} | {
+  success: false;
+  message: string;
+} | null;
+
+export function useRunGrammarTableOnWordQuery(tableId: string, word: string, enabled: boolean) {
+  return useQuery<RunGrammarTableResultCell[][], ITitledError>({
+    queryKey: ['grammar-tables', tableId, 'run-on-word', word],
+    queryFn: async () => await sendBackendJsonForQuery(
+      `grammar-tables/${tableId}/run-on-word`, 'POST', { word }
+    ),
+    staleTime: 0,
+    enabled
   });
 };
 

@@ -434,6 +434,7 @@
 .grammar-table {
   border-collapse: collapse;
   margin: 0 auto;
+  text-align: center;
 }
 .grammar-table th,
 .grammar-table td {
@@ -449,15 +450,17 @@
   margin: 0 0.5em;
   text-align: center;
 }
-.grammar-table-non-editable th {
+.grammar-table-non-editable th,
+.grammar-table-non-editable td
+{
   box-sizing: border-box;
   padding: 0 5px;
 }
-.grammar-table .empty-cell {
-  background: #ececec;
+.grammar-table td:not(.empty-cell) {
+  background: #f3f3f3;
 }
 
-.grammar-tables-list {
+.grammar-tables-grid {
   display: grid;
   text-align: left;
   margin: 0 auto;
@@ -465,7 +468,16 @@
   grid-template-columns: 50% 50%;
   gap: 10px;
 }
-.grammar-tables-list > div {
+.grammar-tables-grid > div {
   border: 1px solid black;
   padding: 3px 8px 5px;
+}
+
+.word-grammar-tables-list {
+  display: inline-block;
+  text-align: left;
+}
+.word-grammar-tables-list > li > label > input {
+  position: relative;
+  top: 2px;
 }

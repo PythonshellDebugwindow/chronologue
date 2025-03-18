@@ -40,6 +40,7 @@ app.delete('/grammar-tables/:id', grammar.deleteGrammarTable);
 app.get('/grammar-tables/:id/classes', grammar.getGrammarTableClasses);
 app.get('/grammar-tables/:id/class-ids', grammar.getGrammarTableClassIds);
 app.get('/grammar-tables/:id/filled-cells', grammar.getGrammarTableFilledCells);
+app.post('/grammar-tables/:id/run-on-word', grammar.runGrammarTableOnWord);
 
 app.get('/language-isolates', families.getLanguageIsolates);
 
@@ -75,6 +76,7 @@ app.put('/words/:id', words.editWord);
 app.delete('/words/:id', words.deleteWord);
 app.get('/words/:id/classes', words.getWordClassesByWord);
 app.get('/words/:id/class-ids', words.getWordClassIdsByWord);
+app.get('/words/:id/grammar-tables', grammar.getGrammarTablesForWord);
 
 app.get('/sca', sca.testSCA);
 
