@@ -494,9 +494,9 @@ export class SCA {
     } else if(hashtagIndex !== findLastIndex(condition, isHashtag)) {
       throw new SyntaxError("Multiple hashtags (shouldn't happen)");
     }
-
-    if(hashtagIndex > 0) {
-      const prefix = condition.slice(0, hashtagIndex);
+    
+    if(hashtagIndex === 0) {
+      const prefix = condition.slice(1);
       if(this.#result.length < prefix.length) {
         return false;
       }
@@ -505,9 +505,8 @@ export class SCA {
           return false;
         }
       }
-    }
-    if(hashtagIndex < condition.length - 1) {
-      const suffix = condition.slice(hashtagIndex + 1);
+    } else if(hashtagIndex === condition.length - 1) {
+      const suffix = condition.slice(0, -1);
       if(this.#result.length < suffix.length) {
         return false;
       }
@@ -517,6 +516,8 @@ export class SCA {
           return false;
         }
       }
+    } else {
+      throw new SyntaxError("Hastag in middle of condition");
     }
     return true;
   }
@@ -535,6 +536,7 @@ function runTests() {
   const tests = readFileSync("src/sca/sca-test.txt").toString().split("\n===\n").map(
     line => line.split("\n")
   );
+  let lineNumber = 1;
   for(const [i, [initial, expected, ...rules]] of tests.entries()) {
     const setRulesResult = theSca.setRules(rules.join("\n"));
     if(!setRulesResult.success) {
@@ -543,10 +545,11 @@ function runTests() {
     }
     const actual = theSca.applySoundChanges(initial);
     if(!actual.success) {
-      console.error(`SCA test #${i + 1}: ${actual.message}`);
+      console.error(`SCA test #${i + 1} (line ${lineNumber}): ${actual.message}`);
     } else if(actual.result !== expected) {
-      console.error(`SCA test #${i + 1}: expected ${expected}, got ${actual}`);
+      console.error(`SCA test #${i + 1} (line ${lineNumber}): expected ${expected}, got ${actual.result}`);
     }
+    lineNumber += rules.length + 3;
   }
 }
 
