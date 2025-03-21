@@ -19,13 +19,19 @@ interface IPhoneTableHalfCell {
 
 function PhoneTableHalfCell({ phone, addedPhones, phonesWithNotes, colSpan = 1 }: IPhoneTableHalfCell) {
   const matchingPhones = addedPhones.filter(f => f.phone.base === phone);
-  const withNotes = [...new Set(matchingPhones)].flatMap(({ phone, formatted }, i) => {
+  const seenWithoutNotes: string[] = [];
+  const withNotes = matchingPhones.flatMap(({ phone, formatted }, i) => {
+    if(!phone.notes && seenWithoutNotes.includes(formatted)) {
+      return [];
+    }
     const res: ReactNode[] = [formatted];
     if(i > 0) {
       res.unshift(" \u00A0");
     }
     if(phone.notes) {
       res.push(<sup key={i}>{ phonesWithNotes.indexOf(phone) + 1 }</sup>);
+    } else {
+      seenWithoutNotes.push(formatted);
     }
     return res;
   });
@@ -33,7 +39,7 @@ function PhoneTableHalfCell({ phone, addedPhones, phonesWithNotes, colSpan = 1 }
   return (
     <td className="phone-cell" colSpan={colSpan}>
       &nbsp;
-      { withNotes }
+      {withNotes}
       &nbsp;
     </td>
   );

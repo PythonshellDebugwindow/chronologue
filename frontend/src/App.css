@@ -31,6 +31,7 @@
   overflow-x: clip;
   position: sticky;
   top: 0;
+  z-index: 100;
 }
 .header-menu-item {
   flex: 1 1 0px;
@@ -480,4 +481,9 @@
 .word-grammar-tables-list > li > label > input {
   position: relative;
   top: 2px;
+}
+
+.word-grammar-table-container > small {
+  display: inline-block;
+  margin-bottom: 0.5em;
 }

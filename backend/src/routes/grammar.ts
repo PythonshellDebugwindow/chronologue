@@ -1,6 +1,6 @@
 import type { RequestHandler } from 'express';
 
-import { SCA } from '../sca/sca.js';
+import runGrammarTableRules from '../sca/runGrammarTable.js';
 
 import query, { transact } from '../db/index.js';
 import {
@@ -276,12 +276,12 @@ export const getGrammarTablesForWord: RequestHandler = async (req, res) => {
       ON gtc.table_id = gt.id
       WHERE gt.pos IN (SELECT pos FROM words WHERE id = $1)
       GROUP BY gt.id
-      HAVING array_agg(gtc.class_id) @> (
-        SELECT ARRAY(
-          SELECT class_id
-          FROM word_classes_by_word
-          WHERE word_id = $1
-        )
+      HAVING (
+        SELECT coalesce(array_agg(class_id) FILTER (WHERE class_id IS NOT NULL), '{}')
+        FROM word_classes_by_word
+        WHERE word_id = $1
+      ) @> coalesce(
+        array_agg(gtc.class_id) FILTER (WHERE gtc.class_id IS NOT NULL), '{}'
       )
       ORDER BY gt.name
     `,
@@ -308,6 +308,49 @@ export const getLanguageGrammarTables: RequestHandler = async (req, res) => {
   res.json(value.rows);
 };
 
+export const getRandomWordForGrammarTable: RequestHandler = async (req, res) => {
+  if(!/^[0-9a-f]{32}$/.test(req.params.id)) {
+    res.status(400).json({ title: "Invalid ID", message: "The given table ID is not valid." });
+    return;
+  }
+  
+  await transact(async client => {
+    const wordResult = await query(
+      `
+        SELECT * FROM (
+          SELECT translate(w.id::text, '-', '') AS id, w.word, w.meaning
+          FROM word_classes_by_word AS wc
+          RIGHT JOIN words AS w
+          ON wc.word_id = w.id
+          WHERE w.pos IN (SELECT pos FROM grammar_tables WHERE id = $1)
+          GROUP BY w.id
+          HAVING array_agg(wc.class_id) @> (
+            SELECT ARRAY(
+              SELECT class_id
+              FROM grammar_table_classes
+              WHERE table_id = $1
+            )
+          )
+        )
+        ORDER BY RANDOM()
+        LIMIT 1
+      `,
+      [ req.params.id ]
+    );
+    if(wordResult.rows.length === 0) {
+      res.json(null);
+      return;
+    }
+    const word = wordResult.rows[0].word;
+    const runResult = await runGrammarTableRules(req.params.id, word, client);
+    if(runResult.success) {
+      res.json({ ...wordResult.rows[0], cells: runResult.result });
+    } else {
+      res.status(400).json({ message: runResult.message });
+    }
+  });
+};
+
 export const runGrammarTableOnWord: RequestHandler = async (req, res) => {
   if(!/^[0-9a-f]{32}$/.test(req.params.id)) {
     res.status(400).json({ title: "Invalid ID", message: "The given table ID is not valid." });
@@ -319,58 +362,12 @@ export const runGrammarTableOnWord: RequestHandler = async (req, res) => {
   }
   
   await transact(async client => {
-    const tableDataResult = await client.query(
-      `
-        SELECT lang_id as "langId",
-               cardinality(rows) as "numRows",
-               cardinality(columns) as "numColumns"
-        FROM grammar_tables
-        WHERE id = $1
-      `,
-      [ req.params.id ]
-    );
-    if(tableDataResult.rows.length !== 1) {
-      res.status(400).json({ message: "The requested table was not found." });
-      return;
+    const result = await runGrammarTableRules(req.params.id, req.body.word, client);
+    if(result.success) {
+      res.json(result.result);
+    } else {
+      res.status(400).json({ message: result.message });
     }
-    const tableData = tableDataResult.rows[0];
-
-    const filledCellsResult = await client.query(
-      `
-        SELECT row_index AS "row",
-               column_index AS "column",
-               rules AS "rules"
-        FROM grammar_table_cells
-        WHERE table_id = $1
-      `,
-      [ req.params.id ]
-    );
-
-    const categoriesResult = await client.query(
-      `
-        SELECT letter, string_to_array(members, ',') AS members
-        FROM orthography_categories
-        WHERE lang_id = $1
-      `,
-      [ tableData.langId ]
-    );
-
-    const tableSCA = new SCA(categoriesResult.rows);
-
-    const result = [];
-    for(let row = 0; row < tableData.numRows; ++row) {
-      result.push(Array(tableData.numColumns).fill(null));
-    }
-    for(const cell of filledCellsResult.rows) {
-      const setRulesResult = tableSCA.setRules(cell.rules);
-      if(setRulesResult.success) {
-        result[cell.row][cell.column] = tableSCA.applySoundChanges(req.body.word);
-      } else {
-        result[cell.row][cell.column] = setRulesResult;
-      }
-    }
-
-    res.json(result);
   });
 };
 

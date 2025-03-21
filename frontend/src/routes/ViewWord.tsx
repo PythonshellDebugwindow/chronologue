@@ -2,11 +2,11 @@ import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 
 import LanguageLink from '../components/LanguageLink.tsx';
+import WordGrammarTable from '../components/WordGrammarTable.tsx';
 
 import {
-  formatPeriodSeparatedGrammarForms, getGrammarForms, getGrammarTableById,
-  getGrammarTablesForWord, useRunGrammarTableOnWordQuery,
-  IGrammarForm, IGrammarTable, IGrammarTableIdAndName, RunGrammarTableResultCell
+  getGrammarForms, getGrammarTableById, getGrammarTablesForWord,
+  useRunGrammarTableOnWordQuery, IGrammarTableIdAndName
 } from '../grammarData.tsx';
 import {
   formatDictionaryFieldValue, formatPosFieldValue, formatWordClasses,
@@ -14,53 +14,6 @@ import {
   IPartOfSpeech, IWord, IWordClassNoPOS
 } from '../wordData.tsx';
 import { useSetPageTitle } from '../utils.tsx';
-
-function WordGrammarTableCell({ cell }: { cell: RunGrammarTableResultCell }) {
-  if(cell === null) {
-    return <td className="empty-cell">&nbsp;</td>;
-  } else if(cell.success) {
-    return <td>{ cell.result }</td>;
-  } else {
-    return <td style={{ color: "#c00" }}>{ cell.message }</td>;
-  }
-}
-
-interface IWordGrammarTable {
-  table: IGrammarTable;
-  grammarForms: IGrammarForm[];
-  cells: RunGrammarTableResultCell[][];
-}
-
-function WordGrammarTable({ table, grammarForms, cells }: IWordGrammarTable) {
-  return (
-    <table className="grammar-table grammar-table-non-editable">
-      <tbody>
-        <tr>
-          <th>&nbsp;</th>
-          {
-            table.columns.map((column, i) => (
-              <th key={i}>
-                { formatPeriodSeparatedGrammarForms(column, grammarForms) }
-              </th>
-            ))
-          }
-        </tr>
-        {
-          table.rows.map((row, i) => (
-            <tr key={i}>
-              <th>{ formatPeriodSeparatedGrammarForms(row, grammarForms) }</th>
-              {
-                table.columns.map((_, j) => (
-                  <WordGrammarTableCell cell={ cells[i][j] } key={j} />
-                ))
-              }
-            </tr>
-          ))
-        }
-      </tbody>
-    </table>
-  );
-}
 
 interface IDisplayWordGrammarTable {
   word: IWord;
@@ -88,8 +41,8 @@ function DisplayWordGrammarTable({ word, tableOverview, partsOfSpeech }: IDispla
       }
     }
     return (
-      <div style={{ margin: "0 0 1em" }}>
-        <small style={{ display: "inline-block", marginBottom: "0.5em" }}>
+      <div className="word-grammar-table-container" style={{ margin: "0 0 1em" }}>
+        <small>
           <Link to={ '/grammar-table/' + tableOverview.id }>
             [view table]
           </Link>

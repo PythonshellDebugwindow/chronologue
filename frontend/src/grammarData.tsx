@@ -128,6 +128,20 @@ export type RunGrammarTableResultCell = {
   message: string;
 } | null;
 
+interface IRandomGrammarTableWord {
+  id: string;
+  word: string;
+  meaning: string;
+  cells: RunGrammarTableResultCell[][];
+}
+
+export function useGetRandomWordForGrammarTableQuery(id: string) {
+  return useQuery<IRandomGrammarTableWord | null, ITitledError>({
+    queryKey: ['grammar-tables', id, 'random-word'],
+    queryFn: async () => await getBackendJson(`grammar-tables/${id}/random-word`)
+  });
+};
+
 export function useRunGrammarTableOnWordQuery(tableId: string, word: string, enabled: boolean) {
   return useQuery<RunGrammarTableResultCell[][], ITitledError>({
     queryKey: ['grammar-tables', tableId, 'run-on-word', word],

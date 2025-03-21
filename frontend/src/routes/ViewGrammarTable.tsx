@@ -1,17 +1,19 @@
-import { useParams, Link } from 'react-router-dom';
+import { useParams, useSearchParams, Link } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 
 import LanguageLink from '../components/LanguageLink.tsx';
+import WordGrammarTable from '../components/WordGrammarTable.tsx';
 
 import {
   formatPeriodSeparatedGrammarForms, getGrammarForms, getGrammarTableById,
-  getGrammarTableClasses, getGrammarTableFilledCells, IGrammarForm,
-  IGrammarTable, IGrammarTableCell
+  getGrammarTableClasses, getGrammarTableFilledCells,
+  useGetRandomWordForGrammarTableQuery, IGrammarForm, IGrammarTable, IGrammarTableCell
 } from '../grammarData.tsx';
+import { useSetPageTitle } from '../utils.tsx';
 import {
   formatPosFieldValue, formatWordClasses, getPartsOfSpeech,
   userFacingFieldName, IPartOfSpeech, IWordClassNoPOS
 } from '../wordData.tsx';
-import { useSetPageTitle } from '../utils.tsx';
 
 interface IGrammarTableDisplay {
   table: IGrammarTable;
@@ -52,6 +54,59 @@ function GrammarTableDisplay({ table, filledCells, grammarForms }: IGrammarTable
   );
 }
 
+interface IDisplayRandomTableWord {
+  table: IGrammarTable;
+  filledCells: IGrammarTableCell[];
+  grammarForms: IGrammarForm[];
+}
+
+function DisplayRandomTableWord({ table, filledCells, grammarForms }: IDisplayRandomTableWord) {
+  const result = useGetRandomWordForGrammarTableQuery(table.id);
+  if(result.status === 'pending') {
+    return <p>Loading random word...</p>;
+  } else if(result.status === 'error') {
+    return <p>Could not load random word: { result.error.message }</p>;
+  }
+
+  if(result.data) {
+    return (
+      <>
+        <p style={{ margin: "0" }}>
+          Random word:{" "}
+          <Link to={ '/word/' + result.data.id }>{ result.data.word }</Link>{" "}
+          ({ result.data.meaning })
+        </p>
+        <div
+          className="word-grammar-table-container"
+          style={{ display: "inline-block", textAlign: "left" }}
+        >
+          <small>
+            <Link to={ '/edit-word/' + result.data.id }>
+              [edit word]
+            </Link>
+          </small>
+          <WordGrammarTable
+            table={table}
+            grammarForms={grammarForms}
+            cells={ result.data.cells }
+          />
+        </div>
+      </>
+    );
+  } else {
+    return (
+      <>
+        <p>This table does not apply to any words.</p>
+        <GrammarTableDisplay
+          table={table}
+          filledCells={filledCells}
+          grammarForms={grammarForms}
+        />
+      </>
+    );
+  }
+}
+
 interface IViewGrammarTableInner {
   table: IGrammarTable;
   classes: IWordClassNoPOS[];
@@ -63,6 +118,13 @@ interface IViewGrammarTableInner {
 function ViewGrammarTableInner(
   { table, classes, filledCells, grammarForms, partsOfSpeech }: IViewGrammarTableInner
 ) {
+  const [ params ] = useSearchParams();
+  const queryClient = useQueryClient();
+
+  function resetRandomWordQuery() {
+    queryClient.resetQueries({ queryKey: ['grammar-tables', table.id, 'random-word'] });
+  }
+
   return (
     <>
       <h2>View Grammar Table{ table.name && `: ${table.name}` }</h2>
@@ -91,11 +153,24 @@ function ViewGrammarTableInner(
           }
         </tbody>
       </table>
-      <GrammarTableDisplay
-        table={table}
-        filledCells={filledCells}
-        grammarForms={grammarForms}
-      />
+      <p>
+        <Link to={ '?random' } onClick={resetRandomWordQuery}>Random example</Link>
+      </p>
+      {
+        params.has('random') ? (
+          <DisplayRandomTableWord
+            table={table}
+            filledCells={filledCells}
+            grammarForms={grammarForms}
+          />
+        ) : (
+          <GrammarTableDisplay
+            table={table}
+            filledCells={filledCells}
+            grammarForms={grammarForms}
+          />
+        )
+      }
       {
         table.notes && (
           <p
