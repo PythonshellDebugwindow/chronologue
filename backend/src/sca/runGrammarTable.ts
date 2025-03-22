@@ -1,5 +1,6 @@
 import type { PoolClient } from 'pg';
 
+import { makeEstimatePronunciation } from './estimateIpa.js';
 import { SCA } from './sca.js';
 
 export default async function runGrammarTableRules(
@@ -7,9 +8,10 @@ export default async function runGrammarTableRules(
 ) {
   const tableDataResult = await client.query(
     `
-      SELECT lang_id as "langId",
-             cardinality(rows) as "numRows",
-             cardinality(columns) as "numColumns"
+      SELECT lang_id AS "langId",
+             cardinality(rows) AS "numRows",
+             cardinality(columns) AS "numColumns",
+             show_ipa AS "showIpa"
       FROM grammar_tables
       WHERE id = $1
     `,
@@ -52,6 +54,21 @@ export default async function runGrammarTableRules(
       result[cell.row][cell.column] = tableSCA.applySoundChanges(word);
     } else {
       result[cell.row][cell.column] = setRulesResult;
+    }
+  }
+
+  if(tableData.showIpa) {
+    const makeEstimateResult = await makeEstimatePronunciation(tableData.langId);
+    if(makeEstimateResult.success) {
+      for(const position of filledCellsResult.rows) {
+        const cell = result[position.row][position.column];
+        if(cell.success) {
+          const estimateResult = makeEstimateResult.estimate(cell.result);
+          if(estimateResult.success) {
+            cell.ipa = estimateResult.result;
+          }
+        }
+      }
     }
   }
 

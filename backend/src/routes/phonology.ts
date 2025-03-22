@@ -2,7 +2,7 @@ import type { RequestHandler } from 'express';
 import pg from 'pg';
 const { escapeIdentifier } = pg;
 
-import { estimatePronunciations } from '../sca/estimateIpa.js';
+import { makeEstimatePronunciation } from '../sca/estimateIpa.js';
 import { SCA } from '../sca/sca.js';
 
 import query, { transact } from '../db/index.js';
@@ -54,11 +54,16 @@ export const estimateWordIPA: RequestHandler = async (req, res) => {
     return;
   }
 
-  const result = await estimatePronunciations(req.params.id, [req.body.word]);
-  if(result.success) {
-    res.json(result.result[0]);
-  } else {
+  const result = await makeEstimatePronunciation(req.params.id);
+  if(!result.success) {
     res.status(400).json({ message: result.message });
+    return;
+  }
+  const estimation = result.estimate(req.body.word);
+  if(!estimation.success) {
+    res.status(400).json({ message: estimation.message });
+  } else {
+    res.json(estimation.result);
   }
 };
 

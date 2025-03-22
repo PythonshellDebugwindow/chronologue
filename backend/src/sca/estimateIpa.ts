@@ -23,11 +23,8 @@ function splitLetterReplacements(pe: IPronunciationEstimation) {
   };
 }
 
-export async function estimatePronunciations(langId: string, words: string[]) {
-  const result: string[] = [];
-  let errorMessage: string | null = null;
-
-  await transact(async client => {
+export async function makeEstimatePronunciation(langId: string) {
+  const result = await transact(async client => {
     const phonesQuery = await client.query(
       `
         SELECT base, qualities, graph
@@ -67,11 +64,10 @@ export async function estimatePronunciations(langId: string, words: string[]) {
     const sca = new SCA(categories);
     const setRulesResult = sca.setRules(rewriteRules);
     if(!setRulesResult.success) {
-      errorMessage = setRulesResult.message;
-      return;
+      return setRulesResult;
     }
 
-    for(const word of words) {
+    const estimate = (word: string) => {
       let estimation = "";
       for(let i = 0; i < word.length; ) {
         if(word[i] === " ") {
@@ -100,18 +96,9 @@ export async function estimatePronunciations(langId: string, words: string[]) {
           ++i;
         }
       }
-      const rewriteResult = sca.applySoundChanges(estimation);
-      if(!rewriteResult.success) {
-        errorMessage = rewriteResult.message;
-        return;
-      }
-      result.push(rewriteResult.result);
-    }
+      return sca.applySoundChanges(estimation);
+    };
+    return { success: true as true, estimate };
   });
-
-  if(errorMessage) {
-    return { success: false as false, message: errorMessage };
-  } else {
-    return { success: true as true, result };
-  }
+  return result!;
 };

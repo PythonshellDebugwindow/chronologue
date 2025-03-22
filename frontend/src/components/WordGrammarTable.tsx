@@ -7,7 +7,12 @@ function WordGrammarTableCell({ cell }: { cell: RunGrammarTableResultCell }) {
   if(cell === null) {
     return <td className="empty-cell">&nbsp;</td>;
   } else if(cell.success) {
-    return <td>{ cell.result }</td>;
+    return (
+      <td>
+        { cell.result }
+        { cell.ipa && <><br /><small>/{cell.ipa}/</small></> }
+      </td>
+    );
   } else {
     return <td style={{ color: "#c00" }}>{ cell.message }</td>;
   }

@@ -123,6 +123,7 @@ export function getGrammarTablesForWord(id: string) {
 export type RunGrammarTableResultCell = {
   success: true;
   result: string;
+  ipa?: string;
 } | {
   success: false;
   message: string;

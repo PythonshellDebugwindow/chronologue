@@ -7,11 +7,12 @@ const pool = new Pool({
 
 export default pool.query.bind(pool);
 
-export async function transact(callback: (client: pg.PoolClient) => Promise<void>) {
+export async function transact<T>(callback: (client: pg.PoolClient) => Promise<T>) {
   const client = await pool.connect();
+  let value: T | undefined = undefined;
   try {
     await client.query('BEGIN');
-    await callback(client);
+    value = await callback(client);
     await client.query('COMMIT');
   } catch(err) {
     await client.query('ROLLBACK');
@@ -19,4 +20,5 @@ export async function transact(callback: (client: pg.PoolClient) => Promise<void
   } finally {
     client.release();
   }
+  return value;
 };
