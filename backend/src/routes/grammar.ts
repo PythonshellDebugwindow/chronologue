@@ -267,27 +267,52 @@ export const getGrammarTablesForWord: RequestHandler = async (req, res) => {
     res.status(400).json({ title: "Invalid ID", message: "The given word ID is not valid." });
     return;
   }
-  
-  const value = await query(
-    `
-      SELECT translate(gt.id::text, '-', '') AS id, gt.name
-      FROM grammar_table_classes AS gtc
-      RIGHT JOIN grammar_tables AS gt
-      ON gtc.table_id = gt.id
-      WHERE gt.pos IN (SELECT pos FROM words WHERE id = $1)
-      GROUP BY gt.id
-      HAVING (
-        SELECT coalesce(array_agg(class_id) FILTER (WHERE class_id IS NOT NULL), '{}')
-        FROM word_classes_by_word
-        WHERE word_id = $1
-      ) @> coalesce(
-        array_agg(gtc.class_id) FILTER (WHERE gtc.class_id IS NOT NULL), '{}'
-      )
-      ORDER BY gt.name
-    `,
-    [ req.params.id ]
-  );
-  res.json(value.rows);
+
+  await transact(async client => {
+    const wordResult = await client.query(
+      `
+        SELECT pos, lang_id
+        FROM words
+        WHERE id = $1
+      `,
+      [ req.params.id ]
+    );
+    if(wordResult.rows.length !== 1) {
+      res.status(400).json({ message: "The given word does not exist." });
+      return;
+    }
+    const wordData = wordResult.rows[0];
+
+    const tablesResult = await query(
+      `
+        SELECT translate(gt.id::text, '-', '') AS id, gt.name
+        FROM grammar_table_classes AS gtc
+        RIGHT JOIN grammar_tables AS gt
+        ON gtc.table_id = gt.id
+        WHERE gt.lang_id = $1 AND gt.pos = $2
+        GROUP BY gt.id
+        HAVING
+          CASE WHEN gt.invert_classes THEN NOT ((
+            SELECT coalesce(array_agg(class_id) FILTER (WHERE class_id IS NOT NULL), '{}')
+            FROM word_classes_by_word
+            WHERE word_id = $3
+          ) && coalesce(
+            array_agg(gtc.class_id) FILTER (WHERE gtc.class_id IS NOT NULL), '{}'
+          ))
+          ELSE (
+            SELECT coalesce(array_agg(class_id) FILTER (WHERE class_id IS NOT NULL), '{}')
+            FROM word_classes_by_word
+            WHERE word_id = $3
+          ) @> coalesce(
+            array_agg(gtc.class_id) FILTER (WHERE gtc.class_id IS NOT NULL), '{}'
+          )
+          END
+        ORDER BY gt.name
+      `,
+      [ wordData.lang_id, wordData.pos, req.params.id ]
+    );
+    res.json(tablesResult.rows);
+  });
 };
 
 export const getLanguageGrammarTables: RequestHandler = async (req, res) => {
@@ -315,27 +340,50 @@ export const getRandomWordForGrammarTable: RequestHandler = async (req, res) => 
   }
   
   await transact(async client => {
-    const wordResult = await query(
+    const tableResult = await client.query(
+      `
+        SELECT lang_id, pos, invert_classes
+        FROM grammar_tables
+        WHERE id = $1
+      `,
+      [ req.params.id ]
+    );
+    if(tableResult.rows.length !== 1) {
+      res.status(400).json({ message: "The given table does not exist." });
+      return;
+    }
+    const tableData = tableResult.rows[0];
+
+    const wordResult = await client.query(
       `
         SELECT * FROM (
           SELECT translate(w.id::text, '-', '') AS id, w.word, w.meaning
           FROM word_classes_by_word AS wc
           RIGHT JOIN words AS w
           ON wc.word_id = w.id
-          WHERE w.pos IN (SELECT pos FROM grammar_tables WHERE id = $1)
+          WHERE w.pos = $1 AND w.lang_id = $2
           GROUP BY w.id
-          HAVING array_agg(wc.class_id) @> (
-            SELECT ARRAY(
-              SELECT class_id
-              FROM grammar_table_classes
-              WHERE table_id = $1
+          HAVING
+            CASE WHEN $3 THEN NOT (array_agg(wc.class_id) && (
+              SELECT ARRAY(
+                SELECT class_id
+                FROM grammar_table_classes
+                WHERE table_id = $4
+              )
+            ))
+            ELSE array_agg(wc.class_id) @> (
+              SELECT ARRAY(
+                SELECT class_id
+                FROM grammar_table_classes
+                WHERE table_id = $4
+              )
             )
-          )
+            END
         )
         ORDER BY RANDOM()
         LIMIT 1
       `,
-      [ req.params.id ]
+      [ tableData.pos, tableData.lang_id, tableData.invert_classes, req.params.id ]
     );
     if(wordResult.rows.length === 0) {
       res.json(null);
