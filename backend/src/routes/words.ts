@@ -1,15 +1,15 @@
 import type { RequestHandler } from 'express';
 
 import query, { transact } from '../db/index.js';
-import { partsOfSpeech, hasAllFields, IQueryError } from '../utils.js';
+import { hasAllStrings, isValidUUID, partsOfSpeech, IQueryError } from '../utils.js';
 
 export const addWord: RequestHandler = async (req, res) => {
-  if(!/^[0-9a-f]{32}$/.test(req.body.langId)) {
+  if(!isValidUUID(req.body.langId)) {
     res.status(400).json({ title: "Invalid ID", message: "The given language ID is not valid." });
     return;
   }
   if(!req.body.word || !req.body.meaning || !req.body.pos ||
-      !hasAllFields(req.body, [ 'ipa', 'etymology', 'notes' ]) ||
+      !hasAllStrings(req.body, ['ipa', 'etymology', 'notes']) ||
       !(req.body.classIds instanceof Array)) {
     res.status(400).json({ message: "Please provide all required fields." });
     return;
@@ -47,7 +47,7 @@ export const addWord: RequestHandler = async (req, res) => {
 };
 
 export const deleteWord: RequestHandler = async (req, res) => {
-  if(!/^[0-9a-f]{32}$/.test(req.params.id)) {
+  if(!isValidUUID(req.params.id)) {
     res.status(400).json({ title: "Invalid ID", message: "The given word ID is not valid." });
     return;
   }
@@ -60,12 +60,12 @@ export const deleteWord: RequestHandler = async (req, res) => {
 };
 
 export const editWord: RequestHandler = async (req, res) => {
-  if(!/^[0-9a-f]{32}$/.test(req.params.id)) {
+  if(!isValidUUID(req.params.id)) {
     res.status(400).json({ title: "Invalid ID", message: "The given word ID is not valid." });
     return;
   }
   if(!req.body.word || !req.body.meaning || !req.body.pos ||
-      !hasAllFields(req.body, [ 'ipa', 'etymology', 'notes' ]) ||
+      !hasAllStrings(req.body, ['ipa', 'etymology', 'notes']) ||
       !(req.body.classIds instanceof Array)) {
     res.status(400).json({ message: "Please provide all required fields." });
     return;
@@ -112,7 +112,7 @@ export const editWord: RequestHandler = async (req, res) => {
 };
 
 export const getLanguageWords: RequestHandler = async (req, res) => {
-  if(!/^[0-9a-f]{32}$/.test(req.params.id)) {
+  if(!isValidUUID(req.params.id)) {
     res.status(400).json({ title: "Invalid ID", message: "The given language ID is not valid." });
     return;
   }
@@ -134,7 +134,7 @@ export const getPartsOfSpeech: RequestHandler = async (req, res) => {
 };
 
 export const getWord: RequestHandler = async (req, res, next) => {
-  if(!/^[0-9a-f]{32}$/.test(req.params.id)) {
+  if(!isValidUUID(req.params.id)) {
     res.status(400).json({ title: "Invalid ID", message: "The given word ID is not valid." });
     return;
   }
@@ -158,7 +158,7 @@ export const getWord: RequestHandler = async (req, res, next) => {
 };
 
 export const getWordClassesByLanguage: RequestHandler = async (req, res) => {
-  if(!/^[0-9a-f]{32}$/.test(req.params.id)) {
+  if(!isValidUUID(req.params.id)) {
     res.status(400).json({ title: "Invalid ID", message: "The given language ID is not valid." });
     return;
   }
@@ -176,7 +176,7 @@ export const getWordClassesByLanguage: RequestHandler = async (req, res) => {
 };
 
 export const getWordClassIdsByWord: RequestHandler = async (req, res) => {
-  if(!/^[0-9a-f]{32}$/.test(req.params.id)) {
+  if(!isValidUUID(req.params.id)) {
     res.status(400).json({ title: "Invalid ID", message: "The given word ID is not valid." });
     return;
   }
@@ -196,7 +196,7 @@ export const getWordClassIdsByWord: RequestHandler = async (req, res) => {
 };
 
 export const getWordClassesByWord: RequestHandler = async (req, res) => {
-  if(!/^[0-9a-f]{32}$/.test(req.params.id)) {
+  if(!isValidUUID(req.params.id)) {
     res.status(400).json({ title: "Invalid ID", message: "The given word ID is not valid." });
     return;
   }
@@ -217,7 +217,7 @@ export const getWordClassesByWord: RequestHandler = async (req, res) => {
 
 export const updateWordClasses: RequestHandler = async (req, res, next) => {
   try {
-    if(!/^[0-9a-f]{32}$/.test(req.params.id)) {
+    if(!isValidUUID(req.params.id)) {
       res.status(400).json({ message: "The given language ID is not valid." });
       return;
     }

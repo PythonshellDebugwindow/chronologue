@@ -4,7 +4,7 @@ import runGrammarTableRules from '../sca/runGrammarTable.js';
 
 import query, { transact } from '../db/index.js';
 import {
-  hasAllArrays, hasAllBooleans, hasAllStrings, IQueryError
+  hasAllArrays, hasAllBooleans, hasAllStrings, isValidUUID, IQueryError
 } from '../utils.js';
 
 function validateRowsAndColumns(rows: string[], columns: string[]) {
@@ -26,13 +26,13 @@ function validateRowsAndColumns(rows: string[], columns: string[]) {
 }
 
 export const addGrammarTable: RequestHandler = async (req, res) => {
-  if(!/^[0-9a-f]{32}$/.test(req.body.langId)) {
+  if(!isValidUUID(req.body.langId)) {
     res.status(400).json({ title: "Invalid ID", message: "The given language ID is not valid." });
     return;
   }
-  if(!hasAllStrings(req.body, [ "name", "pos" ]) ||
-     !hasAllBooleans(req.body, [ "invertClasses", "showIpa" ]) ||
-     !hasAllArrays(req.body, [ "rows", "columns", "classIds" ])) {
+  if(!hasAllStrings(req.body, ['name', 'pos']) ||
+     !hasAllBooleans(req.body, ['invertClasses', 'showIpa']) ||
+     !hasAllArrays(req.body, ['rows', 'columns', 'classIds'])) {
     res.status(400).json({ message: "Please provide all required fields." });
     return;
   }
@@ -69,7 +69,7 @@ export const addGrammarTable: RequestHandler = async (req, res) => {
 };
 
 export const deleteGrammarTable: RequestHandler = async (req, res) => {
-  if(!/^[0-9a-f]{32}$/.test(req.params.id)) {
+  if(!isValidUUID(req.params.id)) {
     res.status(400).json({ title: "Invalid ID", message: "The given table ID is not valid." });
     return;
   }
@@ -83,13 +83,13 @@ export const deleteGrammarTable: RequestHandler = async (req, res) => {
 };
 
 export const editGrammarTable: RequestHandler = async (req, res) => {
-  if(!/^[0-9a-f]{32}$/.test(req.params.id)) {
+  if(!isValidUUID(req.params.id)) {
     res.status(400).json({ title: "Invalid ID", message: "The given table ID is not valid." });
     return;
   }
-  if(!hasAllStrings(req.body, [ "name", "pos", "preRules", "postRules", "notes" ]) ||
-     !hasAllBooleans(req.body, [ "invertClasses", "showIpa" ]) ||
-     !hasAllArrays(req.body, [ "rows", "columns", "classIds", "cells" ])) {
+  if(!hasAllStrings(req.body, ['name', 'pos', 'preRules', 'postRules', 'notes']) ||
+     !hasAllBooleans(req.body, ['invertClasses', 'showIpa']) ||
+     !hasAllArrays(req.body, ['rows', 'columns', 'classIds', 'cells'])) {
     res.status(400).json({ message: "Please provide all required fields." });
     return;
   }
@@ -179,7 +179,7 @@ export const getGrammarForms: RequestHandler = async (req, res) => {
 };
 
 export const getGrammarTable: RequestHandler = async (req, res) => {
-  if(!/^[0-9a-f]{32}$/.test(req.params.id)) {
+  if(!isValidUUID(req.params.id)) {
     res.status(400).json({ title: "Invalid ID", message: "The given table ID is not valid." });
     return;
   }
@@ -205,7 +205,7 @@ export const getGrammarTable: RequestHandler = async (req, res) => {
 };
 
 export const getGrammarTableClasses: RequestHandler = async (req, res) => {
-  if(!/^[0-9a-f]{32}$/.test(req.params.id)) {
+  if(!isValidUUID(req.params.id)) {
     res.status(400).json({ title: "Invalid ID", message: "The given table ID is not valid." });
     return;
   }
@@ -225,7 +225,7 @@ export const getGrammarTableClasses: RequestHandler = async (req, res) => {
 };
 
 export const getGrammarTableClassIds: RequestHandler = async (req, res) => {
-  if(!/^[0-9a-f]{32}$/.test(req.params.id)) {
+  if(!isValidUUID(req.params.id)) {
     res.status(400).json({ title: "Invalid ID", message: "The given table ID is not valid." });
     return;
   }
@@ -246,7 +246,7 @@ export const getGrammarTableClassIds: RequestHandler = async (req, res) => {
 };
 
 export const getGrammarTableFilledCells: RequestHandler = async (req, res) => {
-  if(!/^[0-9a-f]{32}$/.test(req.params.id)) {
+  if(!isValidUUID(req.params.id)) {
     res.status(400).json({ title: "Invalid ID", message: "The given table ID is not valid." });
     return;
   }
@@ -263,7 +263,7 @@ export const getGrammarTableFilledCells: RequestHandler = async (req, res) => {
 };
 
 export const getGrammarTablesForWord: RequestHandler = async (req, res) => {
-  if(!/^[0-9a-f]{32}$/.test(req.params.id)) {
+  if(!isValidUUID(req.params.id)) {
     res.status(400).json({ title: "Invalid ID", message: "The given word ID is not valid." });
     return;
   }
@@ -316,7 +316,7 @@ export const getGrammarTablesForWord: RequestHandler = async (req, res) => {
 };
 
 export const getLanguageGrammarTables: RequestHandler = async (req, res) => {
-  if(!/^[0-9a-f]{32}$/.test(req.params.id)) {
+  if(!isValidUUID(req.params.id)) {
     res.status(400).json({ title: "Invalid ID", message: "The given language ID is not valid." });
     return;
   }
@@ -334,7 +334,7 @@ export const getLanguageGrammarTables: RequestHandler = async (req, res) => {
 };
 
 export const getRandomWordForGrammarTable: RequestHandler = async (req, res) => {
-  if(!/^[0-9a-f]{32}$/.test(req.params.id)) {
+  if(!isValidUUID(req.params.id)) {
     res.status(400).json({ title: "Invalid ID", message: "The given table ID is not valid." });
     return;
   }
@@ -400,11 +400,11 @@ export const getRandomWordForGrammarTable: RequestHandler = async (req, res) => 
 };
 
 export const runGrammarTableOnWord: RequestHandler = async (req, res) => {
-  if(!/^[0-9a-f]{32}$/.test(req.params.id)) {
+  if(!isValidUUID(req.params.id)) {
     res.status(400).json({ title: "Invalid ID", message: "The given table ID is not valid." });
     return;
   }
-  if(!hasAllStrings(req.body, [ "word" ])) {
+  if(!hasAllStrings(req.body, ['word'])) {
     res.status(400).json({ message: "Invalid request body." });
     return;
   }

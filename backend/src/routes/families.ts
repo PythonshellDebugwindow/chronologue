@@ -1,7 +1,7 @@
 import type { RequestHandler } from 'express';
 
 import query, { transact } from '../db/index.js';
-import { IQueryError } from '../utils.js';
+import { isValidUUID, IQueryError } from '../utils.js';
 
 export const addFamily: RequestHandler = async (req, res, next) => {
   try {
@@ -25,7 +25,7 @@ export const addFamily: RequestHandler = async (req, res, next) => {
 };
 
 export const deleteFamily: RequestHandler = async (req, res) => {
-  if(!/^[0-9a-f]{32}$/.test(req.params.id)) {
+  if(!isValidUUID(req.params.id)) {
     res.status(400).json({ title: "Invalid ID", message: "The given family ID is not valid." });
     return;
   }
@@ -55,7 +55,7 @@ export const deleteFamily: RequestHandler = async (req, res) => {
 
 export const editFamily: RequestHandler = async (req, res, next) => {
   try {
-    if(!/^[0-9a-f]{32}$/.test(req.params.id)) {
+    if(!isValidUUID(req.params.id)) {
       res.status(400).json({ title: "Invalid ID", message: "The given family ID is not valid." });
       return;
     }
@@ -96,7 +96,7 @@ export const getAllFamilies: RequestHandler = async (req, res) => {
 };
 
 export const getFamily: RequestHandler = async (req, res) => {
-  if(!/^[0-9a-f]{32}$/.test(req.params.id)) {
+  if(!isValidUUID(req.params.id)) {
     res.status(400).json({ title: "Invalid ID", message: "The given family ID is not valid." });
     return;
   }
@@ -118,7 +118,7 @@ export const getFamily: RequestHandler = async (req, res) => {
 };
 
 export const getFamilyMembers: RequestHandler = async (req, res) => {
-  if(!/^[0-9a-f]{32}$/.test(req.params.id)) {
+  if(!isValidUUID(req.params.id)) {
     res.status(400).json({ title: "Invalid ID", message: "The given family ID is not valid." });
     return;
   }

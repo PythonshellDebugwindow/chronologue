@@ -6,10 +6,10 @@ import { makeEstimatePronunciation } from '../sca/estimateIpa.js';
 import { SCA } from '../sca/sca.js';
 
 import query, { transact } from '../db/index.js';
-import { hasAllFields, IQueryError } from '../utils.js';
+import { hasAllStrings, isValidUUID, IQueryError } from '../utils.js';
 
 export const applySCARules: RequestHandler = async (req, res) => {
-  if(!/^[0-9a-f]{32}$/.test(req.params.id)) {
+  if(!isValidUUID(req.params.id)) {
     res.status(400).json({ title: "Invalid ID", message: "The given language ID is not valid." });
     return;
   }
@@ -45,7 +45,7 @@ export const applySCARules: RequestHandler = async (req, res) => {
 };
 
 export const estimateWordIPA: RequestHandler = async (req, res) => {
-  if(!/^[0-9a-f]{32}$/.test(req.params.id)) {
+  if(!isValidUUID(req.params.id)) {
     res.status(400).json({ title: "Invalid ID", message: "The given language ID is not valid." });
     return;
   }
@@ -68,7 +68,7 @@ export const estimateWordIPA: RequestHandler = async (req, res) => {
 };
 
 export const getOrthographyCategories: RequestHandler = async (req, res) => {
-  if(!/^[0-9a-f]{32}$/.test(req.params.id)) {
+  if(!isValidUUID(req.params.id)) {
     res.status(400).json({ title: "Invalid ID", message: "The given language ID is not valid." });
     return;
   }
@@ -85,7 +85,7 @@ export const getOrthographyCategories: RequestHandler = async (req, res) => {
 };
 
 export const getPhoneCategories: RequestHandler = async (req, res) => {
-  if(!/^[0-9a-f]{32}$/.test(req.params.id)) {
+  if(!isValidUUID(req.params.id)) {
     res.status(400).json({ title: "Invalid ID", message: "The given language ID is not valid." });
     return;
   }
@@ -102,7 +102,7 @@ export const getPhoneCategories: RequestHandler = async (req, res) => {
 };
 
 export const getPhones: RequestHandler = async (req, res) => {
-  if(!/^[0-9a-f]{32}$/.test(req.params.id)) {
+  if(!isValidUUID(req.params.id)) {
     res.status(400).json({ title: "Invalid ID", message: "The given language ID is not valid." });
     return;
   }
@@ -121,7 +121,7 @@ export const getPhones: RequestHandler = async (req, res) => {
 };
 
 export const getPronunciationEstimation: RequestHandler = async (req, res) => {
-  if(!/^[0-9a-f]{32}$/.test(req.params.id)) {
+  if(!isValidUUID(req.params.id)) {
     res.status(400).json({ title: "Invalid ID", message: "The given language ID is not valid." });
     return;
   }
@@ -145,7 +145,7 @@ const makeUpdateCategories = (tableName: 'orthography_categories' | 'phonology_c
   const escapedTableName = escapeIdentifier(tableName);
   const updateFn: RequestHandler = async (req, res, next) => {
     try {
-      if(!/^[0-9a-f]{32}$/.test(req.params.id)) {
+      if(!isValidUUID(req.params.id)) {
         res.status(400).json({ message: "Invalid request body." });
         return;
       }
@@ -220,7 +220,7 @@ export const updateOrthographyCategories = makeUpdateCategories('orthography_cat
 export const updatePhoneCategories = makeUpdateCategories('phonology_categories');
 
 export const updatePhones: RequestHandler = async (req, res) => {
-  if(!/^[0-9a-f]{32}$/.test(req.params.id)) {
+  if(!isValidUUID(req.params.id)) {
     res.status(400).json({ message: "Invalid request body." });
     return;
   }
@@ -311,11 +311,11 @@ export const updatePhones: RequestHandler = async (req, res) => {
 };
 
 export const updatePronunciationEstimation: RequestHandler = async (req, res) => {
-  if(!/^[0-9a-f]{32}$/.test(req.params.id)) {
+  if(!isValidUUID(req.params.id)) {
     res.status(400).json({ message: "The given language ID is not valid." });
     return;
   }
-  if(!hasAllFields(req.body, ['letterReplacements', 'rewriteRules'])) {
+  if(!hasAllStrings(req.body, ['letterReplacements', 'rewriteRules'])) {
     res.status(400).json({ message: "Invalid request body." });
     return;
   }

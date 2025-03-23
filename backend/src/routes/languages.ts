@@ -1,11 +1,11 @@
 import type { RequestHandler } from 'express';
 
 import query, { transact } from '../db/index.js';
-import { hasAllFields, IQueryError } from '../utils.js';
+import { hasAllStrings, isValidUUID, IQueryError } from '../utils.js';
 
 export const addLanguage: RequestHandler = async (req, res, next) => {
   try {
-    if(!req.body.name || !hasAllFields(req.body, [ "autonym", "familyId", "status", "era" ])) {
+    if(!req.body.name || !hasAllStrings(req.body, ['autonym', 'familyId', 'status', 'era'])) {
       res.status(400).json({ message: "Please provide all required fields." });
       return;
     }
@@ -93,7 +93,7 @@ export const addLanguage: RequestHandler = async (req, res, next) => {
 };
 
 export const deleteLanguage: RequestHandler = async (req, res) => {
-  if(!/^[0-9a-f]{32}$/.test(req.params.id)) {
+  if(!isValidUUID(req.params.id)) {
     res.status(400).json({ title: "Invalid ID", message: "The given language ID is not valid." });
     return;
   }
@@ -123,12 +123,12 @@ export const deleteLanguage: RequestHandler = async (req, res) => {
 
 export const editLanguage: RequestHandler = async (req, res, next) => {
   try {
-    if(!/^[0-9a-f]{32}$/.test(req.params.id)) {
+    if(!isValidUUID(req.params.id)) {
       res.status(400).json({ title: "Invalid ID", message: "The given language ID is not valid." });
       return;
     }
     if(!req.body.name ||
-        !hasAllFields(req.body, [ 'autonym', 'familyId', 'parentId', 'status', 'era' ])) {
+       !hasAllStrings(req.body, ['autonym', 'familyId', 'parentId', 'status', 'era'])) {
       res.status(400).json({ message: "Please provide all required fields." });
       return;
     }
@@ -223,7 +223,7 @@ export const editLanguage: RequestHandler = async (req, res, next) => {
 };
 
 export const getDescendants: RequestHandler = async (req, res) => {
-  if(!/^[0-9a-f]{32}$/.test(req.params.id)) {
+  if(!isValidUUID(req.params.id)) {
     res.status(400).json({ title: "Invalid ID", message: "The given language ID is not valid." });
     return;
   }
@@ -255,7 +255,7 @@ export const getDescendants: RequestHandler = async (req, res) => {
 };
 
 export const getLanguage: RequestHandler = async (req, res) => {
-  if(!/^[0-9a-f]{32}$/.test(req.params.id)) {
+  if(!isValidUUID(req.params.id)) {
     res.status(400).json({ title: "Invalid ID", message: "The given language ID is not valid." });
     return;
   }
@@ -280,7 +280,7 @@ export const getLanguage: RequestHandler = async (req, res) => {
 };
 
 export const getOrthographySettings: RequestHandler = async (req, res) => {
-  if(!/^[0-9a-f]{32}$/.test(req.params.id)) {
+  if(!isValidUUID(req.params.id)) {
     res.status(400).json({ title: "Invalid ID", message: "The given language ID is not valid." });
     return;
   }
@@ -316,7 +316,7 @@ export const getOrthographySettings: RequestHandler = async (req, res) => {
 };
 
 export const getSummaryNotes: RequestHandler = async (req, res) => {
-  if(!/^[0-9a-f]{32}$/.test(req.params.id)) {
+  if(!isValidUUID(req.params.id)) {
     res.status(400).json({ title: "Invalid ID", message: "The given language ID is not valid." });
     return;
   }
@@ -339,7 +339,7 @@ export const getSummaryNotes: RequestHandler = async (req, res) => {
 };
 
 export const updateAlphabeticalOrder: RequestHandler = async (req, res) => {
-  if(!/^[0-9a-f]{32}$/.test(req.params.id)) {
+  if(!isValidUUID(req.params.id)) {
     res.status(400).json({ message: "The given language ID is not valid." });
     return;
   }
@@ -360,11 +360,11 @@ export const updateAlphabeticalOrder: RequestHandler = async (req, res) => {
 };
 
 export const updateSummaryNotes: RequestHandler = async (req, res) => {
-  if(!/^[0-9a-f]{32}$/.test(req.params.id)) {
+  if(!isValidUUID(req.params.id)) {
     res.status(400).json({ message: "The given language ID is not valid." });
     return;
   }
-  if(!hasAllFields(req.body, ['description', 'phonologyNotes', 'orthographyNotes'])) {
+  if(!hasAllStrings(req.body, ['description', 'phonologyNotes', 'orthographyNotes'])) {
     res.status(400).json({ message: "Invalid request body." });
     return;
   }
