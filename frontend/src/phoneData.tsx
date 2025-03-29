@@ -5,6 +5,7 @@ import {
   consonantPhones, phoneToString, vowelPhones
 } from '@shared/phones.ts';
 
+import { IOrthographySettings } from './languageData.tsx';
 import { getBackendJson, sendBackendJsonForQuery, ITitledError } from './utils.tsx';
 
 export interface ICategory {
@@ -79,7 +80,10 @@ export function phoneToStringWithBrackets(phone: IPhone) {
   }
 };
 
-export function formatGraphForAlphabet(graph: string) {
+export function formatGraphForAlphabet(graph: string, orthSettings: IOrthographySettings) {
+  if(orthSettings.caseSensitive) {
+    return graph;
+  }
   const upper = graph.toUpperCase();
   if(upper === graph) {
     return graph;

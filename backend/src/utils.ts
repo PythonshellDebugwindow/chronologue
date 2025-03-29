@@ -16,7 +16,7 @@ export function hasAllStrings(body: { [key: string]: any }, fields: string[]) {
 
 export function isValidUUID(value: string) {
   return /^[0-9a-f]{32}$/.test(value);
-}
+};
 
 export const partsOfSpeech = [
   ['abb', 'abbreviation'],

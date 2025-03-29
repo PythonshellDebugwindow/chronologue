@@ -7,21 +7,26 @@ import {
 } from '../components/CForm.tsx';
 import POSAndClassesSelect from '../components/POSAndClassesSelect.tsx';
 
-import { getWordClassesByLanguage } from '../languageData.tsx';
+import {
+  getDictionarySettings, getWordClassesByLanguage, IDictionarySettings
+} from '../languageData.tsx';
+import { useSetPageTitle } from '../utils.tsx';
 import {
   editWord, getPartsOfSpeech, getWordById, getWordClassIdsByWord,
   IPartOfSpeech, IWord, IWordClass
 } from '../wordData.tsx';
-import { useSetPageTitle } from '../utils.tsx';
 
 interface IAddWordInner {
   initialWord: IWord;
   initialClassIds: string[];
+  dictSettings: IDictionarySettings;
   langClasses: IWordClass[];
-  langPartsOfSpeech: IPartOfSpeech[];
+  partsOfSpeech: IPartOfSpeech[];
 }
 
-function EditWordInner({ initialWord, initialClassIds, langClasses, langPartsOfSpeech }: IAddWordInner) {
+function EditWordInner(
+  { initialWord, initialClassIds, dictSettings, langClasses, partsOfSpeech }: IAddWordInner
+) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   
@@ -75,19 +80,48 @@ function EditWordInner({ initialWord, initialClassIds, langClasses, langPartsOfS
       { errorMessage && <p>{errorMessage}</p> }
       <form className="chronologue-form">
         <CFormBody>
-          <CTextInput label="Word" name="word" state={word} setState={setWord} />
-          <CTextInput label="Meaning" name="meaning" state={meaning} setState={setMeaning} />
-          <CIpaTextInput languageId={ initialWord.langId } word={word} ipa={ipa} setIpa={setIpa} />
+          <CTextInput
+            label="Word"
+            name="word"
+            state={word}
+            setState={setWord}
+          />
+          <CTextInput
+            label="Meaning"
+            name="meaning"
+            state={meaning}
+            setState={setMeaning}
+          />
+          {
+            dictSettings.showWordIpa && (
+              <CIpaTextInput
+                languageId={ initialWord.langId }
+                word={word}
+                ipa={ipa}
+                setIpa={setIpa}
+              />
+            )
+          }
           <POSAndClassesSelect
             pos={pos}
             setPos={setPos}
-            allLangPos={langPartsOfSpeech}
+            allLangPos={partsOfSpeech}
             classes={classes}
             setClasses={setClasses}
             allLangClasses={langClasses}
           />
-          <CMultilineTextInput label="Etymology" name="etymology" state={etymology} setState={setEtymology} />
-          <CMultilineTextInput label="Notes" name="notes" state={notes} setState={setNotes} />
+          <CMultilineTextInput
+            label="Etymology"
+            name="etymology"
+            state={etymology}
+            setState={setEtymology}
+          />
+          <CMultilineTextInput
+            label="Notes"
+            name="notes"
+            state={notes}
+            setState={setNotes}
+          />
         </CFormBody>
         <button type="button" onClick={editFormWord}>
           Save
@@ -99,6 +133,7 @@ function EditWordInner({ initialWord, initialClassIds, langClasses, langPartsOfS
 
 function EditWordWithWord({ word }: { word: IWord }) {
   const wordClassIdsResponse = getWordClassIdsByWord(word.id);
+  const dictSettingsResponse = getDictionarySettings(word.langId);
   const languageClassesResponse = getWordClassesByLanguage(word.langId);
   const partsOfSpeechResponse = getPartsOfSpeech();
 
@@ -107,6 +142,14 @@ function EditWordWithWord({ word }: { word: IWord }) {
   } else if(wordClassIdsResponse.status === 'error') {
     return (
       <p>{ wordClassIdsResponse.error.message }</p>
+    );
+  }
+  
+  if(dictSettingsResponse.status === 'pending') {
+    return <p>Loading...</p>;
+  } else if(dictSettingsResponse.status === 'error') {
+    return (
+      <p>{ dictSettingsResponse.error.message }</p>
     );
   }
 
@@ -130,8 +173,9 @@ function EditWordWithWord({ word }: { word: IWord }) {
     <EditWordInner
       initialWord={word}
       initialClassIds={ wordClassIdsResponse.data }
+      dictSettings={ dictSettingsResponse.data }
       langClasses={ languageClassesResponse.data }
-      langPartsOfSpeech={ partsOfSpeechResponse.data }
+      partsOfSpeech={ partsOfSpeechResponse.data }
     />
   );
 }

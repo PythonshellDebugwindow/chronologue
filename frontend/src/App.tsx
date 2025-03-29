@@ -19,12 +19,12 @@ import DeleteLanguage from './routes/DeleteLanguage.tsx';
 import DeleteWord from './routes/DeleteWord.tsx';
 import ChronoSCAHelpPage from './routes/ChronoSCAHelpPage.tsx';
 import DeleteGrammarTable from './routes/DeleteGrammarTable.tsx';
-import EditAlphabeticalOrder from './routes/EditAlphabeticalOrder.tsx';
 import EditDictionarySettings from './routes/EditDictionarySettings.tsx';
 import EditFamily from './routes/EditFamily.tsx';
 import EditGrammarForms from './routes/EditGrammarForms.tsx';
 import EditGrammarTable from './routes/EditGrammarTable.tsx';
 import EditLanguage from './routes/EditLanguage.tsx';
+import EditOrthographySettings from './routes/EditOrthographySettings.tsx';
 import EditPhoneAndOrthCategories from './routes/EditPhoneAndOrthCategories.tsx';
 import EditPhonology from './routes/EditPhonology.tsx';
 import EditPronunciationEstimation from './routes/EditPronunciationEstimation.tsx';
@@ -70,10 +70,6 @@ const router = createBrowserRouter([
       {
         path: "add-word/:id?",
         element: <AddWord />
-      },
-      {
-        path: "alphabetical-order/:id?",
-        element: <EditAlphabeticalOrder />
       },
       {
         path: "chronosca/:id?",
@@ -154,6 +150,10 @@ const router = createBrowserRouter([
       {
         path: "languages",
         element: <ViewLanguages />
+      },
+      {
+        path: "orthography-settings/:id?",
+        element: <EditOrthographySettings />
       },
       {
         path: "phonology/:id?",

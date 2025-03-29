@@ -8,13 +8,14 @@ import LinkButton from '../components/LinkButton.tsx';
 import POSAndClassesSelect from '../components/POSAndClassesSelect.tsx';
 
 import {
-  getLanguageById, getWordClassesByLanguage, ILanguage
+  getDictionarySettings, getLanguageById, getWordClassesByLanguage,
+  IDictionarySettings, ILanguage
 } from '../languageData.tsx';
+import { useGetParamsOrSelectedId, useSetPageTitle } from '../utils.tsx';
 import {
   addWord, getPartsOfSpeech, getWordById, getWordClassIdsByWord,
   IPartOfSpeech, IWord, IWordClass
 } from '../wordData.tsx';
-import { useGetParamsOrSelectedId, useSetPageTitle } from '../utils.tsx';
 
 function wordName(query: ReturnType<typeof getWordById>) {
   if(query.isPending) {
@@ -66,11 +67,12 @@ function WordAddedMessage({ prevId, copyWordData }: IWordAddedMessage) {
 
 interface IAddWordInner {
   language: ILanguage;
+  dictSettings: IDictionarySettings;
   langClasses: IWordClass[];
   langPartsOfSpeech: IPartOfSpeech[];
 }
 
-function AddWordInner({ language, langClasses, langPartsOfSpeech }: IAddWordInner) {
+function AddWordInner({ language, dictSettings, langClasses, langPartsOfSpeech }: IAddWordInner) {
   const [ searchParams ] = useSearchParams();
   const navigate = useNavigate();
 
@@ -138,6 +140,7 @@ function AddWordInner({ language, langClasses, langPartsOfSpeech }: IAddWordInne
     setClasses([]);
     setEtymology("");
     setNotes("");
+    setCopyingMessage(null);
   }
 
   async function addFormWord() {
@@ -192,9 +195,28 @@ function AddWordInner({ language, langClasses, langPartsOfSpeech }: IAddWordInne
       { message && <p>{message}</p> }
       <form className="chronologue-form">
         <CFormBody>
-          <CTextInput label="Word" name="word" state={word} setState={setWord} />
-          <CTextInput label="Meaning" name="meaning" state={meaning} setState={setMeaning} />
-          <CIpaTextInput languageId={language.id} ipa={ipa} setIpa={setIpa} word={word} />
+          <CTextInput
+            label="Word"
+            name="word"
+            state={word}
+            setState={setWord}
+          />
+          <CTextInput
+            label="Meaning"
+            name="meaning"
+            state={meaning}
+            setState={setMeaning}
+          />
+          {
+            dictSettings.showWordIpa && (
+              <CIpaTextInput
+                languageId={ language.id }
+                ipa={ipa}
+                setIpa={setIpa}
+                word={word}
+              />
+            )
+          }
           <POSAndClassesSelect
             pos={pos}
             setPos={setPos}
@@ -203,8 +225,18 @@ function AddWordInner({ language, langClasses, langPartsOfSpeech }: IAddWordInne
             setClasses={setClasses}
             allLangClasses={langClasses}
           />
-          <CMultilineTextInput label="Etymology" name="etymology" state={etymology} setState={setEtymology} />
-          <CMultilineTextInput label="Notes" name="notes" state={notes} setState={setNotes} />
+          <CMultilineTextInput
+            label="Etymology"
+            name="etymology"
+            state={etymology}
+            setState={setEtymology}
+          />
+          <CMultilineTextInput
+            label="Notes"
+            name="notes"
+            state={notes}
+            setState={setNotes}
+          />
         </CFormBody>
         <button type="button" onClick={addFormWord}>
           Add Word
@@ -233,6 +265,7 @@ export default function AddWord() {
   }
   
   const languageResponse = getLanguageById(languageId);
+  const dictSettingsResponse = getDictionarySettings(languageId);
   const classesResponse = getWordClassesByLanguage(languageId);
   const partsOfSpeechResponse = getPartsOfSpeech();
   
@@ -246,6 +279,14 @@ export default function AddWord() {
         <h2>{ languageResponse.error.title }</h2>
         <p>{ languageResponse.error.message }</p>
       </>
+    );
+  }
+  
+  if(dictSettingsResponse.status === 'pending') {
+    return <p>Loading...</p>;
+  } else if(dictSettingsResponse.status === 'error') {
+    return (
+      <p>{ dictSettingsResponse.error.message }</p>
     );
   }
 
@@ -268,6 +309,7 @@ export default function AddWord() {
   return (
     <AddWordInner
       language={ languageResponse.data }
+      dictSettings={ dictSettingsResponse.data }
       langClasses={ classesResponse.data }
       langPartsOfSpeech={ partsOfSpeechResponse.data }
     />

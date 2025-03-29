@@ -80,6 +80,10 @@ export const addLanguage: RequestHandler = async (req, res, next) => {
         "INSERT INTO orthography_settings (lang_id) VALUES ($1)",
         [ addedLanguageId ]
       );
+      await client.query(
+        "INSERT INTO dictionary_settings (lang_id) VALUES ($1)",
+        [ addedLanguageId ]
+      );
       
       res.status(201).json(addedLanguageId);
     });
@@ -254,6 +258,27 @@ export const getDescendants: RequestHandler = async (req, res) => {
   res.json(value.rows);
 };
 
+export const getDictionarySettings: RequestHandler = async (req, res) => {
+  if(!isValidUUID(req.params.id)) {
+    res.status(400).json({ title: "Invalid ID", message: "The given language ID is not valid." });
+    return;
+  }
+  
+  const value = await query(
+    `
+      SELECT show_word_ipa AS "showWordIpa"
+      FROM dictionary_settings
+      WHERE lang_id = $1
+    `,
+    [ req.params.id ]
+  );
+  if(value.rows.length === 1) {
+    res.json(value.rows[0]);
+  } else {
+    res.status(404).json({ title: "Language not found", message: "The requested language was not found." });
+  }
+};
+
 export const getLanguage: RequestHandler = async (req, res) => {
   if(!isValidUUID(req.params.id)) {
     res.status(400).json({ title: "Invalid ID", message: "The given language ID is not valid." });
@@ -288,11 +313,7 @@ export const getOrthographySettings: RequestHandler = async (req, res) => {
   const value = await query(
     `
       SELECT COALESCE(
-        (
-          SELECT alphabetical_order
-          FROM orthography_settings
-          WHERE lang_id = $1
-        ),
+        alphabetical_order,
         ARRAY(
           SELECT DISTINCT graph
           FROM phones
@@ -300,11 +321,10 @@ export const getOrthographySettings: RequestHandler = async (req, res) => {
           ORDER BY graph
         )
       ) AS "alphabeticalOrder",
-      (
-        SELECT alphabetical_order IS NOT NULL
-        FROM orthography_settings
-        WHERE lang_id = $1
-      ) AS "hasSetAlphabeticalOrder"
+      alphabetical_order IS NOT NULL AS "hasSetAlphabeticalOrder",
+      case_sensitive AS "caseSensitive"
+      FROM orthography_settings
+      WHERE lang_id = $1
     `,
     [ req.params.id ]
   );
@@ -357,6 +377,48 @@ export const updateAlphabeticalOrder: RequestHandler = async (req, res) => {
     [ req.body.order, req.params.id ]
   );
   res.json(req.body.order);
+};
+
+export const updateDictionarySettings: RequestHandler = async (req, res) => {
+  if(!isValidUUID(req.params.id)) {
+    res.status(400).json({ message: "The given language ID is not valid." });
+    return;
+  }
+  if(typeof req.body.showWordIpa !== 'boolean') {
+    res.status(400).json({ message: "Invalid request body." });
+    return;
+  }
+
+  await query(
+    `
+      UPDATE dictionary_settings
+      SET show_word_ipa = $1
+      WHERE lang_id = $2
+    `,
+    [ req.body.showWordIpa, req.params.id ]
+  );
+  res.status(204).send();
+};
+
+export const updateOrthographySettings: RequestHandler = async (req, res) => {
+  if(!isValidUUID(req.params.id)) {
+    res.status(400).json({ message: "The given language ID is not valid." });
+    return;
+  }
+  if(typeof req.body.caseSensitive !== 'boolean') {
+    res.status(400).json({ message: "Invalid request body." });
+    return;
+  }
+
+  await query(
+    `
+      UPDATE orthography_settings
+      SET case_sensitive = $1
+      WHERE lang_id = $2
+    `,
+    [ req.body.caseSensitive, req.params.id ]
+  );
+  res.status(204).send();
 };
 
 export const updateSummaryNotes: RequestHandler = async (req, res) => {

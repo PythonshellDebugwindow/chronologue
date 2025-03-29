@@ -23,9 +23,14 @@ export interface ILanguageSummaryNotes {
   orthographyNotes: string;
 };
 
+export interface IDictionarySettings {
+  showWordIpa: boolean;
+};
+
 export interface IOrthographySettings {
   alphabeticalOrder: string[];
   hasSetAlphabeticalOrder: boolean;
+  caseSensitive: boolean;
 };
 
 type IAddLanguageArgument = Omit<ILanguage, 'id' | 'created'>;
@@ -61,6 +66,14 @@ export function getDescendants(id: string) {
   return useQuery<ILanguage[], ITitledError>({
     queryKey: ['languages', id, 'descendants'],
     queryFn: async () => parseRecordDates(await getBackendJson(`languages/${id}/descendants`))
+  });
+};
+
+export function getDictionarySettings(id: string) {
+  return useQuery<IDictionarySettings, ITitledError>({
+    queryKey: ['languages', id, 'dictionary-settings'],
+    queryFn: async () => await getBackendJson(`languages/${id}/dictionary-settings`),
+    staleTime: 0
   });
 };
 

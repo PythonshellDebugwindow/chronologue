@@ -5,10 +5,15 @@ import {
   formatGraphForAlphabet, getPhonesByLanguage, phoneToStringWithBrackets, IPhone
 } from '../phoneData.tsx';
 
-function GraphCell({ phones }: { phones: IPhone[] }) {
+interface IGraphCell {
+  phones: IPhone[];
+  orthSettings: IOrthographySettings;
+}
+
+function GraphCell({ phones, orthSettings }: IGraphCell) {
   return (
     <td className="graph-cell" style={{ background: "#fafafa" }}>
-      <big>{ formatGraphForAlphabet(phones[0].graph) }</big>
+      <big>{ formatGraphForAlphabet(phones[0].graph, orthSettings) }</big>
       <br />
       { phones.map(phoneToStringWithBrackets).sort().join(", ") }
     </td>
@@ -30,7 +35,13 @@ function OrthographyTableInner({ phones, orthSettings, languageId }: IOrthograph
       <tr key={i}>
         {
           graphs.slice(i, i + 10).map(
-            (g, j) => <GraphCell phones={ phonesByGraph[g]! } key={j} />
+            (g, j) => (
+              <GraphCell
+                phones={ phonesByGraph[g]! }
+                orthSettings={orthSettings}
+                key={j}
+              />
+            )
           )
         }
       </tr>
@@ -44,7 +55,7 @@ function OrthographyTableInner({ phones, orthSettings, languageId }: IOrthograph
         <tr>
           <td colSpan={10} style={{ paddingLeft: "5px", paddingRight: "5px" }}>
             { orthSettings.hasSetAlphabeticalOrder ? "Shown in correct order " : "Order not set " }
-            <Link to={ '/alphabetical-order/' + languageId }>[change]</Link>
+            <Link to={ '/orthography-settings/' + languageId }>[change]</Link>
           </td>
         </tr>
       </tbody>

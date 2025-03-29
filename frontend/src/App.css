@@ -487,3 +487,10 @@
   display: inline-block;
   margin-bottom: 0.5em;
 }
+
+.help-paragraph {
+  white-space: pre-wrap;
+  max-width: 85%;
+  margin-left: auto;
+  margin-right: auto;
+}

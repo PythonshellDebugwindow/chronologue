@@ -39,7 +39,8 @@ export async function makeEstimatePronunciation(langId: string) {
 
     const peQuery = await client.query(
       `
-        SELECT letter_replacements AS "letterReplacements", rewrite_rules AS "rewriteRules"
+        SELECT letter_replacements AS "letterReplacements",
+               rewrite_rules AS "rewriteRules"
         FROM pronunciation_estimation
         WHERE lang_id = $1
       `,
@@ -60,6 +61,20 @@ export async function makeEstimatePronunciation(langId: string) {
       [ langId ]
     );
     const categories = categoriesQuery.rows;
+    
+    const orthSettingsQuery = await client.query(
+      `
+        SELECT case_sensitive
+        FROM orthography_settings
+        WHERE lang_id = $1
+      `,
+      [ langId ]
+    );
+    const caseSensitive = orthSettingsQuery.rows[0].case_sensitive;
+
+    function foldCase(word: string) {
+      return caseSensitive ? word : word.toLowerCase();
+    }
 
     const sca = new SCA(categories);
     const setRulesResult = sca.setRules(rewriteRules);
@@ -75,9 +90,9 @@ export async function makeEstimatePronunciation(langId: string) {
           ++i;
           continue;
         }
-        const lowercaseWord = word.toLowerCase();
+        const foldedWord = foldCase(word);
         const replacement = letterReplacements.find(
-          lr => lr[0].toLowerCase() === lowercaseWord.substring(i, i + lr[0].length)
+          lr => foldCase(lr[0]) === foldedWord.substring(i, i + lr[0].length)
         );
         if(replacement) {
           estimation += replacement[1];
@@ -85,7 +100,7 @@ export async function makeEstimatePronunciation(langId: string) {
           continue;
         }
         const phone = phones.find(
-          p => p.graph && lowercaseWord.substring(i, i + p.graph.length) === p.graph
+          p => p.graph && foldedWord.substring(i, i + p.graph.length) === p.graph
         );
         if(phone) {
           const phoneString = phoneToString(phone);

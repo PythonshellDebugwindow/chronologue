@@ -65,7 +65,13 @@ CREATE TABLE IF NOT EXISTS language_summary_notes (
 
 CREATE TABLE IF NOT EXISTS orthography_settings (
 	lang_id uuid NOT NULL REFERENCES languages ON DELETE CASCADE PRIMARY KEY,
-	alphabetical_order text[]
+	alphabetical_order text[],
+	case_sensitive boolean NOT NULL DEFAULT FALSE
+);
+
+CREATE TABLE IF NOT EXISTS dictionary_settings (
+	lang_id uuid NOT NULL REFERENCES languages ON DELETE CASCADE PRIMARY KEY,
+	show_word_ipa boolean NOT NULL DEFAULT TRUE
 );
 
 CREATE TABLE IF NOT EXISTS word_classes (
@@ -133,6 +139,6 @@ CREATE TABLE IF NOT EXISTS grammar_table_cells (
 	table_id uuid NOT NULL REFERENCES grammar_tables ON DELETE CASCADE,
 	row_index integer NOT NULL,
 	column_index integer NOT NULL,
-	rules TEXT NOT NULL,
+	rules text NOT NULL,
 	PRIMARY KEY (table_id, row_index, column_index)
 );

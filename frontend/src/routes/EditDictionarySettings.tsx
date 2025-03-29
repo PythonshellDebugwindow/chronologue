@@ -4,7 +4,8 @@ import { Link } from 'react-router-dom';
 import SaveChangesButton from '../components/SaveChangesButton.tsx';
 
 import {
-  getLanguageById, getWordClassesByLanguage, ILanguage
+  getDictionarySettings, getLanguageById, getWordClassesByLanguage,
+  IDictionarySettings, ILanguage
 } from '../languageData.tsx';
 import {
   useSetPageTitle, sendBackendJson, useUnsavedPopup, useGetParamsOrSelectedId
@@ -130,6 +131,15 @@ function classesReducer(state: IClassesReducerState, action: IClassesReducerActi
     default:
       throw new Error("Unknown action type: " + (action as any).type);
   }
+}
+
+async function sendSaveDictSettingsRequest(showWordIpa: boolean, langId: string) {
+  const reqBody = { showWordIpa };
+  const res = await sendBackendJson(`languages/${langId}/dictionary-settings`, 'PUT', reqBody);
+  if(!res.ok) {
+    throw res.body;
+  }
+  return res.body;
 }
 
 interface IEditWordClasses {
@@ -345,23 +355,82 @@ function EditWordClasses({ language, initialClasses, partsOfSpeech }: IEditWordC
       }
     </>
   );
-};
+}
+
+interface IEditOtherDictSettings {
+  language: ILanguage;
+  dictSettings: IDictionarySettings;
+}
+
+function EditOtherDictSettings({ language, dictSettings }: IEditOtherDictSettings) {
+  const [ showWordIpa, setShowWordIpa ] = useState(dictSettings.showWordIpa);
+  
+  const [ settingsAreSaved, setSettingsAreSaved ] = useState(true);
+  const [ isSavingSettings, setIsSavingSettings ] = useState(false);
+  
+  return (
+    <>
+      <h3>Show IPA</h3>
+      <p>
+        Disabling this option will remove the IPA field when adding a word.
+      </p>
+      <div>
+        <label>
+          Show the IPA field when adding words?{" "}
+          <input
+            type="checkbox"
+            checked={showWordIpa}
+            onChange={
+              e => { setShowWordIpa(e.target.checked); setSettingsAreSaved(false); }
+            }
+          />
+        </label>
+      </div>
+      {
+        !settingsAreSaved && <>
+          <SaveChangesButton
+            isSaving={isSavingSettings}
+            setIsSaving={setIsSavingSettings}
+            saveQueryKey={ ['languages', language.id, 'dictionary-settings', 'update'] }
+            saveQueryFn={
+              async () => await sendSaveDictSettingsRequest(showWordIpa, language.id)
+            }
+            handleSave={ _ => setSettingsAreSaved(true) }
+            style={{ marginTop: "1em" }}
+          >
+            Save
+          </SaveChangesButton>
+        </>
+      }
+    </>
+  );
+}
 
 interface IEditDictionarySettingsInner {
   language: ILanguage;
+  dictSettings: IDictionarySettings;
   classes: IWordClass[];
   partsOfSpeech: IPartOfSpeech[];
 }
 
-function EditDictionarySettingsInner({ language, classes, partsOfSpeech }: IEditDictionarySettingsInner) {
+function EditDictionarySettingsInner(
+  { language, dictSettings, classes, partsOfSpeech }: IEditDictionarySettingsInner
+) {
   return (
     <>
       <h2>Edit Dictionary Settings</h2>
-      <p>Configure <Link to={ '/language/' + language.id }>{ language.name }</Link>'s dictionary settings.</p>
+      <p>
+        Edit <Link to={ '/language/' + language.id }>{ language.name }</Link>'s
+        word classes and other dictionary settings.
+      </p>
       <EditWordClasses
         language={language}
         initialClasses={classes}
         partsOfSpeech={partsOfSpeech}
+      />
+      <EditOtherDictSettings
+        language={language}
+        dictSettings={dictSettings}
       />
     </>
   )
@@ -374,6 +443,7 @@ export default function EditDictionarySettings() {
   }
   
   const languageResponse = getLanguageById(languageId);
+  const dictSettingsResponse = getDictionarySettings(languageId);
   const classesResponse = getWordClassesByLanguage(languageId);
   const partsOfSpeechResponse = getPartsOfSpeech();
   
@@ -386,6 +456,17 @@ export default function EditDictionarySettings() {
       <>
         <h2>{ languageResponse.error.title }</h2>
         <p>{ languageResponse.error.message }</p>
+      </>
+    );
+  }
+
+  if(dictSettingsResponse.status === 'pending') {
+    return <p>Loading...</p>;
+  } else if(dictSettingsResponse.status === 'error') {
+    return (
+      <>
+        <h2>{ dictSettingsResponse.error.title }</h2>
+        <p>{ dictSettingsResponse.error.message }</p>
       </>
     );
   }
@@ -409,6 +490,7 @@ export default function EditDictionarySettings() {
   return (
     <EditDictionarySettingsInner
       language={ languageResponse.data }
+      dictSettings={ dictSettingsResponse.data }
       classes={ classesResponse.data }
       partsOfSpeech={ partsOfSpeechResponse.data }
     />

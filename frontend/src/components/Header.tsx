@@ -55,7 +55,7 @@ export default function Header() {
           name="Phonology"
           items={[
             <Link to="/phonology">Edit Phonology</Link>,
-            <Link to="/alphabetical-order">Alphabetical Order</Link>,
+            <Link to="/orthography-settings">Orthography Settings</Link>,
             <Link to="/edit-categories">Edit Categories</Link>,
             <Link to="/estimate-ipa">Edit IPA Estimation</Link>,
             <Link to="/chronosca">Test ChronoSCA</Link>
