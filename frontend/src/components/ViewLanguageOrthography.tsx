@@ -4,6 +4,7 @@ import { getOrthographySettings, IOrthographySettings } from '../languageData.ts
 import {
   formatGraphForAlphabet, getPhonesByLanguage, phoneToStringWithBrackets, IPhone
 } from '../phoneData.tsx';
+import { renderDatalessQueryResult } from '../utils.tsx';
 
 interface IGraphCell {
   phones: IPhone[];
@@ -67,19 +68,12 @@ export function OrthographySection({ languageId }: { languageId: string }) {
   const phonesResponse = getPhonesByLanguage(languageId);
   const orthSettingsResponse = getOrthographySettings(languageId);
 
-  if(phonesResponse.status === 'pending') {
-    return <p>Loading phones...</p>;
-  } else if(phonesResponse.status === 'error') {
-    return (
-      <p>{ phonesResponse.error.message }</p>
-    );
+  if(phonesResponse.status !== 'success') {
+    return renderDatalessQueryResult(phonesResponse);
   }
-  if(orthSettingsResponse.status === 'pending') {
-    return <p>Loading orthography settings...</p>;
-  } else if(orthSettingsResponse.status === 'error') {
-    return (
-      <p>{ orthSettingsResponse.error.message }</p>
-    );
+
+  if(orthSettingsResponse.status !== 'success') {
+    return renderDatalessQueryResult(orthSettingsResponse);
   }
   
   const phonesWithGraphs = phonesResponse.data.filter(p => p.graph);

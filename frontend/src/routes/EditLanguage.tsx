@@ -6,7 +6,9 @@ import { CFormBody, CSelect, CTextInput } from '../components/CForm.tsx';
 
 import { getFamilies, getFamilyMembers } from '../familyData.tsx';
 import { editLanguage, getLanguageById, ILanguage } from '../languageData.tsx';
-import { useGetParamsOrSelectedId, useSetPageTitle } from '../utils.tsx';
+import {
+  renderDatalessQueryResult, useGetParamsOrSelectedId, useSetPageTitle
+} from '../utils.tsx';
 import SelectedLanguageContext from '../SelectedLanguageContext.tsx';
 
 interface IParentSelect {
@@ -186,15 +188,8 @@ export default function EditLanguage() {
   
   useSetPageTitle("Edit Language");
 
-  if(languageResponse.status === 'pending') {
-    return <p>Loading...</p>;
-  } else if(languageResponse.status === 'error') {
-    return (
-      <>
-        <h2>{ languageResponse.error.title }</h2>
-        <p>{ languageResponse.error.message }</p>
-      </>
-    );
+  if(languageResponse.status !== 'success') {
+    return renderDatalessQueryResult(languageResponse);
   }
 
   return <EditLanguageInner initialLanguage={ languageResponse.data } />;

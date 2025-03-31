@@ -4,7 +4,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import {
   deleteGrammarTable, getGrammarTableById, IGrammarTable
 } from '../grammarData.tsx';
-import { useSetPageTitle } from '../utils.tsx';
+import { renderDatalessQueryResult, useSetPageTitle } from '../utils.tsx';
 
 function DeleteGrammarTableInner({ table }: { table: IGrammarTable }) {
   const navigate = useNavigate();
@@ -53,15 +53,8 @@ export default function DeleteGrammarTable() {
   
   useSetPageTitle("Delete Grammar Table");
 
-  if(tableResponse.status === 'pending') {
-    return <p>Loading...</p>;
-  } else if(tableResponse.status === 'error') {
-    return (
-      <>
-        <h2>{ tableResponse.error.title }</h2>
-        <p>{ tableResponse.error.message }</p>
-      </>
-    );
+  if(tableResponse.status !== 'success') {
+    return renderDatalessQueryResult(tableResponse);
   }
 
   return <DeleteGrammarTableInner table={ tableResponse.data } />;

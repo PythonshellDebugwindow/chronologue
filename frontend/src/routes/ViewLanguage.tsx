@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import DisplayDate from '../components/DisplayDate.tsx';
 import LanguageLink from '../components/LanguageLink.tsx';
 import { LanguageTree } from '../components/LanguageTree.tsx';
+import LinkButton from '../components/LinkButton.tsx';
 import { OrthographySection } from '../components/ViewLanguageOrthography.tsx';
 import { PhonologySection } from '../components/ViewLanguagePhonology.tsx';
 
@@ -13,7 +14,9 @@ import {
   ILanguage, ILanguageSummaryNotes
 } from '../languageData.tsx';
 import SelectedLanguageContext from '../SelectedLanguageContext.tsx';
-import { useGetParamsOrSelectedId, useSetPageTitle } from '../utils.tsx';
+import {
+  renderDatalessQueryResult, useGetParamsOrSelectedId, useSetPageTitle
+} from '../utils.tsx';
 import { getWordsByLanguage } from '../wordData.tsx';
 
 function getFamilyName(id: string) {
@@ -46,12 +49,12 @@ function FamilyLink({ familyId }: { familyId: string }) {
   );
 }
 
-interface IRealViewLanguage {
+interface IViewLanguageInner {
   language: ILanguage;
   summaryNotes: ILanguageSummaryNotes;
 }
 
-function RealViewLanguage({ language, summaryNotes }: IRealViewLanguage) {
+function ViewLanguageInner({ language, summaryNotes }: IViewLanguageInner) {
   const { selectedLanguage, setSelectedLanguage } = useContext(SelectedLanguageContext);
   
   return (
@@ -60,7 +63,9 @@ function RealViewLanguage({ language, summaryNotes }: IRealViewLanguage) {
       {
         language.id !== selectedLanguage?.id && (
           <p>
-            <Link to="" onClick={ () => setSelectedLanguage(language) }>Select</Link>
+            <LinkButton onClick={ () => setSelectedLanguage(language) }>
+              Select
+            </LinkButton>
           </p>
         )
       }
@@ -163,30 +168,16 @@ export default function ViewLanguage() {
   const language = languageResponse.data;
   useSetPageTitle(language ? "Language: " + language.name : "Language Summary");
 
-  if(languageResponse.status === 'pending') {
-    return <p>Loading language summary...</p>;
-  } else if(languageResponse.status === 'error') {
-    return (
-      <>
-        <h2>{ languageResponse.error.title }</h2>
-        <p>{ languageResponse.error.message }</p>
-      </>
-    );
+  if(languageResponse.status !== 'success') {
+    return renderDatalessQueryResult(languageResponse);
   }
 
-  if(summaryNotesResponse.status === 'pending') {
-    return <p>Loading language summary...</p>;
-  } else if(summaryNotesResponse.status === 'error') {
-    return (
-      <>
-        <h2>{ summaryNotesResponse.error.title }</h2>
-        <p>{ summaryNotesResponse.error.message }</p>
-      </>
-    );
+  if(summaryNotesResponse.status !== 'success') {
+    return renderDatalessQueryResult(summaryNotesResponse);
   }
   
   return (
-    <RealViewLanguage
+    <ViewLanguageInner
       language={ languageResponse.data }
       summaryNotes={ summaryNotesResponse.data }
     />

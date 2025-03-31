@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 
 import { deleteWord, getWordById, IWord } from '../wordData.tsx';
-import { useSetPageTitle } from '../utils.tsx';
+import { renderDatalessQueryResult, useSetPageTitle } from '../utils.tsx';
 
 function DeleteWordInner({ word }: { word: IWord }) {
   const navigate = useNavigate();
@@ -50,15 +50,8 @@ export default function DeleteWord() {
   
   useSetPageTitle("Delete Word");
 
-  if(wordResponse.status === 'pending') {
-    return <p>Loading...</p>;
-  } else if(wordResponse.status === 'error') {
-    return (
-      <>
-        <h2>{ wordResponse.error.title }</h2>
-        <p>{ wordResponse.error.message }</p>
-      </>
-    );
+  if(wordResponse.status !== 'success') {
+    return renderDatalessQueryResult(wordResponse);
   }
 
   return <DeleteWordInner word={ wordResponse.data } />;

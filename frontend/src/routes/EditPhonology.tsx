@@ -12,7 +12,8 @@ import {
   IPhone, IPhoneTableData, PhoneType
 } from '../phoneData.tsx';
 import {
-  useGetParamsOrSelectedId, sendBackendJson, useSetPageTitle, useUnsavedPopup
+  renderDatalessQueryResult, sendBackendJson, useGetParamsOrSelectedId,
+  useSetPageTitle, useUnsavedPopup
 } from '../utils.tsx';
 
 interface IPhoneTableHalfCell {
@@ -401,12 +402,12 @@ function phonesReducer(state: IPhonesReducerState, action: IPhonesReducerAction)
   }
 }
 
-interface IEditLanguagePhonology {
+interface IEditPhonologyInner {
   language: ILanguage;
   defaultPhones: IPhone[];
 }
 
-function EditLanguagePhonology({ language, defaultPhones }: IEditLanguagePhonology) {
+function EditPhonologyInner({ language, defaultPhones }: IEditPhonologyInner) {
   const [ currentType, setCurrentType ] = useState<PhoneType>('consonant');
   const currentTableData = getPhoneTableDataByType(currentType);
   
@@ -493,59 +494,29 @@ function EditLanguagePhonology({ language, defaultPhones }: IEditLanguagePhonolo
   );
 }
 
-function EditPhonologyWithId({ id }: { id: string }) {
-  const languageResponse = getLanguageById(id);
-  const phonesResponse = getPhonesByLanguage(id);
-  
-  if(!languageResponse.data) {
-    if(languageResponse.isPending) {
-      return <p>Loading language information...</p>;
-    } else if(languageResponse.error) {
-      return (
-        <>
-          <h2>{ languageResponse.error.title }</h2>
-          <p>{ languageResponse.error.message }</p>
-        </>
-      );
-    }
-  }
-  if(!phonesResponse.data) {
-    if(phonesResponse.isPending) {
-      return <p>Loading phones...</p>;
-    } else if(phonesResponse.error) {
-      return (
-        <>
-          <h2>{ phonesResponse.error.title }</h2>
-          <p>{ phonesResponse.error.message }</p>
-        </>
-      );
-    }
-  }
-
-  return (
-    <EditLanguagePhonology
-      language={ languageResponse.data }
-      defaultPhones={ phonesResponse.data }
-    />
-  );
-}
-
 export default function EditPhonology() {
   const id = useGetParamsOrSelectedId();
   if(!id) {
     throw new Error("No language ID was provided");
   }
+  
+  const languageResponse = getLanguageById(id);
+  const phonesResponse = getPhonesByLanguage(id);
 
   useSetPageTitle("Edit Phonology");
   
-  if(!id) {
-    return (
-      <>
-        <h2>No Language Selected</h2>
-        <p>Please create or select a language before editing its phonology.</p>
-      </>
-    );
+  if(languageResponse.status !== 'success') {
+    return renderDatalessQueryResult(languageResponse);
   }
 
-  return <EditPhonologyWithId id={id} />;
+  if(phonesResponse.status !== 'success') {
+    return renderDatalessQueryResult(phonesResponse);
+  }
+
+  return (
+    <EditPhonologyInner
+      language={ languageResponse.data }
+      defaultPhones={ phonesResponse.data }
+    />
+  );
 };

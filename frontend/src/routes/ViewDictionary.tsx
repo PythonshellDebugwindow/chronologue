@@ -6,7 +6,9 @@ import {
   formatDictionaryFieldValue, getPartsOfSpeech, getWordsByLanguage,
   userFacingFieldName, IPartOfSpeech, IWord
 } from '../wordData.tsx';
-import { useGetParamsOrSelectedId, useSetPageTitle } from '../utils.tsx';
+import {
+  renderDatalessQueryResult, useGetParamsOrSelectedId, useSetPageTitle
+} from '../utils.tsx';
 
 function formatPosFieldValue(word: IWord, partsOfSpeech: IPartOfSpeech[]) {
   const pos = partsOfSpeech.find(pos => pos.code === word.pos);
@@ -102,13 +104,13 @@ function filterWords(
   });
 }
 
-interface IViewLanguageDictionary {
+interface IViewDictionaryInner {
   language: ILanguage;
   words: IWord[];
   partsOfSpeech: IPartOfSpeech[];
 }
 
-function ViewLanguageDictionary({ language, words, partsOfSpeech }: IViewLanguageDictionary) {
+function ViewDictionaryInner({ language, words, partsOfSpeech }: IViewDictionaryInner) {
   const [fields, setFields] = useState<IDictionaryField[]>(getAllFields());
 
   const [sortField, setSortField] = useState<keyof IWord>('word');
@@ -141,8 +143,6 @@ function ViewLanguageDictionary({ language, words, partsOfSpeech }: IViewLanguag
       return 0;
     }
   });
-
-  useSetPageTitle(language.name + "'s Dictionary");
   
   function enableField(field: IDictionaryField) {
     const index = fields.indexOf(field);
@@ -289,66 +289,36 @@ function ViewLanguageDictionary({ language, words, partsOfSpeech }: IViewLanguag
   );
 }
 
-function ViewDictionaryWithId({ id }: { id: string }) {
-  const languageResponse = getLanguageById(id);
-  const dictResponse = getWordsByLanguage(id);
-  const posResponse = getPartsOfSpeech();
+export default function ViewDictionary() {
+  const languageId = useGetParamsOrSelectedId();
+  if(!languageId) {
+    throw new Error("No language ID was provided");
+  }
 
-  if(languageResponse.isPending) {
-    return <p>Loading language information...</p>;
-  } else if(languageResponse.error) {
-    return (
-      <>
-        <h2>{ languageResponse.error.title }</h2>
-        <p>{ languageResponse.error.message }</p>
-      </>
-    );
-  }
+  const languageResponse = getLanguageById(languageId);
+  const dictResponse = getWordsByLanguage(languageId);
+  const posResponse = getPartsOfSpeech();
   
-  if(dictResponse.isPending) {
-    return <p>Loading dictionary...</p>;
-  } else if(dictResponse.error) {
-    return (
-      <>
-        <h2>{ dictResponse.error.title }</h2>
-        <p>{ dictResponse.error.message }</p>
-      </>
-    );
+  const language = languageResponse.data;
+  useSetPageTitle(language ? language.name + "'s Dictionary" : "Dictionary");
+
+  if(languageResponse.status !== 'success') {
+    return renderDatalessQueryResult(languageResponse);
   }
-  
-  if(posResponse.isPending) {
-    return <p>Loading...</p>;
-  } else if(posResponse.error) {
-    return (
-      <>
-        <h2>{ posResponse.error.title }</h2>
-        <p>{ posResponse.error.message }</p>
-      </>
-    );
+
+  if(dictResponse.status !== 'success') {
+    return renderDatalessQueryResult(dictResponse);
+  }
+
+  if(posResponse.status !== 'success') {
+    return renderDatalessQueryResult(posResponse);
   }
 
   return (
-    <ViewLanguageDictionary
+    <ViewDictionaryInner
       language={ languageResponse.data }
       words={ dictResponse.data }
       partsOfSpeech={ posResponse.data }
     />
   );
-}
-
-export default function ViewDictionary() {
-  const id = useGetParamsOrSelectedId();
-  
-  useSetPageTitle("Dictionary");
-
-  if(!id) {
-    return (
-      <>
-        <h2>No Language Selected</h2>
-        <p>Cannot view the dictionary of no language.</p>
-      </>
-    );
-  }
-
-  return <ViewDictionaryWithId id={id} />;
 };

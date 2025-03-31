@@ -8,7 +8,8 @@ import {
   IPronunciationEstimationSettings, getPronunciationEstimationSettings
 } from '../phoneData.tsx';
 import {
-  sendBackendJson, useGetParamsOrSelectedId, useSetPageTitle
+  renderDatalessQueryResult, sendBackendJson, useGetParamsOrSelectedId,
+  useSetPageTitle
 } from '../utils.tsx';
 
 async function sendSaveSettingsRequest(letterReplacements: string, rewriteRules: string, langId: string) {
@@ -104,22 +105,12 @@ export default function EditPronunciationEstimation() {
   
   useSetPageTitle("Pronunciation Estimation");
 
-  if(languageResponse.status === 'pending') {
-    return <p>Loading...</p>;
-  } else if(languageResponse.status === 'error') {
-    return (
-      <>
-        <h2>{ languageResponse.error.title }</h2>
-        <p>{ languageResponse.error.message }</p>
-      </>
-    );
+  if(languageResponse.status !== 'success') {
+    return renderDatalessQueryResult(languageResponse);
   }
-  if(settingsResponse.status === 'pending') {
-    return <p>Loading...</p>;
-  } else if(settingsResponse.status === 'error') {
-    return (
-      <p>{ settingsResponse.error.message }</p>
-    );
+
+  if(settingsResponse.status !== 'success') {
+    return renderDatalessQueryResult(settingsResponse);
   }
 
   return (

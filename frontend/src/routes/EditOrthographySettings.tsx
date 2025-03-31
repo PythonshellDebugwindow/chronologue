@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  useDraggable, useDroppable, DndContext, DragEndEvent, Over, Active
+  useDraggable, useDroppable, Active, DndContext, DragEndEvent, Over
 } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
 
@@ -12,7 +12,8 @@ import {
 } from '../languageData.tsx';
 import { formatGraphForAlphabet } from '../phoneData.tsx';
 import {
-  sendBackendJson, useGetParamsOrSelectedId, useSetPageTitle
+  renderDatalessQueryResult, sendBackendJson, useGetParamsOrSelectedId,
+  useSetPageTitle
 } from '../utils.tsx';
 
 function getGraphCellShift(index: number, over: Over | null, active: Active | null) {
@@ -256,26 +257,12 @@ export default function EditOrthographySettings() {
   
   useSetPageTitle("Edit Orthography Settings");
 
-  if(!languageResponse.data) {
-    if(languageResponse.isPending) {
-      return <p>Loading...</p>;
-    } else if(languageResponse.error) {
-      return (
-        <>
-          <h2>{ languageResponse.error.title }</h2>
-          <p>{ languageResponse.error.message }</p>
-        </>
-      );
-    }
+  if(languageResponse.status !== 'success') {
+    return renderDatalessQueryResult(languageResponse);
   }
-  if(!orthSettingsResponse.data) {
-    if(orthSettingsResponse.isPending) {
-      return <p>Loading orthography settings...</p>;
-    } else if(orthSettingsResponse.error) {
-      return (
-        <p>{ orthSettingsResponse.error.message }</p>
-      );
-    }
+
+  if(orthSettingsResponse.status !== 'success') {
+    return renderDatalessQueryResult(orthSettingsResponse);
   }
 
   return (

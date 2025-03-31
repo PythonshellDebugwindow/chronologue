@@ -6,7 +6,10 @@ import SaveChangesButton from '../components/SaveChangesButton.tsx';
 import {
   getLanguageById, getLanguageSummaryNotes, ILanguage, ILanguageSummaryNotes
 } from '../languageData.tsx';
-import { useGetParamsOrSelectedId, sendBackendJson, useSetPageTitle } from '../utils.tsx';
+import {
+  renderDatalessQueryResult, sendBackendJson, useGetParamsOrSelectedId,
+  useSetPageTitle
+} from '../utils.tsx';
 
 async function sendSaveNotesRequest(notes: ILanguageSummaryNotes, langId: string) {
   const reqBody = {
@@ -109,26 +112,12 @@ export default function EditSummaryNotes() {
   
   useSetPageTitle("Edit Summary Notes");
 
-  if(!languageResponse.data) {
-    if(languageResponse.isPending) {
-      return <p>Loading...</p>;
-    } else if(languageResponse.error) {
-      return (
-        <>
-          <h2>{ languageResponse.error.title }</h2>
-          <p>{ languageResponse.error.message }</p>
-        </>
-      );
-    }
+  if(languageResponse.status !== 'success') {
+    return renderDatalessQueryResult(languageResponse);
   }
-  if(!summaryNotesResponse.data) {
-    if(summaryNotesResponse.isPending) {
-      return <p>Loading...</p>;
-    } else if(summaryNotesResponse.error) {
-      return (
-        <p>{ summaryNotesResponse.error.message }</p>
-      );
-    }
+
+  if(summaryNotesResponse.status !== 'success') {
+    return renderDatalessQueryResult(summaryNotesResponse);
   }
 
   return (

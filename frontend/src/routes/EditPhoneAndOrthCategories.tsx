@@ -10,8 +10,8 @@ import {
   getOrthographyCategories, getPhoneCategories, IPhone
 } from '../phoneData.tsx';
 import {
-  getBackendJson, sendBackendJson, useGetParamsOrSelectedId, useSetPageTitle,
-  useUnsavedPopup, ITitledError
+  getBackendJson, renderDatalessQueryResult, sendBackendJson,
+  useGetParamsOrSelectedId, useSetPageTitle, useUnsavedPopup, ITitledError
 } from '../utils.tsx';
 
 interface ICategory {
@@ -331,36 +331,30 @@ export default function EditPhoneAndOrthCategories() {
   
   useSetPageTitle("Edit Categories");
   
-  if(languageResponse.status === 'pending') {
-    return <p>Loading...</p>;
-  } else if(languageResponse.status === 'error') {
-    return (
-      <>
-        <h2>{ languageResponse.error.title }</h2>
-        <p>{ languageResponse.error.message }</p>
-      </>
-    );
+  if(languageResponse.status !== 'success') {
+    return renderDatalessQueryResult(languageResponse);
   }
-  if(orthCategoriesResponse.status === 'pending') {
-    return <p>Loading...</p>;
-  } else if(orthCategoriesResponse.status === 'error') {
-    return (
-      <p>{ orthCategoriesResponse.error.message }</p>
-    );
+
+  if(orthCategoriesResponse.status !== 'success') {
+    return renderDatalessQueryResult(orthCategoriesResponse);
   }
-  if(phoneCategoriesResponse.status === 'pending') {
-    return <p>Loading...</p>;
-  } else if(phoneCategoriesResponse.status === 'error') {
-    return (
-      <p>{ phoneCategoriesResponse.error.message }</p>
-    );
+
+  if(phoneCategoriesResponse.status !== 'success') {
+    return renderDatalessQueryResult(phoneCategoriesResponse);
   }
+
+  const orthCategories = orthCategoriesResponse.data.map(c => (
+    { letter: c.letter, members: c.members.join(",") }
+  ));
+  const phoneCategories = phoneCategoriesResponse.data.map(c => (
+    { letter: c.letter, members: c.members.join(",") }
+  ));
   
   return (
     <EditCategoriesInner
       language={ languageResponse.data }
-      orthCategories={ orthCategoriesResponse.data.map(p => ({...p, members: p.members.join(",") })) }
-      phoneCategories={ phoneCategoriesResponse.data.map(p => ({...p, members: p.members.join(",") })) }
+      orthCategories={orthCategories}
+      phoneCategories={phoneCategories}
     />
   );
 };

@@ -5,7 +5,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { CFormBody, CMultilineTextInput, CTextInput } from '../components/CForm.tsx';
 
 import { editFamily, getFamilyById, IFamily } from '../familyData.tsx';
-import { useSetPageTitle } from '../utils.tsx';
+import { renderDatalessQueryResult, useSetPageTitle } from '../utils.tsx';
 
 function EditFamilyInner({ initialFamily }: { initialFamily: IFamily }) {
   const navigate = useNavigate();
@@ -67,15 +67,8 @@ export default function EditFamily() {
   
   useSetPageTitle("Edit Family");
 
-  if(familyResponse.status === 'pending') {
-    return <p>Loading...</p>;
-  } else if(familyResponse.status === 'error') {
-    return (
-      <>
-        <h2>{ familyResponse.error.title }</h2>
-        <p>{ familyResponse.error.message }</p>
-      </>
-    );
+  if(familyResponse.status !== 'success') {
+    return renderDatalessQueryResult(familyResponse);
   }
 
   return <EditFamilyInner initialFamily={ familyResponse.data } />;

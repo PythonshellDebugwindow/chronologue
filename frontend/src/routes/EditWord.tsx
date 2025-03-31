@@ -10,7 +10,7 @@ import POSAndClassesSelect from '../components/POSAndClassesSelect.tsx';
 import {
   getDictionarySettings, getWordClassesByLanguage, IDictionarySettings
 } from '../languageData.tsx';
-import { useSetPageTitle } from '../utils.tsx';
+import { renderDatalessQueryResult, useSetPageTitle } from '../utils.tsx';
 import {
   editWord, getPartsOfSpeech, getWordById, getWordClassIdsByWord,
   IPartOfSpeech, IWord, IWordClass
@@ -137,36 +137,20 @@ function EditWordWithWord({ word }: { word: IWord }) {
   const languageClassesResponse = getWordClassesByLanguage(word.langId);
   const partsOfSpeechResponse = getPartsOfSpeech();
 
-  if(wordClassIdsResponse.status === 'pending') {
-    return <p>Loading...</p>;
-  } else if(wordClassIdsResponse.status === 'error') {
-    return (
-      <p>{ wordClassIdsResponse.error.message }</p>
-    );
+  if(wordClassIdsResponse.status !== 'success') {
+    return renderDatalessQueryResult(wordClassIdsResponse);
   }
   
-  if(dictSettingsResponse.status === 'pending') {
-    return <p>Loading...</p>;
-  } else if(dictSettingsResponse.status === 'error') {
-    return (
-      <p>{ dictSettingsResponse.error.message }</p>
-    );
+  if(dictSettingsResponse.status !== 'success') {
+    return renderDatalessQueryResult(dictSettingsResponse);
   }
 
-  if(languageClassesResponse.status === 'pending') {
-    return <p>Loading...</p>;
-  } else if(languageClassesResponse.status === 'error') {
-    return (
-      <p>{ languageClassesResponse.error.message }</p>
-    );
+  if(languageClassesResponse.status !== 'success') {
+    return renderDatalessQueryResult(languageClassesResponse);
   }
   
-  if(partsOfSpeechResponse.status === 'pending') {
-    return <p>Loading...</p>;
-  } else if(partsOfSpeechResponse.status === 'error') {
-    return (
-      <p>{ partsOfSpeechResponse.error.message }</p>
-    );
+  if(partsOfSpeechResponse.status !== 'success') {
+    return renderDatalessQueryResult(partsOfSpeechResponse);
   }
   
   return (
@@ -190,15 +174,8 @@ export default function EditWord() {
   
   useSetPageTitle("Edit Word");
 
-  if(wordResponse.status === 'pending') {
-    return <p>Loading...</p>;
-  } else if(wordResponse.status === 'error') {
-    return (
-      <>
-        <h2>{ wordResponse.error.title }</h2>
-        <p>{ wordResponse.error.message }</p>
-      </>
-    );
+  if(wordResponse.status !== 'success') {
+    return renderDatalessQueryResult(wordResponse);
   }
 
   return <EditWordWithWord word={ wordResponse.data } />;

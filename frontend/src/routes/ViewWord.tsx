@@ -8,12 +8,12 @@ import {
   getGrammarForms, getGrammarTableById, getGrammarTablesForWord,
   useRunGrammarTableOnWordQuery, IGrammarTableIdAndName
 } from '../grammarData.tsx';
+import { renderDatalessQueryResult, useSetPageTitle } from '../utils.tsx';
 import {
   formatDictionaryFieldValue, formatPosFieldValue, formatWordClasses,
   getPartsOfSpeech, getWordById, getWordClassesByWord, userFacingFieldName,
   IPartOfSpeech, IWord, IWordClassNoPOS
 } from '../wordData.tsx';
-import { useSetPageTitle } from '../utils.tsx';
 
 interface IDisplayWordGrammarTable {
   word: IWord;
@@ -158,39 +158,20 @@ export default function ViewWord() {
   
   useSetPageTitle("View Word");
 
-  if(wordResponse.status === 'pending') {
-    return <p>Loading word summary...</p>;
-  } else if(wordResponse.status === 'error') {
-    return (
-      <>
-        <h2>{ wordResponse.error.title }</h2>
-        <p>{ wordResponse.error.message }</p>
-      </>
-    );
+  if(wordResponse.status !== 'success') {
+    return renderDatalessQueryResult(wordResponse);
   }
   
-  if(classesResponse.status === 'pending') {
-    return <p>Loading...</p>;
-  } else if(classesResponse.status === 'error') {
-    return (
-      <p>{ classesResponse.error.message }</p>
-    );
+  if(classesResponse.status !== 'success') {
+    return renderDatalessQueryResult(classesResponse);
   }
   
-  if(tablesResponse.status === 'pending') {
-    return <p>Loading...</p>;
-  } else if(tablesResponse.status === 'error') {
-    return (
-      <p>{ tablesResponse.error.message }</p>
-    );
+  if(tablesResponse.status !== 'success') {
+    return renderDatalessQueryResult(tablesResponse);
   }
   
-  if(partsOfSpeechResponse.status === 'pending') {
-    return <p>Loading...</p>;
-  } else if(partsOfSpeechResponse.status === 'error') {
-    return (
-      <p>{ partsOfSpeechResponse.error.message }</p>
-    );
+  if(partsOfSpeechResponse.status !== 'success') {
+    return renderDatalessQueryResult(partsOfSpeechResponse);
   }
   
   return (

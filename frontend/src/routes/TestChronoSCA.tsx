@@ -2,7 +2,9 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import { getLanguageById, ILanguage } from '../languageData.tsx';
-import { useGetParamsOrSelectedId, useSetPageTitle } from '../utils.tsx';
+import {
+  renderDatalessQueryResult, useGetParamsOrSelectedId, useSetPageTitle
+} from '../utils.tsx';
 import {
   getOrthographyCategories, getPhoneCategories, useApplySCARulesQuery,
   ApplySCARulesQueryResult, ICategory
@@ -168,35 +170,16 @@ export default function TestChronoSCA() {
   
   useSetPageTitle("ChronoSCA Testing");
 
-  if(languageResponse.status === 'pending') {
-    return <p>Loading...</p>;
-  } else if(languageResponse.status === 'error') {
-    return (
-      <>
-        <h2>{ languageResponse.error.title }</h2>
-        <p>{ languageResponse.error.message }</p>
-      </>
-    );
+  if(languageResponse.status !== 'success') {
+    return renderDatalessQueryResult(languageResponse);
   }
-  if(orthCategoriesResponse.status === 'pending') {
-    return <p>Loading...</p>;
-  } else if(orthCategoriesResponse.status === 'error') {
-    return (
-      <>
-        <h2>{ orthCategoriesResponse.error.title }</h2>
-        <p>{ orthCategoriesResponse.error.message }</p>
-      </>
-    );
+
+  if(orthCategoriesResponse.status !== 'success') {
+    return renderDatalessQueryResult(orthCategoriesResponse);
   }
-  if(phoneCategoriesResponse.status === 'pending') {
-    return <p>Loading...</p>;
-  } else if(phoneCategoriesResponse.status === 'error') {
-    return (
-      <>
-        <h2>{ phoneCategoriesResponse.error.title }</h2>
-        <p>{ phoneCategoriesResponse.error.message }</p>
-      </>
-    );
+  
+  if(phoneCategoriesResponse.status !== 'success') {
+    return renderDatalessQueryResult(phoneCategoriesResponse);
   }
 
   return (

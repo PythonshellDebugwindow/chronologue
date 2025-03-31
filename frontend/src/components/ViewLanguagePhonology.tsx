@@ -4,6 +4,7 @@ import {
   hasDoubleWidthCell, vowelData,
   IPhone, IPhoneTableData
 } from '../phoneData.tsx';
+import { renderDatalessQueryResult } from '../utils.tsx';
 
 interface IPhoneWithFormatted {
   phone: IPhone;
@@ -287,13 +288,11 @@ function OtherPhonesTable({ phones }: { phones: IPhone[] }) {
 
 export function PhonologySection({ languageId }: { languageId: string }) {
   const phonesResponse = getPhonesByLanguage(languageId);
-  if(phonesResponse.status === 'pending') {
-    return <p>Loading phones...</p>;
-  } else if(phonesResponse.status === 'error') {
-    return (
-      <p>{ phonesResponse.error.message }</p>
-    );
+  
+  if(phonesResponse.status !== 'success') {
+    return renderDatalessQueryResult(phonesResponse);
   }
+
   if(phonesResponse.data.length === 0) {
     return null;
   }

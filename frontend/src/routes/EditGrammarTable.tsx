@@ -14,7 +14,9 @@ import {
   IGrammarTable, IGrammarTableCell, IGrammarTableOverview
 } from '../grammarData.tsx';
 import { getWordClassesByLanguage } from '../languageData.tsx';
-import { useGetParamsOrSelectedId, useSetPageTitle } from '../utils.tsx';
+import {
+  renderDatalessQueryResult, useGetParamsOrSelectedId, useSetPageTitle
+} from '../utils.tsx';
 import {
   formatPosFieldValue, getPartsOfSpeech, IPartOfSpeech, IWordClass
 } from '../wordData.tsx';
@@ -271,44 +273,24 @@ function EditGrammarTableWithTable({ table }: { table: IGrammarTable }) {
   const tablesResponse = getGrammarTablesByLanguage(table.langId);
   const partsOfSpeechResponse = getPartsOfSpeech();
   
-  if(tableClassIdsResponse.status === 'pending') {
-    return <p>Loading...</p>;
-  } else if(tableClassIdsResponse.status === 'error') {
-    return (
-      <p>{ tableClassIdsResponse.error.message }</p>
-    );
+  if(tableClassIdsResponse.status !== 'success') {
+    return renderDatalessQueryResult(tableClassIdsResponse);
   }
   
-  if(langClassesResponse.status === 'pending') {
-    return <p>Loading...</p>;
-  } else if(langClassesResponse.status === 'error') {
-    return (
-      <p>{ langClassesResponse.error.message }</p>
-    );
+  if(langClassesResponse.status !== 'success') {
+    return renderDatalessQueryResult(langClassesResponse);
   }
   
-  if(cellsResponse.status === 'pending') {
-    return <p>Loading...</p>;
-  } else if(cellsResponse.status === 'error') {
-    return (
-      <p>{ cellsResponse.error.message }</p>
-    );
+  if(cellsResponse.status !== 'success') {
+    return renderDatalessQueryResult(cellsResponse);
   }
   
-  if(tablesResponse.status === 'pending') {
-    return <p>Loading...</p>;
-  } else if(tablesResponse.status === 'error') {
-    return (
-      <p>{ tablesResponse.error.message }</p>
-    );
+  if(tablesResponse.status !== 'success') {
+    return renderDatalessQueryResult(tablesResponse);
   }
   
-  if(partsOfSpeechResponse.status === 'pending') {
-    return <p>Loading...</p>;
-  } else if(partsOfSpeechResponse.status === 'error') {
-    return (
-      <p>{ partsOfSpeechResponse.error.message }</p>
-    );
+  if(partsOfSpeechResponse.status !== 'success') {
+    return renderDatalessQueryResult(partsOfSpeechResponse);
   }
 
   return (
@@ -333,15 +315,8 @@ export default function EditGrammarTable() {
   
   useSetPageTitle("Edit Grammar Table");
 
-  if(tableResponse.status === 'pending') {
-    return <p>Loading...</p>;
-  } else if(tableResponse.status === 'error') {
-    return (
-      <>
-        <h2>{ tableResponse.error.title }</h2>
-        <p>{ tableResponse.error.message }</p>
-      </>
-    );
+  if(tableResponse.status !== 'success') {
+    return renderDatalessQueryResult(tableResponse);
   }
 
   return <EditGrammarTableWithTable table={ tableResponse.data } />;

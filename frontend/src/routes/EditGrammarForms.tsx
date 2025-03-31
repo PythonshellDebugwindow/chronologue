@@ -3,7 +3,9 @@ import { useReducer, useState } from 'react';
 import SaveChangesButton from '../components/SaveChangesButton.tsx';
 
 import { IGrammarForm, getGrammarForms } from '../grammarData.tsx';
-import { useSetPageTitle, sendBackendJson, useUnsavedPopup } from '../utils.tsx';
+import {
+  renderDatalessQueryResult, sendBackendJson, useSetPageTitle, useUnsavedPopup
+} from '../utils.tsx';
 
 const UNADDED_FORM_ID = "";
 
@@ -293,12 +295,8 @@ export default function EditGrammarForms() {
   
   useSetPageTitle("Edit Grammar Forms");
 
-  if(grammarFormsResponse.status === 'pending') {
-    return <p>Loading...</p>;
-  } else if(grammarFormsResponse.status === 'error') {
-    return (
-      <p>{ grammarFormsResponse.error.message }</p>
-    );
+  if(grammarFormsResponse.status !== 'success') {
+    return renderDatalessQueryResult(grammarFormsResponse);
   }
 
   return (

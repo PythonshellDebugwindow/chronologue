@@ -15,9 +15,11 @@ import {
   getLanguageById, getWordClassesByLanguage, ILanguage
 } from '../languageData.tsx';
 import {
+  renderDatalessQueryResult, useGetParamsOrSelectedId, useSetPageTitle
+} from '../utils.tsx';
+import {
   formatPosFieldValue, getPartsOfSpeech, IPartOfSpeech, IWordClass
 } from '../wordData.tsx';
-import { useGetParamsOrSelectedId, useSetPageTitle } from '../utils.tsx';
 
 interface IAddGrammarTableInner {
   language: ILanguage;
@@ -245,39 +247,20 @@ export default function AddGrammarTable() {
   
   useSetPageTitle("Add Grammar Table");
 
-  if(languageResponse.status === 'pending') {
-    return <p>Loading...</p>;
-  } else if(languageResponse.status === 'error') {
-    return (
-      <>
-        <h2>{ languageResponse.error.title }</h2>
-        <p>{ languageResponse.error.message }</p>
-      </>
-    );
+  if(languageResponse.status !== 'success') {
+    return renderDatalessQueryResult(languageResponse);
   }
 
-  if(classesResponse.status === 'pending') {
-    return <p>Loading...</p>;
-  } else if(classesResponse.status === 'error') {
-    return (
-      <p>{ classesResponse.error.message }</p>
-    );
+  if(classesResponse.status !== 'success') {
+    return renderDatalessQueryResult(classesResponse);
   }
   
-  if(tablesResponse.status === 'pending') {
-    return <p>Loading...</p>;
-  } else if(tablesResponse.status === 'error') {
-    return (
-      <p>{ tablesResponse.error.message }</p>
-    );
+  if(tablesResponse.status !== 'success') {
+    return renderDatalessQueryResult(tablesResponse);
   }
   
-  if(partsOfSpeechResponse.status === 'pending') {
-    return <p>Loading...</p>;
-  } else if(partsOfSpeechResponse.status === 'error') {
-    return (
-      <p>{ partsOfSpeechResponse.error.message }</p>
-    );
+  if(partsOfSpeechResponse.status !== 'success') {
+    return renderDatalessQueryResult(partsOfSpeechResponse);
   }
 
   return (

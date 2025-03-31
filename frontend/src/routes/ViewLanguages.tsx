@@ -3,23 +3,11 @@ import { Link } from 'react-router-dom';
 
 import { FamilyTree } from '../components/LanguageTree.tsx';
 
-import { getFamilies, getLanguageIsolates } from '../familyData.tsx';
-import { useSetPageTitle } from '../utils.tsx';
+import { getFamilies, getLanguageIsolates, IFamily } from '../familyData.tsx';
+import { ILanguage } from '../languageData.tsx';
+import { renderDatalessQueryResult, useSetPageTitle } from '../utils.tsx';
 
-function LanguageIsolates() {
-  const { isPending, error, data: languages } = getLanguageIsolates();
-
-  if(isPending) {
-    return <p>Loading...</p>
-  } else if(error) {
-    return (
-      <>
-        <h3>Isolates</h3>
-        <p>{ error.message }</p>
-      </>
-    );
-  }
-  
+function LanguageIsolates({ languages }: { languages: ILanguage[] }) {
   if(languages.length === 0) {
     return null;
   }
@@ -44,21 +32,12 @@ function LanguageIsolates() {
   );
 }
 
-export default function ViewLanguages() {
-  const { isPending, error, data: families } = getFamilies();
-  useSetPageTitle("View Languages");
-  
-  if(isPending) {
-    return <p>Loading...</p>;
-  } else if(error) {
-    return (
-      <>
-        <h2>{ error.title }</h2>
-        <p>{ error.message }</p>
-      </>
-    );
-  }
+interface IViewLanguagesInner {
+  families: IFamily[];
+  isolates: ILanguage[];
+}
 
+function ViewLanguagesInner({ families, isolates }: IViewLanguagesInner) {
   families.sort((f1, f2) => f1.name.localeCompare(f2.name));
   
   return (
@@ -72,7 +51,29 @@ export default function ViewLanguages() {
           </Fragment>
         ))
       }
-      <LanguageIsolates />
+      <LanguageIsolates languages={isolates} />
     </>
-  )
+  );
+}
+
+export default function ViewLanguages() {
+  const familiesResponse = getFamilies();
+  const isolatesResponse = getLanguageIsolates();
+
+  useSetPageTitle("View Languages");
+
+  if(familiesResponse.status !== 'success') {
+    return renderDatalessQueryResult(familiesResponse);
+  }
+
+  if(isolatesResponse.status !== 'success') {
+    return renderDatalessQueryResult(isolatesResponse);
+  }
+
+  return (
+    <ViewLanguagesInner
+      families={ familiesResponse.data }
+      isolates={ isolatesResponse.data }
+    />
+  );
 };

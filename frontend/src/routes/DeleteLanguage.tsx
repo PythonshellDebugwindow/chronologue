@@ -3,7 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 
 import { deleteLanguage, getLanguageById, ILanguage } from '../languageData.tsx';
 import SelectedLanguageContext from '../SelectedLanguageContext.tsx';
-import { useSetPageTitle } from '../utils.tsx';
+import { renderDatalessQueryResult, useSetPageTitle } from '../utils.tsx';
 
 function DeleteLanguageInner({ language }: { language: ILanguage }) {
   const navigate = useNavigate();
@@ -56,16 +56,9 @@ export default function DeleteLanguage() {
   
   useSetPageTitle("Delete Language");
 
-  if(languageResponse.status === 'pending') {
-    return <p>Loading...</p>;
-  } else if(languageResponse.status === 'error') {
-    return (
-      <>
-        <h2>{ languageResponse.error.title }</h2>
-        <p>{ languageResponse.error.message }</p>
-      </>
-    );
+  if(languageResponse.status !== 'success') {
+    return renderDatalessQueryResult(languageResponse);
   }
-
+  
   return <DeleteLanguageInner language={ languageResponse.data } />;
 };

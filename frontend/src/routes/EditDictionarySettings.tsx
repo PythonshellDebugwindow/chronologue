@@ -8,7 +8,8 @@ import {
   IDictionarySettings, ILanguage
 } from '../languageData.tsx';
 import {
-  useSetPageTitle, sendBackendJson, useUnsavedPopup, useGetParamsOrSelectedId
+  renderDatalessQueryResult, sendBackendJson, useGetParamsOrSelectedId,
+  useSetPageTitle, useUnsavedPopup
 } from '../utils.tsx';
 import { getPartsOfSpeech, IPartOfSpeech, IWordClass } from '../wordData.tsx';
 
@@ -449,42 +450,20 @@ export default function EditDictionarySettings() {
   
   useSetPageTitle("Edit Dictionary Settings");
 
-  if(languageResponse.status === 'pending') {
-    return <p>Loading...</p>;
-  } else if(languageResponse.status === 'error') {
-    return (
-      <>
-        <h2>{ languageResponse.error.title }</h2>
-        <p>{ languageResponse.error.message }</p>
-      </>
-    );
+  if(languageResponse.status !== 'success') {
+    return renderDatalessQueryResult(languageResponse);
   }
 
-  if(dictSettingsResponse.status === 'pending') {
-    return <p>Loading...</p>;
-  } else if(dictSettingsResponse.status === 'error') {
-    return (
-      <>
-        <h2>{ dictSettingsResponse.error.title }</h2>
-        <p>{ dictSettingsResponse.error.message }</p>
-      </>
-    );
+  if(dictSettingsResponse.status !== 'success') {
+    return renderDatalessQueryResult(dictSettingsResponse);
   }
 
-  if(classesResponse.status === 'pending') {
-    return <p>Loading...</p>;
-  } else if(classesResponse.status === 'error') {
-    return (
-      <p>{ classesResponse.error.message }</p>
-    );
+  if(classesResponse.status !== 'success') {
+    return renderDatalessQueryResult(classesResponse);
   }
 
-  if(partsOfSpeechResponse.status === 'pending') {
-    return <p>Loading...</p>;
-  } else if(partsOfSpeechResponse.status === 'error') {
-    return (
-      <p>{ partsOfSpeechResponse.error.message }</p>
-    );
+  if(partsOfSpeechResponse.status !== 'success') {
+    return renderDatalessQueryResult(partsOfSpeechResponse);
   }
 
   return (

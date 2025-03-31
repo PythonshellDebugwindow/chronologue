@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 
-import { useSetPageTitle } from '../utils.tsx';
+import { renderDatalessQueryResult, useSetPageTitle } from '../utils.tsx';
 import { deleteFamily, getFamilyById, IFamily } from '../familyData.tsx';
 
 function DeleteFamilyInner({ family }: { family: IFamily }) {
@@ -50,16 +50,9 @@ export default function DeleteFamily() {
   
   useSetPageTitle("Delete Family");
 
-  if(familyResponse.status === 'pending') {
-    return <p>Loading...</p>;
-  } else if(familyResponse.status === 'error') {
-    return (
-      <>
-        <h2>{ familyResponse.error.title }</h2>
-        <p>{ familyResponse.error.message }</p>
-      </>
-    );
+  if(familyResponse.status !== 'success') {
+    return renderDatalessQueryResult(familyResponse);
   }
-
+  
   return <DeleteFamilyInner family={ familyResponse.data } />;
 };

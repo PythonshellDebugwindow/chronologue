@@ -11,7 +11,9 @@ import {
   getDictionarySettings, getLanguageById, getWordClassesByLanguage,
   IDictionarySettings, ILanguage
 } from '../languageData.tsx';
-import { useGetParamsOrSelectedId, useSetPageTitle } from '../utils.tsx';
+import {
+  renderDatalessQueryResult, useGetParamsOrSelectedId, useSetPageTitle
+} from '../utils.tsx';
 import {
   addWord, getPartsOfSpeech, getWordById, getWordClassIdsByWord,
   IPartOfSpeech, IWord, IWordClass
@@ -258,6 +260,7 @@ export default function AddWord() {
   /*const { selectedLanguage } = useContext(SelectedLanguageContext);
   if(selectedLanguage === null) {
     return <Navigate replace to="/add-language" state={{ mustBefore: "adding a word" }}/>;
+    // No Language Selected - Please create or select a language before ...
   }*/
   const languageId = useGetParamsOrSelectedId();
   if(!languageId) {
@@ -271,39 +274,20 @@ export default function AddWord() {
   
   useSetPageTitle("Add Word");
 
-  if(languageResponse.status === 'pending') {
-    return <p>Loading...</p>;
-  } else if(languageResponse.status === 'error') {
-    return (
-      <>
-        <h2>{ languageResponse.error.title }</h2>
-        <p>{ languageResponse.error.message }</p>
-      </>
-    );
+  if(languageResponse.status !== 'success') {
+    return renderDatalessQueryResult(languageResponse);
   }
   
-  if(dictSettingsResponse.status === 'pending') {
-    return <p>Loading...</p>;
-  } else if(dictSettingsResponse.status === 'error') {
-    return (
-      <p>{ dictSettingsResponse.error.message }</p>
-    );
+  if(dictSettingsResponse.status !== 'success') {
+    return renderDatalessQueryResult(dictSettingsResponse);
   }
 
-  if(classesResponse.status === 'pending') {
-    return <p>Loading...</p>;
-  } else if(classesResponse.status === 'error') {
-    return (
-      <p>{ classesResponse.error.message }</p>
-    );
+  if(classesResponse.status !== 'success') {
+    return renderDatalessQueryResult(classesResponse);
   }
   
-  if(partsOfSpeechResponse.status === 'pending') {
-    return <p>Loading...</p>;
-  } else if(partsOfSpeechResponse.status === 'error') {
-    return (
-      <p>{ partsOfSpeechResponse.error.message }</p>
-    );
+  if(partsOfSpeechResponse.status !== 'success') {
+    return renderDatalessQueryResult(partsOfSpeechResponse);
   }
 
   return (

@@ -8,9 +8,10 @@ interface ILinkButton {
 
 export default function LinkButton({ onClick, children }: ILinkButton) {
   return (
-    <Link to="" onClick={
-      (e) => { onClick(); e.preventDefault(); return false; }
-    }>
+    <Link
+      to=""
+      onClick={ e => { onClick(); e.preventDefault(); return false; } }
+    >
       {children}
     </Link>
   );

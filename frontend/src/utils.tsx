@@ -1,7 +1,8 @@
 import { useContext, useEffect } from 'react';
 import { useBeforeUnload, useBlocker, useParams } from 'react-router-dom';
+import { UseQueryResult } from '@tanstack/react-query';
 
-import SelectedLanguageContext from './SelectedLanguageContext';
+import SelectedLanguageContext from './SelectedLanguageContext.tsx';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -105,8 +106,25 @@ export function parseSingleRecordDates(row: { [key: string]: any }): any {
 };
 
 export interface ITitledError {
-  title: string;
+  title?: string;
   message: string;
+};
+
+type DatalessQueryResult<T> = UseQueryResult<T, ITitledError> & {
+  status: 'error' | 'pending';
+};
+
+export function renderDatalessQueryResult<T>(query: DatalessQueryResult<T>) {
+  if(query.status === 'error') {
+    return (
+      <>
+        <h2>{ query.error.title ?? "Error" }</h2>
+        <p>{ query.error.message }</p>
+      </>
+    );
+  } else {
+    return <p>Loading...</p>;
+  }
 };
 
 export function useGetParamsOrSelectedId() {

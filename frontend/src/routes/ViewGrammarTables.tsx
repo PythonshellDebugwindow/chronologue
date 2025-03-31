@@ -6,7 +6,9 @@ import {
   getGrammarTablesByLanguage, IGrammarForm, IGrammarTableOverview
 } from '../grammarData.tsx';
 import { ILanguage, getLanguageById } from '../languageData.tsx';
-import { useGetParamsOrSelectedId, useSetPageTitle } from '../utils.tsx';
+import {
+  renderDatalessQueryResult, useGetParamsOrSelectedId, useSetPageTitle
+} from '../utils.tsx';
 import {
   formatPosFieldValue, getPartsOfSpeech, IPartOfSpeech
 } from '../wordData.tsx';
@@ -67,48 +69,20 @@ export default function ViewGrammarTables() {
   const language = languageResponse.data;
   useSetPageTitle(language ? language.name + "'s Grammar Tables" : "Grammar Tables");
 
-  if(languageResponse.status === 'pending') {
-    return <p>Loading...</p>;
-  } else if(languageResponse.status === 'error') {
-    return (
-      <>
-        <h2>{ languageResponse.error.title }</h2>
-        <p>{ languageResponse.error.message }</p>
-      </>
-    );
+  if(languageResponse.status !== 'success') {
+    return renderDatalessQueryResult(languageResponse);
   }
 
-  if(tablesResponse.status === 'pending') {
-    return <p>Loading...</p>;
-  } else if(tablesResponse.status === 'error') {
-    return (
-      <>
-        <h2>{ tablesResponse.error.title }</h2>
-        <p>{ tablesResponse.error.message }</p>
-      </>
-    );
+  if(tablesResponse.status !== 'success') {
+    return renderDatalessQueryResult(tablesResponse);
   }
 
-  if(grammarFormsResponse.status === 'pending') {
-    return <p>Loading...</p>;
-  } else if(grammarFormsResponse.status === 'error') {
-    return (
-      <>
-        <h2>{ grammarFormsResponse.error.title }</h2>
-        <p>{ grammarFormsResponse.error.message }</p>
-      </>
-    );
+  if(grammarFormsResponse.status !== 'success') {
+    return renderDatalessQueryResult(grammarFormsResponse);
   }
 
-  if(partsOfSpeechResponse.status === 'pending') {
-    return <p>Loading...</p>;
-  } else if(partsOfSpeechResponse.status === 'error') {
-    return (
-      <>
-        <h2>{ partsOfSpeechResponse.error.title }</h2>
-        <p>{ partsOfSpeechResponse.error.message }</p>
-      </>
-    );
+  if(partsOfSpeechResponse.status !== 'success') {
+    return renderDatalessQueryResult(partsOfSpeechResponse);
   }
   
   return (
