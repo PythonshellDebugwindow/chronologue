@@ -144,7 +144,7 @@ function TestChronoSCAInner({ language, orthCategories, phoneCategories }: ITest
       </p>
       
       <p>
-        <button onClick={ _ => applySCARules() }>
+        <button onClick={applySCARules}>
           Apply
         </button>
       </p>

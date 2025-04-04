@@ -79,6 +79,19 @@ function EditGrammarTableInner({
   langTables.sort(compareGrammarTables);
 
   useEffect(() => {
+    function copyTableData(table: IGrammarTable, classIds: string[], cells: IGrammarTableCell[]) {
+      setPos(table.pos);
+      setRows(table.rows);
+      setColumns(table.columns);
+      setPreRules(table.preRules);
+      setPostRules(table.postRules);
+      setShowIpa(table.showIpa);
+      setInvertClasses(table.invertClasses);
+      setNotes(table.notes);
+      setClasses(langClasses.filter(cls => classIds.includes(cls.id)));
+      setCells(createCellMatrix(table, cells));
+    }
+
     if(shouldCopyTable) {
       if(copyTableQuery.error) {
         setCopyingMessage("Could not copy table: " + copyTableQuery.error.message);
@@ -110,20 +123,10 @@ function EditGrammarTableInner({
         );
       }
     }
-  }, [copyTableQuery, copyTableClassesQuery, shouldCopyTable]);
-
-  function copyTableData(table: IGrammarTable, classIds: string[], cells: IGrammarTableCell[]) {
-    setPos(table.pos);
-    setRows(table.rows);
-    setColumns(table.columns);
-    setPreRules(table.preRules);
-    setPostRules(table.postRules);
-    setShowIpa(table.showIpa);
-    setInvertClasses(table.invertClasses);
-    setNotes(table.notes);
-    setClasses(langClasses.filter(cls => classIds.includes(cls.id)));
-    setCells(createCellMatrix(table, cells));
-  }
+  }, [
+    copyTableQuery, copyTableClassesQuery, copyTableCellsQuery, shouldCopyTable,
+    langClasses, partsOfSpeech
+  ]);
 
   function submitCopyTableForm() {
     if(tableIdToCopy === "") {

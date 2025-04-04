@@ -59,7 +59,7 @@ function EditPronunciationEstimationInner({ language, initialSettings }: IEditPr
             saveQueryFn={
               async () => await sendSaveSettingsRequest(letterReplacements, rewriteRules, language.id)
             }
-            handleSave={ _ => setIsSaved(true) }
+            handleSave={ () => setIsSaved(true) }
             style={{ marginTop: "0.8em" }}
           >
             Save
@@ -83,7 +83,7 @@ function EditPronunciationEstimationInner({ language, initialSettings }: IEditPr
             saveQueryFn={
               async () => await sendSaveSettingsRequest(letterReplacements, rewriteRules, language.id)
             }
-            handleSave={ _ => setIsSaved(true) }
+            handleSave={ () => setIsSaved(true) }
             style={{ marginTop: "0.8em" }}
           >
             Save

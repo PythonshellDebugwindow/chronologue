@@ -133,7 +133,7 @@ export const getPartsOfSpeech: RequestHandler = async (req, res) => {
   res.json(partsOfSpeech);
 };
 
-export const getWord: RequestHandler = async (req, res, next) => {
+export const getWord: RequestHandler = async (req, res) => {
   if(!isValidUUID(req.params.id)) {
     res.status(400).json({ title: "Invalid ID", message: "The given word ID is not valid." });
     return;

@@ -57,7 +57,7 @@ function formsReducer(state: IFormsReducerState, action: IFormsReducerAction) {
   const { forms, deleted } = state;
 
   switch(action.type) {
-    case 'add':
+    case 'add': {
       const newForms = [ ...forms, action.newForm ];
       newForms.sort(compareGrammarForms);
       return {
@@ -65,8 +65,9 @@ function formsReducer(state: IFormsReducerState, action: IFormsReducerAction) {
         deleted,
         saved: false
       };
+    }
     
-    case 'edit':
+    case 'edit': {
       const index = forms.indexOf(action.form);
       if(index < 0) {
         return state;
@@ -85,6 +86,7 @@ function formsReducer(state: IFormsReducerState, action: IFormsReducerAction) {
         deleted,
         saved: false
       };
+    }
     
     case 'delete':
       if(action.form.id === UNADDED_FORM_ID) {

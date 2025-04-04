@@ -368,7 +368,7 @@ function phonesReducer(state: IPhonesReducerState, action: IPhonesReducerAction)
     case 'add':
       return { phones: [ action.newPhone, ...phones ], deleted, saved: false };
     
-    case 'edit':
+    case 'edit': {
       if(!(action.field in action.phone)) {
         throw new Error("Invalid field: " + action.field);
       }
@@ -385,14 +385,16 @@ function phonesReducer(state: IPhonesReducerState, action: IPhonesReducerAction)
         deleted,
         saved: false
       };
+    }
     
-    case 'delete':
+    case 'delete': {
       const newDeleted = action.phone.id === null ? deleted : [ ...deleted, action.phone.id ];
       return {
         phones: phones.filter(phone => phone !== action.phone),
         deleted: newDeleted,
         saved: false
       };
+    }
     
     case 'markSaved':
       return { phones: action.newPhones, deleted: [], saved: true };

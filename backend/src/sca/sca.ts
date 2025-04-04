@@ -23,7 +23,7 @@ type TokeniseRuleResult = {
 };
 
 function failure(message: string) {
-  return { success: false as false, message };
+  return { success: false as const, message };
 }
 
 function parseRule(rule: string): TokeniseRuleResult {
@@ -163,7 +163,7 @@ export class SCA {
       this.#rules.push(parseResult.segments);
     }
     this.#hasRules = true;
-    return { success: true as true };
+    return { success: true as const };
   }
 
   #spliceResult(start: number, length: number, replacement: string) {
@@ -192,7 +192,7 @@ export class SCA {
         return failure(`${(err as Error).message} on line ${i + 1}`);
       }
     }
-    return { success: true as true, result: this.#result };
+    return { success: true as const, result: this.#result };
   }
 
   #applyOneSoundChangeRule(rule: (IRuleToken[] | undefined)[]) {
@@ -354,14 +354,17 @@ export class SCA {
 
   #charMatchesToken(char: string, token: IRuleToken) {
     switch(token.type) {
-      case 'category':
+      case 'category': {
         const members = this.#categories.get(token.char);
         if(!members) {
           throw new TypeError(`Unknown category: ${token.char}`);
         }
         return members.includes(char);
+      }
+      
       case 'literal':
         return token.char === char;
+      
       default:
         throw new Error(`Invalid token type: ${token.type}`);
     }

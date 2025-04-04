@@ -235,7 +235,7 @@ function EditOrthographySettingsInner({ language, orthSettings }: IEditOrthograp
             saveQueryFn={
               async () => await sendSaveOrthSettingsRequest(caseSensitive, language.id)
             }
-            handleSave={ _ => setSettingsAreSaved(true) }
+            handleSave={ () => setSettingsAreSaved(true) }
             style={{ marginTop: "1em" }}
           >
             Save

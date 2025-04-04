@@ -70,7 +70,7 @@ function classesReducer(state: IClassesReducerState, action: IClassesReducerActi
   const { classes, deleted } = state;
 
   switch(action.type) {
-    case 'add':
+    case 'add': {
       const newClasses = [ ...classes, action.newClass ];
       newClasses.sort(compareClasses);
       return {
@@ -78,8 +78,9 @@ function classesReducer(state: IClassesReducerState, action: IClassesReducerActi
         deleted,
         saved: false
       };
+    }
     
-    case 'edit':
+    case 'edit': {
       const index = classes.indexOf(action.class);
       if(index < 0) {
         return state;
@@ -99,6 +100,7 @@ function classesReducer(state: IClassesReducerState, action: IClassesReducerActi
         deleted,
         saved: false
       };
+    }
     
     case 'delete':
       if(action.class.id === UNADDED_CLASS_ID) {
@@ -396,7 +398,7 @@ function EditOtherDictSettings({ language, dictSettings }: IEditOtherDictSetting
             saveQueryFn={
               async () => await sendSaveDictSettingsRequest(showWordIpa, language.id)
             }
-            handleSave={ _ => setSettingsAreSaved(true) }
+            handleSave={ () => setSettingsAreSaved(true) }
             style={{ marginTop: "1em" }}
           >
             Save

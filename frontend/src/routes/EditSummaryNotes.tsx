@@ -53,7 +53,7 @@ function EditSummaryNotesInner({ language, summaryNotes }: IEditSummaryNotesInne
             setIsSaving={setIsSavingNotes}
             saveQueryKey={ ['languages', language.id, 'summary-notes', 'update'] }
             saveQueryFn={saveQueryFn}
-            handleSave={ _ => setIsSaved(true) }
+            handleSave={ () => setIsSaved(true) }
           >
             Save changes
           </SaveChangesButton>
@@ -90,7 +90,7 @@ function EditSummaryNotesInner({ language, summaryNotes }: IEditSummaryNotesInne
             setIsSaving={setIsSavingNotes}
             saveQueryKey={ ['languages', language.id, 'summary-notes', 'update'] }
             saveQueryFn={saveQueryFn}
-            handleSave={ _ => setIsSaved(true) }
+            handleSave={ () => setIsSaved(true) }
             style={{ marginTop: "0.8em" }}
           >
             Save changes

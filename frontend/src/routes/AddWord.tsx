@@ -1,4 +1,4 @@
-import { ReactNode, useEffect, useState } from 'react';
+import { ReactNode, useCallback, useEffect, useState } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 
 import {
@@ -97,6 +97,16 @@ function AddWordInner({ language, dictSettings, langClasses, langPartsOfSpeech }
   const [ preserveFields, setPreserveFields ] = useState(false);
   const [ message, setMessage ] = useState("");
   const [ copyingMessage, setCopyingMessage ] = useState<ReactNode>(null);
+  
+  const copyWordData = useCallback((word: IWord, classIds: string[]) => {
+    setWord(word.word);
+    setIpa(word.ipa);
+    setMeaning(word.meaning);
+    setPos(word.pos);
+    setClasses(langClasses.filter(cls => classIds.includes(cls.id)));
+    setEtymology(word.etymology);
+    setNotes(word.notes);
+  }, [langClasses]);
 
   useEffect(() => {
     if(shouldCopyWord) {
@@ -122,17 +132,7 @@ function AddWordInner({ language, dictSettings, langClasses, langPartsOfSpeech }
         );
       }
     }
-  }, [copyWordQuery, copyWordClassesQuery, shouldCopyWord]);
-  
-  function copyWordData(word: IWord, classIds: string[]) {
-    setWord(word.word);
-    setIpa(word.ipa);
-    setMeaning(word.meaning);
-    setPos(word.pos);
-    setClasses(langClasses.filter(cls => classIds.includes(cls.id)));
-    setEtymology(word.etymology);
-    setNotes(word.notes);
-  }
+  }, [copyWordQuery, copyWordClassesQuery, shouldCopyWord, copyWordData]);
   
   function resetFields() {
     setWord("");

@@ -113,7 +113,7 @@ export async function makeEstimatePronunciation(langId: string) {
       }
       return sca.applySoundChanges(estimation);
     };
-    return { success: true as true, estimate };
+    return { success: true as const, estimate };
   });
   return result!;
 };

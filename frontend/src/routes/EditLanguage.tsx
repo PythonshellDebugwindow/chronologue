@@ -27,7 +27,7 @@ function ParentSelect({ familyId, parentId, setParentId, child }: IParentSelect)
        languages.length > 0) {
       setParentId(languages[0].id);
     }
-  }, [languages, familyId, child, parentId]);
+  }, [languages, familyId, child, parentId, setParentId]);
   
   if(response.status === 'pending') {
     return <tr><td>Parent:</td><td>Loading...</td></tr>;

@@ -132,7 +132,8 @@ export const editLanguage: RequestHandler = async (req, res, next) => {
       return;
     }
     if(!req.body.name ||
-       !hasAllStrings(req.body, ['autonym', 'familyId', 'parentId', 'status', 'era'])) {
+       !hasAllStrings(req.body, ['autonym', 'status', 'era']) ||
+       !('familyId' in req.body && 'parentId' in req.body)) {
       res.status(400).json({ message: "Please provide all required fields." });
       return;
     }

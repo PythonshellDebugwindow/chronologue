@@ -32,7 +32,7 @@ export default function SaveChangesButton<SaveQueryData>({
       handleSave(saveQuery.data);
       setIsSaving(false);
     }
-  }, [ isSaving, saveQuery ]);
+  }, [isSaving, saveQuery, handleSave, setIsSaving]);
   
   function saveChanges() {
     queryClient.resetQueries({ queryKey: saveQueryKey });

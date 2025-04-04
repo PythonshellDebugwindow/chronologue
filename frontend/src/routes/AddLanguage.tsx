@@ -74,7 +74,7 @@ export default function AddLanguage() {
       setSelectedLanguage({ id: actionData.addedId, name: actionData.addedName });
       navigate('/language/' + actionData.addedId);
     }
-  }, [actionData]);
+  }, [actionData, navigate, setSelectedLanguage]);
   
   useSetPageTitle("Add Language");
 

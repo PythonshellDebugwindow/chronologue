@@ -18,7 +18,7 @@ export default async function runGrammarTableRules(
     [ tableId ]
   );
   if(tableDataResult.rows.length !== 1) {
-    return { success: false as false, message: "The requested table was not found." };
+    return { success: false as const, message: "The requested table was not found." };
   }
   const tableData = tableDataResult.rows[0];
 
@@ -72,5 +72,5 @@ export default async function runGrammarTableRules(
     }
   }
 
-  return { success: true as true, result };
+  return { success: true as const, result };
 };

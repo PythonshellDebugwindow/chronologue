@@ -58,15 +58,16 @@ function categoriesReducer(state: ICategoriesReducerState, action: ICategoriesRe
   const { categories } = state;
 
   switch(action.type) {
-    case 'add':
+    case 'add': {
       const newCategories = [ ...categories, action.newCategory ];
       newCategories.sort(compareCategories);
       return {
         categories: newCategories,
         saved: false
       };
+    }
     
-    case 'edit':
+    case 'edit': {
       const index = categories.indexOf(action.category);
       if(index < 0) {
         return state;
@@ -83,6 +84,7 @@ function categoriesReducer(state: ICategoriesReducerState, action: ICategoriesRe
         ],
         saved: false
       };
+    }
     
     case 'markSaved':
       return {

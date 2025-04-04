@@ -79,7 +79,7 @@ function filterWords(
     }
     try {
       return new RegExp(filterValue, matchCase ? "u" : "iu");
-    } catch(err) {
+    } catch {
       return null;
     }
   })();

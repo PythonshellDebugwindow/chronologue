@@ -171,20 +171,20 @@ const router = createBrowserRouter([
   }
 ]);
 
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: false,
+      staleTime: Infinity,
+      gcTime: 0,
+      refetchOnWindowFocus: false
+    }
+  }
+});
+
 export default function App() {
   const initialSL = useContext(SelectedLanguageContext).selectedLanguage;
   const [selectedLanguage, setSLState] = useState(initialSL);
-  
-  const queryClient = new QueryClient({
-    defaultOptions: {
-      queries: {
-        retry: false,
-        staleTime: Infinity,
-        gcTime: 0,
-        refetchOnWindowFocus: false
-      }
-    }
-  });
   
   function setSelectedLanguage(languageData: ISelectedLanguageData | null) {
     setSLState(languageData);
