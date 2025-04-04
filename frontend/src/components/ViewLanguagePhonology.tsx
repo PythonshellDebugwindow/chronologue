@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
 import {
-  consonantData, formatPhoneForPhonologyTable, getPhonesByLanguage,
+  consonantData, formatPhoneForPhonologyTable, useLanguagePhones,
   hasDoubleWidthCell, vowelData,
   IPhone, IPhoneTableData
 } from '../phoneData.tsx';
@@ -287,7 +287,7 @@ function OtherPhonesTable({ phones }: { phones: IPhone[] }) {
 }
 
 export function PhonologySection({ languageId }: { languageId: string }) {
-  const phonesResponse = getPhonesByLanguage(languageId);
+  const phonesResponse = useLanguagePhones(languageId);
   
   if(phonesResponse.status !== 'success') {
     return renderDatalessQueryResult(phonesResponse);

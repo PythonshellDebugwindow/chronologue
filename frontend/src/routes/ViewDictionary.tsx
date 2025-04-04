@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 
-import { getLanguageById, ILanguage } from '../languageData.tsx';
+import { useLanguage, ILanguage } from '../languageData.tsx';
 import {
-  formatDictionaryFieldValue, getPartsOfSpeech, getWordsByLanguage,
+  formatDictionaryFieldValue, usePartsOfSpeech, useLanguageWords,
   userFacingFieldName, IPartOfSpeech, IWord
 } from '../wordData.tsx';
 import {
@@ -295,9 +295,9 @@ export default function ViewDictionary() {
     throw new Error("No language ID was provided");
   }
 
-  const languageResponse = getLanguageById(languageId);
-  const dictResponse = getWordsByLanguage(languageId);
-  const posResponse = getPartsOfSpeech();
+  const languageResponse = useLanguage(languageId);
+  const dictResponse = useLanguageWords(languageId);
+  const posResponse = usePartsOfSpeech();
   
   const language = languageResponse.data;
   useSetPageTitle(language ? language.name + "'s Dictionary" : "Dictionary");

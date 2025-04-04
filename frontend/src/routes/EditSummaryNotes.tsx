@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import SaveChangesButton from '../components/SaveChangesButton.tsx';
 
 import {
-  getLanguageById, getLanguageSummaryNotes, ILanguage, ILanguageSummaryNotes
+  useLanguage, useLanguageSummaryNotes, ILanguage, ILanguageSummaryNotes
 } from '../languageData.tsx';
 import {
   renderDatalessQueryResult, sendBackendJson, useGetParamsOrSelectedId,
@@ -107,8 +107,8 @@ export default function EditSummaryNotes() {
     throw new Error("No language ID was provided");
   }
   
-  const languageResponse = getLanguageById(languageId);
-  const summaryNotesResponse = getLanguageSummaryNotes(languageId);
+  const languageResponse = useLanguage(languageId);
+  const summaryNotesResponse = useLanguageSummaryNotes(languageId);
   
   useSetPageTitle("Edit Summary Notes");
 

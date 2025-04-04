@@ -4,14 +4,14 @@ import { Link } from 'react-router-dom';
 import SaveChangesButton from '../components/SaveChangesButton.tsx';
 
 import {
-  getDictionarySettings, getLanguageById, getWordClassesByLanguage,
+  useLanguageDictionarySettings, useLanguage, useLanguageWordClasses,
   IDictionarySettings, ILanguage
 } from '../languageData.tsx';
 import {
   renderDatalessQueryResult, sendBackendJson, useGetParamsOrSelectedId,
   useSetPageTitle, useUnsavedPopup
 } from '../utils.tsx';
-import { getPartsOfSpeech, IPartOfSpeech, IWordClass } from '../wordData.tsx';
+import { usePartsOfSpeech, IPartOfSpeech, IWordClass } from '../wordData.tsx';
 
 const UNADDED_CLASS_ID = "";
 
@@ -445,10 +445,10 @@ export default function EditDictionarySettings() {
     throw new Error("No language ID was provided");
   }
   
-  const languageResponse = getLanguageById(languageId);
-  const dictSettingsResponse = getDictionarySettings(languageId);
-  const classesResponse = getWordClassesByLanguage(languageId);
-  const partsOfSpeechResponse = getPartsOfSpeech();
+  const languageResponse = useLanguage(languageId);
+  const dictSettingsResponse = useLanguageDictionarySettings(languageId);
+  const classesResponse = useLanguageWordClasses(languageId);
+  const partsOfSpeechResponse = usePartsOfSpeech();
   
   useSetPageTitle("Edit Dictionary Settings");
 

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 
-import { deleteWord, getWordById, IWord } from '../wordData.tsx';
+import { deleteWord, useWord, IWord } from '../wordData.tsx';
 import { renderDatalessQueryResult, useSetPageTitle } from '../utils.tsx';
 
 function DeleteWordInner({ word }: { word: IWord }) {
@@ -46,7 +46,7 @@ export default function DeleteWord() {
     throw new Error("No word ID was provided");
   }
   
-  const wordResponse = getWordById(wordId);
+  const wordResponse = useWord(wordId);
   
   useSetPageTitle("Delete Word");
 

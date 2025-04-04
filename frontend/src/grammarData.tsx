@@ -54,7 +54,7 @@ export async function editGrammarTable(id: string, data: EditGrammarTableArgumen
   return await sendBackendJson(`grammar-tables/${id}`, 'PUT', data);
 };
 
-export function getGrammarForms(enabled: boolean = true) {
+export function useGrammarForms(enabled: boolean = true) {
   return useQuery<IGrammarForm[], ITitledError>({
     queryKey: ['grammar-forms'],
     queryFn: async () => await getBackendJson('grammar-forms'),
@@ -62,7 +62,7 @@ export function getGrammarForms(enabled: boolean = true) {
   });
 };
 
-export function getGrammarTableById(id: string, enabled: boolean = true) {
+export function useGrammarTable(id: string, enabled: boolean = true) {
   return useQuery<IGrammarTable, ITitledError>({
     queryKey: ['grammar-tables', id],
     queryFn: async () => await getBackendJson(`grammar-tables/${id}`),
@@ -70,14 +70,14 @@ export function getGrammarTableById(id: string, enabled: boolean = true) {
   });
 };
 
-export function getGrammarTableClasses(id: string) {
+export function useGrammarTableClasses(id: string) {
   return useQuery<IWordClass[], ITitledError>({
     queryKey: ['grammar-tables', id, 'classes'],
     queryFn: async () => await getBackendJson(`grammar-tables/${id}/classes`)
   });
 };
 
-export function getGrammarTableClassIds(id: string, enabled: boolean = true) {
+export function useGrammarTableClassIds(id: string, enabled: boolean = true) {
   return useQuery<string[], ITitledError>({
     queryKey: ['grammar-tables', id, 'class-ids'],
     queryFn: async () => await getBackendJson(`grammar-tables/${id}/class-ids`),
@@ -85,7 +85,7 @@ export function getGrammarTableClassIds(id: string, enabled: boolean = true) {
   });
 };
 
-export function getGrammarTableFilledCells(id: string, enabled: boolean = true) {
+export function useGrammarTableFilledCells(id: string, enabled: boolean = true) {
   return useQuery<IGrammarTableCell[], ITitledError>({
     queryKey: ['grammar-tables', id, 'filled-cells'],
     queryFn: async () => await getBackendJson(`grammar-tables/${id}/filled-cells`),
@@ -101,7 +101,7 @@ export interface IGrammarTableOverview {
   columns: string[];
 };
 
-export function getGrammarTablesByLanguage(id: string) {
+export function useLanguageGrammarTables(id: string) {
   return useQuery<IGrammarTableOverview[], ITitledError>({
     queryKey: ['languages', id, 'grammar-tables'],
     queryFn: async () => await getBackendJson(`languages/${id}/grammar-tables`)
@@ -113,7 +113,7 @@ export interface IGrammarTableIdAndName {
   name: string;
 };
 
-export function getGrammarTablesForWord(id: string) {
+export function useWordGrammarTables(id: string) {
   return useQuery<IGrammarTableIdAndName[], ITitledError>({
     queryKey: ['words', id, 'grammar-tables'],
     queryFn: async () => await getBackendJson(`words/${id}/grammar-tables`)
@@ -136,7 +136,7 @@ interface IRandomGrammarTableWord {
   cells: RunGrammarTableResultCell[][];
 }
 
-export function useGetRandomWordForGrammarTableQuery(id: string) {
+export function useRandomGrammarTableWord(id: string) {
   return useQuery<IRandomGrammarTableWord | null, ITitledError>({
     queryKey: ['grammar-tables', id, 'random-word'],
     queryFn: async () => await getBackendJson(`grammar-tables/${id}/random-word`)

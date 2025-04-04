@@ -1,8 +1,8 @@
 import { useContext } from 'react';
 import { Link } from 'react-router-dom';
 
-import { getFamilyMembers } from '../familyData.tsx';
-import { getDescendants, ILanguage } from '../languageData.tsx';
+import { useFamilyMembers } from '../familyData.tsx';
+import { useLanguageDescendants, ILanguage } from '../languageData.tsx';
 import SelectedLanguageContext from '../SelectedLanguageContext.tsx';
 
 interface ILanguageTreeBranch {
@@ -59,7 +59,7 @@ function LanguageTreeBranch({ root, descendants, showSelect }: ILanguageTreeBran
 };
 
 export function LanguageTree({ root }: { root: ILanguage }) {
-  const { isPending, error, data: descendants } = getDescendants(root.id);
+  const { isPending, error, data: descendants } = useLanguageDescendants(root.id);
   
   if(isPending || error) {
     return (
@@ -87,7 +87,7 @@ export function LanguageTree({ root }: { root: ILanguage }) {
 };
 
 export function FamilyTree({ id, showSelect }: { id: string, showSelect: boolean }) {
-  const { isPending, error, data: descendants } = getFamilyMembers(id);
+  const { isPending, error, data: descendants } = useFamilyMembers(id);
   
   if(isPending) {
     return "Loading...";

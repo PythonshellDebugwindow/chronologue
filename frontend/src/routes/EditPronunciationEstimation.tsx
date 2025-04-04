@@ -3,9 +3,9 @@ import { Link } from 'react-router-dom';
 
 import SaveChangesButton from '../components/SaveChangesButton.tsx';
 
-import { getLanguageById, ILanguage } from '../languageData.tsx';
+import { useLanguage, ILanguage } from '../languageData.tsx';
 import {
-  IPronunciationEstimationSettings, getPronunciationEstimationSettings
+  IPronunciationEstimationSettings, useLanguagePronunciationEstimationSettings
 } from '../phoneData.tsx';
 import {
   renderDatalessQueryResult, sendBackendJson, useGetParamsOrSelectedId,
@@ -100,8 +100,8 @@ export default function EditPronunciationEstimation() {
     throw new Error("No language ID was provided");
   }
   
-  const languageResponse = getLanguageById(languageId);
-  const settingsResponse = getPronunciationEstimationSettings(languageId);
+  const languageResponse = useLanguage(languageId);
+  const settingsResponse = useLanguagePronunciationEstimationSettings(languageId);
   
   useSetPageTitle("Pronunciation Estimation");
 

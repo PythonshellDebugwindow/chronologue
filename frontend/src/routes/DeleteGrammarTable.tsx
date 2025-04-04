@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 
 import {
-  deleteGrammarTable, getGrammarTableById, IGrammarTable
+  deleteGrammarTable, useGrammarTable, IGrammarTable
 } from '../grammarData.tsx';
 import { renderDatalessQueryResult, useSetPageTitle } from '../utils.tsx';
 
@@ -49,7 +49,7 @@ export default function DeleteGrammarTable() {
     throw new Error("No table ID was provided");
   }
   
-  const tableResponse = getGrammarTableById(tableId);
+  const tableResponse = useGrammarTable(tableId);
   
   useSetPageTitle("Delete Grammar Table");
 

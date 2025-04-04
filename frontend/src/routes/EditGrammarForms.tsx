@@ -2,7 +2,7 @@ import { useReducer, useState } from 'react';
 
 import SaveChangesButton from '../components/SaveChangesButton.tsx';
 
-import { IGrammarForm, getGrammarForms } from '../grammarData.tsx';
+import { IGrammarForm, useGrammarForms } from '../grammarData.tsx';
 import {
   renderDatalessQueryResult, sendBackendJson, useSetPageTitle, useUnsavedPopup
 } from '../utils.tsx';
@@ -293,7 +293,7 @@ function EditDictionarySettingsInner({ initialForms }: { initialForms: IGrammarF
 };
 
 export default function EditGrammarForms() {
-  const grammarFormsResponse = getGrammarForms();
+  const grammarFormsResponse = useGrammarForms();
   
   useSetPageTitle("Edit Grammar Forms");
 

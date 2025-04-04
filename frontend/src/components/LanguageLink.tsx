@@ -1,9 +1,9 @@
 import { Link }  from 'react-router-dom';
 
-import { getLanguageById } from '../languageData.tsx';
+import { useLanguage } from '../languageData.tsx';
 
 function getLanguageName(id: string) {
-  const { isPending, error, data } = getLanguageById(id);
+  const { isPending, error, data } = useLanguage(id);
   if(isPending) {
     return "Loading...";
   } else if(error) {

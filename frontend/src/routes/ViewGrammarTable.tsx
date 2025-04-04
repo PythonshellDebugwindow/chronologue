@@ -5,13 +5,13 @@ import LanguageLink from '../components/LanguageLink.tsx';
 import WordGrammarTable from '../components/WordGrammarTable.tsx';
 
 import {
-  formatPeriodSeparatedGrammarForms, getGrammarForms, getGrammarTableById,
-  getGrammarTableClasses, getGrammarTableFilledCells,
-  useGetRandomWordForGrammarTableQuery, IGrammarForm, IGrammarTable, IGrammarTableCell
+  formatPeriodSeparatedGrammarForms, useGrammarForms, useGrammarTable,
+  useGrammarTableClasses, useGrammarTableFilledCells,
+  useRandomGrammarTableWord, IGrammarForm, IGrammarTable, IGrammarTableCell
 } from '../grammarData.tsx';
 import { renderDatalessQueryResult, useSetPageTitle } from '../utils.tsx';
 import {
-  formatPosFieldValue, formatWordClasses, getPartsOfSpeech,
+  formatPosFieldValue, formatWordClasses, usePartsOfSpeech,
   userFacingFieldName, IPartOfSpeech, IWordClassNoPOS
 } from '../wordData.tsx';
 
@@ -61,7 +61,7 @@ interface IDisplayRandomTableWord {
 }
 
 function DisplayRandomTableWord({ table, filledCells, grammarForms }: IDisplayRandomTableWord) {
-  const result = useGetRandomWordForGrammarTableQuery(table.id);
+  const result = useRandomGrammarTableWord(table.id);
   if(result.status === 'pending') {
     return <p>Loading random word...</p>;
   } else if(result.status === 'error') {
@@ -194,11 +194,11 @@ export default function ViewGrammarTable() {
     throw new Error("No table ID was provided");
   }
 
-  const tableResponse = getGrammarTableById(id);
-  const classesResponse = getGrammarTableClasses(id);
-  const filledCellsResponse = getGrammarTableFilledCells(id);
-  const grammarFormsResponse = getGrammarForms();
-  const partsOfSpeechResponse = getPartsOfSpeech();
+  const tableResponse = useGrammarTable(id);
+  const classesResponse = useGrammarTableClasses(id);
+  const filledCellsResponse = useGrammarTableFilledCells(id);
+  const grammarFormsResponse = useGrammarForms();
+  const partsOfSpeechResponse = usePartsOfSpeech();
   
   useSetPageTitle("View Grammar Table");
 

@@ -27,28 +27,28 @@ export async function editFamily(id: string, data: IAddFamilyArgument) {
   return await sendBackendJson(`families/${id}`, 'PUT', data);
 };
 
-export function getFamilies() {
+export function useFamilies() {
   return useQuery<IFamily[], ITitledError>({
     queryKey: ['families'],
     queryFn: async () => parseRecordDates(await getBackendJson('families'))
   });
 };
 
-export function getFamilyById(id: string) {
+export function useFamily(id: string) {
   return useQuery<IFamily, ITitledError>({
     queryKey: ['families', id],
     queryFn: async () => parseSingleRecordDates(await getBackendJson(`families/${id}`))
   });
 };
 
-export function getFamilyMembers(id: string) {
+export function useFamilyMembers(id: string) {
   return useQuery<ILanguage[], ITitledError>({
     queryKey: ['families', id, 'members'],
     queryFn: async () => parseRecordDates(await getBackendJson(`families/${id}/members`))
   });
 };
 
-export function getLanguageIsolates() {
+export function useLanguageIsolates() {
   return useQuery<ILanguage[], ITitledError>({
     queryKey: ['language-isolates'],
     queryFn: async () => parseRecordDates(await getBackendJson('language-isolates'))

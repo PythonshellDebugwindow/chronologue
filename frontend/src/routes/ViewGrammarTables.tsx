@@ -2,15 +2,15 @@ import { Fragment } from 'react';
 import { Link } from 'react-router-dom';
 
 import {
-  compareGrammarTables, formatPeriodSeparatedGrammarForms, getGrammarForms,
-  getGrammarTablesByLanguage, IGrammarForm, IGrammarTableOverview
+  compareGrammarTables, formatPeriodSeparatedGrammarForms, useGrammarForms,
+  useLanguageGrammarTables, IGrammarForm, IGrammarTableOverview
 } from '../grammarData.tsx';
-import { ILanguage, getLanguageById } from '../languageData.tsx';
+import { ILanguage, useLanguage } from '../languageData.tsx';
 import {
   renderDatalessQueryResult, useGetParamsOrSelectedId, useSetPageTitle
 } from '../utils.tsx';
 import {
-  formatPosFieldValue, getPartsOfSpeech, IPartOfSpeech
+  formatPosFieldValue, usePartsOfSpeech, IPartOfSpeech
 } from '../wordData.tsx';
 
 function formatGrammarFormsList(codes: string[], grammarForms: IGrammarForm[]) {
@@ -61,10 +61,10 @@ export default function ViewGrammarTables() {
     throw new Error("No language ID was provided");
   }
   
-  const languageResponse = getLanguageById(id);
-  const tablesResponse = getGrammarTablesByLanguage(id);
-  const grammarFormsResponse = getGrammarForms();
-  const partsOfSpeechResponse = getPartsOfSpeech();
+  const languageResponse = useLanguage(id);
+  const tablesResponse = useLanguageGrammarTables(id);
+  const grammarFormsResponse = useGrammarForms();
+  const partsOfSpeechResponse = usePartsOfSpeech();
   
   const language = languageResponse.data;
   useSetPageTitle(language ? language.name + "'s Grammar Tables" : "Grammar Tables");

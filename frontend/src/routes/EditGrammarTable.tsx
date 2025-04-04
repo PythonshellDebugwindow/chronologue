@@ -9,16 +9,16 @@ import EditableGrammarTable from '../components/EditableGrammarTable.tsx';
 import POSAndClassesSelect from '../components/POSAndClassesSelect.tsx';
 
 import {
-  compareGrammarTables, editGrammarTable, getGrammarTableById,
-  getGrammarTableClassIds, getGrammarTableFilledCells, getGrammarTablesByLanguage,
+  compareGrammarTables, editGrammarTable, useGrammarTable,
+  useGrammarTableClassIds, useGrammarTableFilledCells, useLanguageGrammarTables,
   IGrammarTable, IGrammarTableCell, IGrammarTableOverview
 } from '../grammarData.tsx';
-import { getWordClassesByLanguage } from '../languageData.tsx';
+import { useLanguageWordClasses } from '../languageData.tsx';
 import {
   renderDatalessQueryResult, useGetParamsOrSelectedId, useSetPageTitle
 } from '../utils.tsx';
 import {
-  formatPosFieldValue, getPartsOfSpeech, IPartOfSpeech, IWordClass
+  formatPosFieldValue, usePartsOfSpeech, IPartOfSpeech, IWordClass
 } from '../wordData.tsx';
 
 function createCellMatrix(table: IGrammarTable, filledCells: IGrammarTableCell[]) {
@@ -48,13 +48,13 @@ function EditGrammarTableInner({
   const queryClient = useQueryClient();
   
   const [ tableIdToCopy, setTableIdToCopy ] = useState("");
-  const copyTableQuery = getGrammarTableById(
+  const copyTableQuery = useGrammarTable(
     tableIdToCopy, tableIdToCopy !== ""
   );
-  const copyTableClassesQuery = getGrammarTableClassIds(
+  const copyTableClassesQuery = useGrammarTableClassIds(
     tableIdToCopy, tableIdToCopy !== ""
   );
-  const copyTableCellsQuery = getGrammarTableFilledCells(
+  const copyTableCellsQuery = useGrammarTableFilledCells(
     tableIdToCopy, tableIdToCopy !== ""
   );
   const [ shouldCopyTable, setShouldCopyTable ] = useState(false);
@@ -270,11 +270,11 @@ function EditGrammarTableInner({
 };
 
 function EditGrammarTableWithTable({ table }: { table: IGrammarTable }) {
-  const tableClassIdsResponse = getGrammarTableClassIds(table.id);
-  const langClassesResponse = getWordClassesByLanguage(table.langId);
-  const cellsResponse = getGrammarTableFilledCells(table.id);
-  const tablesResponse = getGrammarTablesByLanguage(table.langId);
-  const partsOfSpeechResponse = getPartsOfSpeech();
+  const tableClassIdsResponse = useGrammarTableClassIds(table.id);
+  const langClassesResponse = useLanguageWordClasses(table.langId);
+  const cellsResponse = useGrammarTableFilledCells(table.id);
+  const tablesResponse = useLanguageGrammarTables(table.langId);
+  const partsOfSpeechResponse = usePartsOfSpeech();
   
   if(tableClassIdsResponse.status !== 'success') {
     return renderDatalessQueryResult(tableClassIdsResponse);
@@ -314,7 +314,7 @@ export default function EditGrammarTable() {
     throw new Error("No table ID was provided");
   }
   
-  const tableResponse = getGrammarTableById(tableId);
+  const tableResponse = useGrammarTable(tableId);
   
   useSetPageTitle("Edit Grammar Table");
 

@@ -4,8 +4,8 @@ import { useQueryClient } from '@tanstack/react-query';
 
 import { CFormBody, CSelect, CTextInput } from '../components/CForm.tsx';
 
-import { getFamilies, getFamilyMembers } from '../familyData.tsx';
-import { editLanguage, getLanguageById, ILanguage } from '../languageData.tsx';
+import { useFamilies, useFamilyMembers } from '../familyData.tsx';
+import { editLanguage, useLanguage, ILanguage } from '../languageData.tsx';
 import {
   renderDatalessQueryResult, useGetParamsOrSelectedId, useSetPageTitle
 } from '../utils.tsx';
@@ -19,7 +19,7 @@ interface IParentSelect {
 }
 
 function ParentSelect({ familyId, parentId, setParentId, child }: IParentSelect) {
-  const response = getFamilyMembers(familyId);
+  const response = useFamilyMembers(familyId);
   const languages = response.data?.filter(lang => lang.id !== child.id);
 
   useEffect(() => {
@@ -57,7 +57,7 @@ interface IFamilyAndLanguageSelect {
 }
 
 function FamilyAndLanguageSelect({ familyId, setFamilyId, parentId, setParentId, child }: IFamilyAndLanguageSelect) {
-  const { isPending, error, data: families } = getFamilies();
+  const { isPending, error, data: families } = useFamilies();
   if(isPending) {
     return <tr><td>Family:</td><td>Loading...</td></tr>;
   } else if(error) {
@@ -184,7 +184,7 @@ export default function EditLanguage() {
     throw new Error("No language ID was provided");
   }
   
-  const languageResponse = getLanguageById(languageId);
+  const languageResponse = useLanguage(languageId);
   
   useSetPageTitle("Edit Language");
 

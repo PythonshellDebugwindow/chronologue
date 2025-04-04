@@ -1,8 +1,8 @@
 import { Link } from 'react-router-dom';
 
-import { getOrthographySettings, IOrthographySettings } from '../languageData.tsx';
+import { useLanguageOrthographySettings, IOrthographySettings } from '../languageData.tsx';
 import {
-  formatGraphForAlphabet, getPhonesByLanguage, phoneToStringWithBrackets, IPhone
+  formatGraphForAlphabet, useLanguagePhones, phoneToStringWithBrackets, IPhone
 } from '../phoneData.tsx';
 import { renderDatalessQueryResult } from '../utils.tsx';
 
@@ -65,8 +65,8 @@ function OrthographyTableInner({ phones, orthSettings, languageId }: IOrthograph
 }
 
 export function OrthographySection({ languageId }: { languageId: string }) {
-  const phonesResponse = getPhonesByLanguage(languageId);
-  const orthSettingsResponse = getOrthographySettings(languageId);
+  const phonesResponse = useLanguagePhones(languageId);
+  const orthSettingsResponse = useLanguageOrthographySettings(languageId);
 
   if(phonesResponse.status !== 'success') {
     return renderDatalessQueryResult(phonesResponse);

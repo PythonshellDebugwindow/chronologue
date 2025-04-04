@@ -50,14 +50,14 @@ export async function editWord(id: string, data: AddWordArgument) {
   return await sendBackendJson(`words/${id}`, 'PUT', data);
 };
 
-export function getPartsOfSpeech() {
+export function usePartsOfSpeech() {
   return useQuery<IPartOfSpeech[], ITitledError>({
     queryKey: ['parts-of-speech'],
     queryFn: async () => await getBackendJson(`parts-of-speech`)
   });
 };
 
-export function getWordById(id: string, enabled: boolean = true) {
+export function useWord(id: string, enabled: boolean = true) {
   return useQuery<IWord, ITitledError>({
     queryKey: ['words', id],
     queryFn: async () => parseSingleRecordDates(await getBackendJson(`words/${id}`)),
@@ -65,22 +65,22 @@ export function getWordById(id: string, enabled: boolean = true) {
   });
 };
 
-export function getWordClassIdsByWord(id: string, enabled: boolean = true) {
+export function useWordClassIds(wordId: string, enabled: boolean = true) {
   return useQuery<string[], ITitledError>({
-    queryKey: ['words', id, 'class-ids'],
-    queryFn: async () => await getBackendJson(`words/${id}/class-ids`),
+    queryKey: ['words', wordId, 'class-ids'],
+    queryFn: async () => await getBackendJson(`words/${wordId}/class-ids`),
     enabled
   });
 };
 
-export function getWordClassesByWord(id: string) {
+export function useWordClasses(wordId: string) {
   return useQuery<IWordClassNoPOS[], ITitledError>({
-    queryKey: ['words', id, 'classes'],
-    queryFn: async () => await getBackendJson(`words/${id}/classes`)
+    queryKey: ['words', wordId, 'classes'],
+    queryFn: async () => await getBackendJson(`words/${wordId}/classes`)
   });
 };
 
-export function getWordsByLanguage(id: string) {
+export function useLanguageWords(id: string) {
   return useQuery<IWord[], ITitledError>({
     queryKey: ['languages', id, 'words'],
     queryFn: async () => parseRecordDates(await getBackendJson(`languages/${id}/words`))

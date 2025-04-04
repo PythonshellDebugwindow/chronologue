@@ -5,9 +5,9 @@ import { phoneToString } from '@shared/phones.ts';
 
 import SaveChangesButton from '../components/SaveChangesButton.tsx';
 
-import { getLanguageById, ILanguage } from '../languageData.tsx';
+import { useLanguage, ILanguage } from '../languageData.tsx';
 import {
-  getOrthographyCategories, getPhoneCategories, IPhone
+  useLanguageOrthographyCategories, useLanguagePhoneCategories, IPhone
 } from '../phoneData.tsx';
 import {
   getBackendJson, renderDatalessQueryResult, sendBackendJson,
@@ -327,9 +327,9 @@ export default function EditPhoneAndOrthCategories() {
     throw new Error("No language ID was provided");
   }
   
-  const languageResponse = getLanguageById(languageId);
-  const orthCategoriesResponse = getOrthographyCategories(languageId);
-  const phoneCategoriesResponse = getPhoneCategories(languageId);
+  const languageResponse = useLanguage(languageId);
+  const orthCategoriesResponse = useLanguageOrthographyCategories(languageId);
+  const phoneCategoriesResponse = useLanguagePhoneCategories(languageId);
   
   useSetPageTitle("Edit Categories");
   

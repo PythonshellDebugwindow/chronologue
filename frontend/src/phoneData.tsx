@@ -139,14 +139,14 @@ export function useEstimateWordIPAQuery(langId: string, word: string, enabled: b
   });
 };
 
-export function getPhonesByLanguage(id: string) {
+export function useLanguagePhones(id: string) {
   return useQuery<IPhone[], ITitledError>({
     queryKey: ['languages', id, 'phones'],
     queryFn: async () => await getBackendJson(`languages/${id}/phones`)
   });
 };
 
-export function getOrthographyCategories(id: string) {
+export function useLanguageOrthographyCategories(id: string) {
   return useQuery<ICategory[], ITitledError>({
     queryKey: ['languages', id, 'orth-categories'],
     queryFn: async () => await getBackendJson(`languages/${id}/orth-categories`),
@@ -154,7 +154,7 @@ export function getOrthographyCategories(id: string) {
   });
 };
 
-export function getPhoneCategories(id: string) {
+export function useLanguagePhoneCategories(id: string) {
   return useQuery<ICategory[], ITitledError>({
     queryKey: ['languages', id, 'phone-categories'],
     queryFn: async () => await getBackendJson(`languages/${id}/phone-categories`),
@@ -162,7 +162,7 @@ export function getPhoneCategories(id: string) {
   });
 };
 
-export function getPronunciationEstimationSettings(id: string) {
+export function useLanguagePronunciationEstimationSettings(id: string) {
   return useQuery<IPronunciationEstimationSettings, ITitledError>({
     queryKey: ['languages', id, 'pronunciation-estimation'],
     queryFn: async () => await getBackendJson(`languages/${id}/pronunciation-estimation`)

@@ -3,7 +3,7 @@ import { Link, useParams } from 'react-router-dom';
 import DisplayDate from '../components/DisplayDate.tsx';
 import { FamilyTree } from '../components/LanguageTree.tsx';
 
-import { getFamilyById, IFamily } from '../familyData.tsx';
+import { useFamily, IFamily } from '../familyData.tsx';
 import { renderDatalessQueryResult, useSetPageTitle } from '../utils.tsx';
 
 function ViewFamilyInner({ family }: { family: IFamily }) {
@@ -40,7 +40,7 @@ export default function ViewFamily() {
     throw new Error("No family ID was provided");
   }
 
-  const familyResponse = getFamilyById(id);
+  const familyResponse = useFamily(id);
 
   const family = familyResponse.data;
   useSetPageTitle(family ? "Family: " + family.name : "View family");

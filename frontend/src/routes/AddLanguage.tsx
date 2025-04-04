@@ -3,7 +3,7 @@ import { json, useActionData, useLocation, useNavigate, ActionFunctionArgs } fro
 
 import { CForm, CFormBody, CSelect, CTextInput } from '../components/CForm.tsx';
 
-import { getFamilies, getFamilyMembers } from '../familyData.tsx';
+import { useFamilies, useFamilyMembers } from '../familyData.tsx';
 import { addLanguage } from '../languageData.tsx';
 import SelectedLanguageContext from '../SelectedLanguageContext.tsx';
 import { getFormJson, useSetPageTitle } from '../utils.tsx';
@@ -24,7 +24,7 @@ export async function action({ request }: ActionFunctionArgs) {
 };
 
 function LanguageSelect({ familyId }: { familyId: string }) {
-  const { isPending, error, data: languages } = getFamilyMembers(familyId);
+  const { isPending, error, data: languages } = useFamilyMembers(familyId);
   if(isPending) {
     return <tr><td>Parent:</td><td>Loading...</td></tr>;
   } else if(error) {
@@ -45,7 +45,7 @@ function LanguageSelect({ familyId }: { familyId: string }) {
 function ParentSelect() {
   const [ familyId, setFamilyId ] = useState("");
   
-  const { isPending, error, data: families } = getFamilies();
+  const { isPending, error, data: families } = useFamilies();
   if(isPending) {
     return <tr><td>Family:</td><td>Loading...</td></tr>;
   } else if(error) {

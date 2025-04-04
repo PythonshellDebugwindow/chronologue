@@ -5,13 +5,13 @@ import LanguageLink from '../components/LanguageLink.tsx';
 import WordGrammarTable from '../components/WordGrammarTable.tsx';
 
 import {
-  getGrammarForms, getGrammarTableById, getGrammarTablesForWord,
+  useGrammarForms, useGrammarTable, useWordGrammarTables,
   useRunGrammarTableOnWordQuery, IGrammarTableIdAndName
 } from '../grammarData.tsx';
 import { renderDatalessQueryResult, useSetPageTitle } from '../utils.tsx';
 import {
   formatDictionaryFieldValue, formatPosFieldValue, formatWordClasses,
-  getPartsOfSpeech, getWordById, getWordClassesByWord, userFacingFieldName,
+  usePartsOfSpeech, useWord, useWordClasses, userFacingFieldName,
   IPartOfSpeech, IWord, IWordClassNoPOS
 } from '../wordData.tsx';
 
@@ -24,8 +24,8 @@ interface IDisplayWordGrammarTable {
 function DisplayWordGrammarTable({ word, tableOverview, partsOfSpeech }: IDisplayWordGrammarTable) {
   const [ showTable, setShowTable ] = useState(false);
   
-  const tableQuery = getGrammarTableById(tableOverview.id, showTable);
-  const grammarFormsQuery = getGrammarForms(showTable);
+  const tableQuery = useGrammarTable(tableOverview.id, showTable);
+  const grammarFormsQuery = useGrammarForms(showTable);
   const runQuery = useRunGrammarTableOnWordQuery(tableOverview.id, word.word, showTable);
 
   const tableNode = showTable && (() => {
@@ -151,10 +151,10 @@ export default function ViewWord() {
     throw new Error("No word ID was provided");
   }
 
-  const wordResponse = getWordById(id);
-  const classesResponse = getWordClassesByWord(id);
-  const tablesResponse = getGrammarTablesForWord(id);
-  const partsOfSpeechResponse = getPartsOfSpeech();
+  const wordResponse = useWord(id);
+  const classesResponse = useWordClasses(id);
+  const tablesResponse = useWordGrammarTables(id);
+  const partsOfSpeechResponse = usePartsOfSpeech();
   
   useSetPageTitle("View Word");
 

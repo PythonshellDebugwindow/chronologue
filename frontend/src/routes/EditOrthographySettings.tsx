@@ -8,7 +8,7 @@ import { CSS } from '@dnd-kit/utilities';
 import SaveChangesButton from '../components/SaveChangesButton.tsx';
 
 import {
-  getLanguageById, getOrthographySettings, ILanguage, IOrthographySettings
+  useLanguage, useLanguageOrthographySettings, ILanguage, IOrthographySettings
 } from '../languageData.tsx';
 import { formatGraphForAlphabet } from '../phoneData.tsx';
 import {
@@ -252,8 +252,8 @@ export default function EditOrthographySettings() {
     throw new Error("No language ID was provided");
   }
   
-  const languageResponse = getLanguageById(languageId);
-  const orthSettingsResponse = getOrthographySettings(languageId);
+  const languageResponse = useLanguage(languageId);
+  const orthSettingsResponse = useLanguageOrthographySettings(languageId);
   
   useSetPageTitle("Edit Orthography Settings");
 

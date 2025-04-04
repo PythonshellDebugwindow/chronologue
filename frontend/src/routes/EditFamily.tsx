@@ -4,7 +4,7 @@ import { useQueryClient } from '@tanstack/react-query';
 
 import { CFormBody, CMultilineTextInput, CTextInput } from '../components/CForm.tsx';
 
-import { editFamily, getFamilyById, IFamily } from '../familyData.tsx';
+import { editFamily, useFamily, IFamily } from '../familyData.tsx';
 import { renderDatalessQueryResult, useSetPageTitle } from '../utils.tsx';
 
 function EditFamilyInner({ initialFamily }: { initialFamily: IFamily }) {
@@ -63,7 +63,7 @@ export default function EditFamily() {
     throw new Error("No family ID was provided");
   }
   
-  const familyResponse = getFamilyById(familyId);
+  const familyResponse = useFamily(familyId);
   
   useSetPageTitle("Edit Family");
 

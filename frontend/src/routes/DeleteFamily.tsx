@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 
 import { renderDatalessQueryResult, useSetPageTitle } from '../utils.tsx';
-import { deleteFamily, getFamilyById, IFamily } from '../familyData.tsx';
+import { deleteFamily, useFamily, IFamily } from '../familyData.tsx';
 
 function DeleteFamilyInner({ family }: { family: IFamily }) {
   const navigate = useNavigate();
@@ -46,7 +46,7 @@ export default function DeleteFamily() {
     throw new Error("No family ID was provided");
   }
   
-  const familyResponse = getFamilyById(familyId);
+  const familyResponse = useFamily(familyId);
   
   useSetPageTitle("Delete Family");
 

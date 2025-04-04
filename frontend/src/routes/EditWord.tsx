@@ -8,11 +8,11 @@ import {
 import POSAndClassesSelect from '../components/POSAndClassesSelect.tsx';
 
 import {
-  getDictionarySettings, getWordClassesByLanguage, IDictionarySettings
+  useLanguageDictionarySettings, useLanguageWordClasses, IDictionarySettings
 } from '../languageData.tsx';
 import { renderDatalessQueryResult, useSetPageTitle } from '../utils.tsx';
 import {
-  editWord, getPartsOfSpeech, getWordById, getWordClassIdsByWord,
+  editWord, usePartsOfSpeech, useWord, useWordClassIds,
   IPartOfSpeech, IWord, IWordClass
 } from '../wordData.tsx';
 
@@ -132,10 +132,10 @@ function EditWordInner(
 };
 
 function EditWordWithWord({ word }: { word: IWord }) {
-  const wordClassIdsResponse = getWordClassIdsByWord(word.id);
-  const dictSettingsResponse = getDictionarySettings(word.langId);
-  const languageClassesResponse = getWordClassesByLanguage(word.langId);
-  const partsOfSpeechResponse = getPartsOfSpeech();
+  const wordClassIdsResponse = useWordClassIds(word.id);
+  const dictSettingsResponse = useLanguageDictionarySettings(word.langId);
+  const languageClassesResponse = useLanguageWordClasses(word.langId);
+  const partsOfSpeechResponse = usePartsOfSpeech();
 
   if(wordClassIdsResponse.status !== 'success') {
     return renderDatalessQueryResult(wordClassIdsResponse);
@@ -170,7 +170,7 @@ export default function EditWord() {
     throw new Error("No word ID was provided");
   }
   
-  const wordResponse = getWordById(wordId);
+  const wordResponse = useWord(wordId);
   
   useSetPageTitle("Edit Word");
 

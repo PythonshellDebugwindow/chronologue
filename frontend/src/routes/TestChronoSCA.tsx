@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 
-import { getLanguageById, ILanguage } from '../languageData.tsx';
+import { useLanguage, ILanguage } from '../languageData.tsx';
 import {
   renderDatalessQueryResult, useGetParamsOrSelectedId, useSetPageTitle
 } from '../utils.tsx';
 import {
-  getOrthographyCategories, getPhoneCategories, useApplySCARulesQuery,
+  useLanguageOrthographyCategories, useLanguagePhoneCategories, useApplySCARulesQuery,
   ApplySCARulesQueryResult, ICategory
 } from '../phoneData.tsx';
 import { useQueryClient } from '@tanstack/react-query';
@@ -164,9 +164,9 @@ export default function TestChronoSCA() {
     throw new Error("No language ID was provided");
   }
   
-  const languageResponse = getLanguageById(languageId);
-  const orthCategoriesResponse = getOrthographyCategories(languageId);
-  const phoneCategoriesResponse = getPhoneCategories(languageId);
+  const languageResponse = useLanguage(languageId);
+  const orthCategoriesResponse = useLanguageOrthographyCategories(languageId);
+  const phoneCategoriesResponse = useLanguagePhoneCategories(languageId);
   
   useSetPageTitle("ChronoSCA Testing");
 

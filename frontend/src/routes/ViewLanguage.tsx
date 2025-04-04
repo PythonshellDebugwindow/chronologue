@@ -8,19 +8,19 @@ import LinkButton from '../components/LinkButton.tsx';
 import { OrthographySection } from '../components/ViewLanguageOrthography.tsx';
 import { PhonologySection } from '../components/ViewLanguagePhonology.tsx';
 
-import { getFamilyById } from '../familyData.tsx';
+import { useFamily } from '../familyData.tsx';
 import {
-  formatLanguageStatus, getLanguageById, getLanguageSummaryNotes,
+  formatLanguageStatus, useLanguage, useLanguageSummaryNotes,
   ILanguage, ILanguageSummaryNotes
 } from '../languageData.tsx';
 import SelectedLanguageContext from '../SelectedLanguageContext.tsx';
 import {
   renderDatalessQueryResult, useGetParamsOrSelectedId, useSetPageTitle
 } from '../utils.tsx';
-import { getWordsByLanguage } from '../wordData.tsx';
+import { useLanguageWords } from '../wordData.tsx';
 
 function getFamilyName(id: string) {
-  const { isPending, error, data } = getFamilyById(id);
+  const { isPending, error, data } = useFamily(id);
   if(isPending) {
     return "Loading...";
   } else if(error) {
@@ -31,7 +31,7 @@ function getFamilyName(id: string) {
 }
 
 function getWordCount(id: string) {
-  const { isPending, error, data } = getWordsByLanguage(id);
+  const { isPending, error, data } = useLanguageWords(id);
   if(isPending) {
     return "Loading...";
   } else if(error) {
@@ -162,8 +162,8 @@ export default function ViewLanguage() {
     throw new Error("No language ID was provided");
   }
   
-  const languageResponse = getLanguageById(id);
-  const summaryNotesResponse = getLanguageSummaryNotes(id);
+  const languageResponse = useLanguage(id);
+  const summaryNotesResponse = useLanguageSummaryNotes(id);
   
   const language = languageResponse.data;
   useSetPageTitle(language ? "Language: " + language.name : "Language Summary");

@@ -47,14 +47,14 @@ export async function editLanguage(id: string, data: IAddLanguageArgument) {
   return await sendBackendJson(`languages/${id}`, 'PUT', data);
 };
 
-export function getLanguageById(id: string) {
+export function useLanguage(id: string) {
   return useQuery<ILanguage, ITitledError>({
     queryKey: ['languages', id],
     queryFn: async () => parseSingleRecordDates(await getBackendJson(`languages/${id}`))
   });
 };
 
-export function getLanguageSummaryNotes(id: string) {
+export function useLanguageSummaryNotes(id: string) {
   return useQuery<ILanguageSummaryNotes, ITitledError>({
     queryKey: ['languages', id, 'summary-notes'],
     queryFn: async () => parseSingleRecordDates(await getBackendJson(`languages/${id}/summary-notes`)),
@@ -62,14 +62,14 @@ export function getLanguageSummaryNotes(id: string) {
   });
 };
 
-export function getDescendants(id: string) {
+export function useLanguageDescendants(id: string) {
   return useQuery<ILanguage[], ITitledError>({
     queryKey: ['languages', id, 'descendants'],
     queryFn: async () => parseRecordDates(await getBackendJson(`languages/${id}/descendants`))
   });
 };
 
-export function getDictionarySettings(id: string) {
+export function useLanguageDictionarySettings(id: string) {
   return useQuery<IDictionarySettings, ITitledError>({
     queryKey: ['languages', id, 'dictionary-settings'],
     queryFn: async () => await getBackendJson(`languages/${id}/dictionary-settings`),
@@ -77,14 +77,14 @@ export function getDictionarySettings(id: string) {
   });
 };
 
-export function getOrthographySettings(id: string) {
+export function useLanguageOrthographySettings(id: string) {
   return useQuery<IOrthographySettings, ITitledError>({
     queryKey: ['languages', id, 'orth-settings'],
     queryFn: async () => await getBackendJson(`languages/${id}/orth-settings`)
   });
 };
 
-export function getWordClassesByLanguage(id: string) {
+export function useLanguageWordClasses(id: string) {
   return useQuery<IWordClass[], ITitledError>({
     queryKey: ['languages', id, 'word-classes'],
     queryFn: async () => await getBackendJson(`languages/${id}/word-classes`)

@@ -8,17 +8,17 @@ import EditableGrammarTable from '../components/EditableGrammarTable.tsx';
 import POSAndClassesSelect from '../components/POSAndClassesSelect.tsx';
 
 import {
-  addGrammarTable, compareGrammarTables, getGrammarTableById, getGrammarTableClassIds,
-  getGrammarTablesByLanguage, IGrammarTable, IGrammarTableOverview
+  addGrammarTable, compareGrammarTables, useGrammarTable, useGrammarTableClassIds,
+  useLanguageGrammarTables, IGrammarTable, IGrammarTableOverview
 } from '../grammarData.tsx';
 import {
-  getLanguageById, getWordClassesByLanguage, ILanguage
+  useLanguage, useLanguageWordClasses, ILanguage
 } from '../languageData.tsx';
 import {
   renderDatalessQueryResult, useGetParamsOrSelectedId, useSetPageTitle
 } from '../utils.tsx';
 import {
-  formatPosFieldValue, getPartsOfSpeech, IPartOfSpeech, IWordClass
+  formatPosFieldValue, usePartsOfSpeech, IPartOfSpeech, IWordClass
 } from '../wordData.tsx';
 
 interface IAddGrammarTableInner {
@@ -33,11 +33,11 @@ function AddGrammarTableInner({ language, langClasses, langTables, partsOfSpeech
   const navigate = useNavigate();
   
   const [ tableIdToCopy, setTableIdToCopy ] = useState("");
-  const copyTableQuery = getGrammarTableById(
+  const copyTableQuery = useGrammarTable(
     tableIdToCopy || (searchParams.get('copy') ?? ""),
     tableIdToCopy !== "" || searchParams.has('copy')
   );
-  const copyTableClassesQuery = getGrammarTableClassIds(
+  const copyTableClassesQuery = useGrammarTableClassIds(
     tableIdToCopy || (searchParams.get('copy') ?? ""),
     tableIdToCopy !== "" || searchParams.has('copy')
   );
@@ -243,10 +243,10 @@ export default function AddGrammarTable() {
     throw new Error("No language ID was provided");
   }
   
-  const languageResponse = getLanguageById(languageId);
-  const classesResponse = getWordClassesByLanguage(languageId);
-  const tablesResponse = getGrammarTablesByLanguage(languageId);
-  const partsOfSpeechResponse = getPartsOfSpeech();
+  const languageResponse = useLanguage(languageId);
+  const classesResponse = useLanguageWordClasses(languageId);
+  const tablesResponse = useLanguageGrammarTables(languageId);
+  const partsOfSpeechResponse = usePartsOfSpeech();
   
   useSetPageTitle("Add Grammar Table");
 

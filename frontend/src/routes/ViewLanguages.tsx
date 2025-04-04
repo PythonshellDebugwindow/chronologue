@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 
 import { FamilyTree } from '../components/LanguageTree.tsx';
 
-import { getFamilies, getLanguageIsolates, IFamily } from '../familyData.tsx';
+import { useFamilies, useLanguageIsolates, IFamily } from '../familyData.tsx';
 import { ILanguage } from '../languageData.tsx';
 import { renderDatalessQueryResult, useSetPageTitle } from '../utils.tsx';
 
@@ -57,8 +57,8 @@ function ViewLanguagesInner({ families, isolates }: IViewLanguagesInner) {
 }
 
 export default function ViewLanguages() {
-  const familiesResponse = getFamilies();
-  const isolatesResponse = getLanguageIsolates();
+  const familiesResponse = useFamilies();
+  const isolatesResponse = useLanguageIsolates();
 
   useSetPageTitle("View Languages");
 

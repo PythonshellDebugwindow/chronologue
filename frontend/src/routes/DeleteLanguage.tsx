@@ -1,7 +1,7 @@
 import { useContext, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 
-import { deleteLanguage, getLanguageById, ILanguage } from '../languageData.tsx';
+import { deleteLanguage, useLanguage, ILanguage } from '../languageData.tsx';
 import SelectedLanguageContext from '../SelectedLanguageContext.tsx';
 import { renderDatalessQueryResult, useSetPageTitle } from '../utils.tsx';
 
@@ -52,7 +52,7 @@ export default function DeleteLanguage() {
     throw new Error("No language ID was provided");
   }
   
-  const languageResponse = getLanguageById(languageId);
+  const languageResponse = useLanguage(languageId);
   
   useSetPageTitle("Delete Language");
 

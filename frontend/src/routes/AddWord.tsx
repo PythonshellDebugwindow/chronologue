@@ -8,18 +8,18 @@ import LinkButton from '../components/LinkButton.tsx';
 import POSAndClassesSelect from '../components/POSAndClassesSelect.tsx';
 
 import {
-  getDictionarySettings, getLanguageById, getWordClassesByLanguage,
+  useLanguageDictionarySettings, useLanguage, useLanguageWordClasses,
   IDictionarySettings, ILanguage
 } from '../languageData.tsx';
 import {
   renderDatalessQueryResult, useGetParamsOrSelectedId, useSetPageTitle
 } from '../utils.tsx';
 import {
-  addWord, getPartsOfSpeech, getWordById, getWordClassIdsByWord,
+  addWord, usePartsOfSpeech, useWord, useWordClassIds,
   IPartOfSpeech, IWord, IWordClass
 } from '../wordData.tsx';
 
-function wordName(query: ReturnType<typeof getWordById>) {
+function wordName(query: ReturnType<typeof useWord>) {
   if(query.isPending) {
     return "Loading...";
   } else if(query.error) {
@@ -35,8 +35,8 @@ interface IWordAddedMessage {
 }
 
 function WordAddedMessage({ prevId, copyWordData }: IWordAddedMessage) {
-  const prevWordQuery = getWordById(prevId);
-  const prevWordClassesQuery = getWordClassIdsByWord(prevId);
+  const prevWordQuery = useWord(prevId);
+  const prevWordClassesQuery = useWordClassIds(prevId);
 
   function copyFields() {
     if(prevWordQuery.data && prevWordClassesQuery.data) {
@@ -78,10 +78,10 @@ function AddWordInner({ language, dictSettings, langClasses, langPartsOfSpeech }
   const [ searchParams ] = useSearchParams();
   const navigate = useNavigate();
 
-  const copyWordQuery = getWordById(
+  const copyWordQuery = useWord(
     searchParams.get('copy') ?? "", searchParams.has('copy')
   );
-  const copyWordClassesQuery = getWordClassIdsByWord(
+  const copyWordClassesQuery = useWordClassIds(
     searchParams.get('copy') ?? "", searchParams.has('copy')
   );
   const [ shouldCopyWord, setShouldCopyWord ] = useState(searchParams.has('copy'));
@@ -267,10 +267,10 @@ export default function AddWord() {
     throw new Error("No language ID was provided");
   }
   
-  const languageResponse = getLanguageById(languageId);
-  const dictSettingsResponse = getDictionarySettings(languageId);
-  const classesResponse = getWordClassesByLanguage(languageId);
-  const partsOfSpeechResponse = getPartsOfSpeech();
+  const languageResponse = useLanguage(languageId);
+  const dictSettingsResponse = useLanguageDictionarySettings(languageId);
+  const classesResponse = useLanguageWordClasses(languageId);
+  const partsOfSpeechResponse = usePartsOfSpeech();
   
   useSetPageTitle("Add Word");
 

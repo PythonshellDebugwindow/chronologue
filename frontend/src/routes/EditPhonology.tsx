@@ -6,9 +6,9 @@ import { qualityData, phoneToString } from '@shared/phones.ts';
 
 import SaveChangesButton from '../components/SaveChangesButton.tsx';
 
-import { getLanguageById, ILanguage } from '../languageData.tsx';
+import { useLanguage, ILanguage } from '../languageData.tsx';
 import {
-  consonantData, getPhonesByLanguage, hasDoubleWidthCell, vowelData,
+  consonantData, useLanguagePhones, hasDoubleWidthCell, vowelData,
   IPhone, IPhoneTableData, PhoneType
 } from '../phoneData.tsx';
 import {
@@ -502,8 +502,8 @@ export default function EditPhonology() {
     throw new Error("No language ID was provided");
   }
   
-  const languageResponse = getLanguageById(id);
-  const phonesResponse = getPhonesByLanguage(id);
+  const languageResponse = useLanguage(id);
+  const phonesResponse = useLanguagePhones(id);
 
   useSetPageTitle("Edit Phonology");
   
