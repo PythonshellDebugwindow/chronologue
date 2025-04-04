@@ -129,6 +129,27 @@ export const getLanguageWords: RequestHandler = async (req, res) => {
   res.json(value.rows);
 };
 
+export const getLanguageWordCount: RequestHandler = async (req, res) => {
+  if(!isValidUUID(req.params.id)) {
+    res.status(400).json({ title: "Invalid ID", message: "The given language ID is not valid." });
+    return;
+  }
+  
+  const value = await query(
+    `
+      SELECT COUNT(*)
+      FROM words
+      WHERE lang_id = $1
+    `,
+    [ req.params.id ]
+  );
+  if(value.rows.length === 1) {
+    res.json(value.rows[0].count);
+  } else {
+    res.status(404).json({ title: "Word not found", message: "The requested language was not found." });
+  }
+};
+
 export const getPartsOfSpeech: RequestHandler = async (req, res) => {
   res.json(partsOfSpeech);
 };

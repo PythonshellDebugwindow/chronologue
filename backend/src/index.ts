@@ -71,6 +71,7 @@ app.put('/languages/:id/summary-notes', languages.updateSummaryNotes);
 app.get('/languages/:id/word-classes', words.getWordClassesByLanguage);
 app.put('/languages/:id/word-classes', words.updateWordClasses);
 app.get('/languages/:id/words', words.getLanguageWords);
+app.get('/languages/:id/word-count', words.getLanguageWordCount);
 
 app.get('/parts-of-speech', words.getPartsOfSpeech);
 

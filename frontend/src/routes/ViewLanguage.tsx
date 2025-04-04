@@ -17,9 +17,9 @@ import SelectedLanguageContext from '../SelectedLanguageContext.tsx';
 import {
   renderDatalessQueryResult, useGetParamsOrSelectedId, useSetPageTitle
 } from '../utils.tsx';
-import { useLanguageWords } from '../wordData.tsx';
+import { useLanguageWordCount } from '../wordData.tsx';
 
-function getFamilyName(id: string) {
+function useFamilyName(id: string) {
   const { isPending, error, data } = useFamily(id);
   if(isPending) {
     return "Loading...";
@@ -30,21 +30,21 @@ function getFamilyName(id: string) {
   }
 }
 
-function getWordCount(id: string) {
-  const { isPending, error, data } = useLanguageWords(id);
+function useWordCount(id: string) {
+  const { isPending, error, data } = useLanguageWordCount(id);
   if(isPending) {
     return "Loading...";
   } else if(error) {
     return error.message;
   } else {
-    return data.length;
+    return data;
   }
 }
 
 function FamilyLink({ familyId }: { familyId: string }) {
   return (
     <Link to={ '/family/' + familyId }>
-      { getFamilyName(familyId) }
+      { useFamilyName(familyId) }
     </Link>
   );
 }
@@ -122,7 +122,7 @@ function ViewLanguageInner({ language, summaryNotes }: IViewLanguageInner) {
           <tr>
             <th>Words:</th>
             <td>
-              { getWordCount(language.id) }
+              { useWordCount(language.id) }
             </td>
           </tr>
         </tbody>

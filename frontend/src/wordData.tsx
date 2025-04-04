@@ -80,6 +80,13 @@ export function useWordClasses(wordId: string) {
   });
 };
 
+export function useLanguageWordCount(id: string) {
+  return useQuery<number, ITitledError>({
+    queryKey: ['languages', id, 'word-count'],
+    queryFn: async () => await getBackendJson(`languages/${id}/word-count`)
+  });
+};
+
 export function useLanguageWords(id: string) {
   return useQuery<IWord[], ITitledError>({
     queryKey: ['languages', id, 'words'],
