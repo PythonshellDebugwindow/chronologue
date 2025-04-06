@@ -74,9 +74,9 @@ export default function Header() {
         <MenuBarItem
           name="Grammar"
           items={[
-            <Link to="/grammar-forms">Grammar Forms</Link>,
             <Link to="/grammar-tables">View Grammar Tables</Link>,
-            <Link to="/add-grammar-table">Add Grammar Table</Link>
+            <Link to="/add-grammar-table">Add Grammar Table</Link>,
+            <Link to="/grammar-forms">Grammar Forms</Link>
           ]}
           setCanHover={setCanHover}
         />

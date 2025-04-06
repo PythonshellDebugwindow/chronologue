@@ -156,7 +156,10 @@ function EditLanguageInner({ initialLanguage }: { initialLanguage: ILanguage }) 
           <CTextInput label="Era" name="era" state={era} setState={setEra} />
         </CFormBody>
         <button type="button" onClick={editFormLanguage}>
-          Save
+          Save changes
+        </button>
+        <button type="button" onClick={ () => navigate('/language/' + initialLanguage.id) }>
+          Back
         </button>
       </form>
       <h4>Summary Notes</h4>

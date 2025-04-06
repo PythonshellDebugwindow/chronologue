@@ -12,7 +12,7 @@ import {
 
 function formatPosFieldValue(word: IWord, partsOfSpeech: IPartOfSpeech[]) {
   const pos = partsOfSpeech.find(pos => pos.code === word.pos);
-  const posName = pos ? pos.code : "unknown code";
+  const posName = pos ? pos.name : "unknown code";
   return <abbr title={posName}>{ word.pos }</abbr>;
 }
 

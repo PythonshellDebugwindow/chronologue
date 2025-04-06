@@ -44,7 +44,10 @@ function EditFamilyInner({ initialFamily }: { initialFamily: IFamily }) {
           <CMultilineTextInput label="Description" name="description" state={description} setState={setDescription} />
         </CFormBody>
         <button type="button" onClick={editFormFamily}>
-          Save
+          Save changes
+        </button>
+        <button type="button" onClick={ () => navigate('/family/' + initialFamily.id) }>
+          Back
         </button>
       </form>
       <h4>Delete Family</h4>

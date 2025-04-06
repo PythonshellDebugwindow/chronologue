@@ -126,7 +126,10 @@ function EditWordInner(
           />
         </CFormBody>
         <button type="button" onClick={editFormWord}>
-          Save
+          Save changes
+        </button>
+        <button type="button" onClick={ () => navigate('/word/' + initialWord.id) }>
+          Back
         </button>
       </form>
     </>

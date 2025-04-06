@@ -262,7 +262,10 @@ function EditGrammarTableInner({
           />
         </CFormBody>
         <button type="button" onClick={editFormTable}>
-          Save
+          Save changes
+        </button>
+        <button type="button" onClick={ () => navigate('/grammar-table/' + table.id) }>
+          Back
         </button>
       </form>
     </>
