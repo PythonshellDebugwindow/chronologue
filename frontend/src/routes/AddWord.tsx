@@ -4,6 +4,7 @@ import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import {
   CFormBody, CIpaTextInput, CMultilineTextInput, CTextInput
 } from '../components/CForm.tsx';
+import CTextInputWithAlphabet from '../components/CFormTextInputWithAlphabet.tsx';
 import LinkButton from '../components/LinkButton.tsx';
 import POSAndClassesSelect from '../components/POSAndClassesSelect.tsx';
 
@@ -197,7 +198,8 @@ function AddWordInner({ language, dictSettings, langClasses, langPartsOfSpeech }
       { message && <p>{message}</p> }
       <form className="chronologue-form">
         <CFormBody>
-          <CTextInput
+          <CTextInputWithAlphabet
+            langId={ language.id }
             label="Word"
             name="word"
             state={word}

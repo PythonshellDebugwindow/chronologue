@@ -5,6 +5,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import {
   CFormBody, CIpaTextInput, CMultilineTextInput, CTextInput
 } from '../components/CForm.tsx';
+import CTextInputWithAlphabet from '../components/CFormTextInputWithAlphabet.tsx';
 import POSAndClassesSelect from '../components/POSAndClassesSelect.tsx';
 
 import {
@@ -80,7 +81,8 @@ function EditWordInner(
       { errorMessage && <p>{errorMessage}</p> }
       <form className="chronologue-form">
         <CFormBody>
-          <CTextInput
+          <CTextInputWithAlphabet
+            langId={ initialWord.langId }
             label="Word"
             name="word"
             state={word}

@@ -6,6 +6,10 @@ import SelectedLanguageContext from './SelectedLanguageContext.tsx';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
+export function assertUnreachable(value: never) {
+  throw new Error("Invalid value: " + value);
+};
+
 interface IFormData {
   [key: string]: string;
 }

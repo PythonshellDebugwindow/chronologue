@@ -494,3 +494,24 @@
   margin-left: auto;
   margin-right: auto;
 }
+
+.clickable-alphabet-td {
+  text-align: center;
+}
+.clickable-alphabet-dropdown span {
+  padding: 0 4px;
+  cursor: pointer;
+}
+.clickable-alphabet-dropdown span:hover {
+  background: #ddd;
+}
+.clickable-alphabet-listing > span {
+  padding: 2px 4px;
+  display: inline-block;
+}
+.clickable-alphabet-listing > span > span {
+  cursor: pointer;
+}
+.clickable-alphabet-listing > span > span:hover {
+  background: #ddd;
+}

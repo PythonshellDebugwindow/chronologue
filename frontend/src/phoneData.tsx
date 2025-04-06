@@ -6,7 +6,9 @@ import {
 } from '@shared/phones.ts';
 
 import { IOrthographySettings } from './languageData.tsx';
-import { getBackendJson, sendBackendJsonForQuery, ITitledError } from './utils.tsx';
+import {
+  assertUnreachable, getBackendJson, sendBackendJsonForQuery, ITitledError
+} from './utils.tsx';
 
 export interface ICategory {
   letter: string;
@@ -80,17 +82,31 @@ export function phoneToStringWithBrackets(phone: IPhone) {
   }
 };
 
-export function formatGraphForAlphabet(graph: string, orthSettings: IOrthographySettings) {
+export function getGraphFormatTypeForAlphabet(graph: string, orthSettings: IOrthographySettings) {
   if(orthSettings.caseSensitive) {
-    return graph;
+    return 'id';
   }
   const upper = graph.toUpperCase();
   if(upper === graph) {
-    return graph;
+    return 'id';
   } else if(upper.replace(/\p{M}/gu, "").length >= 2) {
-    return upper + " " + graph;
+    return 'upper-space-lower';
   } else {
-    return upper + graph;
+    return 'upper-lower';
+  }
+}
+
+export function formatGraphForAlphabet(graph: string, orthSettings: IOrthographySettings) {
+  const formatType = getGraphFormatTypeForAlphabet(graph, orthSettings);
+  switch(formatType) {
+    case 'id':
+      return graph;
+    case 'upper-lower':
+      return graph.toUpperCase() + graph;
+    case 'upper-space-lower':
+      return graph.toUpperCase() + " " + graph;
+    default:
+      assertUnreachable(formatType);
   }
 };
 
