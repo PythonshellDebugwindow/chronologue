@@ -1,6 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 
 import DisplayDate from './components/DisplayDate.tsx';
+import LanguageLink from './components/LanguageLink.tsx';
+import WordLink from './components/WordLink.tsx';
 
 import {
   getBackendJson, parseRecordDates, parseSingleRecordDates, sendBackendJson,
@@ -132,4 +134,40 @@ export function formatWordClasses(classes: IWordClassNoPOS[]) {
       }
     </ul>
   );
+};
+
+export function formatWordEtymology(etymology: string) {
+  const result = [];
+  let i = etymology.indexOf("@");
+  let oldIndex = 0;
+  for(; i > -1; i = etymology.indexOf("@", i + 1)) {
+    result.push(etymology.substring(oldIndex, i));
+
+    if(etymology[i + 1] === "@") {
+      result.push("@");
+      ++i;
+    } else if(/^\([0-9a-f]{32}\)/.test(etymology.substring(i + 2))) {
+      const linkType = etymology[i + 1];
+      const id = etymology.substring(i + 3, i + 3 + 32);
+      switch(linkType) {
+        case "d":
+        case "w":
+          result.push(<WordLink id={id} key={ result.length } />);
+          i += 3 + 32;
+          break;
+        case "l":
+          result.push(<LanguageLink id={id} key={ result.length } />);
+          i += 3 + 32;
+          break;
+        default:
+          result.push("@");
+      }
+    } else {
+      result.push("@");
+    }
+    
+    oldIndex = i + 1;
+  }
+  result.push(etymology.substring(oldIndex));
+  return result;
 };

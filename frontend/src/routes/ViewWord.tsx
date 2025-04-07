@@ -11,7 +11,7 @@ import {
 import { renderDatalessQueryResult, useSetPageTitle } from '../utils.tsx';
 import {
   formatDictionaryFieldValue, formatPosFieldValue, formatWordClasses,
-  usePartsOfSpeech, useWord, useWordClasses, userFacingFieldName,
+  formatWordEtymology, usePartsOfSpeech, useWord, useWordClasses, userFacingFieldName,
   IPartOfSpeech, IWord, IWordClassNoPOS
 } from '../wordData.tsx';
 
@@ -88,6 +88,19 @@ function ViewWordInner({ word, classes, tables, partsOfSpeech }: IViewWordInner)
     'word', 'ipa', 'meaning', 'pos', 'classes',
     'etymology', 'notes', 'created', 'updated'
   ] as (keyof IWord | 'classes')[];
+
+  function formatFieldValue(field: keyof IWord | 'classes') {
+    switch(field) {
+      case 'pos':
+        return formatPosFieldValue(word.pos, partsOfSpeech);
+      case 'classes':
+        return formatWordClasses(classes);
+      case 'etymology':
+        return formatWordEtymology(word[field]);
+      default:
+        return formatDictionaryFieldValue(word, field);
+    }
+  }
   
   return (
     <>
@@ -106,14 +119,7 @@ function ViewWordInner({ word, classes, tables, partsOfSpeech }: IViewWordInner)
                 <tr key={field}>
                   <th>{ userFacingFieldName(field) }:</th>
                   <td style={{ whiteSpace: "pre-wrap" }}>
-                    {
-                      field === 'pos'
-                      ? formatPosFieldValue(word.pos, partsOfSpeech)
-                      : (field === 'classes'
-                         ? formatWordClasses(classes)
-                         : formatDictionaryFieldValue(word, field)
-                        )
-                    }
+                    { formatFieldValue(field) }
                   </td>
                 </tr>
               )

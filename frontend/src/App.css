@@ -112,7 +112,6 @@
 }
 .chronologue-form textarea {
   margin-top: 4px;
-  resize: vertical;
   width: calc(100% - 1.5px);
   height: 7em;
   box-sizing: border-box;
