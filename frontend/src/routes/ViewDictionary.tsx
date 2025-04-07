@@ -3,12 +3,12 @@ import { Link } from 'react-router-dom';
 
 import { useLanguage, ILanguage } from '../languageData.tsx';
 import {
-  formatDictionaryFieldValue, usePartsOfSpeech, useLanguageWords,
-  userFacingFieldName, IPartOfSpeech, IWord
-} from '../wordData.tsx';
-import {
   renderDatalessQueryResult, useGetParamsOrSelectedId, useSetPageTitle
 } from '../utils.tsx';
+import {
+  formatDictionaryFieldValue, formatWordEtymology, usePartsOfSpeech,
+  useLanguageWords, userFacingFieldName, IPartOfSpeech, IWord
+} from '../wordData.tsx';
 
 function formatPosFieldValue(word: IWord, partsOfSpeech: IPartOfSpeech[]) {
   const pos = partsOfSpeech.find(pos => pos.code === word.pos);
@@ -24,22 +24,34 @@ interface IDictionaryField {
 interface IWordRow {
   word: IWord;
   fields: IDictionaryField[];
+  language: ILanguage;
   partsOfSpeech: IPartOfSpeech[];
 }
 
-function WordRow({ word, fields, partsOfSpeech }: IWordRow) {
+function WordRow({ word, fields, language, partsOfSpeech }: IWordRow) {
+  function formatValue(field: IDictionaryField) {
+    switch(field.name) {
+      case 'pos':
+        return formatPosFieldValue(word, partsOfSpeech);
+      case 'etymology':
+        return formatWordEtymology(word.etymology);
+      default:
+        return word[field.name] && formatDictionaryFieldValue(word, field.name);
+    }
+  }
+
   return (
     <tr>
-      <td><Link to={ '/word/' + word.id }>{ word.word }</Link></td>
+      <td>
+        <Link to={ '/word/' + word.id }>
+          { (language.status === 'proto' ? "*" : "") + word.word }
+        </Link>
+      </td>
       {
         fields.map(
           field => field.isDisplaying && (
-            <td key={field.name}>
-              {
-                field.name === 'pos'
-                ? formatPosFieldValue(word, partsOfSpeech)
-                : (word[field.name] && formatDictionaryFieldValue(word, field.name))
-              }
+            <td key={ field.name }>
+              { formatValue(field) }
             </td>
           )
         )
@@ -251,6 +263,9 @@ function ViewDictionaryInner({ language, words, partsOfSpeech }: IViewDictionary
           </>
         }
       </p>
+      <p>
+        { sortedWords.length || "No" } word{ sortedWords.length !== 1 && "s" } found.
+      </p>
       <table className="dictionary-table" cellSpacing="0">
         <tbody>
           <tr>
@@ -278,6 +293,7 @@ function ViewDictionaryInner({ language, words, partsOfSpeech }: IViewDictionary
               <WordRow
                 word={word}
                 fields={fields}
+                language={language}
                 partsOfSpeech={partsOfSpeech}
                 key={ word.id }
               />

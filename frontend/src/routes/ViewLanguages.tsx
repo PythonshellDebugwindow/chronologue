@@ -46,12 +46,21 @@ function ViewLanguagesInner({ families, isolates }: IViewLanguagesInner) {
       {
         families.map(family => (
           <Fragment key={ family.id }>
-            <h3><Link to={ '/family/' + family.id }>{ family.name }</Link></h3>
+            <h3>
+              <Link to={ '/family/' + family.id }>
+                { family.name }
+              </Link>
+            </h3>
             <FamilyTree id={ family.id } showSelect={false} />
           </Fragment>
         ))
       }
       <LanguageIsolates languages={isolates} />
+      {
+        families.length === 0 && isolates.length === 0 && (
+          <p>You have not added any languages yet.</p>
+        )
+      }
     </>
   );
 }

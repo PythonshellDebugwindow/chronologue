@@ -61,6 +61,8 @@ function AlphabetListing({ langId, insertGraph }: IAlphabetListing) {
     return <b>Error: { error.message }</b>;
   } else if(status === 'pending') {
     return "Loading...";
+  } else if(orthSettings.alphabeticalOrder.length === 0) {
+    return "You have not set any letters.";
   } else {
     return (
       <div className="clickable-alphabet-listing">

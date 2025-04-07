@@ -2,13 +2,13 @@ import { useContext } from 'react';
 import { Link } from 'react-router-dom';
 
 import DisplayDate from '../components/DisplayDate.tsx';
+import FamilyLink from '../components/FamilyLink.tsx';
 import LanguageLink from '../components/LanguageLink.tsx';
 import { LanguageTree } from '../components/LanguageTree.tsx';
 import LinkButton from '../components/LinkButton.tsx';
 import { OrthographySection } from '../components/ViewLanguageOrthography.tsx';
 import { PhonologySection } from '../components/ViewLanguagePhonology.tsx';
 
-import { useFamily } from '../familyData.tsx';
 import {
   formatLanguageStatus, useLanguage, useLanguageSummaryNotes,
   ILanguage, ILanguageSummaryNotes
@@ -19,17 +19,6 @@ import {
 } from '../utils.tsx';
 import { useLanguageWordCount } from '../wordData.tsx';
 
-function useFamilyName(id: string) {
-  const { isPending, error, data } = useFamily(id);
-  if(isPending) {
-    return "Loading...";
-  } else if(error) {
-    return error.message;
-  } else {
-    return data.name;
-  }
-}
-
 function useWordCount(id: string) {
   const { isPending, error, data } = useLanguageWordCount(id);
   if(isPending) {
@@ -39,14 +28,6 @@ function useWordCount(id: string) {
   } else {
     return data;
   }
-}
-
-function FamilyLink({ familyId }: { familyId: string }) {
-  return (
-    <Link to={ '/family/' + familyId }>
-      { useFamilyName(familyId) }
-    </Link>
-  );
 }
 
 interface IViewLanguageInner {
@@ -84,7 +65,7 @@ function ViewLanguageInner({ language, summaryNotes }: IViewLanguageInner) {
             <td>
               {
                 language.familyId !== null
-                ? <FamilyLink familyId={ language.familyId } />
+                ? <FamilyLink id={ language.familyId } />
                 : "None"
               }
             </td>

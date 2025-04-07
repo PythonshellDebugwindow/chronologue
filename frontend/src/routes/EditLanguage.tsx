@@ -5,7 +5,9 @@ import { useQueryClient } from '@tanstack/react-query';
 import { CFormBody, CSelect, CTextInput } from '../components/CForm.tsx';
 
 import { useFamilies, useFamilyMembers } from '../familyData.tsx';
-import { editLanguage, useLanguage, ILanguage } from '../languageData.tsx';
+import {
+  editLanguage, useLanguage, ILanguage, LanguageStatus
+} from '../languageData.tsx';
 import {
   renderDatalessQueryResult, useGetParamsOrSelectedId, useSetPageTitle
 } from '../utils.tsx';
@@ -148,7 +150,12 @@ function EditLanguageInner({ initialLanguage }: { initialLanguage: ILanguage }) 
             parentId={parentId}
             setParentId={setParentId}
           />
-          <CSelect label="Status" name="status" state={status} setState={setStatus}>
+          <CSelect
+            label="Status"
+            name="status"
+            state={status}
+            setState={ value => setStatus(value as LanguageStatus) }
+          >
             <option value="living">Living</option>
             <option value="dead">Dead</option>
             <option value="proto">Proto</option>

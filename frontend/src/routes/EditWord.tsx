@@ -95,7 +95,7 @@ function EditWordInner(
             setState={setMeaning}
           />
           {
-            dictSettings.showWordIpa && (
+            (dictSettings.showWordIpa || initialWord.ipa) && (
               <CIpaTextInput
                 languageId={ initialWord.langId }
                 word={word}

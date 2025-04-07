@@ -169,6 +169,7 @@
 .dictionary-table td
 {
   text-align: left;
+  white-space: pre-wrap;
 }
 
 .hover-light-grey {

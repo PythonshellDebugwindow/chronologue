@@ -6,13 +6,15 @@ import {
   sendBackendJson, sendBackendRequest, ITitledError
 } from './utils.tsx';
 
+export type LanguageStatus = 'living' | 'dead' | 'proto';
+
 export interface ILanguage {
   id: string;
   name: string;
   autonym: string;
   familyId: string | null;
   parentId: string | null;
-  status: string;
+  status: LanguageStatus;
   era: string;
   created: Date;
 };
