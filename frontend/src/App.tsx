@@ -31,6 +31,7 @@ import EditPronunciationEstimation from './routes/EditPronunciationEstimation.ts
 import EditSummaryNotes from './routes/EditSummaryNotes.tsx';
 import EditWord from './routes/EditWord.tsx';
 import ErrorPage from './routes/ErrorPage.tsx';
+import ImportDictionary from './routes/ImportDictionary.tsx';
 import MainPage from './routes/MainPage.tsx';
 import TestChronoSCA from './routes/TestChronoSCA.tsx';
 import ViewDictionary from './routes/ViewDictionary.tsx';
@@ -142,6 +143,10 @@ const router = createBrowserRouter([
       {
         path: "grammar-tables/:id?",
         element: <ViewGrammarTables />
+      },
+      {
+        path: "import-dictionary/:id?",
+        element: <ImportDictionary />
       },
       {
         path: "language/:id?",

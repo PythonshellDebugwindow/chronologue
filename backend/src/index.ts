@@ -56,6 +56,7 @@ app.get('/languages/:id/dictionary-settings', languages.getDictionarySettings);
 app.put('/languages/:id/dictionary-settings', languages.updateDictionarySettings);
 app.post('/languages/:id/estimate-ipa', phonology.estimateWordIPA);
 app.get('/languages/:id/grammar-tables', grammar.getLanguageGrammarTables);
+app.post('/languages/:id/import-words', words.importWords);
 app.get('/languages/:id/orth-categories', phonology.getOrthographyCategories);
 app.put('/languages/:id/orth-categories', phonology.updateOrthographyCategories);
 app.get('/languages/:id/orth-settings', languages.getOrthographySettings);

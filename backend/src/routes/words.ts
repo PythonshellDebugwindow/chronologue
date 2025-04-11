@@ -236,6 +236,76 @@ export const getWordClassesByWord: RequestHandler = async (req, res) => {
   res.json(value.rows);
 };
 
+export const importWords: RequestHandler = async (req, res) => {
+  if(!isValidUUID(req.params.id)) {
+    res.status(400).json({ message: "The given language ID is not valid." });
+    return;
+  }
+  if(!(req.body.words instanceof Array)) {
+    res.status(400).json({ message: "Invalid request body." });
+    return;
+  }
+  for(const word of req.body.words) {
+    if(!word.word || !word.meaning || !word.pos ||
+       !hasAllStrings(word, ['ipa', 'etymology', 'notes']) ||
+       !(word.classes instanceof Array)) {
+      res.status(400).json({ message: "Invalid word in request body." });
+      return;
+    }
+  }
+
+  const langId = req.params.id;
+  const words = req.body.words;
+
+  await transact(async client => {
+    const wordClassesQuery = await client.query(
+      `
+        SELECT id, pos, code
+        FROM word_classes
+        WHERE lang_id = $1
+      `,
+      [ langId ]
+    );
+    const wordClasses = wordClassesQuery.rows;
+
+    for(const word of words) {
+      if(word.classes.some((cls: string) => !wordClasses.some(wc => wc.id === cls && wc.pos === word.pos))) {
+        res.status(400).json({ message: "Invalid word class for POS." });
+        return;
+      }
+    }
+
+    const importQuery = await client.query(
+      `
+        INSERT INTO words (
+          word, ipa, meaning, pos, etymology, notes, lang_id
+        )
+        SELECT w.word, w.ipa, w.meaning, w.pos, w.etymology, w.notes, $1
+        FROM json_populate_recordset(NULL::words, $2) AS w
+        RETURNING id
+      `,
+      [ langId, JSON.stringify(words) ]
+    );
+    const addedIds = importQuery.rows;
+
+    const wordClassesByWord = words.flatMap((word: any, i: number) => word.classes.map(
+      (cls: string) => ({ word_id: addedIds[i].id, class_id: cls })
+    ));
+    await client.query(
+      `
+        INSERT INTO word_classes_by_word (
+          word_id, class_id
+        )
+        SELECT wc.word_id, wc.class_id
+        FROM json_populate_recordset(NULL::word_classes_by_word, $1) AS wc
+      `,
+      [ JSON.stringify(wordClassesByWord) ]
+    );
+  });
+
+  res.status(204).send();
+};
+
 export const updateWordClasses: RequestHandler = async (req, res, next) => {
   try {
     if(!isValidUUID(req.params.id)) {

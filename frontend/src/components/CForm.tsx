@@ -120,6 +120,7 @@ interface ITextInput {
   name: string;
   state?: string;
   setState?: Dispatch<SetStateAction<string>>;
+  width?: string;
   height?: string;
 }
 
@@ -170,7 +171,7 @@ export function CSelect({ label, name, children, state, setState }: ICSelect) {
   );
 };
 
-export function CTextInput({ label, name, state, setState }: ITextInput) {
+export function CTextInput({ label, name, state, setState, width }: ITextInput) {
   return (
     <tr>
       <td>
@@ -183,6 +184,7 @@ export function CTextInput({ label, name, state, setState }: ITextInput) {
           id={"cti-" + name}
           value={state}
           onChange={ setState && (e => setState(e.target.value)) }
+          style={ width ? { width } : undefined }
         />
       </td>
     </tr>

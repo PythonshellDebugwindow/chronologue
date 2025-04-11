@@ -36,11 +36,11 @@ export interface IWordClass {
 
 export type IWordClassNoPOS = Omit<IWordClass, 'pos'>;
 
-type AddWordArgument = Omit<IWord, 'id' | 'parents' | 'created' | 'updated'> & {
+type IAddWordArgument = Omit<IWord, 'id' | 'created' | 'updated'> & {
   classIds: string[];
 };
 
-export async function addWord(data: AddWordArgument) {
+export async function addWord(data: IAddWordArgument) {
   return await sendBackendJson('words', 'POST', data);
 };
 
@@ -48,7 +48,7 @@ export async function deleteWord(id: string) {
   return await sendBackendRequest(`words/${id}`, 'DELETE');
 };
 
-export async function editWord(id: string, data: AddWordArgument) {
+export async function editWord(id: string, data: IAddWordArgument) {
   return await sendBackendJson(`words/${id}`, 'PUT', data);
 };
 
@@ -115,6 +115,12 @@ export function formatDictionaryFieldValue(word: IWord, field: keyof IWord) {
   } else {
     return value;
   }
+};
+
+export function formatPosAbbr(code: string, partsOfSpeech: IPartOfSpeech[]) {
+  const pos = partsOfSpeech.find(pos => pos.code === code);
+  const posName = pos ? pos.name : "unknown code";
+  return <abbr title={posName}>{code}</abbr>;
 };
 
 export function formatPosFieldValue(posCode: string, partsOfSpeech: IPartOfSpeech[]) {

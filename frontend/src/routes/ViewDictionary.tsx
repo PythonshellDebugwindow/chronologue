@@ -1,64 +1,20 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 
+import { DictionaryRow, DictionaryTable } from '../components/Dictionary.tsx';
+
 import { useLanguage, ILanguage } from '../languageData.tsx';
 import {
   renderDatalessQueryResult, useGetParamsOrSelectedId, useSetPageTitle
 } from '../utils.tsx';
 import {
-  formatDictionaryFieldValue, formatWordEtymology, usePartsOfSpeech,
-  useLanguageWords, userFacingFieldName, IPartOfSpeech, IWord
+  usePartsOfSpeech, useLanguageWords, userFacingFieldName, IPartOfSpeech, IWord
 } from '../wordData.tsx';
-
-function formatPosFieldValue(word: IWord, partsOfSpeech: IPartOfSpeech[]) {
-  const pos = partsOfSpeech.find(pos => pos.code === word.pos);
-  const posName = pos ? pos.name : "unknown code";
-  return <abbr title={posName}>{ word.pos }</abbr>;
-}
 
 interface IDictionaryField {
   name: keyof IWord;
   isDisplaying: boolean;
 }
-
-interface IWordRow {
-  word: IWord;
-  fields: IDictionaryField[];
-  language: ILanguage;
-  partsOfSpeech: IPartOfSpeech[];
-}
-
-function WordRow({ word, fields, language, partsOfSpeech }: IWordRow) {
-  function formatValue(field: IDictionaryField) {
-    switch(field.name) {
-      case 'pos':
-        return formatPosFieldValue(word, partsOfSpeech);
-      case 'etymology':
-        return formatWordEtymology(word.etymology);
-      default:
-        return word[field.name] && formatDictionaryFieldValue(word, field.name);
-    }
-  }
-
-  return (
-    <tr>
-      <td>
-        <Link to={ '/word/' + word.id }>
-          { (language.status === 'proto' ? "*" : "") + word.word }
-        </Link>
-      </td>
-      {
-        fields.map(
-          field => field.isDisplaying && (
-            <td key={ field.name }>
-              { formatValue(field) }
-            </td>
-          )
-        )
-      }
-    </tr>
-  )
-};
 
 function getAllFields() {
   const fields: IDictionaryField[] = [];
@@ -132,6 +88,8 @@ function ViewDictionaryInner({ language, words, partsOfSpeech }: IViewDictionary
   const [filterType, setFilterType] = useState<FilterType>('begins');
   const [filterValue, setFilterValue] = useState("");
   const [filterMatchCase, setFilterMatchCase] = useState(false);
+
+  const displayedFieldNames = fields.flatMap(f => f.isDisplaying ? [f.name] : []);
 
   const collator = new Intl.Collator();
 
@@ -266,41 +224,39 @@ function ViewDictionaryInner({ language, words, partsOfSpeech }: IViewDictionary
       <p>
         { sortedWords.length || "No" } word{ sortedWords.length !== 1 && "s" } found.
       </p>
-      <table className="dictionary-table" cellSpacing="0">
-        <tbody>
-          <tr>
-            <th>Word</th>
-            {
-              fields.map(
-                field => field.isDisplaying && (
-                  <th key={field.name}>
-                    { userFacingFieldName(field.name) }
-                    {
-                      field.name !== 'meaning' && (
-                        <button
-                          className="letter-button letter-button-x"
-                          onClick={ () => disableField(field) }
-                        />
-                      )
-                    }
-                  </th>
-                )
-              )
-            }
-          </tr>
+      <DictionaryTable>
+        <tr>
+          <th>Word</th>
           {
-            sortedWords.map(word => (
-              <WordRow
-                word={word}
-                fields={fields}
-                language={language}
-                partsOfSpeech={partsOfSpeech}
-                key={ word.id }
-              />
-            ))
+            fields.map(
+              field => field.isDisplaying && (
+                <th key={field.name}>
+                  { userFacingFieldName(field.name) }
+                  {
+                    field.name !== 'meaning' && (
+                      <button
+                        className="letter-button letter-button-x"
+                        onClick={ () => disableField(field) }
+                      />
+                    )
+                  }
+                </th>
+              )
+            )
           }
-        </tbody>
-      </table>
+        </tr>
+        {
+          sortedWords.map(word => (
+            <DictionaryRow
+              word={word}
+              fields={displayedFieldNames}
+              language={language}
+              partsOfSpeech={partsOfSpeech}
+              key={ word.id }
+            />
+          ))
+        }
+      </DictionaryTable>
     </>
   );
 }
