@@ -306,6 +306,22 @@ export const importWords: RequestHandler = async (req, res) => {
   res.status(204).send();
 };
 
+export const purgeLanguageDictionary: RequestHandler = async (req, res) => {
+  if(!isValidUUID(req.params.id)) {
+    res.status(400).json({ title: "Invalid ID", message: "The given language ID is not valid." });
+    return;
+  }
+  
+  await query(
+    `
+      DELETE FROM words
+      WHERE lang_id = $1
+    `,
+    [ req.params.id ]
+  );
+  res.status(204).send();
+};
+
 export const updateWordClasses: RequestHandler = async (req, res, next) => {
   try {
     if(!isValidUUID(req.params.id)) {

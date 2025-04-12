@@ -90,13 +90,13 @@ function ImportPreview({ words, fields, language, langClasses, partsOfSpeech }: 
   );
 }
 
-interface IImportDictionaryInner {
+interface IImportWordsInner {
   language: ILanguage;
   langClasses: IWordClass[];
   partsOfSpeech: IPartOfSpeech[];
 }
 
-function ImportDictionaryInner({ language, langClasses, partsOfSpeech }: IImportDictionaryInner) {
+function ImportWordsInner({ language, langClasses, partsOfSpeech }: IImportWordsInner) {
   const possibleCsvFields: (keyof IImportedWord)[] = [
     'word', 'ipa', 'meaning', 'pos', 'etymology', 'notes', 'classes'
   ];
@@ -213,7 +213,7 @@ function ImportDictionaryInner({ language, langClasses, partsOfSpeech }: IImport
   
   return (
     <>
-      <h2>Import Dictionary</h2>
+      <h2>Import Words</h2>
       <p>
         Import words into <Link to={ '/language/' + language.id }>{ language.name }</Link>'s
         dictionary from a CSV file.
@@ -303,7 +303,7 @@ function ImportDictionaryInner({ language, langClasses, partsOfSpeech }: IImport
   );
 }
 
-export default function ImportDictionary() {
+export default function ImportWords() {
   const id = useGetParamsOrSelectedId();
   if(!id) {
     throw new Error("No language ID was provided");
@@ -313,7 +313,7 @@ export default function ImportDictionary() {
   const languageClassesResponse = useLanguageWordClasses(id);
   const partsOfSpeechResponse = usePartsOfSpeech();
   
-  useSetPageTitle("Import Dictionary");
+  useSetPageTitle("Import Words");
 
   if(languageResponse.status !== 'success') {
     return renderDatalessQueryResult(languageResponse);
@@ -328,7 +328,7 @@ export default function ImportDictionary() {
   }
 
   return (
-    <ImportDictionaryInner
+    <ImportWordsInner
       language={ languageResponse.data }
       langClasses={ languageClassesResponse.data }
       partsOfSpeech={ partsOfSpeechResponse.data }

@@ -67,6 +67,7 @@ app.get('/languages/:id/phones', phonology.getPhones);
 app.put('/languages/:id/phones', phonology.updatePhones);
 app.get('/languages/:id/pronunciation-estimation', phonology.getPronunciationEstimation);
 app.put('/languages/:id/pronunciation-estimation', phonology.updatePronunciationEstimation);
+app.delete('/languages/:id/purge-dictionary', words.purgeLanguageDictionary);
 app.get('/languages/:id/summary-notes', languages.getSummaryNotes);
 app.put('/languages/:id/summary-notes', languages.updateSummaryNotes);
 app.get('/languages/:id/word-classes', words.getWordClassesByLanguage);

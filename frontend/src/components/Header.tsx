@@ -67,7 +67,9 @@ export default function Header() {
           items={[
             <Link to="/add-word">Add Word</Link>,
             <Link to="/dictionary">View Dictionary</Link>,
-            <Link to="/dictionary-settings">Dictionary Settings</Link>
+            <Link to="/dictionary-settings">Dictionary Settings</Link>,
+            <Link to="/import-words">Import Words</Link>,
+            <Link to="/purge-dictionary">Purge Dictionary</Link>
           ]}
           setCanHover={setCanHover}
         />

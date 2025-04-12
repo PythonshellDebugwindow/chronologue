@@ -52,6 +52,10 @@ export async function editWord(id: string, data: IAddWordArgument) {
   return await sendBackendJson(`words/${id}`, 'PUT', data);
 };
 
+export async function purgeDictionary(id: string) {
+  return await sendBackendRequest(`languages/${id}/purge-dictionary`, 'DELETE');
+};
+
 export function usePartsOfSpeech() {
   return useQuery<IPartOfSpeech[], ITitledError>({
     queryKey: ['parts-of-speech'],
