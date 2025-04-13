@@ -1,7 +1,10 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 
-import { DictionaryRow, DictionaryTable } from '../components/Dictionary.tsx';
+import {
+  DictionaryFilterSelect, DictionaryRow, DictionaryTable, IDictionaryFilter,
+  filterWords
+} from '../components/Dictionary.tsx';
 
 import { useLanguage, ILanguage } from '../languageData.tsx';
 import {
@@ -27,51 +30,6 @@ function getAllFields() {
   return fields;
 }
 
-type FilterField = Omit<keyof IWord, 'created' | 'updated'> | "";
-type FilterType = 'begins' | 'contains' | 'ends' | 'exact' | 'regexp';
-
-function filterWords(
-  words: IWord[], field: FilterField, type: FilterType,
-  filterValue: string, matchCase: boolean
-) {
-  if(!field) {
-    return words.slice();
-  }
-
-  if(matchCase && type !== 'regexp') {
-    filterValue = filterValue.toLowerCase();
-  }
-  const regexp = (() => {
-    if(type !== 'regexp') {
-      return null;
-    }
-    try {
-      return new RegExp(filterValue, matchCase ? "u" : "iu");
-    } catch {
-      return null;
-    }
-  })();
-
-  return words.filter(word => {
-    const rawFieldValue = word[field as keyof IWord] as string;
-    const fieldValue = matchCase ? rawFieldValue : rawFieldValue.toLowerCase();
-    switch(type) {
-      case 'begins':
-        return fieldValue.startsWith(filterValue);
-      case 'contains':
-        return fieldValue.includes(filterValue);
-      case 'ends':
-        return fieldValue.endsWith(filterValue);
-      case 'exact':
-        return fieldValue === filterValue;
-      case 'regexp':
-        return regexp?.test(fieldValue);
-      default:
-        throw new TypeError("Invalid filter type: " + type);
-    }
-  });
-}
-
 interface IViewDictionaryInner {
   language: ILanguage;
   words: IWord[];
@@ -81,38 +39,14 @@ interface IViewDictionaryInner {
 function ViewDictionaryInner({ language, words, partsOfSpeech }: IViewDictionaryInner) {
   const [fields, setFields] = useState<IDictionaryField[]>(getAllFields());
 
-  const [sortField, setSortField] = useState<keyof IWord>('word');
-  const [sortDesc, setSortDesc] = useState(false);
-
-  const [filterField, setFilterField] = useState<FilterField>("");
-  const [filterType, setFilterType] = useState<FilterType>('begins');
-  const [filterValue, setFilterValue] = useState("");
-  const [filterMatchCase, setFilterMatchCase] = useState(false);
+  const [filter, setFilter] = useState<IDictionaryFilter>({
+    field: '', type: 'begins', value: "", matchCase: false,
+    sortField: 'word', sortDir: 'asc'
+  });
 
   const displayedFieldNames = fields.flatMap(f => f.isDisplaying ? [f.name] : []);
 
-  const collator = new Intl.Collator();
-
-  const sortedWords = filterWords(
-    words, filterField, filterType, filterValue, filterMatchCase
-  );
-  sortedWords.sort((a, b) => {
-    const aField = a[sortField]!;
-    const bField = b[sortField]!;
-    
-    if(typeof aField === 'string' && typeof bField === 'string') {
-      const lowComp = collator.compare(aField.toLowerCase(), bField.toLowerCase());
-      return (lowComp || collator.compare(aField, bField)) * (sortDesc ? -1 : 1);
-    }
-    
-    if(aField < bField) {
-      return sortDesc ? 1 : -1;
-    } else if(aField > bField) {
-      return sortDesc ? -1 : 1;
-    } else {
-      return 0;
-    }
-  });
+  const filteredWords = filterWords(words, filter);
   
   function enableField(field: IDictionaryField) {
     const index = fields.indexOf(field);
@@ -144,85 +78,13 @@ function ViewDictionaryInner({ language, words, partsOfSpeech }: IViewDictionary
           ))
         }
       </p>
+      <DictionaryFilterSelect
+        fields={ fields.map(f => f.name) }
+        filter={filter}
+        setFilter={setFilter}
+      />
       <p>
-        Sort by:{" "}
-        <select
-          value={sortField}
-          onChange={ e => setSortField(e.target.value as keyof IWord) }
-        >
-          <option value="word">Word</option>
-          {
-            fields.map(field => (
-              <option
-                value={field.name}
-                key={field.name}
-              >
-                { field.name === 'pos' ? "POS" : userFacingFieldName(field.name) }
-              </option>
-            ))
-          }
-        </select>
-        {" "}
-        <select
-          value={ sortDesc ? 'desc' : 'asc' }
-          onChange={ e => setSortDesc(e.target.value === 'desc') }
-        >
-          <option value="asc">ascending</option>
-          <option value="desc">descending</option>
-        </select>
-      </p>
-      <p>
-        Filter by:{" "}
-        <select
-          value={ filterField as keyof IWord }
-          onChange={ e => setFilterField(e.target.value as FilterField) }
-        >
-          <option value="">None</option>
-          <option value="word">Word</option>
-          {
-            fields.map(field => field.name !== 'created' && field.name !== 'updated' && (
-              <option value={field.name} key={field.name}>
-                { field.name === 'pos' ? "POS" : userFacingFieldName(field.name) }
-              </option>
-            ))
-          }
-        </select>
-        {
-          filterField && <>
-            {" "}
-            <select
-              value={filterType}
-              onChange={ e => setFilterType(e.target.value as FilterType) }
-            >
-              <option value='begins'>begins with</option>
-              <option value='ends'>ends with</option>
-              <option value='exact'>is exactly</option>
-              <option value='contains'>contains</option>
-              <option value='regexp'>matches regex</option>
-            </select>
-            {" "}
-            <input
-              value={filterValue}
-              onChange={ e => setFilterValue(e.target.value) }
-              style={{ width: "7em" }}
-            />
-            {" "}
-            (
-              <label>
-                <input
-                  checked={filterMatchCase}
-                  onChange={ e => setFilterMatchCase(e.target.checked) }
-                  type="checkbox"
-                  style={{ position: "relative", top: "2px", marginLeft: "1px" }}
-                />
-                match case
-              </label>
-            )
-          </>
-        }
-      </p>
-      <p>
-        { sortedWords.length || "No" } word{ sortedWords.length !== 1 && "s" } found.
+        { filteredWords.length || "No" } word{ filteredWords.length !== 1 && "s" } found.
       </p>
       <DictionaryTable>
         <tr>
@@ -246,7 +108,7 @@ function ViewDictionaryInner({ language, words, partsOfSpeech }: IViewDictionary
           }
         </tr>
         {
-          sortedWords.map(word => (
+          filteredWords.map(word => (
             <DictionaryRow
               word={word}
               fields={displayedFieldNames}
