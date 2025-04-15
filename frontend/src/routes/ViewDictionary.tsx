@@ -3,10 +3,12 @@ import { Link } from 'react-router-dom';
 
 import {
   DictionaryFilterSelect, DictionaryRow, DictionaryTable, IDictionaryFilter,
-  filterWords
+  sortAndFilterWords
 } from '../components/Dictionary.tsx';
 
-import { useLanguage, ILanguage } from '../languageData.tsx';
+import {
+  useLanguage, useLanguageDictionarySettings, IDictionarySettings, ILanguage
+} from '../languageData.tsx';
 import {
   renderDatalessQueryResult, useGetParamsOrSelectedId, useSetPageTitle
 } from '../utils.tsx';
@@ -19,9 +21,13 @@ interface IDictionaryField {
   isDisplaying: boolean;
 }
 
-function getAllFields() {
+function getAllFields(dictSettings: IDictionarySettings) {
+  const all = ['meaning', 'ipa', 'pos', 'etymology', 'notes', 'created', 'updated'];
+  if(!dictSettings.showWordIpa) {
+    all.splice(all.indexOf('ipa'), 1);
+  }
   const fields: IDictionaryField[] = [];
-  for(const field of ['meaning', 'ipa', 'pos', 'etymology', 'notes', 'created', 'updated']) {
+  for(const field of all) {
     fields.push({
       name: field as keyof IWord,
       isDisplaying: field === 'meaning' || field === 'pos'
@@ -33,11 +39,12 @@ function getAllFields() {
 interface IViewDictionaryInner {
   language: ILanguage;
   words: IWord[];
+  dictSettings: IDictionarySettings;
   partsOfSpeech: IPartOfSpeech[];
 }
 
-function ViewDictionaryInner({ language, words, partsOfSpeech }: IViewDictionaryInner) {
-  const [fields, setFields] = useState<IDictionaryField[]>(getAllFields());
+function ViewDictionaryInner({ language, words, dictSettings, partsOfSpeech }: IViewDictionaryInner) {
+  const [fields, setFields] = useState<IDictionaryField[]>(getAllFields(dictSettings));
 
   const [filter, setFilter] = useState<IDictionaryFilter>({
     field: '', type: 'begins', value: "", matchCase: false,
@@ -46,7 +53,7 @@ function ViewDictionaryInner({ language, words, partsOfSpeech }: IViewDictionary
 
   const displayedFieldNames = fields.flatMap(f => f.isDisplaying ? [f.name] : []);
 
-  const filteredWords = filterWords(words, filter);
+  const filteredWords = sortAndFilterWords(words, filter);
   
   function enableField(field: IDictionaryField) {
     const index = fields.indexOf(field);
@@ -131,6 +138,7 @@ export default function ViewDictionary() {
 
   const languageResponse = useLanguage(languageId);
   const dictResponse = useLanguageWords(languageId);
+  const dictSettingsResponse = useLanguageDictionarySettings(languageId);
   const posResponse = usePartsOfSpeech();
   
   const language = languageResponse.data;
@@ -144,6 +152,10 @@ export default function ViewDictionary() {
     return renderDatalessQueryResult(dictResponse);
   }
 
+  if(dictSettingsResponse.status !== 'success') {
+    return renderDatalessQueryResult(dictSettingsResponse);
+  }
+
   if(posResponse.status !== 'success') {
     return renderDatalessQueryResult(posResponse);
   }
@@ -152,6 +164,7 @@ export default function ViewDictionary() {
     <ViewDictionaryInner
       language={ languageResponse.data }
       words={ dictResponse.data }
+      dictSettings={ dictSettingsResponse.data }
       partsOfSpeech={ posResponse.data }
     />
   );

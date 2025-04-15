@@ -33,6 +33,7 @@ import EditWord from './routes/EditWord.tsx';
 import ErrorPage from './routes/ErrorPage.tsx';
 import ImportWords from './routes/ImportWords.tsx';
 import MainPage from './routes/MainPage.tsx';
+import MassEditDictionary from './routes/MassEditDictionary.tsx';
 import PurgeDictionary from './routes/PurgeDictionary.tsx';
 import TestChronoSCA from './routes/TestChronoSCA.tsx';
 import ViewDictionary from './routes/ViewDictionary.tsx';
@@ -156,6 +157,10 @@ const router = createBrowserRouter([
       {
         path: "languages",
         element: <ViewLanguages />
+      },
+      {
+        path: "mass-edit-dictionary/:id?",
+        element: <MassEditDictionary />
       },
       {
         path: "orthography-settings/:id?",

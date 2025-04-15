@@ -375,11 +375,12 @@ function EditOtherDictSettings({ language, dictSettings }: IEditOtherDictSetting
     <>
       <h3>Show IPA</h3>
       <p>
-        Disabling this option will remove the IPA field when adding a word.
+        Disabling this option will remove the IPA field when adding words and
+        viewing the dictionary.
       </p>
       <div>
         <label>
-          Show the IPA field when adding words?{" "}
+          Show the IPA field?{" "}
           <input
             type="checkbox"
             checked={showWordIpa}

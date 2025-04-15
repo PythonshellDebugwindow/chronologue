@@ -19,6 +19,46 @@ export interface IDictionaryFilter {
   sortDir: 'asc' | 'desc';
 };
 
+function filterWords(words: IWord[], filter: IDictionaryFilter) {
+  if(!filter.field) {
+    return words.slice();
+  }
+
+  let filterValue = filter.value;
+  if(!filter.matchCase && filter.type !== 'regexp') {
+    filterValue = filterValue.toLowerCase();
+  }
+  const regexp = (() => {
+    if(filter.type !== 'regexp') {
+      return null;
+    }
+    try {
+      return new RegExp(filterValue, filter.matchCase ? "u" : "iu");
+    } catch {
+      return null;
+    }
+  })();
+  
+  return words.filter(word => {
+    const rawFieldValue = word[filter.field as keyof IWord] as string;
+    const fieldValue = filter.matchCase ? rawFieldValue : rawFieldValue.toLowerCase();
+    switch(filter.type) {
+      case 'begins':
+        return fieldValue.startsWith(filterValue);
+      case 'contains':
+        return fieldValue.includes(filterValue);
+      case 'ends':
+        return fieldValue.endsWith(filterValue);
+      case 'exact':
+        return fieldValue === filterValue;
+      case 'regexp':
+        return regexp?.test(fieldValue);
+      default:
+        throw new TypeError("Invalid filter type: " + filter.type);
+    }
+  });
+}
+
 function sortWords(words: IWord[], filter: IDictionaryFilter) {
   const collator = new Intl.Collator();
 
@@ -42,44 +82,8 @@ function sortWords(words: IWord[], filter: IDictionaryFilter) {
   });
 }
 
-export function filterWords(words: IWord[], filter: IDictionaryFilter) {
-  if(!filter.field) {
-    return sortWords(words.slice(), filter);
-  }
-
-  let filterValue = filter.value;
-  if(!filter.matchCase && filter.type !== 'regexp') {
-    filterValue = filterValue.toLowerCase();
-  }
-  const regexp = (() => {
-    if(filter.type !== 'regexp') {
-      return null;
-    }
-    try {
-      return new RegExp(filterValue, filter.matchCase ? "u" : "iu");
-    } catch {
-      return null;
-    }
-  })();
-  
-  const filtered = words.filter(word => {
-    const rawFieldValue = word[filter.field as keyof IWord] as string;
-    const fieldValue = filter.matchCase ? rawFieldValue : rawFieldValue.toLowerCase();
-    switch(filter.type) {
-      case 'begins':
-        return fieldValue.startsWith(filterValue);
-      case 'contains':
-        return fieldValue.includes(filterValue);
-      case 'ends':
-        return fieldValue.endsWith(filterValue);
-      case 'exact':
-        return fieldValue === filterValue;
-      case 'regexp':
-        return regexp?.test(fieldValue);
-      default:
-        throw new TypeError("Invalid filter type: " + filter.type);
-    }
-  });
+export function sortAndFilterWords(words: IWord[], filter: IDictionaryFilter) {
+  const filtered = filterWords(words, filter);
   return sortWords(filtered, filter);
 };
 
@@ -90,7 +94,6 @@ interface IDictionaryFilterSelect {
 }
 
 export function DictionaryFilterSelect({ filter, setFilter, fields }: IDictionaryFilterSelect) {
-  console.log(filter)
   return (
     <>
       <p>

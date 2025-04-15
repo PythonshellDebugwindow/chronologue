@@ -1,4 +1,6 @@
 import type { RequestHandler } from 'express';
+import pg from 'pg';
+const { escapeIdentifier } = pg;
 
 import query, { transact } from '../db/index.js';
 import { hasAllStrings, isValidUUID, partsOfSpeech, IQueryError } from '../utils.js';
@@ -302,6 +304,35 @@ export const importWords: RequestHandler = async (req, res) => {
       [ JSON.stringify(wordClassesByWord) ]
     );
   });
+
+  res.status(204).send();
+};
+
+export const massEditLanguageDictionary: RequestHandler = async (req, res) => {
+  if(!isValidUUID(req.params.id)) {
+    res.status(400).json({ message: "The given language ID is not valid." });
+    return;
+  }
+  if(!req.body.changes ||
+     !['word', 'meaning', 'ipa', 'etymology', 'notes'].includes(req.body.field)) {
+    res.status(400).json({ message: "Invalid request body." });
+    return;
+  }
+
+  const changes = req.body.changes;
+  const changedIds = Object.keys(changes);
+  const changedFields = changedIds.map(id => changes[id]);
+  const escapedField = escapeIdentifier(req.body.field);
+
+  await query(
+    `
+      UPDATE words
+      SET ${escapedField} = updated.field
+      FROM (SELECT unnest($1::uuid[]) AS id, unnest($2::text[]) AS field) AS updated
+      WHERE words.id = updated.id
+    `,
+    [ changedIds, changedFields ]
+  );
 
   res.status(204).send();
 };
