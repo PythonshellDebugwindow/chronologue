@@ -20,7 +20,6 @@ export interface IGrammarTable {
   pos: string;
   rows: string[];
   columns: string[];
-  preRules: string;
   postRules: string;
   showIpa: boolean;
   invertClasses: boolean;
@@ -33,7 +32,7 @@ export interface IGrammarTableCell {
   rules: string;
 };
 
-type AddGrammarTableArgument = Omit<IGrammarTable, 'id' | 'preRules' | 'postRules'> & {
+type AddGrammarTableArgument = Omit<IGrammarTable, 'id' | 'postRules'> & {
   classIds: string[];
 };
 

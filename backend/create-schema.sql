@@ -122,7 +122,6 @@ CREATE TABLE IF NOT EXISTS grammar_tables (
 	pos text NOT NULL,
 	rows text[] NOT NULL,
 	columns text[] NOT NULL,
-	pre_rules text NOT NULL DEFAULT '',
 	post_rules text NOT NULL DEFAULT '',
 	show_ipa boolean NOT NULL,
 	invert_classes boolean NOT NULL,

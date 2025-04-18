@@ -87,7 +87,7 @@ export const editGrammarTable: RequestHandler = async (req, res) => {
     res.status(400).json({ title: "Invalid ID", message: "The given table ID is not valid." });
     return;
   }
-  if(!hasAllStrings(req.body, ['name', 'pos', 'preRules', 'postRules', 'notes']) ||
+  if(!hasAllStrings(req.body, ['name', 'pos', 'postRules', 'notes']) ||
      !hasAllBooleans(req.body, ['invertClasses', 'showIpa']) ||
      !hasAllArrays(req.body, ['rows', 'columns', 'classIds', 'cells'])) {
     res.status(400).json({ message: "Please provide all required fields." });
@@ -116,13 +116,14 @@ export const editGrammarTable: RequestHandler = async (req, res) => {
       `
         UPDATE grammar_tables
         SET name = $1, pos = $2, rows = $3, columns = $4,
-            show_ipa = $5, invert_classes = $6, pre_rules = $7,
-            post_rules = $8, notes = $9
+            show_ipa = $5, invert_classes = $6, post_rules = $7, notes = $8
         WHERE id = $10
       `,
-      [ req.body.name, req.body.pos, req.body.rows, req.body.columns,
-        req.body.showIpa, req.body.invertClasses, req.body.preRules,
-        req.body.postRules, req.body.notes, tableId ]
+      [
+        req.body.name, req.body.pos, req.body.rows, req.body.columns,
+        req.body.showIpa, req.body.invertClasses, req.body.postRules, req.body.notes,
+        tableId
+      ]
     );
     
     await client.query(
@@ -188,8 +189,9 @@ export const getGrammarTable: RequestHandler = async (req, res) => {
     `
       SELECT translate(lang_id::text, '-', '') AS "langId",
              name, pos, rows, columns,
-             pre_rules AS "preRules", post_rules AS "postRules",
-             show_ipa AS "showIpa", invert_classes AS "invertClasses",
+             post_rules AS "postRules",
+             show_ipa AS "showIpa",
+             invert_classes AS "invertClasses",
              notes
       FROM grammar_tables
       WHERE id = $1

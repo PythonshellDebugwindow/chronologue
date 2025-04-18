@@ -63,7 +63,6 @@ function EditGrammarTableInner({
   const [ pos, setPos ] = useState(table.pos);
   const [ rows, setRows ] = useState(table.rows);
   const [ columns, setColumns ] = useState(table.columns);
-  const [ preRules, setPreRules ] = useState(table.preRules);
   const [ postRules, setPostRules ] = useState(table.postRules);
   const [ showIpa, setShowIpa ] = useState(table.showIpa);
   const [ invertClasses, setInvertClasses ] = useState(table.invertClasses);
@@ -83,7 +82,6 @@ function EditGrammarTableInner({
       setPos(table.pos);
       setRows(table.rows);
       setColumns(table.columns);
-      setPreRules(table.preRules);
       setPostRules(table.postRules);
       setShowIpa(table.showIpa);
       setInvertClasses(table.invertClasses);
@@ -149,7 +147,6 @@ function EditGrammarTableInner({
       pos,
       rows,
       columns,
-      preRules,
       postRules,
       showIpa,
       classIds: classes.map(cls => cls.id),
@@ -220,20 +217,12 @@ function EditGrammarTableInner({
             state={showIpa}
             setState={setShowIpa}
           />
-          <CMultilineTextInput
-            label="Pre Rules"
-            name="pre-rules"
-            state={preRules}
-            setState={setPreRules}
-            height="4em"
-          />
         </CFormBody>
       </form>
       <p className="grammar-table-paragraph">
         Rules in the below table are run through <Link to="/chronosca">ChronoSCA</Link>.
-        Pre rules are run on the word to be inflected before the rules in the table; post
-        rules are applied to the result of each table cell. Empty table cells are treated
-        as invalid forms.
+        Post rules are run on the result of each table cell after initial inflection.
+        Empty table cells are treated as invalid forms.
       </p>
       <EditableGrammarTable
         rows={rows}

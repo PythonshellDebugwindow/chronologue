@@ -137,19 +137,13 @@ function EditDictionarySettingsInner({ initialForms }: { initialForms: IGrammarF
   useUnsavedPopup(!formsAreSaved);
   
   function addNewForm() {
-    if(!newFormCode) {
-      setFormErrorMessage("Please choose a code.");
-    } else if(!newFormName) {
-      setFormErrorMessage("Please choose a name.");
-    } else {
-      dispatchForms({
-        type: 'add',
-        newForm: { id: UNADDED_FORM_ID, code: newFormCode, name: newFormName }
-      });
-      setNewFormCode("");
-      setNewFormName("");
-      setFormErrorMessage("");
-    }
+    dispatchForms({
+      type: 'add',
+      newForm: { id: UNADDED_FORM_ID, code: newFormCode, name: newFormName }
+    });
+    setNewFormCode("");
+    setNewFormName("");
+    setFormErrorMessage("");
   }
   
   function deleteForm(form: IGrammarForm) {
