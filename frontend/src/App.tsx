@@ -35,6 +35,7 @@ import ImportWords from './routes/ImportWords.tsx';
 import MainPage from './routes/MainPage.tsx';
 import MassEditDictionary from './routes/MassEditDictionary.tsx';
 import PurgeDictionary from './routes/PurgeDictionary.tsx';
+import RunDictionarySCA from './routes/RunDictionarySCA.tsx';
 import TestChronoSCA from './routes/TestChronoSCA.tsx';
 import ViewDictionary from './routes/ViewDictionary.tsx';
 import ViewFamily from './routes/ViewFamily.tsx';
@@ -101,6 +102,10 @@ const router = createBrowserRouter([
       {
         path: "dictionary/:id?",
         element: <ViewDictionary />
+      },
+      {
+        path: "dictionary-chronosca/:id?",
+        element: <RunDictionarySCA />
       },
       {
         path: "dictionary-settings/:id?",

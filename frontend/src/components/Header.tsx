@@ -68,6 +68,8 @@ export default function Header() {
             <Link to="/add-word">Add Word</Link>,
             <Link to="/dictionary">View Dictionary</Link>,
             <Link to="/dictionary-settings">Dictionary Settings</Link>,
+            <Link to="/mass-edit-dictionary">Mass Edit Dictionary</Link>,
+            <Link to="/dictionary-chronosca">Dictionary ChronoSCA</Link>,
             <Link to="/import-words">Import Words</Link>,
             <Link to="/purge-dictionary">Purge Dictionary</Link>
           ]}

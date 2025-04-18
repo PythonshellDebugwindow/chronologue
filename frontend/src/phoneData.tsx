@@ -130,7 +130,7 @@ export type ApplySCARulesQueryResult = {
 };
 
 export function useApplySCARulesQuery(
-  langId: string, input: string, rules: string, categories: 'orth' | 'phone',
+  langId: string, input: string[], rules: string, categories: 'orth' | 'phone',
   enabled: boolean
 ) {
   return useQuery<ApplySCARulesQueryResult[], ITitledError>({
@@ -138,7 +138,7 @@ export function useApplySCARulesQuery(
     queryFn: async () => await sendBackendJsonForQuery(
       `languages/${langId}/apply-sca-rules`,
       'POST',
-      { words: input.split("\n"), rules, categories }
+      { words: input, rules, categories }
     ),
     enabled
   });

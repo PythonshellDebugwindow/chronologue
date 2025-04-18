@@ -73,7 +73,7 @@ function TestChronoSCAInner({ language, orthCategories, phoneCategories }: ITest
   const [ queryIsEnabled, setQueryIsEnabled ] = useState(false);
   
   const scaQuery = useApplySCARulesQuery(
-    language.id, input, rules, categoryType, queryIsEnabled
+    language.id, input.split("\n"), rules, categoryType, queryIsEnabled
   );
   const queryResults = (() => {
     if(!queryIsEnabled) {

@@ -1,5 +1,6 @@
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 
 import {
   DictionaryFilterSelect, DictionaryTable, IDictionaryFilter, sortAndFilterWords
@@ -9,6 +10,7 @@ import SaveChangesButton from '../components/SaveChangesButton.tsx';
 import {
   useLanguage, ILanguage, useLanguageDictionarySettings, IDictionarySettings
 } from '../languageData.tsx';
+import { ApplySCARulesQueryResult, useApplySCARulesQuery } from '../phoneData.tsx';
 import {
   renderDatalessQueryResult, sendBackendJson, useGetParamsOrSelectedId, useSetPageTitle,
   useUnsavedPopup
@@ -34,36 +36,33 @@ interface IDictionaryField {
   isDisplaying: boolean;
 }
 
-function getAllFields(dictSettings: IDictionarySettings, selectedField: string = '') {
+function getAllFields(dictSettings: IDictionarySettings) {
   const all = ['word', 'meaning', 'ipa', 'pos', 'etymology', 'notes', 'created', 'updated'];
   if(!dictSettings.showWordIpa) {
     all.splice(all.indexOf('ipa'), 1);
   }
-  const displaying = ['word', 'meaning', 'pos', selectedField];
+  const displaying = ['word', 'meaning', 'pos'];
   return all.map(field => ({
     name: field as keyof IWord,
     isDisplaying: displaying.includes(field)
   }));
 }
 
-type IEditField = Omit<keyof IWord, 'created' | 'updated'>;
+type IEditField = 'word' | 'ipa';
 
 interface IMassEditDictionaryRow {
   word: IWord;
   fields: (keyof IWord)[];
   editField: IEditField;
-  updateEditField: (value: string) => void;
+  result: ApplySCARulesQueryResult;
   language: ILanguage;
   partsOfSpeech: IPartOfSpeech[];
 }
 
-function MassEditDictionaryRow(
-  { word, fields, editField, updateEditField, language, partsOfSpeech }: IMassEditDictionaryRow
+function PreviewChangesRow(
+  { word, fields, editField, result, language, partsOfSpeech }: IMassEditDictionaryRow
 ) {
   function formatValue(field: keyof IWord) {
-    if(field === editField && !(word[field] instanceof Date)) {
-      return word[field];
-    }
     switch(field) {
       case 'word':
         return (
@@ -82,18 +81,20 @@ function MassEditDictionaryRow(
 
   return (
     <tr>
+      <td>
+        { word[editField] }
+      </td>
+      <td>
+        {
+          result.success
+          ? result.result
+          : <span style={{ color: "red" }}>{ result.message }</span>
+        }
+      </td>
       {
-        fields.map((field, i) => (
+        fields.map((field, i) => !(field === 'ipa' && editField === 'ipa') && (
           <td key={i}>
-            {
-              field === editField
-              ? <input
-                  type="text"
-                  value={ formatValue(field) as string }
-                  onChange={ e => updateEditField(e.target.value) }
-                />
-              : formatValue(field)
-            }
+            { formatValue(field) }
           </td>
         ))
       }
@@ -101,48 +102,53 @@ function MassEditDictionaryRow(
   );
 }
 
-interface IMassEditDictionaryTable {
+interface ISCAResultsPreview {
   language: ILanguage;
-  initialWords: IWord[];
+  words: IWord[];
+  editField: IEditField;
+  rules: string;
   dictSettings: IDictionarySettings;
   partsOfSpeech: IPartOfSpeech[];
-  initialEditField: keyof IWord;
 }
 
-function MassEditDictionaryTable(
-  { language, initialWords, dictSettings, partsOfSpeech, initialEditField }: IMassEditDictionaryTable
+function SCAResultsPreview(
+  { language, words, editField, rules, dictSettings, partsOfSpeech }: ISCAResultsPreview
 ) {
-  const allFields = getAllFields(dictSettings, initialEditField);
+  const allFields = getAllFields(dictSettings);
   const [fields, setFields] = useState<IDictionaryField[]>(allFields);
   
   const displayedFieldNames = fields.flatMap(f => f.isDisplaying ? [f.name] : []);
-  
-  const [words, setWords] = useState(initialWords);
-  const [oldInitialWords, setOldInitialWords] = useState<IWord[] | null>(null);
-
-  const [editField, setEditField] = useState(initialEditField);
-  const [oldInitialEditField, setOldInitialEditField] = useState<keyof IWord | null>(null);
-
-  const changes = useRef<{ [id: string]: string }>({});
 
   const [isSaving, setIsSaving] = useState(false);
-  const [isSaved, setIsSaved] = useState(true);
+  const [isSaved, setIsSaved] = useState(false);
 
-  if(initialWords !== oldInitialWords) {
-    setWords(initialWords);
-    setOldInitialWords(initialWords);
-    setIsSaved(true);
+  const [lastSavedWords, setLastSavedWords] = useState<IWord[] | null>(null);
+  if(lastSavedWords !== words) {
+    setLastSavedWords(words);
+    setIsSaved(false);
   }
-  
-  if(initialEditField !== oldInitialEditField) {
-    setFields(allFields);
-    setEditField(initialEditField);
-    setOldInitialEditField(initialEditField);
-    setIsSaved(true);
-  }
+
+  const scaQuery = useApplySCARulesQuery(
+    language.id, words.map(w => w[editField]), rules,
+    editField === 'word' ? "orth" : "phone", true
+  );
   
   useUnsavedPopup(!isSaved);
 
+  if(scaQuery.status === 'pending') {
+    return <p>Loading...</p>;
+  } else if(scaQuery.status === 'error') {
+    return <p>Error: { scaQuery.error.message }</p>;
+  }
+
+  const scaResults = scaQuery.data;
+
+  if(words.length !== scaResults.length) {
+    throw new Error(`Found ${words.length} words, but got ${scaResults.length} results`);
+  }
+
+  const anyScaResultFailed = scaResults.some(r => !r.success);
+  
   function enableField(field: IDictionaryField) {
     const index = fields.indexOf(field);
     setFields(fields.with(index, { name: field.name, isDisplaying: true }));
@@ -153,16 +159,15 @@ function MassEditDictionaryTable(
     setFields(fields.with(index, { name: field.name, isDisplaying: false }));
   }
 
-  function makeUpdateEditField(word: IWord) {
-    return (value: string) => {
-      if(editField) {
-        setWords(words.map(w => (
-          w === word ? { ...w, [editField as string]: value } : w
-        )));
-        changes.current[word.id] = value;
-        setIsSaved(false);
+  async function confirmChanges() {
+    const changes: { [id: string]: string } = {};
+    for(const i in words) {
+      if(!scaResults[i].success) {
+        return null;
       }
-    };
+      changes[words[i].id] = scaResults[i].result;
+    }
+    return await sendPerformMassEditRequest(changes, editField, language.id);
   }
 
   return (
@@ -171,7 +176,7 @@ function MassEditDictionaryTable(
         More fields:
         {
           fields.map(field => (
-            !field.isDisplaying && (
+            !field.isDisplaying && !(field.name === 'ipa' && editField === 'ipa') && (
               <button
                 className="enable-dictionary-field-button"
                 onClick={ () => enableField(field) }
@@ -188,20 +193,24 @@ function MassEditDictionaryTable(
       </p>
       {
         !isSaved && (
-          <SaveChangesButton
-            isSaving={isSaving}
-            setIsSaving={setIsSaving}
-            saveQueryKey={ ['languages', language.id, 'mass-edit-dictionary'] }
-            saveQueryFn={ async () => await sendPerformMassEditRequest(changes.current, editField, language.id) }
-            handleSave={ () => setIsSaved(true) }
-            style={{ marginBottom: "1em" }}
-          >
-            Save changes
-          </SaveChangesButton>
+          anyScaResultFailed
+          ? <p><b>Please fix all SCA errors before saving.</b></p>
+          : <SaveChangesButton
+              isSaving={isSaving}
+              setIsSaving={setIsSaving}
+              saveQueryKey={ ['languages', language.id, 'dictionary-chronosca'] }
+              saveQueryFn={confirmChanges}
+              handleSave={ () => setIsSaved(true) }
+              style={{ marginBottom: "1em" }}
+            >
+              Save changes
+            </SaveChangesButton>
         )
       }
       <DictionaryTable>
         <tr>
+          <th>Input</th>
+          <th>Result</th>
           {
             fields.map(
               f => f.isDisplaying && (
@@ -221,12 +230,12 @@ function MassEditDictionaryTable(
           }
         </tr>
         {
-          words.map(word => (
-            <MassEditDictionaryRow
+          words.map((word, i) => (
+            <PreviewChangesRow
               word={word}
               fields={displayedFieldNames}
               editField={editField}
-              updateEditField={ makeUpdateEditField(word) }
+              result={ scaResults[i] }
               language={language}
               partsOfSpeech={partsOfSpeech}
               key={ word.id }
@@ -236,51 +245,53 @@ function MassEditDictionaryTable(
       </DictionaryTable>
       {
         !isSaved && (
-          <SaveChangesButton
-            isSaving={isSaving}
-            setIsSaving={setIsSaving}
-            saveQueryKey={ ['languages', language.id, 'mass-edit-dictionary'] }
-            saveQueryFn={ async () => await sendPerformMassEditRequest(changes.current, editField, language.id) }
-            handleSave={ () => setIsSaved(true) }
-            style={{ marginTop: "1em" }}
-          >
-            Save changes
-          </SaveChangesButton>
+          anyScaResultFailed
+          ? <p><b>Please fix all SCA errors before saving.</b></p>
+          : <SaveChangesButton
+              isSaving={isSaving}
+              setIsSaving={setIsSaving}
+              saveQueryKey={ ['languages', language.id, 'dictionary-chronosca'] }
+              saveQueryFn={confirmChanges}
+              handleSave={ () => setIsSaved(true) }
+              style={{ marginTop: "1em" }}
+            >
+              Save changes
+            </SaveChangesButton>
         )
       }
     </>
   );
 }
 
-interface IMassEditDictionaryInner {
+interface IRunDictionarySCAInner {
   language: ILanguage;
   initialWords: IWord[];
   dictSettings: IDictionarySettings;
   partsOfSpeech: IPartOfSpeech[];
 }
 
-function MassEditDictionaryInner(
-  { language, initialWords, dictSettings, partsOfSpeech }: IMassEditDictionaryInner
+function RunDictionarySCAInner(
+  { language, initialWords, dictSettings, partsOfSpeech }: IRunDictionarySCAInner
 ) {
+  const queryClient = useQueryClient();
+  
   const [filter, setFilter] = useState<IDictionaryFilter>({
     field: '', type: 'begins', value: "", matchCase: false,
     sortField: 'word', sortDir: 'asc'
   });
 
-  const [editField, setEditField] = useState<IEditField | "">("");
+  const [editField, setEditField] = useState<IEditField>('word');
   const [editingWords, setEditingWords] = useState<IWord[] | null>(null);
   const [editingField, setEditingField] = useState<IEditField | null>(null);
+  const [rules, setRules] = useState("");
   const [message, setMessage] = useState("");
-
+  
   const filterFieldNames = getAllFields(dictSettings).flatMap(f => (
     f.name === 'word' ? [] : [f.name]
   ));
-  const editFieldNames = ['word', 'meaning', 'ipa', 'etymology', 'notes'];
-  if(!dictSettings.showWordIpa) {
-    editFieldNames.splice(editFieldNames.indexOf('ipa'), 1);
-  }
+  const editFieldNames = dictSettings.showWordIpa ? ['word', 'ipa'] : ['word'];
 
-  function beginMassEdit() {
+  function previewChanges() {
     if(!editField) {
       setMessage("Please select a field to edit.");
       return;
@@ -289,18 +300,22 @@ function MassEditDictionaryInner(
     setMessage("");
 
     if(editingWords !== null) {
-      if(!confirm("This will overwrite any unsaved edits you have made below. Continue?")) {
+      if(!confirm("This will overwrite any unsaved changes you have made. Continue?")) {
         return;
       }
     }
     setEditingWords(sortAndFilterWords(initialWords, filter));
     setEditingField(editField);
+    queryClient.removeQueries({ queryKey: ['languages', language.id, 'apply-sca-rules'] });
   }
 
   return (
     <>
-      <h2>Mass Edit Dictionary</h2>
-      <p>Mass edit <Link to={ '/language/' + language.id }>{ language.name }</Link>'s dictionary.</p>
+      <h2>Dictionary ChronoSCA</h2>
+      <p>
+        Run <Link to={ '/chronosca/' + language.id }>ChronoSCA</Link> rules on{" "}
+        <Link to={ '/language/' + language.id }>{ language.name }</Link>'s dictionary.
+      </p>
       <DictionaryFilterSelect
         fields={filterFieldNames}
         filter={filter}
@@ -312,7 +327,6 @@ function MassEditDictionaryInner(
           value={ editField as string }
           onChange={ e => setEditField(e.target.value as IEditField) }
         >
-          <option value="">---</option>
           {
             editFieldNames.map(field => (
               <option value={field} key={field}>
@@ -322,16 +336,24 @@ function MassEditDictionaryInner(
           }
         </select>
       </p>
-      { message && <p><b>{message}</b></p> }
-      <button onClick={beginMassEdit}>Search</button>
+      <h4>Rules:</h4>
+      <textarea
+        value={rules}
+        onChange={ e => setRules(e.target.value) }
+        style={{ width: "20em", height: "10em", marginBottom: "1em" }}
+      />
+      <br />
+      { message && <p style={{ marginTop: "0" }}><b>{message}</b></p> }
+      <button onClick={previewChanges}>Preview changes</button>
       {
         editingField && editingWords && (
-          <MassEditDictionaryTable
+          <SCAResultsPreview
             language={language}
-            initialWords={editingWords}
+            words={editingWords}
+            editField={editingField}
+            rules={rules}
             dictSettings={dictSettings}
             partsOfSpeech={partsOfSpeech}
-            initialEditField={ editingField as keyof IWord }
           />
         )
       }
@@ -339,7 +361,7 @@ function MassEditDictionaryInner(
   );
 }
 
-export default function MassEditDictionary() {
+export default function RunDictionarySCA() {
   const languageId = useGetParamsOrSelectedId();
   if(!languageId) {
     throw new Error("No language ID was provided");
@@ -350,7 +372,7 @@ export default function MassEditDictionary() {
   const dictSettingsResponse = useLanguageDictionarySettings(languageId);
   const posResponse = usePartsOfSpeech();
 
-  useSetPageTitle("Mass Edit Dictionary");
+  useSetPageTitle("Dictionary ChronoSCA");
   
   if(languageResponse.status !== 'success') {
     return renderDatalessQueryResult(languageResponse);
@@ -369,7 +391,7 @@ export default function MassEditDictionary() {
   }
 
   return (
-    <MassEditDictionaryInner
+    <RunDictionarySCAInner
       language={ languageResponse.data }
       initialWords={ dictResponse.data }
       dictSettings={ dictSettingsResponse.data }

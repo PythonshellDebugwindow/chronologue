@@ -257,7 +257,7 @@ export class SCA {
       // Category replacement
       const targetMembers = this.#categories.get(target[0].char);
       if(!targetMembers) {
-        return failure(`Invalid category ${target}`);
+        return failure(`Invalid category ${target[0].char}`);
       }
       
       if(change.length === 1 && isCategory(change[0])) {
@@ -267,11 +267,11 @@ export class SCA {
         }
         const changeMembers = this.#categories.get(change[0].char);
         if(!changeMembers) {
-          return failure(`Invalid category ${change}`);
+          return failure(`Invalid category ${change[0].char}`);
         }
         const elseChangeMembers = elseChange && this.#categories.get(elseChange[0].char);
         if(elseChange && !elseChangeMembers) {
-          return failure(`Invalid category ${change}`);
+          return failure(`Invalid category ${change[0].char}`);
         }
         for(let i = 0; i < this.#result.length; ++i) {
           const index = targetMembers.indexOf(this.#result[i]);
