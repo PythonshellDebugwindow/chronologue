@@ -117,7 +117,7 @@ export const editGrammarTable: RequestHandler = async (req, res) => {
         UPDATE grammar_tables
         SET name = $1, pos = $2, rows = $3, columns = $4,
             show_ipa = $5, invert_classes = $6, post_rules = $7, notes = $8
-        WHERE id = $10
+        WHERE id = $9
       `,
       [
         req.body.name, req.body.pos, req.body.rows, req.body.columns,
