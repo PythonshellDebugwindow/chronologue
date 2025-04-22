@@ -109,20 +109,14 @@ function ViewLanguageInner({ language, summaryNotes }: IViewLanguageInner) {
       <LanguageTree root={language} />
       <h3>Dictionary</h3>
       <p><Link to={'/dictionary/' + language.id}>View dictionary</Link></p>
-      <PhonologySection languageId={language.id} />
-      {summaryNotes.phonologyNotes && (
-        <>
-          <h4>Notes</h4>
-          <p className="user-notes-paragraph">{summaryNotes.phonologyNotes}</p>
-        </>
-      )}
-      <OrthographySection languageId={language.id} />
-      {summaryNotes.orthographyNotes && (
-        <>
-          <h4>Notes</h4>
-          <p className="user-notes-paragraph">{summaryNotes.orthographyNotes}</p>
-        </>
-      )}
+      <PhonologySection
+        languageId={language.id}
+        notes={summaryNotes.phonologyNotes}
+      />
+      <OrthographySection
+        languageId={language.id}
+        notes={summaryNotes.orthographyNotes}
+      />
     </>
   );
 }

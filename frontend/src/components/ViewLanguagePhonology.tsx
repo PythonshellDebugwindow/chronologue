@@ -283,33 +283,43 @@ function OtherPhonesTable({ phones }: { phones: IPhone[] }) {
   );
 }
 
-export function PhonologySection({ languageId }: { languageId: string }) {
+export function PhonologySection({ languageId, notes }: { languageId: string, notes: string }) {
   const phonesResponse = useLanguagePhones(languageId);
 
   if(phonesResponse.status !== 'success') {
     return renderDatalessQueryResult(phonesResponse);
   }
 
-  if(phonesResponse.data.length === 0) {
+  if(phonesResponse.data.length === 0 && !notes) {
     return null;
   }
 
   return (
     <>
       <h3>Phonology</h3>
-      <PhonologyTable
-        data={consonantData}
-        phones={phonesResponse.data}
-        marginTop="10px"
-      />
-      <PhonologyTable
-        data={vowelData}
-        phones={phonesResponse.data}
-        marginTop="15px"
-      />
-      <OtherPhonesTable
-        phones={phonesResponse.data}
-      />
+      {phonesResponse.data.length > 0 && (
+        <>
+          <PhonologyTable
+            data={consonantData}
+            phones={phonesResponse.data}
+            marginTop="10px"
+          />
+          <PhonologyTable
+            data={vowelData}
+            phones={phonesResponse.data}
+            marginTop="15px"
+          />
+          <OtherPhonesTable
+            phones={phonesResponse.data}
+          />
+        </>
+      )}
+      {notes && (
+        <>
+          <h4>Notes</h4>
+          <p className="user-notes-paragraph">{notes}</p>
+        </>
+      )}
     </>
   );
 };

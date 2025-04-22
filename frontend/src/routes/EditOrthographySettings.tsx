@@ -109,20 +109,17 @@ async function sendSaveOrthSettingsRequest(caseSensitive: boolean, langId: strin
   return res.body;
 }
 
-interface IEditOrthographySettingsInner {
+interface IEditAlphabeticalOrder {
   language: ILanguage;
   orthSettings: IOrthographySettings;
+  caseSensitive: boolean;
 }
 
-function EditOrthographySettingsInner({ language, orthSettings }: IEditOrthographySettingsInner) {
+function EditAlphabeticalOrder({ language, orthSettings, caseSensitive }: IEditAlphabeticalOrder) {
   const [graphs, setGraphs] = useState(orthSettings.alphabeticalOrder);
-  const [caseSensitive, setCaseSensitive] = useState(orthSettings.caseSensitive);
 
   const [graphsAreSaved, setGraphsAreSaved] = useState(orthSettings.hasSetAlphabeticalOrder);
   const [isSavingGraphs, setIsSavingGraphs] = useState(false);
-
-  const [settingsAreSaved, setSettingsAreSaved] = useState(true);
-  const [isSavingSettings, setIsSavingSettings] = useState(false);
 
   const updatedOrthSettings = { ...orthSettings, caseSensitive };
 
@@ -167,12 +164,6 @@ function EditOrthographySettingsInner({ language, orthSettings }: IEditOrthograp
 
   return (
     <>
-      <h2>Edit Orthography Settings</h2>
-      <p>
-        Edit <Link to={'/language/' + language.id}>{language.name}</Link>'s
-        alphabetical order and other orthography settings.
-      </p>
-      <h3>Alphabetical Order</h3>
       <p className="help-paragraph">
         Edit {language.name}'s alphabetical order. You should only do this once you've
         finalised your orthography, as adding or removing letters will reset the order.
@@ -208,6 +199,41 @@ function EditOrthographySettingsInner({ language, orthSettings }: IEditOrthograp
           Save order
         </SaveChangesButton>
       )}
+    </>
+  );
+}
+
+interface IEditOrthographySettingsInner {
+  language: ILanguage;
+  orthSettings: IOrthographySettings;
+}
+
+function EditOrthographySettingsInner({ language, orthSettings }: IEditOrthographySettingsInner) {
+  const [caseSensitive, setCaseSensitive] = useState(orthSettings.caseSensitive);
+
+  const [settingsAreSaved, setSettingsAreSaved] = useState(true);
+  const [isSavingSettings, setIsSavingSettings] = useState(false);
+
+  return (
+    <>
+      <h2>Edit Orthography Settings</h2>
+      <p>
+        Edit <Link to={'/language/' + language.id}>{language.name}</Link>'s
+        alphabetical order and other orthography settings.
+      </p>
+      <h3>Alphabetical Order</h3>
+      {
+        orthSettings.alphabeticalOrder.length > 0
+        ? <EditAlphabeticalOrder
+            language={language}
+            orthSettings={orthSettings}
+            caseSensitive={caseSensitive}
+          />
+        : <p>
+            Please add graphs on the <Link to={'/phonology/' + language.id}>Edit Phonology
+            page</Link> before editing {language.name}'s alphabetical order.
+          </p>
+      }
       <h3>Case-Sensitivity</h3>
       <p>
         Enabling this option will cause uppercase and lowercase letters to be

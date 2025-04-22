@@ -26,7 +26,7 @@ function DeleteGrammarTableInner({ table }: { table: IGrammarTable }) {
       <h2>Delete Grammar Table</h2>
       <p>
         Really delete {table.name && "grammar table "}
-        <Link to={'/table/' + table.id}>{table.name || "this grammar table"}</Link>?
+        <Link to={'/grammar-table/' + table.id}>{table.name || "this grammar table"}</Link>?
       </p>
       <p>
         <b>This action cannot be undone!</b>

@@ -67,7 +67,7 @@ function OrthographyTableInner({ phones, orthSettings, languageId }: IOrthograph
   );
 }
 
-export function OrthographySection({ languageId }: { languageId: string }) {
+export function OrthographySection({ languageId, notes }: { languageId: string, notes: string }) {
   const phonesResponse = useLanguagePhones(languageId);
   const orthSettingsResponse = useLanguageOrthographySettings(languageId);
 
@@ -80,18 +80,26 @@ export function OrthographySection({ languageId }: { languageId: string }) {
   }
 
   const phonesWithGraphs = phonesResponse.data.filter(p => p.graph);
-  if(phonesWithGraphs.length === 0) {
+  if(phonesWithGraphs.length === 0 && !notes) {
     return null;
   }
 
   return (
     <>
       <h3>Orthography</h3>
-      <OrthographyTableInner
-        phones={phonesWithGraphs}
-        orthSettings={orthSettingsResponse.data}
-        languageId={languageId}
-      />
+      {phonesWithGraphs.length > 0 && (
+        <OrthographyTableInner
+          phones={phonesWithGraphs}
+          orthSettings={orthSettingsResponse.data}
+          languageId={languageId}
+        />
+      )}
+      {notes && (
+        <>
+          <h4>Notes</h4>
+          <p className="user-notes-paragraph">{notes}</p>
+        </>
+      )}
     </>
   );
 };
