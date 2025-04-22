@@ -115,7 +115,7 @@ export function formatDictionaryFieldValue(word: IWord, field: keyof IWord) {
   if(field === 'ipa') {
     return "[" + value + "]";
   } else if(value instanceof Date) {
-    return <DisplayDate date={ value as Date } />;
+    return <DisplayDate date={value} />;
   } else {
     return value;
   }
@@ -135,13 +135,11 @@ export function formatPosFieldValue(posCode: string, partsOfSpeech: IPartOfSpeec
 export function formatWordClasses(classes: IWordClassNoPOS[]) {
   return (
     <ul style={{ listStyle: "none", margin: "0", padding: "0" }}>
-      {
-        classes.map(cls => (
-          <li key={cls.code}>
-            { `[${cls.code}] ${cls.name}` }
-          </li>
-        ))
-      }
+      {classes.map(cls => (
+        <li key={cls.code}>
+          [{cls.code}] {cls.name}
+        </li>
+      ))}
     </ul>
   );
 };
@@ -162,11 +160,11 @@ export function formatWordEtymology(etymology: string) {
       switch(linkType) {
         case "d":
         case "w":
-          result.push(<WordLink id={id} key={ result.length } />);
+          result.push(<WordLink id={id} key={result.length} />);
           i += 3 + 32;
           break;
         case "l":
-          result.push(<LanguageLink id={id} key={ result.length } />);
+          result.push(<LanguageLink id={id} key={result.length} />);
           i += 3 + 32;
           break;
         default:
@@ -175,7 +173,7 @@ export function formatWordEtymology(etymology: string) {
     } else {
       result.push("@");
     }
-    
+
     oldIndex = i + 1;
   }
   result.push(etymology.substring(oldIndex));

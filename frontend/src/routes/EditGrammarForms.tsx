@@ -58,7 +58,7 @@ function formsReducer(state: IFormsReducerState, action: IFormsReducerAction) {
 
   switch(action.type) {
     case 'add': {
-      const newForms = [ ...forms, action.newForm ];
+      const newForms = [...forms, action.newForm];
       newForms.sort(compareGrammarForms);
       return {
         forms: newForms,
@@ -66,7 +66,7 @@ function formsReducer(state: IFormsReducerState, action: IFormsReducerAction) {
         saved: false
       };
     }
-    
+
     case 'edit': {
       const index = forms.indexOf(action.form);
       if(index < 0) {
@@ -87,7 +87,7 @@ function formsReducer(state: IFormsReducerState, action: IFormsReducerAction) {
         saved: false
       };
     }
-    
+
     case 'delete':
       if(action.form.id === UNADDED_FORM_ID) {
         return {
@@ -98,44 +98,44 @@ function formsReducer(state: IFormsReducerState, action: IFormsReducerAction) {
       } else {
         return {
           forms,
-          deleted: [ ...deleted, action.form.id ],
+          deleted: [...deleted, action.form.id],
           saved: false
         };
       }
-    
+
     case 'restore':
       return {
         forms,
         deleted: deleted.filter(id => id !== action.form.id),
         saved: false
       };
-    
+
     case 'markSaved':
       return {
         forms: action.newForms,
         deleted: [],
         saved: true
       };
-    
+
     default:
       throw new Error("Unknown action type: " + (action as any).type);
   }
 }
 
 function EditDictionarySettingsInner({ initialForms }: { initialForms: IGrammarForm[] }) {
-  const [ newFormCode, setNewFormCode ] = useState("");
-  const [ newFormName, setNewFormName ] = useState("");
-  const [ formErrorMessage, setFormErrorMessage ] = useState("");
+  const [newFormCode, setNewFormCode] = useState("");
+  const [newFormName, setNewFormName] = useState("");
+  const [formErrorMessage, setFormErrorMessage] = useState("");
 
-  const [ formsState, dispatchForms ] = useReducer(formsReducer, {
+  const [formsState, dispatchForms] = useReducer(formsReducer, {
     forms: initialForms.slice().sort(compareGrammarForms), deleted: [], saved: true
   });
   const { forms: grammarForms, deleted: deletedForms, saved: formsAreSaved } = formsState;
 
-  const [ isSaving, setIsSaving ] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   useUnsavedPopup(!formsAreSaved);
-  
+
   function addNewForm() {
     dispatchForms({
       type: 'add',
@@ -145,21 +145,21 @@ function EditDictionarySettingsInner({ initialForms }: { initialForms: IGrammarF
     setNewFormName("");
     setFormErrorMessage("");
   }
-  
+
   function deleteForm(form: IGrammarForm) {
     dispatchForms({
       type: 'delete',
       form
     });
   }
-  
+
   function restoreForm(form: IGrammarForm) {
     dispatchForms({
       type: 'restore',
       form
     });
   }
-  
+
   function editFormCode(form: IGrammarForm, newCode: string) {
     dispatchForms({
       type: 'edit',
@@ -167,7 +167,7 @@ function EditDictionarySettingsInner({ initialForms }: { initialForms: IGrammarF
       newCode
     });
   }
-  
+
   function editFormName(form: IGrammarForm, newName: string) {
     dispatchForms({
       type: 'edit',
@@ -175,7 +175,7 @@ function EditDictionarySettingsInner({ initialForms }: { initialForms: IGrammarF
       newName
     });
   }
-  
+
   return (
     <>
       <h2>Edit Grammar Forms</h2>
@@ -184,21 +184,19 @@ function EditDictionarySettingsInner({ initialForms }: { initialForms: IGrammarF
         For some common codes, see{" "}
         <a href="https://en.wikipedia.org/wiki/List_of_glossing_abbreviations">this list</a>.
       </p>
-      { formErrorMessage && <p><b>{formErrorMessage}</b></p> }
-      {
-        !formsAreSaved && <>
-          <SaveChangesButton<IGrammarForm[]>
-            isSaving={isSaving}
-            setIsSaving={setIsSaving}
-            saveQueryKey={ ['grammar-forms', 'update'] }
-            saveQueryFn={ async () => await sendSaveFormsRequest(formsState) }
-            handleSave={ data => dispatchForms({ type: 'markSaved', newForms: data }) }
-            style={{ marginBottom: "0.8em" }}
-          >
-            Save changes
-          </SaveChangesButton>
-        </>
-      }
+      {formErrorMessage && <p><b>{formErrorMessage}</b></p>}
+      {!formsAreSaved && (
+        <SaveChangesButton
+          isSaving={isSaving}
+          setIsSaving={setIsSaving}
+          saveQueryKey={['grammar-forms', 'update']}
+          saveQueryFn={async () => await sendSaveFormsRequest(formsState)}
+          handleSave={data => dispatchForms({ type: 'markSaved', newForms: data })}
+          style={{ marginBottom: "0.8em" }}
+        >
+          Save changes
+        </SaveChangesButton>
+      )}
       <table className="settings-table">
         <tbody>
           <tr>
@@ -211,7 +209,7 @@ function EditDictionarySettingsInner({ initialForms }: { initialForms: IGrammarF
               <input
                 type="text"
                 value={newFormCode}
-                onChange={ e => setNewFormCode(e.target.value.toUpperCase()) }
+                onChange={e => setNewFormCode(e.target.value.toUpperCase())}
                 style={{ width: "3em" }}
               />
             </td>
@@ -219,11 +217,11 @@ function EditDictionarySettingsInner({ initialForms }: { initialForms: IGrammarF
               <input
                 type="text"
                 value={newFormName}
-                onChange={ e => setNewFormName(e.target.value) }
+                onChange={e => setNewFormName(e.target.value)}
               />
             </td>
             <td>
-              <span className="hover-light-grey" onClick={ () => addNewForm() }>
+              <span className="hover-light-grey" onClick={() => addNewForm()}>
                 <span className="letter-button letter-button-small letter-button-t" />
               </span>
             </td>
@@ -232,12 +230,12 @@ function EditDictionarySettingsInner({ initialForms }: { initialForms: IGrammarF
             grammarForms.map((form, i) => {
               const isDeleted = form.id !== UNADDED_FORM_ID && deletedForms.includes(form.id);
               return (
-                <tr key={i} className={ isDeleted ? "deleted-pos-row" : undefined }>
+                <tr key={i} className={isDeleted ? "deleted-pos-row" : undefined}>
                   <td>
                     <input
                       type="text"
                       value={form.code}
-                      onChange={ e => editFormCode(form, e.target.value.toUpperCase()) }
+                      onChange={e => editFormCode(form, e.target.value.toUpperCase())}
                       style={{ width: "3em" }}
                       disabled={isDeleted}
                     />
@@ -246,19 +244,19 @@ function EditDictionarySettingsInner({ initialForms }: { initialForms: IGrammarF
                     <input
                       type="text"
                       value={form.name}
-                      onChange={ e => editFormName(form, e.target.value) }
+                      onChange={e => editFormName(form, e.target.value)}
                       disabled={isDeleted}
                     />
                   </td>
                   <td>
                     {
                       isDeleted
-                      ? <span onClick={ () => restoreForm(form) } className="hover-light-grey">
-                          <span className="letter-button letter-button-small letter-button-refresh" />
-                        </span>
-                      : <span onClick={ () => deleteForm(form) } className="hover-light-grey">
-                          <span className="letter-button letter-button-small letter-button-x" />
-                        </span>
+                        ? <span onClick={() => restoreForm(form)} className="hover-light-grey">
+                            <span className="letter-button letter-button-small letter-button-refresh" />
+                          </span>
+                        : <span onClick={() => deleteForm(form)} className="hover-light-grey">
+                            <span className="letter-button letter-button-small letter-button-x" />
+                          </span>
                     }
                   </td>
                 </tr>
@@ -267,28 +265,28 @@ function EditDictionarySettingsInner({ initialForms }: { initialForms: IGrammarF
           }
         </tbody>
       </table>
-      {
-        !formsAreSaved && <>
+      {!formsAreSaved && (
+        <>
           <br />
-          <SaveChangesButton<IGrammarForm[]>
+          <SaveChangesButton
             isSaving={isSaving}
             setIsSaving={setIsSaving}
-            saveQueryKey={ ['grammar-forms', 'update'] }
-            saveQueryFn={ async () => await sendSaveFormsRequest(formsState) }
-            handleSave={ data => dispatchForms({ type: 'markSaved', newForms: data }) }
+            saveQueryKey={['grammar-forms', 'update']}
+            saveQueryFn={async () => await sendSaveFormsRequest(formsState)}
+            handleSave={data => dispatchForms({ type: 'markSaved', newForms: data })}
             style={{ marginTop: "0.8em" }}
           >
             Save changes
           </SaveChangesButton>
         </>
-      }
+      )}
     </>
   );
 };
 
 export default function EditGrammarForms() {
   const grammarFormsResponse = useGrammarForms();
-  
+
   useSetPageTitle("Edit Grammar Forms");
 
   if(grammarFormsResponse.status !== 'success') {
@@ -297,7 +295,7 @@ export default function EditGrammarForms() {
 
   return (
     <EditDictionarySettingsInner
-      initialForms={ grammarFormsResponse.data }
+      initialForms={grammarFormsResponse.data}
     />
   );
 };

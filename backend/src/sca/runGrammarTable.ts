@@ -15,7 +15,7 @@ export default async function runGrammarTableRules(
       FROM grammar_tables
       WHERE id = $1
     `,
-    [ tableId ]
+    [tableId]
   );
   if(tableDataResult.rows.length !== 1) {
     return { success: false as const, message: "The requested table was not found." };
@@ -30,7 +30,7 @@ export default async function runGrammarTableRules(
       FROM grammar_table_cells
       WHERE table_id = $1
     `,
-    [ tableId ]
+    [tableId]
   );
 
   const categoriesResult = await client.query(
@@ -39,7 +39,7 @@ export default async function runGrammarTableRules(
       FROM orthography_categories
       WHERE lang_id = $1
     `,
-    [ tableData.langId ]
+    [tableData.langId]
   );
 
   const tableSCA = new SCA(categoriesResult.rows);

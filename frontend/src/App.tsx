@@ -45,7 +45,9 @@ import ViewLanguage from './routes/ViewLanguage.tsx';
 import ViewLanguages from './routes/ViewLanguages.tsx';
 import ViewWord from './routes/ViewWord.tsx';
 
-import SelectedLanguageContext, { ISelectedLanguageData, saveSelectedLanguageToStorage } from './SelectedLanguageContext.tsx';
+import SelectedLanguageContext, {
+  ISelectedLanguageData, saveSelectedLanguageToStorage
+} from './SelectedLanguageContext.tsx';
 
 const router = createBrowserRouter([
   {
@@ -205,12 +207,12 @@ const queryClient = new QueryClient({
 export default function App() {
   const initialSL = useContext(SelectedLanguageContext).selectedLanguage;
   const [selectedLanguage, setSLState] = useState(initialSL);
-  
+
   function setSelectedLanguage(languageData: ISelectedLanguageData | null) {
     setSLState(languageData);
     saveSelectedLanguageToStorage(languageData);
   }
-  
+
   return (
     <QueryClientProvider client={queryClient}>
       <SelectedLanguageContext.Provider value={{ selectedLanguage, setSelectedLanguage }}>

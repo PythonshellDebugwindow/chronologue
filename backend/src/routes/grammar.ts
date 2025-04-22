@@ -41,7 +41,7 @@ export const addGrammarTable: RequestHandler = async (req, res) => {
     res.status(400).json({ message: rowColumnError });
     return;
   }
-  
+
   await transact(async client => {
     const value = await client.query(
       `
@@ -51,8 +51,10 @@ export const addGrammarTable: RequestHandler = async (req, res) => {
         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
         RETURNING id
       `,
-      [ req.body.langId, req.body.name, req.body.pos, req.body.rows, req.body.columns,
-        req.body.showIpa, req.body.invertClasses, req.body.notes ]
+      [
+        req.body.langId, req.body.name, req.body.pos, req.body.rows, req.body.columns,
+        req.body.showIpa, req.body.invertClasses, req.body.notes
+      ]
     );
     const addedTableId = value.rows[0].id.replaceAll("-", "");
 
@@ -61,9 +63,9 @@ export const addGrammarTable: RequestHandler = async (req, res) => {
         INSERT INTO grammar_table_classes (table_id, class_id)
         SELECT $1, unnest($2::bigint[])
       `,
-      [ addedTableId, req.body.classIds ]
+      [addedTableId, req.body.classIds]
     );
-    
+
     res.status(201).json(addedTableId);
   });
 };
@@ -73,12 +75,12 @@ export const deleteGrammarTable: RequestHandler = async (req, res) => {
     res.status(400).json({ title: "Invalid ID", message: "The given table ID is not valid." });
     return;
   }
-  
+
   await query(
     "DELETE FROM grammar_tables WHERE id = $1",
-    [ req.params.id ]
+    [req.params.id]
   );
-  
+
   res.status(204).send();
 };
 
@@ -88,8 +90,8 @@ export const editGrammarTable: RequestHandler = async (req, res) => {
     return;
   }
   if(!hasAllStrings(req.body, ['name', 'pos', 'postRules', 'notes']) ||
-     !hasAllBooleans(req.body, ['invertClasses', 'showIpa']) ||
-     !hasAllArrays(req.body, ['rows', 'columns', 'classIds', 'cells'])) {
+    !hasAllBooleans(req.body, ['invertClasses', 'showIpa']) ||
+    !hasAllArrays(req.body, ['rows', 'columns', 'classIds', 'cells'])) {
     res.status(400).json({ message: "Please provide all required fields." });
     return;
   }
@@ -110,7 +112,7 @@ export const editGrammarTable: RequestHandler = async (req, res) => {
   ));
   const cellPosRows = cells.map(cell => cell.row_index);
   const cellPosColumns = cells.map(cell => cell.column_index);
-  
+
   await transact(async client => {
     await client.query(
       `
@@ -125,13 +127,13 @@ export const editGrammarTable: RequestHandler = async (req, res) => {
         tableId
       ]
     );
-    
+
     await client.query(
       `
         DELETE FROM grammar_table_classes
         WHERE table_id = $1 AND NOT (class_id = ANY($2::bigint[]))
       `,
-      [ tableId, req.body.classIds ]
+      [tableId, req.body.classIds]
     );
     if(req.body.classIds.length > 0) {
       await client.query(
@@ -140,7 +142,7 @@ export const editGrammarTable: RequestHandler = async (req, res) => {
           SELECT $1, unnest($2::bigint[])
           ON CONFLICT DO NOTHING
         `,
-        [ tableId, req.body.classIds ]
+        [tableId, req.body.classIds]
       );
     }
 
@@ -153,7 +155,7 @@ export const editGrammarTable: RequestHandler = async (req, res) => {
           )
         )
       `,
-      [ tableId, cellPosRows, cellPosColumns ]
+      [tableId, cellPosRows, cellPosColumns]
     );
     if(cells.length > 0) {
       await client.query(
@@ -164,11 +166,11 @@ export const editGrammarTable: RequestHandler = async (req, res) => {
           ON CONFLICT (table_id, row_index, column_index) DO UPDATE
           SET rules = EXCLUDED.rules
         `,
-        [ JSON.stringify(cells) ]
+        [JSON.stringify(cells)]
       );
     }
   });
-  
+
   res.status(204).send();
 };
 
@@ -184,7 +186,7 @@ export const getGrammarTable: RequestHandler = async (req, res) => {
     res.status(400).json({ title: "Invalid ID", message: "The given table ID is not valid." });
     return;
   }
-  
+
   const value = await query(
     `
       SELECT translate(lang_id::text, '-', '') AS "langId",
@@ -196,7 +198,7 @@ export const getGrammarTable: RequestHandler = async (req, res) => {
       FROM grammar_tables
       WHERE id = $1
     `,
-    [ req.params.id ]
+    [req.params.id]
   );
   if(value.rows.length === 1) {
     value.rows[0].id = req.params.id;
@@ -211,7 +213,7 @@ export const getGrammarTableClasses: RequestHandler = async (req, res) => {
     res.status(400).json({ title: "Invalid ID", message: "The given table ID is not valid." });
     return;
   }
-  
+
   const value = await query(
     `
       SELECT wc.id, wc.code, wc.name
@@ -221,7 +223,7 @@ export const getGrammarTableClasses: RequestHandler = async (req, res) => {
       WHERE gtc.table_id = $1
       ORDER BY wc.code
     `,
-    [ req.params.id ]
+    [req.params.id]
   );
   res.json(value.rows);
 };
@@ -231,7 +233,7 @@ export const getGrammarTableClassIds: RequestHandler = async (req, res) => {
     res.status(400).json({ title: "Invalid ID", message: "The given table ID is not valid." });
     return;
   }
-  
+
   const value = await query({
     text: `
       SELECT wc.id
@@ -241,7 +243,7 @@ export const getGrammarTableClassIds: RequestHandler = async (req, res) => {
       WHERE gtc.table_id = $1
       ORDER BY wc.code
     `,
-    values: [ req.params.id ],
+    values: [req.params.id],
     rowMode: 'array'
   });
   res.json(value.rows.flat());
@@ -252,14 +254,14 @@ export const getGrammarTableFilledCells: RequestHandler = async (req, res) => {
     res.status(400).json({ title: "Invalid ID", message: "The given table ID is not valid." });
     return;
   }
-  
+
   const value = await query(
     `
       SELECT row_index AS "row", column_index AS "column", rules
       FROM grammar_table_cells
       WHERE table_id = $1 AND rules != ''
     `,
-    [ req.params.id ]
+    [req.params.id]
   );
   res.json(value.rows);
 };
@@ -277,7 +279,7 @@ export const getGrammarTablesForWord: RequestHandler = async (req, res) => {
         FROM words
         WHERE id = $1
       `,
-      [ req.params.id ]
+      [req.params.id]
     );
     if(wordResult.rows.length !== 1) {
       res.status(400).json({ message: "The given word does not exist." });
@@ -311,7 +313,7 @@ export const getGrammarTablesForWord: RequestHandler = async (req, res) => {
           END
         ORDER BY gt.name
       `,
-      [ wordData.lang_id, wordData.pos, req.params.id ]
+      [wordData.lang_id, wordData.pos, req.params.id]
     );
     res.json(tablesResult.rows);
   });
@@ -322,7 +324,7 @@ export const getLanguageGrammarTables: RequestHandler = async (req, res) => {
     res.status(400).json({ title: "Invalid ID", message: "The given language ID is not valid." });
     return;
   }
-  
+
   const value = await query(
     `
       SELECT translate(id::text, '-', '') AS id,
@@ -330,7 +332,7 @@ export const getLanguageGrammarTables: RequestHandler = async (req, res) => {
       FROM grammar_tables
       WHERE lang_id = $1
     `,
-    [ req.params.id ]
+    [req.params.id]
   );
   res.json(value.rows);
 };
@@ -340,7 +342,7 @@ export const getRandomWordForGrammarTable: RequestHandler = async (req, res) => 
     res.status(400).json({ title: "Invalid ID", message: "The given table ID is not valid." });
     return;
   }
-  
+
   await transact(async client => {
     const tableResult = await client.query(
       `
@@ -348,7 +350,7 @@ export const getRandomWordForGrammarTable: RequestHandler = async (req, res) => 
         FROM grammar_tables
         WHERE id = $1
       `,
-      [ req.params.id ]
+      [req.params.id]
     );
     if(tableResult.rows.length !== 1) {
       res.status(400).json({ message: "The given table does not exist." });
@@ -385,7 +387,7 @@ export const getRandomWordForGrammarTable: RequestHandler = async (req, res) => 
         ORDER BY RANDOM()
         LIMIT 1
       `,
-      [ tableData.pos, tableData.lang_id, tableData.invert_classes, req.params.id ]
+      [tableData.pos, tableData.lang_id, tableData.invert_classes, req.params.id]
     );
     if(wordResult.rows.length === 0) {
       res.json(null);
@@ -410,7 +412,7 @@ export const runGrammarTableOnWord: RequestHandler = async (req, res) => {
     res.status(400).json({ message: "Invalid request body." });
     return;
   }
-  
+
   await transact(async client => {
     const result = await runGrammarTableRules(req.params.id, req.body.word, client);
     if(result.success) {
@@ -432,7 +434,7 @@ export const updateGrammarForms: RequestHandler = async (req, res, next) => {
         res.status(400).json({ message: "All grammar forms must have a code." });
         return;
       } else if(!cls.name) {
-        res.status(400).json({ message: "All grammar forms must have a name."});
+        res.status(400).json({ message: "All grammar forms must have a name." });
         return;
       } else if(cls.code === "Ø") {
         res.status(400).json({ message: "The code 'Ø' is reserved." });
@@ -444,7 +446,7 @@ export const updateGrammarForms: RequestHandler = async (req, res, next) => {
         return;
       }
     }
-    
+
     await transact(async client => {
       await client.query(
         `
@@ -459,13 +461,13 @@ export const updateGrammarForms: RequestHandler = async (req, res, next) => {
           SET code = EXCLUDED.code,
               name = EXCLUDED.name
         `,
-        [ JSON.stringify(req.body.new) ]
+        [JSON.stringify(req.body.new)]
       );
       await client.query(
         "DELETE FROM grammar_forms WHERE id = ANY($1::bigint[])",
-        [ req.body.deleted ]
+        [req.body.deleted]
       );
-      
+
       const newGrammarForms = await client.query(
         `
           SELECT id, code, name

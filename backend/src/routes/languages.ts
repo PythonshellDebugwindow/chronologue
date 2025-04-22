@@ -22,7 +22,7 @@ export const addLanguage: RequestHandler = async (req, res, next) => {
             FROM languages
             WHERE id = $1
           `,
-          [ req.body.parentId ]
+          [req.body.parentId]
         );
         if(parentFamily.rows.length === 0) {
           res.status(400).json({ message: "The given parent language does not exist."});
@@ -38,7 +38,7 @@ export const addLanguage: RequestHandler = async (req, res, next) => {
             WHERE family_id = $1 AND parent_id IS NULL
             LIMIT 1
           `,
-          [ req.body.familyId ]
+          [req.body.familyId]
         );
         if(languagesInFamily.rows.length > 0) {
           res.status(400).json({ message: "The given family already has a root language." });
@@ -53,7 +53,7 @@ export const addLanguage: RequestHandler = async (req, res, next) => {
             WHERE id = $1
             LIMIT 1
           `,
-          [ req.body.familyId ]
+          [req.body.familyId]
         );
         if(family.rows.length === 0) {
           res.status(400).json({ message: "The given family does not exist." });
@@ -67,22 +67,24 @@ export const addLanguage: RequestHandler = async (req, res, next) => {
                  VALUES ($1, $2, $3, $4, $5, $6)
           RETURNING id
         `,
-        [ req.body.name, req.body.autonym, req.body.familyId || null, req.body.parentId || null,
-          req.body.status, req.body.era ]
+        [
+          req.body.name, req.body.autonym, req.body.familyId || null,
+          req.body.parentId || null, req.body.status, req.body.era
+        ]
       );
       const addedLanguageId = value.rows[0].id.replaceAll("-", "");
 
       await client.query(
         "INSERT INTO language_summary_notes (lang_id) VALUES ($1)",
-        [ addedLanguageId ]
+        [addedLanguageId]
       );
       await client.query(
         "INSERT INTO orthography_settings (lang_id) VALUES ($1)",
-        [ addedLanguageId ]
+        [addedLanguageId]
       );
       await client.query(
         "INSERT INTO dictionary_settings (lang_id) VALUES ($1)",
-        [ addedLanguageId ]
+        [addedLanguageId]
       );
       
       res.status(201).json(addedLanguageId);
@@ -109,7 +111,7 @@ export const deleteLanguage: RequestHandler = async (req, res) => {
         WHERE parent_id = $1
         LIMIT 1
       `,
-      [ req.params.id ]
+      [req.params.id]
     );
     if(someChild.rows.length > 0) {
       res.status(400).json({ message: "Cannot delete a language with a child." });
@@ -118,7 +120,7 @@ export const deleteLanguage: RequestHandler = async (req, res) => {
 
     await client.query(
       "DELETE FROM languages WHERE id = $1",
-      [ req.params.id ]
+      [req.params.id]
     );
   });
   
@@ -149,7 +151,7 @@ export const editLanguage: RequestHandler = async (req, res, next) => {
               FROM languages
               WHERE id = $1
             `,
-            [ req.body.parentId ]
+            [req.body.parentId]
           );
           if(parentFamily.rows.length === 0) {
             res.status(400).json({ message: "The given parent language does not exist." });
@@ -165,7 +167,7 @@ export const editLanguage: RequestHandler = async (req, res, next) => {
               WHERE family_id = $1 AND parent_id IS NULL AND id != $2
               LIMIT 1
             `,
-            [ req.body.familyId, langId ]
+            [req.body.familyId, langId]
           );
           if(languagesInFamily.rows.length > 0) {
             res.status(400).json({ message: "The given family already has a root language." });
@@ -188,7 +190,7 @@ export const editLanguage: RequestHandler = async (req, res, next) => {
               translate(id::text, '-', '') AS id
             FROM children
           `,
-          values: [ langId ],
+          values: [langId],
           rowMode: 'array'
         })).rows.flat();
         if(descendantIds.includes(req.body.parentId)) {
@@ -202,7 +204,7 @@ export const editLanguage: RequestHandler = async (req, res, next) => {
             SET family_id = $1
             WHERE id = ANY($2::uuid[])
           `,
-          [ req.body.familyId, descendantIds ]
+          [req.body.familyId, descendantIds]
         );
       }
       
@@ -212,12 +214,14 @@ export const editLanguage: RequestHandler = async (req, res, next) => {
           SET name = $1, autonym = $2, family_id = $3, parent_id = $4, status = $5, era = $6
           WHERE id = $7
         `,
-        [ req.body.name, req.body.autonym, req.body.familyId, req.body.parentId,
-          req.body.status, req.body.era, langId ]
+        [
+          req.body.name, req.body.autonym, req.body.familyId, req.body.parentId,
+          req.body.status, req.body.era, langId
+        ]
       );
     });
 
-    res.status(204).end();
+    res.status(204).send();
   } catch(err) {
     if((err as IQueryError).code === '23505') {
       res.status(400).json({ message: `The name '${req.body.name}' is already taken.` });
@@ -254,7 +258,7 @@ export const getDescendants: RequestHandler = async (req, res) => {
         status, era, created
       FROM children
     `,
-    [ req.params.id ]
+    [req.params.id]
   );
   res.json(value.rows);
 };
@@ -271,12 +275,14 @@ export const getDictionarySettings: RequestHandler = async (req, res) => {
       FROM dictionary_settings
       WHERE lang_id = $1
     `,
-    [ req.params.id ]
+    [req.params.id]
   );
   if(value.rows.length === 1) {
     res.json(value.rows[0]);
   } else {
-    res.status(404).json({ title: "Language not found", message: "The requested language was not found." });
+    res.status(404).json({
+      title: "Language not found", message: "The requested language was not found."
+    });
   }
 };
 
@@ -295,13 +301,15 @@ export const getLanguage: RequestHandler = async (req, res) => {
       FROM languages
       WHERE id = $1
     `,
-    [ req.params.id ]
+    [req.params.id]
   );
   if(value.rows.length === 1) {
     value.rows[0].id = req.params.id;
     res.json(value.rows[0]);
   } else {
-    res.status(404).json({ title: "Language not found", message: "The requested language was not found." });
+    res.status(404).json({
+      title: "Language not found", message: "The requested language was not found."
+    });
   }
 };
 
@@ -327,12 +335,14 @@ export const getOrthographySettings: RequestHandler = async (req, res) => {
       FROM orthography_settings
       WHERE lang_id = $1
     `,
-    [ req.params.id ]
+    [req.params.id]
   );
   if(value.rows.length === 1 && value.rows[0].hasSetAlphabeticalOrder !== null) {
     res.json(value.rows[0]);
   } else {
-    res.status(404).json({ title: "Language not found", message: "The requested language was not found." });
+    res.status(404).json({
+      title: "Language not found", message: "The requested language was not found."
+    });
   }
 };
 
@@ -350,12 +360,14 @@ export const getSummaryNotes: RequestHandler = async (req, res) => {
       FROM language_summary_notes
       WHERE lang_id = $1
     `,
-    [ req.params.id ]
+    [req.params.id]
   );
   if(value.rows.length === 1) {
     res.json(value.rows[0]);
   } else {
-    res.status(404).json({ title: "Language not found", message: "The requested language was not found." });
+    res.status(404).json({
+      title: "Language not found", message: "The requested language was not found."
+    });
   }
 };
 
@@ -375,7 +387,7 @@ export const updateAlphabeticalOrder: RequestHandler = async (req, res) => {
       SET alphabetical_order = $1
       WHERE lang_id = $2
     `,
-    [ req.body.order, req.params.id ]
+    [req.body.order, req.params.id]
   );
   res.json(req.body.order);
 };
@@ -396,7 +408,7 @@ export const updateDictionarySettings: RequestHandler = async (req, res) => {
       SET show_word_ipa = $1
       WHERE lang_id = $2
     `,
-    [ req.body.showWordIpa, req.params.id ]
+    [req.body.showWordIpa, req.params.id]
   );
   res.status(204).send();
 };
@@ -417,7 +429,7 @@ export const updateOrthographySettings: RequestHandler = async (req, res) => {
       SET case_sensitive = $1
       WHERE lang_id = $2
     `,
-    [ req.body.caseSensitive, req.params.id ]
+    [req.body.caseSensitive, req.params.id]
   );
   res.status(204).send();
 };
@@ -438,8 +450,10 @@ export const updateSummaryNotes: RequestHandler = async (req, res) => {
       SET description = $1, phonology_notes = $2, orthography_notes = $3
       WHERE lang_id = $4
     `,
-    [ req.body.description, req.body.phonologyNotes,
-      req.body.orthographyNotes, req.params.id ]
+    [
+      req.body.description, req.body.phonologyNotes,
+      req.body.orthographyNotes, req.params.id
+    ]
   );
-  res.status(204).end();
+  res.status(204).send();
 };

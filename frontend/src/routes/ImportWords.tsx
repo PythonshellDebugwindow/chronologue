@@ -48,8 +48,8 @@ function ImportPreview({ words, fields, language, langClasses, partsOfSpeech }: 
       <SaveChangesButton
         isSaving={isSaving}
         setIsSaving={setIsSaving}
-        saveQueryKey={ ['languages', language.id, 'phones', 'update'] }
-        saveQueryFn={ async () => await sendImportWordsRequest(words, language.id) }
+        saveQueryKey={['languages', language.id, 'phones', 'update']}
+        saveQueryFn={async () => await sendImportWordsRequest(words, language.id)}
         handleSave={handleSave}
         style={{ marginTop: "1em", marginBottom: "1em" }}
       >
@@ -57,30 +57,31 @@ function ImportPreview({ words, fields, language, langClasses, partsOfSpeech }: 
       </SaveChangesButton>
       <DictionaryTable>
         <tr>
-          {
-            fields.map(f => <th key={f}>{f}</th>)
-          }
+          {fields.map(f => (
+            <th key={f}>{f}</th>
+          ))}
         </tr>
-        {
-          words.map((word, i) => (
-            <DictionaryRow
-              word={{ ...word, classes: word.classes.map(
+        {words.map((word, i) => (
+          <DictionaryRow
+            word={{
+              ...word,
+              classes: word.classes.map(
                 id => langClasses.find(cls => cls.id === id)?.code
-              ).join(", ") }}
-              fields={fields}
-              language={language}
-              partsOfSpeech={partsOfSpeech}
-              showLinkColumn={false}
-              key={i}
-            />
-          ))
-        }
+              ).join(", ")
+            }}
+            fields={fields}
+            language={language}
+            partsOfSpeech={partsOfSpeech}
+            showLinkColumn={false}
+            key={i}
+          />
+        ))}
       </DictionaryTable>
       <SaveChangesButton
         isSaving={isSaving}
         setIsSaving={setIsSaving}
-        saveQueryKey={ ['languages', language.id, 'phones', 'update'] }
-        saveQueryFn={ async () => await sendImportWordsRequest(words, language.id) }
+        saveQueryKey={['languages', language.id, 'phones', 'update']}
+        saveQueryFn={async () => await sendImportWordsRequest(words, language.id)}
         handleSave={handleSave}
         style={{ marginTop: "1em" }}
       >
@@ -101,12 +102,12 @@ function ImportWordsInner({ language, langClasses, partsOfSpeech }: IImportWords
     'word', 'ipa', 'meaning', 'pos', 'etymology', 'notes', 'classes'
   ];
 
-  const [ csvFields, setCSVFields ] = useState<(keyof IImportedWord | "")[]>(
+  const [csvFields, setCSVFields] = useState<(keyof IImportedWord | "")[]>(
     possibleCsvFields.map(() => "")
   );
-  const [ delimiter, setDelimiter ] = useState(",");
-  const [ quoting, setQuoting ] = useState('"');
-  const [ errorMessage, setErrorMessage ] = useState("");
+  const [delimiter, setDelimiter] = useState(",");
+  const [quoting, setQuoting] = useState('"');
+  const [errorMessage, setErrorMessage] = useState("");
 
   const [imported, setImported] = useState<IImportedWord[] | null>(null);
   const [importedFields, setImportedFields] = useState<(keyof IImportedWord)[] | null>(null);
@@ -131,7 +132,7 @@ function ImportWordsInner({ language, langClasses, partsOfSpeech }: IImportWords
         return;
       }
     }
-    
+
     if(results.errors.length > 0) {
       setErrorMessage(results.errors.map(
         e => `Error${e.row !== undefined && ` on row ${e.row + 1}`}: ${e.message}.`
@@ -210,27 +211,26 @@ function ImportWordsInner({ language, langClasses, partsOfSpeech }: IImportWords
       });
     }
   }
-  
+
   return (
     <>
       <h2>Import Words</h2>
       <p>
-        Import words into <Link to={ '/language/' + language.id }>{ language.name }</Link>'s
+        Import words into <Link to={'/language/' + language.id}>{language.name}</Link>'s
         dictionary from a CSV file.
       </p>
       <p>
-        Valid POS codes: {
-          partsOfSpeech.flatMap((pos, i) => {
-            const result: ReactNode[] = i === 0 ? [] : [", "];
-            result.push(<abbr title={ pos.name } key={i}>{ pos.code }</abbr>);
-            return result;
-          })
-        }
+        Valid POS codes:{" "}
+        {partsOfSpeech.flatMap((pos, i) => {
+          const result: ReactNode[] = i === 0 ? [] : [", "];
+          result.push(<abbr title={pos.name} key={i}>{pos.code}</abbr>);
+          return result;
+        })}
       </p>
       <p>
         Class codes should be comma-separated.
       </p>
-      { errorMessage && <p><b>{errorMessage}</b></p> }
+      {errorMessage && <p><b>{errorMessage}</b></p>}
       <form className="chronologue-form">
         <CFormBody>
           <CTextInput
@@ -250,36 +250,32 @@ function ImportWordsInner({ language, langClasses, partsOfSpeech }: IImportWords
           <tr>
             <td colSpan={2}><h4>Field order</h4></td>
           </tr>
-          {
-            csvFields.map((field, i) => (
-              <CSelect
-                label={ `Field ${i + 1}` }
-                name={ "field" + i }
-                state={field}
-                setState={
-                  value => setCSVFields(csvFields.map((f, fi) => {
-                    if(fi === i) {
-                      return value as (keyof IImportedWord | "");
-                    } else if(f === value) {
-                      return "";
-                    } else {
-                      return f;
-                    }
-                  }))
-                }
-                key={i}
-              >
-                <option value="">---</option>
-                {
-                  possibleCsvFields.map(field => (
-                    <option value={field} key={field}>
-                      { field === 'classes' ? 'class codes' : field }
-                    </option>
-                  ))
-                }
-              </CSelect>
-            ))
-          }
+          {csvFields.map((field, i) => (
+            <CSelect
+              label={`Field ${i + 1}`}
+              name={"field" + i}
+              state={field}
+              setState={value => {
+                setCSVFields(csvFields.map((f, fi) => {
+                  if(fi === i) {
+                    return value as (keyof IImportedWord | "");
+                  } else if(f === value) {
+                    return "";
+                  } else {
+                    return f;
+                  }
+                }));
+              }}
+              key={i}
+            >
+              <option value="">---</option>
+              {possibleCsvFields.map(field => (
+                <option value={field} key={field}>
+                  {field === 'classes' ? 'class codes' : field}
+                </option>
+              ))}
+            </CSelect>
+          ))}
         </CFormBody>
         <div style={{ marginTop: "1em" }}>
           <input type="file" ref={fileInputRef} />
@@ -288,17 +284,15 @@ function ImportWordsInner({ language, langClasses, partsOfSpeech }: IImportWords
           Preview Import
         </button>
       </form>
-      {
-        imported && (
-          <ImportPreview
-            words={imported}
-            fields={importedFields!}
-            language={language}
-            langClasses={langClasses}
-            partsOfSpeech={partsOfSpeech}
-          />
-        )
-      }
+      {imported && (
+        <ImportPreview
+          words={imported}
+          fields={importedFields!}
+          language={language}
+          langClasses={langClasses}
+          partsOfSpeech={partsOfSpeech}
+        />
+      )}
     </>
   );
 }
@@ -308,11 +302,11 @@ export default function ImportWords() {
   if(!id) {
     throw new Error("No language ID was provided");
   }
-  
+
   const languageResponse = useLanguage(id);
   const languageClassesResponse = useLanguageWordClasses(id);
   const partsOfSpeechResponse = usePartsOfSpeech();
-  
+
   useSetPageTitle("Import Words");
 
   if(languageResponse.status !== 'success') {
@@ -329,9 +323,9 @@ export default function ImportWords() {
 
   return (
     <ImportWordsInner
-      language={ languageResponse.data }
-      langClasses={ languageClassesResponse.data }
-      partsOfSpeech={ partsOfSpeechResponse.data }
+      language={languageResponse.data}
+      langClasses={languageClassesResponse.data}
+      partsOfSpeech={partsOfSpeechResponse.data}
     />
   );
 };

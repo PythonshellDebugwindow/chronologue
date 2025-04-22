@@ -1,4 +1,4 @@
-import { Link }  from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 import { useWord } from '../wordData.tsx';
 
@@ -15,8 +15,8 @@ function useWordString(id: string) {
 
 export default function WordLink({ id }: { id: string }) {
   return (
-    <Link to={ '/word/' + id }>
-      { useWordString(id) }
+    <Link to={'/word/' + id}>
+      {useWordString(id)}
     </Link>
   );
 };

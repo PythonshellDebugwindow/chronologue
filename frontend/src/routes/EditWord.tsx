@@ -30,18 +30,18 @@ function EditWordInner(
 ) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  
-  const [ word, setWord ] = useState(initialWord.word);
-  const [ meaning, setMeaning ] = useState(initialWord.meaning);
-  const [ ipa, setIpa ] = useState(initialWord.ipa);
-  const [ pos, setPos ] = useState(initialWord.pos);
-  const [ classes, setClasses ] = useState(
+
+  const [word, setWord] = useState(initialWord.word);
+  const [meaning, setMeaning] = useState(initialWord.meaning);
+  const [ipa, setIpa] = useState(initialWord.ipa);
+  const [pos, setPos] = useState(initialWord.pos);
+  const [classes, setClasses] = useState(
     langClasses.filter(cls => initialClassIds.includes(cls.id))
   );
-  const [ etymology, setEtymology ] = useState(initialWord.etymology);
-  const [ notes, setNotes ] = useState(initialWord.notes);
-  const [ errorMessage, setErrorMessage ] = useState("");
-  
+  const [etymology, setEtymology] = useState(initialWord.etymology);
+  const [notes, setNotes] = useState(initialWord.notes);
+  const [errorMessage, setErrorMessage] = useState("");
+
   async function editFormWord() {
     if(!word) {
       setErrorMessage("Please enter a word");
@@ -70,19 +70,19 @@ function EditWordInner(
       setErrorMessage(result.body.message);
       return;
     }
-    
+
     queryClient.resetQueries({ queryKey: ['words', initialWord.id] });
     navigate(`/word/${initialWord.id}`);
   }
-  
+
   return (
     <>
       <h2>Edit Word</h2>
-      { errorMessage && <p>{errorMessage}</p> }
+      {errorMessage && <p>{errorMessage}</p>}
       <form className="chronologue-form">
         <CFormBody>
           <CTextInputWithAlphabet
-            langId={ initialWord.langId }
+            langId={initialWord.langId}
             label="Word"
             name="word"
             state={word}
@@ -94,16 +94,14 @@ function EditWordInner(
             state={meaning}
             setState={setMeaning}
           />
-          {
-            (dictSettings.showWordIpa || initialWord.ipa) && (
-              <CIpaTextInput
-                languageId={ initialWord.langId }
-                word={word}
-                ipa={ipa}
-                setIpa={setIpa}
-              />
-            )
-          }
+          {(dictSettings.showWordIpa || initialWord.ipa) && (
+            <CIpaTextInput
+              languageId={initialWord.langId}
+              word={word}
+              ipa={ipa}
+              setIpa={setIpa}
+            />
+          )}
           <POSAndClassesSelect
             pos={pos}
             setPos={setPos}
@@ -128,7 +126,7 @@ function EditWordInner(
         <button type="button" onClick={editFormWord}>
           Save changes
         </button>
-        <button type="button" onClick={ () => navigate('/word/' + initialWord.id) }>
+        <button type="button" onClick={() => navigate('/word/' + initialWord.id)}>
           Back
         </button>
       </form>
@@ -145,7 +143,7 @@ function EditWordWithWord({ word }: { word: IWord }) {
   if(wordClassIdsResponse.status !== 'success') {
     return renderDatalessQueryResult(wordClassIdsResponse);
   }
-  
+
   if(dictSettingsResponse.status !== 'success') {
     return renderDatalessQueryResult(dictSettingsResponse);
   }
@@ -153,18 +151,18 @@ function EditWordWithWord({ word }: { word: IWord }) {
   if(languageClassesResponse.status !== 'success') {
     return renderDatalessQueryResult(languageClassesResponse);
   }
-  
+
   if(partsOfSpeechResponse.status !== 'success') {
     return renderDatalessQueryResult(partsOfSpeechResponse);
   }
-  
+
   return (
     <EditWordInner
       initialWord={word}
-      initialClassIds={ wordClassIdsResponse.data }
-      dictSettings={ dictSettingsResponse.data }
-      langClasses={ languageClassesResponse.data }
-      partsOfSpeech={ partsOfSpeechResponse.data }
+      initialClassIds={wordClassIdsResponse.data}
+      dictSettings={dictSettingsResponse.data}
+      langClasses={languageClassesResponse.data}
+      partsOfSpeech={partsOfSpeechResponse.data}
     />
   );
 }
@@ -174,14 +172,14 @@ export default function EditWord() {
   if(!wordId) {
     throw new Error("No word ID was provided");
   }
-  
+
   const wordResponse = useWord(wordId);
-  
+
   useSetPageTitle("Edit Word");
 
   if(wordResponse.status !== 'success') {
     return renderDatalessQueryResult(wordResponse);
   }
 
-  return <EditWordWithWord word={ wordResponse.data } />;
+  return <EditWordWithWord word={wordResponse.data} />;
 };

@@ -1,4 +1,5 @@
 import { ReactNode } from 'react';
+
 import {
   consonantData, formatPhoneForPhonologyTable, useLanguagePhones,
   hasDoubleWidthCell, vowelData,
@@ -30,7 +31,7 @@ function PhoneTableHalfCell({ phone, addedPhones, phonesWithNotes, colSpan = 1 }
       res.unshift(" \u00A0");
     }
     if(phone.notes) {
-      res.push(<sup key={i}>{ phonesWithNotes.indexOf(phone) + 1 }</sup>);
+      res.push(<sup key={i}>{phonesWithNotes.indexOf(phone) + 1}</sup>);
     } else {
       seenWithoutNotes.push(formatted);
     }
@@ -61,37 +62,37 @@ function PhoneTableCell({ data, phones, phonesWithNotes, phoneBases, row, col }:
   if(!hasLeft && !hasRight) {
     return <td colSpan={2}>&nbsp;</td>;
   }
-  
+
   if(hasDoubleWidthCell(data.phones[row][col * 2])) {
     return (
       <PhoneTableHalfCell
-        phone={ data.phones[row][col * 2] }
+        phone={data.phones[row][col * 2]}
         addedPhones={phones}
         phonesWithNotes={phonesWithNotes}
         colSpan={2}
       />
-    )
+    );
   }
 
   return (
     <>
       {
         hasLeft
-        ? <PhoneTableHalfCell
-            phone={ data.phones[row][col * 2] }
-            addedPhones={phones}
-            phonesWithNotes={phonesWithNotes}
-          />
-        : <td>&nbsp;</td>
+          ? <PhoneTableHalfCell
+              phone={data.phones[row][col * 2]}
+              addedPhones={phones}
+              phonesWithNotes={phonesWithNotes}
+            />
+          : <td>&nbsp;</td>
       }
       {
         hasRight
-        ? <PhoneTableHalfCell
-            phone={ data.phones[row][col * 2 + 1] }
-            addedPhones={phones}
-            phonesWithNotes={phonesWithNotes}
-          />
-        : <td>&nbsp;</td>
+          ? <PhoneTableHalfCell
+              phone={data.phones[row][col * 2 + 1]}
+              addedPhones={phones}
+              phonesWithNotes={phonesWithNotes}
+            />
+          : <td>&nbsp;</td>
       }
     </>
   );
@@ -122,7 +123,9 @@ function PhonologyTable({ data, phones, marginTop = "" }: IPhonologyTable) {
   }
 
   const phonesWithFormatting = phones.flatMap(phone => (
-    phone.type === data.type ? [{ phone, formatted: formatPhoneForPhonologyTable(phone) }] : []
+    phone.type === data.type
+      ? [{ phone, formatted: formatPhoneForPhonologyTable(phone) }]
+      : []
   ));
   phonesWithFormatting.sort((p1, p2) => {
     const firstIsBracketed = p1.formatted[0] === "[" || p1.formatted[0] === "(";
@@ -155,43 +158,39 @@ function PhonologyTable({ data, phones, marginTop = "" }: IPhonologyTable) {
 
   return (
     <>
-      <table className="phone-table" style={ marginTop ? { marginTop } : {} }>
+      <table className="phone-table" style={marginTop ? { marginTop } : {}}>
         <tbody>
           <tr>
-            <th><b>{ data.type === 'consonant' ? "Consonants" : "Vowels" }</b></th>
-            {
-              columnIndices.map(i => <th key={i} colSpan={2}>{ data.horizontal[i] }</th>)
-            }
+            <th><b>{data.type === 'consonant' ? "Consonants" : "Vowels"}</b></th>
+            {columnIndices.map(i => (
+              <th key={i} colSpan={2}>{data.horizontal[i]}</th>
+            ))}
           </tr>
-          {
-            data.vertical.map((label, i) => (
-              phoneBases.some(b => data.phones[i].includes(b)) && <tr key={i}>
+          {data.vertical.map((label, i) => (
+            phoneBases.some(b => data.phones[i].includes(b)) && (
+              <tr key={i}>
                 <th>{label}</th>
-                {
-                  columnIndices.map(j => (
-                    <PhoneTableCell
-                      data={data}
-                      phones={phonesWithFormatting}
-                      phonesWithNotes={phonesWithNotes}
-                      phoneBases={phoneBases}
-                      row={i}
-                      col={j}
-                      key={j}
-                    />
-                  ))
-                }
+                {columnIndices.map(j => (
+                  <PhoneTableCell
+                    data={data}
+                    phones={phonesWithFormatting}
+                    phonesWithNotes={phonesWithNotes}
+                    phoneBases={phoneBases}
+                    row={i}
+                    col={j}
+                    key={j}
+                  />
+                ))}
               </tr>
-            ))
-          }
+            )
+          ))}
         </tbody>
       </table>
-      {
-        phonesWithNotes.length > 0 && (
-          <ol className="phone-notes-list">
-            { phonesWithNotes.map((phone, i) => <li key={i}>{ phone.notes }</li>) }
-          </ol>
-        )
-      }
+      {phonesWithNotes.length > 0 && (
+        <ol className="phone-notes-list">
+          {phonesWithNotes.map((phone, i) => <li key={i}>{phone.notes}</li>)}
+        </ol>
+      )}
     </>
   );
 }
@@ -252,43 +251,41 @@ function OtherPhonesTable({ phones }: { phones: IPhone[] }) {
   }
 
   otherPhones.sort(compareOtherPhones);
-  
+
   const phoneRows = [];
   const phonesWithNotes = otherPhones.filter(phone => phone.notes);
   for(let i = 0; i < otherPhones.length; i += 10) {
     phoneRows.push(otherPhones.slice(i, i + 10).map((phone, i) => (
       <td className="phone-cell" key={i}>
-        { phone.base }
-        { phone.notes && <sup>{ phonesWithNotes.indexOf(phone) + 1 }</sup> }
+        {phone.base}
+        {phone.notes && <sup>{phonesWithNotes.indexOf(phone) + 1}</sup>}
       </td>
     )));
   }
-  
+
   return (
     <>
       <table className="phone-table" style={{ border: "1px solid #999", marginTop: "15px" }}>
         <tbody>
           <tr>
-            <th rowSpan={ phoneRows.length }><b>Other</b></th>
-            { phoneRows[0] }
+            <th rowSpan={phoneRows.length}><b>Other</b></th>
+            {phoneRows[0]}
           </tr>
-          { phoneRows.slice(1).map((row, i) => <tr key={i}>{row}</tr>) }
+          {phoneRows.slice(1).map((row, i) => <tr key={i}>{row}</tr>)}
         </tbody>
       </table>
-      {
-        phonesWithNotes.length > 0 && (
-          <ol className="phone-notes-list">
-            { phonesWithNotes.map((phone, i) => <li key={i}>{ phone.notes }</li>) }
-          </ol>
-        )
-      }
+      {phonesWithNotes.length > 0 && (
+        <ol className="phone-notes-list">
+          {phonesWithNotes.map((phone, i) => <li key={i}>{phone.notes}</li>)}
+        </ol>
+      )}
     </>
   );
 }
 
 export function PhonologySection({ languageId }: { languageId: string }) {
   const phonesResponse = useLanguagePhones(languageId);
-  
+
   if(phonesResponse.status !== 'success') {
     return renderDatalessQueryResult(phonesResponse);
   }
@@ -296,13 +293,23 @@ export function PhonologySection({ languageId }: { languageId: string }) {
   if(phonesResponse.data.length === 0) {
     return null;
   }
-  
+
   return (
     <>
       <h3>Phonology</h3>
-      <PhonologyTable data={consonantData} phones={ phonesResponse.data } marginTop="10px" />
-      <PhonologyTable data={vowelData} phones={ phonesResponse.data } marginTop="15px" />
-      <OtherPhonesTable phones={ phonesResponse.data } />
+      <PhonologyTable
+        data={consonantData}
+        phones={phonesResponse.data}
+        marginTop="10px"
+      />
+      <PhonologyTable
+        data={vowelData}
+        phones={phonesResponse.data}
+        marginTop="15px"
+      />
+      <OtherPhonesTable
+        phones={phonesResponse.data}
+      />
     </>
   );
 };

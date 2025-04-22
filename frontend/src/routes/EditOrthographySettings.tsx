@@ -46,7 +46,7 @@ interface IGraphCell {
 function GraphCell({ graphs, index, orthSettings }: IGraphCell) {
   const drop = useDroppable({ id: index });
   const drag = useDraggable({ id: index });
-  
+
   const shift = getGraphCellShift(index, drop.over, drag.active);
   const shouldHide = shouldHideGraphCell(index, drop.over, drag.active);
 
@@ -61,25 +61,32 @@ function GraphCell({ graphs, index, orthSettings }: IGraphCell) {
   }
 
   return (
-    <td className="graph-cell" ref={setBothNodeRefs} style={style} {...drag.listeners} {...drag.attributes}>
+    <td
+      className="graph-cell"
+      ref={setBothNodeRefs}
+      style={style}
+      {...drag.listeners}
+      {...drag.attributes}
+    >
       {
         !shouldHide
-        ? <big>
-            { formatGraphForAlphabet(graphs[index + shift], orthSettings) }
-          </big>
-        : <big style={{ visibility: "hidden" }}>
-            { formatGraphForAlphabet(graphs[drag.active ? +drag.active.id : index], orthSettings) }
-          </big>
-      }
-      {
-        index === drag.active?.id && (
-          <div className="graph-cell-dragged" style={{ transform: CSS.Translate.toString(drag.transform) }}>
-            <big>
-              { formatGraphForAlphabet(graphs[index], orthSettings) }
+          ? <big>
+              {formatGraphForAlphabet(graphs[index + shift], orthSettings)}
             </big>
-          </div>
-        )
+          : <big style={{ visibility: "hidden" }}>
+              {formatGraphForAlphabet(graphs[drag.active ? +drag.active.id : index], orthSettings)}
+            </big>
       }
+      {index === drag.active?.id && (
+        <div
+          className="graph-cell-dragged"
+          style={{ transform: CSS.Translate.toString(drag.transform) }}
+        >
+          <big>
+            {formatGraphForAlphabet(graphs[index], orthSettings)}
+          </big>
+        </div>
+      )}
     </td>
   );
 }
@@ -108,33 +115,29 @@ interface IEditOrthographySettingsInner {
 }
 
 function EditOrthographySettingsInner({ language, orthSettings }: IEditOrthographySettingsInner) {
-  const [ graphs, setGraphs ] = useState(orthSettings.alphabeticalOrder);
-  const [ caseSensitive, setCaseSensitive ] = useState(orthSettings.caseSensitive);
-  
-  const [ graphsAreSaved, setGraphsAreSaved ] = useState(orthSettings.hasSetAlphabeticalOrder);
-  const [ isSavingGraphs, setIsSavingGraphs ] = useState(false);
-  
-  const [ settingsAreSaved, setSettingsAreSaved ] = useState(true);
-  const [ isSavingSettings, setIsSavingSettings ] = useState(false);
-  
+  const [graphs, setGraphs] = useState(orthSettings.alphabeticalOrder);
+  const [caseSensitive, setCaseSensitive] = useState(orthSettings.caseSensitive);
+
+  const [graphsAreSaved, setGraphsAreSaved] = useState(orthSettings.hasSetAlphabeticalOrder);
+  const [isSavingGraphs, setIsSavingGraphs] = useState(false);
+
+  const [settingsAreSaved, setSettingsAreSaved] = useState(true);
+  const [isSavingSettings, setIsSavingSettings] = useState(false);
+
   const updatedOrthSettings = { ...orthSettings, caseSensitive };
-  
+
   const rows = [];
   for(let i = 0; i < graphs.length; i += 10) {
     rows.push(
       <tr key={i}>
-        {
-          graphs.slice(i, i + 10).map(
-            (_, j) => (
-              <GraphCell
-                graphs={graphs}
-                index={ i + j }
-                orthSettings={updatedOrthSettings}
-                key={j}
-              />
-            )
-          )
-        }
+        {graphs.slice(i, i + 10).map((_, j) => (
+          <GraphCell
+            graphs={graphs}
+            index={i + j}
+            orthSettings={updatedOrthSettings}
+            key={j}
+          />
+        ))}
       </tr>
     );
   }
@@ -161,54 +164,50 @@ function EditOrthographySettingsInner({ language, orthSettings }: IEditOrthograp
       setGraphsAreSaved(false);
     }
   }
-  
+
   return (
     <>
       <h2>Edit Orthography Settings</h2>
       <p>
-        Edit <Link to={ '/language/' + language.id }>{ language.name }</Link>'s
+        Edit <Link to={'/language/' + language.id}>{language.name}</Link>'s
         alphabetical order and other orthography settings.
       </p>
       <h3>Alphabetical Order</h3>
       <p className="help-paragraph">
-        Edit { language.name }'s alphabetical order. You should only do this once you've
+        Edit {language.name}'s alphabetical order. You should only do this once you've
         finalised your orthography, as adding or removing letters will reset the order.
       </p>
-      {
-        !graphsAreSaved && <>
-          <SaveChangesButton<string[]>
-            isSaving={isSavingGraphs}
-            setIsSaving={setIsSavingGraphs}
-            saveQueryKey={ ['languages', language.id, 'alphabetical-order', 'update'] }
-            saveQueryFn={ async () => await sendSaveOrderRequest(graphs, language.id) }
-            handleSave={ data => { setGraphs(data); setGraphsAreSaved(true); } }
-            style={{ marginBottom: "1em" }}
-          >
-            Save order
-          </SaveChangesButton>
-        </>
-      }
+      {!graphsAreSaved && (
+        <SaveChangesButton
+          isSaving={isSavingGraphs}
+          setIsSaving={setIsSavingGraphs}
+          saveQueryKey={['languages', language.id, 'alphabetical-order', 'update']}
+          saveQueryFn={async () => await sendSaveOrderRequest(graphs, language.id)}
+          handleSave={data => { setGraphs(data); setGraphsAreSaved(true); }}
+          style={{ marginBottom: "1em" }}
+        >
+          Save order
+        </SaveChangesButton>
+      )}
       <DndContext onDragEnd={handleDragEnd}>
         <table className="phone-table graph-table">
           <tbody>
-            { rows }
+            {rows}
           </tbody>
         </table>
       </DndContext>
-      {
-        !graphsAreSaved && <>
-          <SaveChangesButton<string[]>
-            isSaving={isSavingGraphs}
-            setIsSaving={setIsSavingGraphs}
-            saveQueryKey={ ['languages', language.id, 'alphabetical-order', 'update'] }
-            saveQueryFn={ async () => await sendSaveOrderRequest(graphs, language.id) }
-            handleSave={ data => { setGraphs(data); setGraphsAreSaved(true); } }
-            style={{ marginTop: "1em" }}
-          >
-            Save order
-          </SaveChangesButton>
-        </>
-      }
+      {!graphsAreSaved && (
+        <SaveChangesButton
+          isSaving={isSavingGraphs}
+          setIsSaving={setIsSavingGraphs}
+          saveQueryKey={['languages', language.id, 'alphabetical-order', 'update']}
+          saveQueryFn={async () => await sendSaveOrderRequest(graphs, language.id)}
+          handleSave={data => { setGraphs(data); setGraphsAreSaved(true); }}
+          style={{ marginTop: "1em" }}
+        >
+          Save order
+        </SaveChangesButton>
+      )}
       <h3>Case-Sensitivity</h3>
       <p>
         Enabling this option will cause uppercase and lowercase letters to be
@@ -220,28 +219,27 @@ function EditOrthographySettingsInner({ language, orthSettings }: IEditOrthograp
           <input
             type="checkbox"
             checked={caseSensitive}
-            onChange={
-              e => { setCaseSensitive(e.target.checked); setSettingsAreSaved(false); }
-            }
+            onChange={e => {
+              setCaseSensitive(e.target.checked);
+              setSettingsAreSaved(false);
+            }}
           />
         </label>
       </div>
-      {
-        !settingsAreSaved && <>
-          <SaveChangesButton
-            isSaving={isSavingSettings}
-            setIsSaving={setIsSavingSettings}
-            saveQueryKey={ ['languages', language.id, 'orth-settings', 'update'] }
-            saveQueryFn={
-              async () => await sendSaveOrthSettingsRequest(caseSensitive, language.id)
-            }
-            handleSave={ () => setSettingsAreSaved(true) }
-            style={{ marginTop: "1em" }}
-          >
-            Save
-          </SaveChangesButton>
-        </>
-      }
+      {!settingsAreSaved && (
+        <SaveChangesButton
+          isSaving={isSavingSettings}
+          setIsSaving={setIsSavingSettings}
+          saveQueryKey={['languages', language.id, 'orth-settings', 'update']}
+          saveQueryFn={async () => {
+            return await sendSaveOrthSettingsRequest(caseSensitive, language.id);
+          }}
+          handleSave={() => setSettingsAreSaved(true)}
+          style={{ marginTop: "1em" }}
+        >
+          Save
+        </SaveChangesButton>
+      )}
     </>
   );
 }
@@ -251,10 +249,10 @@ export default function EditOrthographySettings() {
   if(!languageId) {
     throw new Error("No language ID was provided");
   }
-  
+
   const languageResponse = useLanguage(languageId);
   const orthSettingsResponse = useLanguageOrthographySettings(languageId);
-  
+
   useSetPageTitle("Edit Orthography Settings");
 
   if(languageResponse.status !== 'success') {
@@ -267,8 +265,8 @@ export default function EditOrthographySettings() {
 
   return (
     <EditOrthographySettingsInner
-      language={ languageResponse.data }
-      orthSettings={ orthSettingsResponse.data }
+      language={languageResponse.data}
+      orthSettings={orthSettingsResponse.data}
     />
   );
 };

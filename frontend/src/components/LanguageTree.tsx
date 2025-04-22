@@ -26,33 +26,31 @@ function AllChildBranches({ root, descendants, showSelect }: ILanguageTreeBranch
 
 function LanguageTreeBranch({ root, descendants, showSelect }: ILanguageTreeBranch) {
   const { selectedLanguage, setSelectedLanguage } = useContext(SelectedLanguageContext);
-  
+
   return (
     <li>
-      <Link to={ '/language/' + root.id} >
-        { root.name }
+      <Link to={'/language/' + root.id}>
+        {root.name}
       </Link>
-      {
-        showSelect && root.id !== selectedLanguage?.id && (
-          <>
-            {" "}
-            <span style={{ fontSize: "small" }}>
-              [
-                <Link
-                  to={ '/language/' + root.id }
-                  onClick={ () => setSelectedLanguage(root) }
-                >
-                  select
-                </Link>
-              ]
-            </span>
-          </>
-        )
-      }
+      {showSelect && root.id !== selectedLanguage?.id && (
+        <>
+          {" "}
+          <span style={{ fontSize: "small" }}>
+            [
+            <Link
+              to={'/language/' + root.id}
+              onClick={() => setSelectedLanguage(root)}
+            >
+              select
+            </Link>
+            ]
+          </span>
+        </>
+      )}
       <AllChildBranches
         root={root}
         descendants={descendants}
-        showSelect={showSelect }
+        showSelect={showSelect}
       />
     </li>
   );
@@ -60,12 +58,12 @@ function LanguageTreeBranch({ root, descendants, showSelect }: ILanguageTreeBran
 
 export function LanguageTree({ root }: { root: ILanguage }) {
   const { isPending, error, data: descendants } = useLanguageDescendants(root.id);
-  
+
   if(isPending || error) {
     return (
       <>
         <h3>Descendants</h3>
-        <p>{ isPending ? "Loading..." : error.message }</p>
+        <p>{isPending ? "Loading..." : error.message}</p>
       </>
     );
   } else if(descendants.length === 0) {
@@ -88,7 +86,7 @@ export function LanguageTree({ root }: { root: ILanguage }) {
 
 export function FamilyTree({ id, showSelect }: { id: string, showSelect: boolean }) {
   const { isPending, error, data: descendants } = useFamilyMembers(id);
-  
+
   if(isPending) {
     return "Loading...";
   } else if(error) {

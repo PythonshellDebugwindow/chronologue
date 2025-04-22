@@ -30,12 +30,12 @@ interface IEditSummaryNotesInner {
 }
 
 function EditSummaryNotesInner({ language, summaryNotes }: IEditSummaryNotesInner) {
-  const [ description, setDescription ] = useState(summaryNotes.description);
-  const [ phonologyNotes, setPhonologyNotes ] = useState(summaryNotes.phonologyNotes);
-  const [ orthographyNotes, setOrthographyNotes ] = useState(summaryNotes.orthographyNotes);
+  const [description, setDescription] = useState(summaryNotes.description);
+  const [phonologyNotes, setPhonologyNotes] = useState(summaryNotes.phonologyNotes);
+  const [orthographyNotes, setOrthographyNotes] = useState(summaryNotes.orthographyNotes);
 
-  const [ isSavingNotes, setIsSavingNotes ] = useState(false);
-  const [ isSaved, setIsSaved ] = useState(true);
+  const [isSavingNotes, setIsSavingNotes] = useState(false);
+  const [isSaved, setIsSaved] = useState(true);
 
   async function saveQueryFn() {
     const data = { description, phonologyNotes, orthographyNotes };
@@ -45,26 +45,29 @@ function EditSummaryNotesInner({ language, summaryNotes }: IEditSummaryNotesInne
   return (
     <>
       <h2>Edit Summary Notes</h2>
-      <p>Editing <Link to={ '/language/' + language.id }>{ language.name }</Link>'s summary notes.</p>
-      {
-        !isSaved && (
-          <SaveChangesButton<ILanguageSummaryNotes>
-            isSaving={isSavingNotes}
-            setIsSaving={setIsSavingNotes}
-            saveQueryKey={ ['languages', language.id, 'summary-notes', 'update'] }
-            saveQueryFn={saveQueryFn}
-            handleSave={ () => setIsSaved(true) }
-          >
-            Save changes
-          </SaveChangesButton>
-        )
-      }
+      <p>
+        Editing <Link to={'/language/' + language.id}>{language.name}</Link>'s summary notes.
+      </p>
+      {!isSaved && (
+        <SaveChangesButton
+          isSaving={isSavingNotes}
+          setIsSaving={setIsSavingNotes}
+          saveQueryKey={['languages', language.id, 'summary-notes', 'update']}
+          saveQueryFn={saveQueryFn}
+          handleSave={() => setIsSaved(true)}
+        >
+          Save changes
+        </SaveChangesButton>
+      )}
       <label className="wide-textarea-label">
         <p>Description</p>
         <textarea
           className="wide-textarea"
           value={description}
-          onChange={ e => { setDescription(e.target.value); setIsSaved(false); } }
+          onChange={e => {
+            setDescription(e.target.value);
+            setIsSaved(false);
+          }}
         />
       </label>
       <label className="wide-textarea-label">
@@ -72,7 +75,10 @@ function EditSummaryNotesInner({ language, summaryNotes }: IEditSummaryNotesInne
         <textarea
           className="wide-textarea"
           value={phonologyNotes}
-          onChange={ e => { setPhonologyNotes(e.target.value); setIsSaved(false); } }
+          onChange={e => {
+            setPhonologyNotes(e.target.value);
+            setIsSaved(false);
+          }}
         />
       </label>
       <label className="wide-textarea-label">
@@ -80,36 +86,37 @@ function EditSummaryNotesInner({ language, summaryNotes }: IEditSummaryNotesInne
         <textarea
           className="wide-textarea"
           value={orthographyNotes}
-          onChange={ e => { setOrthographyNotes(e.target.value); setIsSaved(false); } }
+          onChange={e => {
+            setOrthographyNotes(e.target.value);
+            setIsSaved(false);
+          }}
         />
       </label>
-      {
-        !isSaved && (
-          <SaveChangesButton<ILanguageSummaryNotes>
-            isSaving={isSavingNotes}
-            setIsSaving={setIsSavingNotes}
-            saveQueryKey={ ['languages', language.id, 'summary-notes', 'update'] }
-            saveQueryFn={saveQueryFn}
-            handleSave={ () => setIsSaved(true) }
-            style={{ marginTop: "0.8em" }}
-          >
-            Save changes
-          </SaveChangesButton>
-        )
-      }
+      {!isSaved && (
+        <SaveChangesButton
+          isSaving={isSavingNotes}
+          setIsSaving={setIsSavingNotes}
+          saveQueryKey={['languages', language.id, 'summary-notes', 'update']}
+          saveQueryFn={saveQueryFn}
+          handleSave={() => setIsSaved(true)}
+          style={{ marginTop: "0.8em" }}
+        >
+          Save changes
+        </SaveChangesButton>
+      )}
     </>
-  )
-};
+  );
+}
 
 export default function EditSummaryNotes() {
   const languageId = useGetParamsOrSelectedId();
   if(!languageId) {
     throw new Error("No language ID was provided");
   }
-  
+
   const languageResponse = useLanguage(languageId);
   const summaryNotesResponse = useLanguageSummaryNotes(languageId);
-  
+
   useSetPageTitle("Edit Summary Notes");
 
   if(languageResponse.status !== 'success') {
@@ -122,8 +129,8 @@ export default function EditSummaryNotes() {
 
   return (
     <EditSummaryNotesInner
-      language={ languageResponse.data }
-      summaryNotes={ summaryNotesResponse.data }
+      language={languageResponse.data}
+      summaryNotes={summaryNotesResponse.data}
     />
   );
 };

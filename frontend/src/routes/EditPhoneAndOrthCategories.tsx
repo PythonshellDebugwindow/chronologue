@@ -59,14 +59,14 @@ function categoriesReducer(state: ICategoriesReducerState, action: ICategoriesRe
 
   switch(action.type) {
     case 'add': {
-      const newCategories = [ ...categories, action.newCategory ];
+      const newCategories = [...categories, action.newCategory];
       newCategories.sort(compareCategories);
       return {
         categories: newCategories,
         saved: false
       };
     }
-    
+
     case 'edit': {
       const index = categories.indexOf(action.category);
       if(index < 0) {
@@ -85,13 +85,13 @@ function categoriesReducer(state: ICategoriesReducerState, action: ICategoriesRe
         saved: false
       };
     }
-    
+
     case 'markSaved':
       return {
         categories: action.newCategories,
         saved: true
       };
-    
+
     default:
       throw new Error("Unknown action type: " + (action as any).type);
   }
@@ -106,19 +106,19 @@ interface IEditSpecificCategories {
 function EditSpecificCategories({
   language, categoryType, initialCategories
 }: IEditSpecificCategories) {
-  const [ newCategoryLetter, setNewCategoryLetter ] = useState("");
-  const [ newCategoryMembers, setNewCategoryMembers ] = useState("");
-  const [ categoryErrorMessage, setCategoryErrorMessage ] = useState("");
+  const [newCategoryLetter, setNewCategoryLetter] = useState("");
+  const [newCategoryMembers, setNewCategoryMembers] = useState("");
+  const [categoryErrorMessage, setCategoryErrorMessage] = useState("");
 
-  const [ categoriesState, dispatchCategories ] = useReducer(categoriesReducer, {
+  const [categoriesState, dispatchCategories] = useReducer(categoriesReducer, {
     categories: initialCategories.slice().sort(compareCategories), saved: true
   });
   const { categories, saved: categoriesAreSaved } = categoriesState;
-  
-  const [ isSavingCategories, setIsSavingCategories ] = useState(false);
-  
+
+  const [isSavingCategories, setIsSavingCategories] = useState(false);
+
   useUnsavedPopup(!categoriesAreSaved);
-  
+
   function addNewCategory() {
     if(!newCategoryLetter) {
       setCategoryErrorMessage("Please enter a letter.");
@@ -134,7 +134,7 @@ function EditSpecificCategories({
       setCategoryErrorMessage("");
     }
   }
-  
+
   function editCategoryLetter(category: ICategory, newLetter: string) {
     dispatchCategories({
       type: 'edit',
@@ -142,7 +142,7 @@ function EditSpecificCategories({
       newLetter
     });
   }
-  
+
   function editCategoryMembers(category: ICategory, newMembers: string) {
     dispatchCategories({
       type: 'edit',
@@ -150,15 +150,15 @@ function EditSpecificCategories({
       newMembers
     });
   }
-  
+
   function setCategory(type: 'C' | 'V') {
     const typeName = type === 'C' ? 'consonant' : 'vowel';
     getBackendJson(`languages/${language.id}/phones`).then((phones: IPhone[]) => {
       const phonesOfType = phones.filter(p => p.type === typeName);
       const members = (
         categoryType === 'orth'
-        ? phonesOfType.map(p => p.graph)
-        : phonesOfType.map(p => phoneToString(p))
+          ? phonesOfType.map(p => p.graph)
+          : phonesOfType.map(p => phoneToString(p))
       ).filter(member => member.length > 0).sort().join(",");
       const letter = type[0].toUpperCase();
       const category = categories.find(category => category.letter === letter);
@@ -174,26 +174,24 @@ function EditSpecificCategories({
       setCategoryErrorMessage(error.message);
     });
   }
-  
+
   return (
     <>
-      { categoryErrorMessage && <p><b>{categoryErrorMessage}</b></p> }
-      {
-        !categoriesAreSaved && (
-          <SaveChangesButton<ICategory[]>
-            isSaving={isSavingCategories}
-            setIsSaving={setIsSavingCategories}
-            saveQueryKey={ ['languages', language.id, `${categoryType}-categories`, 'update'] }
-            saveQueryFn={
-              async () => await sendSaveCategoriesRequest(categoriesState, categoryType, language.id)
-            }
-            handleSave={ data => dispatchCategories({ type: 'markSaved', newCategories: data }) }
-            style={{ marginTop: "0.8em", marginBottom: "0.8em" }}
-          >
-            Save
-          </SaveChangesButton>
-        )
-      }
+      {categoryErrorMessage && <p><b>{categoryErrorMessage}</b></p>}
+      {!categoriesAreSaved && (
+        <SaveChangesButton
+          isSaving={isSavingCategories}
+          setIsSaving={setIsSavingCategories}
+          saveQueryKey={['languages', language.id, `${categoryType}-categories`, 'update']}
+          saveQueryFn={async () => {
+            return await sendSaveCategoriesRequest(categoriesState, categoryType, language.id);
+          }}
+          handleSave={data => dispatchCategories({ type: 'markSaved', newCategories: data })}
+          style={{ marginTop: "0.8em", marginBottom: "0.8em" }}
+        >
+          Save
+        </SaveChangesButton>
+      )}
       <table className="settings-table">
         <tbody>
           <tr>
@@ -212,7 +210,7 @@ function EditSpecificCategories({
               <input
                 type="text"
                 value={newCategoryLetter}
-                onChange={ e => setNewCategoryLetter(e.target.value.toUpperCase()) }
+                onChange={e => setNewCategoryLetter(e.target.value.toUpperCase())}
                 style={{ width: "1.5em" }}
               />
             </td>
@@ -220,67 +218,63 @@ function EditSpecificCategories({
               <input
                 type="text"
                 value={newCategoryMembers}
-                onChange={ e => setNewCategoryMembers(e.target.value) }
+                onChange={e => setNewCategoryMembers(e.target.value)}
               />
             </td>
             <td>
-              <span className="hover-light-grey" onClick={ () => addNewCategory() }>
+              <span className="hover-light-grey" onClick={addNewCategory}>
                 <span className="letter-button letter-button-small letter-button-t" />
               </span>
             </td>
           </tr>
-          {
-            categories.map((category, i) => (
-              <tr key={i}>
-                <td>&nbsp;</td>
-                <td style={{ textAlign: "center" }}>
-                  <input
-                    type="text"
-                    value={category.letter}
-                    onChange={ e => editCategoryLetter(category, e.target.value.toUpperCase()) }
-                    style={{ width: "1.5em" }}
-                  />
-                </td>
-                <td>
-                  <input
-                    type="text"
-                    value={category.members}
-                    onChange={ e => editCategoryMembers(category, e.target.value) }
-                  />
-                </td>
-                <td>&nbsp;</td>
-              </tr>
-            ))
-          }
+          {categories.map((category, i) => (
+            <tr key={i}>
+              <td>&nbsp;</td>
+              <td style={{ textAlign: "center" }}>
+                <input
+                  type="text"
+                  value={category.letter}
+                  onChange={e => editCategoryLetter(category, e.target.value.toUpperCase())}
+                  style={{ width: "1.5em" }}
+                />
+              </td>
+              <td>
+                <input
+                  type="text"
+                  value={category.members}
+                  onChange={e => editCategoryMembers(category, e.target.value)}
+                />
+              </td>
+              <td>&nbsp;</td>
+            </tr>
+          ))}
         </tbody>
       </table>
       <div style={{ marginTop: "10px" }}>
         <button
-          onClick={ () => setCategory('C') }
+          onClick={() => setCategory('C')}
           style={{ marginRight: "10px" }}
         >
           ↻ Consonants
         </button>
-        <button onClick={ () => setCategory('V') }>
+        <button onClick={() => setCategory('V')}>
           ↻ Vowels
         </button>
       </div>
-      {
-        !categoriesAreSaved && (
-          <SaveChangesButton<ICategory[]>
-            isSaving={isSavingCategories}
-            setIsSaving={setIsSavingCategories}
-            saveQueryKey={ ['languages', language.id, `${categoryType}-categories`, 'update'] }
-            saveQueryFn={
-              async () => await sendSaveCategoriesRequest(categoriesState, categoryType, language.id)
-            }
-            handleSave={ data => dispatchCategories({ type: 'markSaved', newCategories: data }) }
-            style={{ marginTop: "0.8em" }}
-          >
-            Save
-          </SaveChangesButton>
-        )
-      }
+      {!categoriesAreSaved && (
+        <SaveChangesButton
+          isSaving={isSavingCategories}
+          setIsSaving={setIsSavingCategories}
+          saveQueryKey={['languages', language.id, `${categoryType}-categories`, 'update']}
+          saveQueryFn={async () => {
+            return await sendSaveCategoriesRequest(categoriesState, categoryType, language.id);
+          }}
+          handleSave={data => dispatchCategories({ type: 'markSaved', newCategories: data })}
+          style={{ marginTop: "0.8em" }}
+        >
+          Save
+        </SaveChangesButton>
+      )}
     </>
   );
 }
@@ -296,7 +290,7 @@ function EditCategoriesInner({ language, orthCategories, phoneCategories }: IEdi
     <>
       <h2>Edit Categories</h2>
       <p>
-        Editing <Link to={ '/language/' + language.id }>{ language.name }</Link>'s
+        Editing <Link to={'/language/' + language.id}>{language.name}</Link>'s
         orthography and phonology categories.
       </p>
       <p>
@@ -304,21 +298,25 @@ function EditCategoriesInner({ language, orthCategories, phoneCategories }: IEdi
         Empty categories will be removed upon saving.
       </p>
       <h4>Orthography Categories</h4>
-      <p>Used in grammar tables.</p>
+      <p>Used when rewriting words (e.g. in grammar tables).</p>
       <EditSpecificCategories
         language={language}
         categoryType="orth"
         initialCategories={orthCategories}
       />
       <h4>Phone Categories</h4>
-      <p>Used when <Link to={ '/estimate-ipa/' + language.id }>estimating pronunciation</Link>.</p>
+      <p>
+        Used when rewriting IPA (e.g. when {" "}
+        <Link to={'/estimate-ipa/' + language.id}>estimating pronunciation</Link>
+        ).
+      </p>
       <EditSpecificCategories
         language={language}
         categoryType="phone"
         initialCategories={phoneCategories}
       />
     </>
-  )
+  );
 }
 
 export default function EditPhoneAndOrthCategories() {
@@ -326,13 +324,13 @@ export default function EditPhoneAndOrthCategories() {
   if(!languageId) {
     throw new Error("No language ID was provided");
   }
-  
+
   const languageResponse = useLanguage(languageId);
   const orthCategoriesResponse = useLanguageOrthographyCategories(languageId);
   const phoneCategoriesResponse = useLanguagePhoneCategories(languageId);
-  
+
   useSetPageTitle("Edit Categories");
-  
+
   if(languageResponse.status !== 'success') {
     return renderDatalessQueryResult(languageResponse);
   }
@@ -351,10 +349,10 @@ export default function EditPhoneAndOrthCategories() {
   const phoneCategories = phoneCategoriesResponse.data.map(c => (
     { letter: c.letter, members: c.members.join(",") }
   ));
-  
+
   return (
     <EditCategoriesInner
-      language={ languageResponse.data }
+      language={languageResponse.data}
       orthCategories={orthCategories}
       phoneCategories={phoneCategories}
     />

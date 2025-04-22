@@ -30,7 +30,7 @@ function parseRule(rule: string): TokeniseRuleResult {
   const segments = [];
   let tokens: IRuleToken[] = [];
   const isInEnvOrExp = () => segments.length === 2 || segments.length === 3;
-  
+
   for(let i = 0; i < rule.length; ++i) {
     const char = rule[i];
     if(char === "/") {
@@ -74,7 +74,7 @@ function parseRule(rule: string): TokeniseRuleResult {
       tokens.push({ type: 'literal', char });
     }
   }
-  
+
   if(tokens.length > 0 && isPipe(tokens[tokens.length - 1])) {
     return failure("Empty condition");
   } else if(tokens.length === 0 && isInEnvOrExp()) {
@@ -145,7 +145,7 @@ export class SCA {
   setRules(rulesString: string) {
     const ruleStrings = rulesString.split("\n");
     this.#rules.length = 0;
-    for(const [ i, ruleString ] of ruleStrings.entries()) {
+    for(const [i, ruleString] of ruleStrings.entries()) {
       if(!ruleString.includes("/")) {
         // Comment line (no slashes)
         this.#rules.push(null);
@@ -178,7 +178,7 @@ export class SCA {
     }
 
     this.#result = initialWord;
-    
+
     for(const [i, rule] of this.#rules.entries()) {
       if(!rule) {
         continue;
@@ -200,7 +200,7 @@ export class SCA {
     if(!target || !change) {
       return failure("Internal error (no target or change)");
     }
-    
+
     if(target.some(isHashtag)) {
       // Affix or global replacement
       if(target.findIndex(isHashtag) !== findLastIndex(target, isHashtag)) {
@@ -212,7 +212,7 @@ export class SCA {
       } else if(elseChange?.some(isCategory)) {
         return failure("Invalid else");
       }
-      
+
       const matches = this.#resultMatchesGlobalEnvOrExp(env, exp);
       if(!matches) {
         return;
@@ -259,7 +259,7 @@ export class SCA {
       if(!targetMembers) {
         return failure(`Invalid category ${target[0].char}`);
       }
-      
+
       if(change.length === 1 && isCategory(change[0])) {
         // With a category
         if(elseChange && !(elseChange.length === 1 && isCategory(elseChange[0]))) {
@@ -302,9 +302,11 @@ export class SCA {
               const matchChangeString = matches === 'env' ? changeString : elseChangeString!;
               this.#spliceResult(i, 1, matchChangeString);
               const indexInReplaced = i - (this.#result.length - replaced.length);
-              replaced = (replaced.substring(0, indexInReplaced)
-                          + matchChangeString
-                          + replaced.substring(indexInReplaced + 1));
+              replaced = (
+                replaced.substring(0, indexInReplaced)
+                + matchChangeString
+                + replaced.substring(indexInReplaced + 1)
+              );
             }
           }
         }
@@ -330,16 +332,18 @@ export class SCA {
           if(nextTargetIndex === -1) {
             break;
           }
-          
+
           const matches = this.#resultMatchesLocalEnvOrExpAt(
             env, exp, nextTargetIndex, targetString.length
           );
           if(matches && !(matches === 'exp' && !elseChange)) {
             const matchChangeString = matches === 'env' ? changeString : elseChangeString!;
             const ntiInReplaced = nextTargetIndex - (this.#result.length - replaced.length);
-            replaced = (replaced.substring(0, ntiInReplaced)
-                        + matchChangeString
-                        + replaced.substring(ntiInReplaced + targetString.length));
+            replaced = (
+              replaced.substring(0, ntiInReplaced)
+              + matchChangeString
+              + replaced.substring(ntiInReplaced + targetString.length)
+            );
             i = nextTargetIndex + Math.max(targetString.length, 1);
           } else {
             i = nextTargetIndex + 1;
@@ -361,15 +365,15 @@ export class SCA {
         }
         return members.includes(char);
       }
-      
+
       case 'literal':
         return token.char === char;
-      
+
       default:
         throw new Error(`Invalid token type: ${token.type}`);
     }
   }
-  
+
   #resultMatchesSingleLocalConditionAt(
     condition: IRuleToken[], start: number, checkLength: number
   ) {
@@ -423,16 +427,16 @@ export class SCA {
     }
     return true;
   }
-  
+
   #resultMatchesLocalEnvOrExpAt(
     env: IRuleToken[] | undefined, exp: IRuleToken[] | undefined, start: number,
     checkLength: number
   ) {
     if(exp && exp.length > 0) {
       const expConditions = splitTokens(exp, 'pipe');
-      const matchesExp = expConditions.some(condition =>
+      const matchesExp = expConditions.some(condition => (
         this.#resultMatchesSingleLocalConditionAt(condition, start, checkLength)
-      );
+      ));
       if(matchesExp) {
         return 'exp';
       }
@@ -441,15 +445,15 @@ export class SCA {
       return (exp && exp.length === 0) ? 'exp' : 'env';
     }
     const envConditions = splitTokens(env, 'pipe');
-    const matchesEnv = envConditions.some(condition =>
+    const matchesEnv = envConditions.some(condition => (
       this.#resultMatchesSingleLocalConditionAt(condition, start, checkLength)
-    );
+    ));
     if(matchesEnv) {
       return 'env';
     }
     return (exp && exp.length === 0) ? 'exp' : false;
   }
-  
+
   #resultMatchesGlobalEnvOrExp(
     env: IRuleToken[] | undefined, exp: IRuleToken[] | undefined
   ) {
@@ -474,7 +478,7 @@ export class SCA {
     }
     return (exp && exp.length === 0) ? 'exp' : false;
   }
-  
+
   #resultMatchesSingleGlobalCondition(condition: IRuleToken[]) {
     if(condition.some(isUnderscore)) {
       throw new SyntaxError("Underscore in global condition");
@@ -497,7 +501,7 @@ export class SCA {
     } else if(hashtagIndex !== findLastIndex(condition, isHashtag)) {
       throw new SyntaxError("Multiple hashtags (shouldn't happen)");
     }
-    
+
     if(hashtagIndex === 0) {
       const prefix = condition.slice(1);
       if(this.#result.length < prefix.length) {
@@ -550,7 +554,9 @@ function runTests() {
     if(!actual.success) {
       console.error(`SCA test #${i + 1} (line ${lineNumber}): ${actual.message}`);
     } else if(actual.result !== expected) {
-      console.error(`SCA test #${i + 1} (line ${lineNumber}): expected ${expected}, got ${actual.result}`);
+      console.error(
+        `SCA test #${i + 1} (line ${lineNumber}): expected ${expected}, got ${actual.result}`
+      );
     }
     lineNumber += rules.length + 3;
   }
@@ -567,7 +573,7 @@ V/W/_s/c_/X
     return;
   }
   try {
-  res.send(theSca.applySoundChanges("a bas cas ba ca b"));
+    res.send(theSca.applySoundChanges("a bas cas ba ca b"));
   } catch(e) {
     console.error(e);
     throw e;

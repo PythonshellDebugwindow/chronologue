@@ -38,7 +38,7 @@ function filterWords(words: IWord[], filter: IDictionaryFilter) {
       return null;
     }
   })();
-  
+
   return words.filter(word => {
     const rawFieldValue = word[filter.field as keyof IWord] as string;
     const fieldValue = filter.matchCase ? rawFieldValue : rawFieldValue.toLowerCase();
@@ -66,12 +66,12 @@ function sortWords(words: IWord[], filter: IDictionaryFilter) {
     const aField = a[filter.sortField]!;
     const bField = b[filter.sortField]!;
     const sortDir = filter.sortDir === 'asc' ? 1 : -1;
-    
+
     if(typeof aField === 'string' && typeof bField === 'string') {
       const lowComp = collator.compare(aField.toLowerCase(), bField.toLowerCase());
       return (lowComp || collator.compare(aField, bField)) * sortDir;
     }
-    
+
     if(aField < bField) {
       return sortDir * -1;
     } else if(aField > bField) {
@@ -99,22 +99,22 @@ export function DictionaryFilterSelect({ filter, setFilter, fields }: IDictionar
       <p>
         Sort by:{" "}
         <select
-          value={ filter.sortField }
-          onChange={ e => setFilter({ ...filter, sortField: e.target.value as keyof IWord }) }
+          value={filter.sortField}
+          onChange={e => setFilter({ ...filter, sortField: e.target.value as keyof IWord })}
         >
           <option value="word">Word</option>
           {
             fields.map(field => (
               <option value={field} key={field}>
-                { field === 'pos' ? "POS" : userFacingFieldName(field) }
+                {field === 'pos' ? "POS" : userFacingFieldName(field)}
               </option>
             ))
           }
         </select>
         {" "}
         <select
-          value={ filter.sortDir }
-          onChange={ e => setFilter({ ...filter, sortDir: e.target.value as 'asc' | 'desc' }) }
+          value={filter.sortDir}
+          onChange={e => setFilter({ ...filter, sortDir: e.target.value as 'asc' | 'desc' })}
         >
           <option value="asc">ascending</option>
           <option value="desc">descending</option>
@@ -123,15 +123,15 @@ export function DictionaryFilterSelect({ filter, setFilter, fields }: IDictionar
       <p>
         Filter by:{" "}
         <select
-          value={ filter.field as string }
-          onChange={ e => setFilter({ ...filter, field: e.target.value as FilterField }) }
+          value={filter.field as string}
+          onChange={e => setFilter({ ...filter, field: e.target.value as FilterField })}
         >
           <option value="">None</option>
           <option value="word">Word</option>
           {
             fields.map(field => field !== 'created' && field !== 'updated' && (
               <option value={field} key={field}>
-                { field === 'pos' ? "POS" : userFacingFieldName(field) }
+                {field === 'pos' ? "POS" : userFacingFieldName(field)}
               </option>
             ))
           }
@@ -140,8 +140,8 @@ export function DictionaryFilterSelect({ filter, setFilter, fields }: IDictionar
           filter.field && <>
             {" "}
             <select
-              value={ filter.type }
-              onChange={ e => setFilter({ ...filter, type: e.target.value as FilterType }) }
+              value={filter.type}
+              onChange={e => setFilter({ ...filter, type: e.target.value as FilterType })}
             >
               <option value='begins'>begins with</option>
               <option value='ends'>ends with</option>
@@ -151,21 +151,21 @@ export function DictionaryFilterSelect({ filter, setFilter, fields }: IDictionar
             </select>
             {" "}
             <input
-              value={ filter.value }
-              onChange={ e => setFilter({ ...filter, value: e.target.value }) }
+              value={filter.value}
+              onChange={e => setFilter({ ...filter, value: e.target.value })}
               style={{ width: "7em" }}
             />
             {" "}
             (
-              <label>
-                <input
-                  checked={ filter.matchCase }
-                  onChange={ e => setFilter({ ...filter, matchCase: e.target.checked }) }
-                  type="checkbox"
-                  style={{ position: "relative", top: "2px", marginLeft: "1px" }}
-                />
-                match case
-              </label>
+            <label>
+              <input
+                checked={filter.matchCase}
+                onChange={e => setFilter({ ...filter, matchCase: e.target.checked })}
+                type="checkbox"
+                style={{ position: "relative", top: "2px", marginLeft: "1px" }}
+              />
+              match case
+            </label>
             )
           </>
         }
@@ -215,8 +215,8 @@ export function DictionaryRow<WordT extends Partial<IWord>>(
       {
         showLinkColumn && (
           <td>
-            <Link to={ '/word/' + word.id }>
-              { formatValue('word') }
+            <Link to={'/word/' + word.id}>
+              {formatValue('word')}
             </Link>
           </td>
         )
@@ -224,7 +224,7 @@ export function DictionaryRow<WordT extends Partial<IWord>>(
       {
         fields.map((field, i) => (
           <td key={i}>
-            { formatValue(field) }
+            {formatValue(field)}
           </td>
         ))
       }

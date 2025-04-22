@@ -9,24 +9,24 @@ import { renderDatalessQueryResult, useSetPageTitle } from '../utils.tsx';
 function DeleteGrammarTableInner({ table }: { table: IGrammarTable }) {
   const navigate = useNavigate();
 
-  const [ errorMessage, setErrorMessage ] = useState("");
-  
+  const [errorMessage, setErrorMessage] = useState("");
+
   async function deleteFormTable() {
     const result = await deleteGrammarTable(table.id);
     if(!result.ok) {
       setErrorMessage(result.body.message);
       return;
     }
-    
+
     navigate("/grammar-tables/" + table.langId);
   }
-  
+
   return (
     <>
       <h2>Delete Grammar Table</h2>
       <p>
-        Really delete { table.name && "grammar table "}
-        <Link to={ '/table/' + table.id }>{ table.name || "this grammar table" }</Link>?
+        Really delete {table.name && "grammar table "}
+        <Link to={'/table/' + table.id}>{table.name || "this grammar table"}</Link>?
       </p>
       <p>
         <b>This action cannot be undone!</b>
@@ -35,10 +35,10 @@ function DeleteGrammarTableInner({ table }: { table: IGrammarTable }) {
         Delete grammar table
       </button>
       <br />
-      <button onClick={ () => navigate(-1) }>
+      <button onClick={() => navigate(-1)}>
         Go back
       </button>
-      { errorMessage && <p><b>Error: {errorMessage}</b></p> }
+      {errorMessage && <p><b>Error: {errorMessage}</b></p>}
     </>
   );
 };
@@ -48,14 +48,14 @@ export default function DeleteGrammarTable() {
   if(!tableId) {
     throw new Error("No table ID was provided");
   }
-  
+
   const tableResponse = useGrammarTable(tableId);
-  
+
   useSetPageTitle("Delete Grammar Table");
 
   if(tableResponse.status !== 'success') {
     return renderDatalessQueryResult(tableResponse);
   }
 
-  return <DeleteGrammarTableInner table={ tableResponse.data } />;
+  return <DeleteGrammarTableInner table={tableResponse.data} />;
 };

@@ -27,28 +27,22 @@ function GrammarTableDisplay({ table, filledCells, grammarForms }: IGrammarTable
       <tbody>
         <tr>
           <th>&nbsp;</th>
-          {
-            table.columns.map((column, i) => (
-              <th key={i}>
-                { formatPeriodSeparatedGrammarForms(column, grammarForms) }
-              </th>
-            ))
-          }
+          {table.columns.map((column, i) => (
+            <th key={i}>
+              {formatPeriodSeparatedGrammarForms(column, grammarForms)}
+            </th>
+          ))}
         </tr>
-        {
-          table.rows.map((row, i) => (
-            <tr key={i}>
-              <th>{ formatPeriodSeparatedGrammarForms(row, grammarForms) }</th>
-              {
-                table.columns.map((_, j) => (
-                  filledCells.some(c => i === c.row && j === c.column)
-                  ? <td key={j}>&nbsp;</td>
-                  : <td key={j} className="empty-cell">&nbsp;</td>
-                ))
-              }
-            </tr>
-          ))
-        }
+        {table.rows.map((row, i) => (
+          <tr key={i}>
+            <th>{formatPeriodSeparatedGrammarForms(row, grammarForms)}</th>
+            {table.columns.map((_, j) => (
+              filledCells.some(c => i === c.row && j === c.column)
+                ? <td key={j}>&nbsp;</td>
+                : <td key={j} className="empty-cell">&nbsp;</td>
+            ))}
+          </tr>
+        ))}
       </tbody>
     </table>
   );
@@ -62,10 +56,11 @@ interface IDisplayRandomTableWord {
 
 function DisplayRandomTableWord({ table, filledCells, grammarForms }: IDisplayRandomTableWord) {
   const result = useRandomGrammarTableWord(table.id);
+
   if(result.status === 'pending') {
     return <p>Loading random word...</p>;
   } else if(result.status === 'error') {
-    return <p>Could not load random word: { result.error.message }</p>;
+    return <p>Could not load random word: {result.error.message}</p>;
   }
 
   if(result.data) {
@@ -73,22 +68,22 @@ function DisplayRandomTableWord({ table, filledCells, grammarForms }: IDisplayRa
       <>
         <p style={{ margin: "0" }}>
           Random word:{" "}
-          <Link to={ '/word/' + result.data.id }>{ result.data.word }</Link>{" "}
-          ({ result.data.meaning })
+          <Link to={'/word/' + result.data.id}>{result.data.word}</Link>{" "}
+          ({result.data.meaning})
         </p>
         <div
           className="word-grammar-table-container"
           style={{ display: "inline-block", textAlign: "left" }}
         >
           <small>
-            <Link to={ '/edit-word/' + result.data.id }>
+            <Link to={'/edit-word/' + result.data.id}>
               [edit word]
             </Link>
           </small>
           <WordGrammarTable
             table={table}
             grammarForms={grammarForms}
-            cells={ result.data.cells }
+            cells={result.data.cells}
           />
         </div>
       </>
@@ -118,7 +113,7 @@ interface IViewGrammarTableInner {
 function ViewGrammarTableInner(
   { table, classes, filledCells, grammarForms, partsOfSpeech }: IViewGrammarTableInner
 ) {
-  const [ params ] = useSearchParams();
+  const [params] = useSearchParams();
   const queryClient = useQueryClient();
 
   function resetRandomWordQuery() {
@@ -127,63 +122,57 @@ function ViewGrammarTableInner(
 
   return (
     <>
-      <h2>View Grammar Table{ table.name && `: ${table.name}` }</h2>
+      <h2>View Grammar Table{table.name && `: ${table.name}`}</h2>
       <table className="info-table" style={{ marginBottom: "1em" }}>
         <tbody>
           <tr>
             <th>Language:</th>
             <td>
-              <LanguageLink id={ table.langId } />
+              <LanguageLink id={table.langId} />
             </td>
           </tr>
           <tr>
-            <th>{ userFacingFieldName('pos') }:</th>
-            <td>{ formatPosFieldValue(table.pos, partsOfSpeech) }</td>
+            <th>{userFacingFieldName('pos')}:</th>
+            <td>{formatPosFieldValue(table.pos, partsOfSpeech)}</td>
           </tr>
-          {
-            classes.length > 0 && (
-              <tr>
-                <th>Classes:</th>
-                <td>
-                  { formatWordClasses(classes) }
-                  { table.invertClasses && "(exclusive)" }
-                </td>
-              </tr>
-            )
-          }
+          {classes.length > 0 && (
+            <tr>
+              <th>Classes:</th>
+              <td>
+                {formatWordClasses(classes)}
+                {table.invertClasses && "(exclusive)"}
+              </td>
+            </tr>
+          )}
         </tbody>
       </table>
       <p>
-        <Link to={ '?random' } onClick={resetRandomWordQuery}>Random example</Link>
+        <Link to="?random" onClick={resetRandomWordQuery}>Random example</Link>
       </p>
       {
-        params.has('random') ? (
-          <DisplayRandomTableWord
-            table={table}
-            filledCells={filledCells}
-            grammarForms={grammarForms}
-          />
-        ) : (
-          <GrammarTableDisplay
-            table={table}
-            filledCells={filledCells}
-            grammarForms={grammarForms}
-          />
-        )
+        params.has('random')
+          ? <DisplayRandomTableWord
+              table={table}
+              filledCells={filledCells}
+              grammarForms={grammarForms}
+            />
+          : <GrammarTableDisplay
+              table={table}
+              filledCells={filledCells}
+              grammarForms={grammarForms}
+            />
       }
-      {
-        table.notes && (
-          <p
-            className="user-notes-paragraph"
-            style={{ marginTop: "1em" }}
-          >
-            { table.notes }
-          </p>
-        )
-      }
-      <p><Link to={ '/edit-grammar-table/' + table.id }>Edit table</Link></p>
-      <p><Link to={ `/add-grammar-table/${table.langId}?copy=${table.id}` }>Copy table</Link></p>
-      <p><Link to={ '/delete-grammar-table/' + table.id }>Delete table</Link></p>
+      {table.notes && (
+        <p
+          className="user-notes-paragraph"
+          style={{ marginTop: "1em" }}
+        >
+          {table.notes}
+        </p>
+      )}
+      <p><Link to={'/edit-grammar-table/' + table.id}>Edit table</Link></p>
+      <p><Link to={`/add-grammar-table/${table.langId}?copy=${table.id}`}>Copy table</Link></p>
+      <p><Link to={'/delete-grammar-table/' + table.id}>Delete table</Link></p>
     </>
   );
 }
@@ -199,36 +188,36 @@ export default function ViewGrammarTable() {
   const filledCellsResponse = useGrammarTableFilledCells(id);
   const grammarFormsResponse = useGrammarForms();
   const partsOfSpeechResponse = usePartsOfSpeech();
-  
+
   useSetPageTitle("View Grammar Table");
 
   if(tableResponse.status !== 'success') {
     return renderDatalessQueryResult(tableResponse);
   }
-  
+
   if(classesResponse.status !== 'success') {
     return renderDatalessQueryResult(classesResponse);
   }
-  
+
   if(filledCellsResponse.status !== 'success') {
     return renderDatalessQueryResult(filledCellsResponse);
   }
-  
+
   if(grammarFormsResponse.status !== 'success') {
     return renderDatalessQueryResult(grammarFormsResponse);
   }
-  
+
   if(partsOfSpeechResponse.status !== 'success') {
     return renderDatalessQueryResult(partsOfSpeechResponse);
   }
-  
+
   return (
     <ViewGrammarTableInner
-      table={ tableResponse.data }
-      classes={ classesResponse.data }
-      filledCells={ filledCellsResponse.data }
-      grammarForms={ grammarFormsResponse.data }
-      partsOfSpeech={ partsOfSpeechResponse.data }
+      table={tableResponse.data}
+      classes={classesResponse.data}
+      filledCells={filledCellsResponse.data}
+      grammarForms={grammarFormsResponse.data}
+      partsOfSpeech={partsOfSpeechResponse.data}
     />
   );
 };

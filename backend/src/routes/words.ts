@@ -11,26 +11,28 @@ export const addWord: RequestHandler = async (req, res) => {
     return;
   }
   if(!req.body.word || !req.body.meaning || !req.body.pos ||
-      !hasAllStrings(req.body, ['ipa', 'etymology', 'notes']) ||
-      !(req.body.classIds instanceof Array)) {
+     !hasAllStrings(req.body, ['ipa', 'etymology', 'notes']) ||
+     !(req.body.classIds instanceof Array)) {
     res.status(400).json({ message: "Please provide all required fields." });
     return;
   }
-  
+
   await transact(async client => {
     if(!partsOfSpeech.some(pos => req.body.pos === pos.code)) {
       res.status(400).json({ message: "Please provide a valid part of speech." });
       return;
     }
-    
+
     const value = await client.query(
       `
         INSERT INTO words (word, ipa, meaning, pos, etymology, notes, lang_id)
         VALUES ($1, $2, $3, $4, $5, $6, $7)
         RETURNING id
       `,
-      [ req.body.word, req.body.ipa, req.body.meaning, req.body.pos,
-        req.body.etymology, req.body.notes, req.body.langId ]
+      [
+        req.body.word, req.body.ipa, req.body.meaning, req.body.pos,
+        req.body.etymology, req.body.notes, req.body.langId
+      ]
     );
     const addedId = value.rows[0].id.replaceAll("-", "");
 
@@ -40,7 +42,7 @@ export const addWord: RequestHandler = async (req, res) => {
           INSERT INTO word_classes_by_word (word_id, class_id)
           SELECT $1, unnest($2::bigint[])
         `,
-        [ addedId, req.body.classIds ]
+        [addedId, req.body.classIds]
       );
     }
 
@@ -56,7 +58,7 @@ export const deleteWord: RequestHandler = async (req, res) => {
 
   await query(
     "DELETE FROM words WHERE id = $1",
-    [ req.params.id ]
+    [req.params.id]
   );
   res.status(204).send();
 };
@@ -67,8 +69,8 @@ export const editWord: RequestHandler = async (req, res) => {
     return;
   }
   if(!req.body.word || !req.body.meaning || !req.body.pos ||
-      !hasAllStrings(req.body, ['ipa', 'etymology', 'notes']) ||
-      !(req.body.classIds instanceof Array)) {
+     !hasAllStrings(req.body, ['ipa', 'etymology', 'notes']) ||
+     !(req.body.classIds instanceof Array)) {
     res.status(400).json({ message: "Please provide all required fields." });
     return;
   }
@@ -76,9 +78,9 @@ export const editWord: RequestHandler = async (req, res) => {
     res.status(400).json({ message: "Please provide a valid part of speech." });
     return;
   }
-  
+
   const wordId = req.params.id;
-  
+
   await transact(async client => {
     await client.query(
       `
@@ -87,8 +89,10 @@ export const editWord: RequestHandler = async (req, res) => {
             updated = CURRENT_TIMESTAMP
         WHERE id = $7
       `,
-      [ req.body.word, req.body.ipa, req.body.meaning, req.body.pos,
-        req.body.etymology, req.body.notes, wordId ]
+      [
+        req.body.word, req.body.ipa, req.body.meaning, req.body.pos,
+        req.body.etymology, req.body.notes, wordId
+      ]
     );
 
     await client.query(
@@ -96,7 +100,7 @@ export const editWord: RequestHandler = async (req, res) => {
         DELETE FROM word_classes_by_word
         WHERE word_id = $1 AND NOT (class_id = ANY($2::bigint[]))
       `,
-      [ wordId, req.body.classIds ]
+      [wordId, req.body.classIds]
     );
     if(req.body.classIds.length > 0) {
       await client.query(
@@ -105,7 +109,7 @@ export const editWord: RequestHandler = async (req, res) => {
           SELECT $1, unnest($2::bigint[])
           ON CONFLICT DO NOTHING
         `,
-        [ wordId, req.body.classIds ]
+        [wordId, req.body.classIds]
       );
     }
   });
@@ -118,7 +122,7 @@ export const getLanguageWords: RequestHandler = async (req, res) => {
     res.status(400).json({ title: "Invalid ID", message: "The given language ID is not valid." });
     return;
   }
-  
+
   const value = await query(
     `
       SELECT translate(id::text, '-', '') AS id,
@@ -126,7 +130,7 @@ export const getLanguageWords: RequestHandler = async (req, res) => {
       FROM words
       WHERE lang_id = $1
     `,
-    [ req.params.id ]
+    [req.params.id]
   );
   res.json(value.rows);
 };
@@ -136,19 +140,21 @@ export const getLanguageWordCount: RequestHandler = async (req, res) => {
     res.status(400).json({ title: "Invalid ID", message: "The given language ID is not valid." });
     return;
   }
-  
+
   const value = await query(
     `
       SELECT COUNT(*)
       FROM words
       WHERE lang_id = $1
     `,
-    [ req.params.id ]
+    [req.params.id]
   );
   if(value.rows.length === 1) {
     res.json(value.rows[0].count);
   } else {
-    res.status(404).json({ title: "Word not found", message: "The requested language was not found." });
+    res.status(404).json({
+      title: "Language not found", message: "The requested language was not found."
+    });
   }
 };
 
@@ -161,7 +167,7 @@ export const getWord: RequestHandler = async (req, res) => {
     res.status(400).json({ title: "Invalid ID", message: "The given word ID is not valid." });
     return;
   }
-  
+
   const value = await query(
     `
       SELECT word, ipa, meaning, pos, etymology, notes,
@@ -170,13 +176,15 @@ export const getWord: RequestHandler = async (req, res) => {
       FROM words
       WHERE id = $1
     `,
-    [ req.params.id ]
+    [req.params.id]
   );
   if(value.rows.length === 1) {
     value.rows[0].id = req.params.id;
     res.json(value.rows[0]);
   } else {
-    res.status(404).json({ title: "Word not found", message: "The requested word was not found." });
+    res.status(404).json({
+      title: "Word not found", message: "The requested word was not found."
+    });
   }
 };
 
@@ -185,7 +193,7 @@ export const getWordClassesByLanguage: RequestHandler = async (req, res) => {
     res.status(400).json({ title: "Invalid ID", message: "The given language ID is not valid." });
     return;
   }
-  
+
   const value = await query(
     `
       SELECT id, pos, code, name
@@ -193,7 +201,7 @@ export const getWordClassesByLanguage: RequestHandler = async (req, res) => {
       WHERE lang_id = $1
       ORDER BY code
     `,
-    [ req.params.id ]
+    [req.params.id]
   );
   res.json(value.rows);
 };
@@ -203,7 +211,7 @@ export const getWordClassIdsByWord: RequestHandler = async (req, res) => {
     res.status(400).json({ title: "Invalid ID", message: "The given word ID is not valid." });
     return;
   }
-  
+
   const value = await query({
     text: `
       SELECT wc.id
@@ -212,7 +220,7 @@ export const getWordClassIdsByWord: RequestHandler = async (req, res) => {
       ON bw.class_id = wc.id
       WHERE bw.word_id = $1
     `,
-    values: [ req.params.id ],
+    values: [req.params.id],
     rowMode: 'array'
   });
   res.json(value.rows.flat());
@@ -223,7 +231,7 @@ export const getWordClassesByWord: RequestHandler = async (req, res) => {
     res.status(400).json({ title: "Invalid ID", message: "The given word ID is not valid." });
     return;
   }
-  
+
   const value = await query(
     `
       SELECT wc.id, wc.code, wc.name
@@ -233,7 +241,7 @@ export const getWordClassesByWord: RequestHandler = async (req, res) => {
       WHERE bw.word_id = $1
       ORDER BY wc.code
     `,
-    [ req.params.id ]
+    [req.params.id]
   );
   res.json(value.rows);
 };
@@ -266,12 +274,15 @@ export const importWords: RequestHandler = async (req, res) => {
         FROM word_classes
         WHERE lang_id = $1
       `,
-      [ langId ]
+      [langId]
     );
     const wordClasses = wordClassesQuery.rows;
 
     for(const word of words) {
-      if(word.classes.some((cls: string) => !wordClasses.some(wc => wc.id === cls && wc.pos === word.pos))) {
+      const hasInvalidWordClass = word.classes.some((cls: string) => (
+        !wordClasses.some(wc => wc.id === cls && wc.pos === word.pos)
+      ));
+      if(hasInvalidWordClass) {
         res.status(400).json({ message: "Invalid word class for POS." });
         return;
       }
@@ -286,7 +297,7 @@ export const importWords: RequestHandler = async (req, res) => {
         FROM json_populate_recordset(NULL::words, $2) AS w
         RETURNING id
       `,
-      [ langId, JSON.stringify(words) ]
+      [langId, JSON.stringify(words)]
     );
     const addedIds = importQuery.rows;
 
@@ -301,7 +312,7 @@ export const importWords: RequestHandler = async (req, res) => {
         SELECT wc.word_id, wc.class_id
         FROM json_populate_recordset(NULL::word_classes_by_word, $1) AS wc
       `,
-      [ JSON.stringify(wordClassesByWord) ]
+      [JSON.stringify(wordClassesByWord)]
     );
   });
 
@@ -331,7 +342,7 @@ export const massEditLanguageDictionary: RequestHandler = async (req, res) => {
       FROM (SELECT unnest($1::uuid[]) AS id, unnest($2::text[]) AS field) AS updated
       WHERE words.id = updated.id
     `,
-    [ changedIds, changedFields ]
+    [changedIds, changedFields]
   );
 
   res.status(204).send();
@@ -342,13 +353,13 @@ export const purgeLanguageDictionary: RequestHandler = async (req, res) => {
     res.status(400).json({ title: "Invalid ID", message: "The given language ID is not valid." });
     return;
   }
-  
+
   await query(
     `
       DELETE FROM words
       WHERE lang_id = $1
     `,
-    [ req.params.id ]
+    [req.params.id]
   );
   res.status(204).send();
 };
@@ -368,7 +379,7 @@ export const updateWordClasses: RequestHandler = async (req, res, next) => {
         res.status(400).json({ message: "All classes must have a code." });
         return;
       } else if(!cls.name) {
-        res.status(400).json({ message: "All classes must have a name."});
+        res.status(400).json({ message: "All classes must have a name." });
         return;
       } else if(cls.code.length > 5) {
         res.status(400).json({
@@ -387,17 +398,17 @@ export const updateWordClasses: RequestHandler = async (req, res, next) => {
         return;
       }
     }
-    
+
+    const langId = req.params.id;
+    const toAdd = req.body.new.map((cls: any) => ({
+      id: cls.id,
+      lang_id: langId,
+      pos: cls.pos,
+      code: cls.code,
+      name: cls.name
+    }));
+
     await transact(async client => {
-      const langId = req.params.id;
-      const toAdd = req.body.new.map((cls: any) => ({
-        id: cls.id,
-        lang_id: langId,
-        pos: cls.pos,
-        code: cls.code,
-        name: cls.name
-      }));
-      
       await client.query(
         `
           INSERT INTO word_classes (
@@ -411,13 +422,13 @@ export const updateWordClasses: RequestHandler = async (req, res, next) => {
           SET code = EXCLUDED.code,
               name = EXCLUDED.name
         `,
-        [ langId, JSON.stringify(toAdd) ]
+        [langId, JSON.stringify(toAdd)]
       );
       await client.query(
         "DELETE FROM word_classes WHERE id = ANY($1::bigint[])",
-        [ req.body.deleted ]
+        [req.body.deleted]
       );
-      
+
       const langWordClasses = await client.query(
         `
           SELECT id, pos, code, name
@@ -425,7 +436,7 @@ export const updateWordClasses: RequestHandler = async (req, res, next) => {
           WHERE lang_id = $1
           ORDER BY pos, code
         `,
-        [ langId ]
+        [langId]
       );
       res.json(langWordClasses.rows);
     });

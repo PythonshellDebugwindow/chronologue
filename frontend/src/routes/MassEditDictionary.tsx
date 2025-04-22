@@ -67,8 +67,8 @@ function MassEditDictionaryRow(
     switch(field) {
       case 'word':
         return (
-          <Link to={ '/word/' + word.id }>
-            { (language.status === 'proto' ? "*" : "") + word.word }
+          <Link to={'/word/' + word.id}>
+            {(language.status === 'proto' ? "*" : "") + word.word}
           </Link>
         );
       case 'pos':
@@ -82,21 +82,19 @@ function MassEditDictionaryRow(
 
   return (
     <tr>
-      {
-        fields.map((field, i) => (
-          <td key={i}>
-            {
-              field === editField
+      {fields.map((field, i) => (
+        <td key={i}>
+          {
+            field === editField
               ? <input
                   type="text"
-                  value={ formatValue(field) as string }
-                  onChange={ e => updateEditField(e.target.value) }
+                  value={formatValue(field) as string}
+                  onChange={e => updateEditField(e.target.value)}
                 />
               : formatValue(field)
-            }
-          </td>
-        ))
-      }
+          }
+        </td>
+      ))}
     </tr>
   );
 }
@@ -114,9 +112,9 @@ function MassEditDictionaryTable(
 ) {
   const allFields = getAllFields(dictSettings, initialEditField);
   const [fields, setFields] = useState<IDictionaryField[]>(allFields);
-  
+
   const displayedFieldNames = fields.flatMap(f => f.isDisplaying ? [f.name] : []);
-  
+
   const [words, setWords] = useState(initialWords);
   const [oldInitialWords, setOldInitialWords] = useState<IWord[] | null>(null);
 
@@ -133,21 +131,21 @@ function MassEditDictionaryTable(
     setOldInitialWords(initialWords);
     setIsSaved(true);
   }
-  
+
   if(initialEditField !== oldInitialEditField) {
     setFields(allFields);
     setEditField(initialEditField);
     setOldInitialEditField(initialEditField);
     setIsSaved(true);
   }
-  
+
   useUnsavedPopup(!isSaved);
 
   function enableField(field: IDictionaryField) {
     const index = fields.indexOf(field);
     setFields(fields.with(index, { name: field.name, isDisplaying: true }));
   }
-  
+
   function disableField(field: IDictionaryField) {
     const index = fields.indexOf(field);
     setFields(fields.with(index, { name: field.name, isDisplaying: false }));
@@ -169,85 +167,73 @@ function MassEditDictionaryTable(
     <>
       <p>
         More fields:
-        {
-          fields.map(field => (
-            !field.isDisplaying && (
-              <button
-                className="enable-dictionary-field-button"
-                onClick={ () => enableField(field) }
-                key={field.name}
-              >
-                + { userFacingFieldName(field.name) }
-              </button>
-            )
-          ))
-        }
+        {fields.map(field => !field.isDisplaying && (
+          <button
+            className="enable-dictionary-field-button"
+            onClick={() => enableField(field)}
+            key={field.name}
+          >
+            + {userFacingFieldName(field.name)}
+          </button>
+        ))}
       </p>
       <p>
-        { words.length || "No" } word{ words.length !== 1 && "s" } found.
+        {words.length || "No"} word{words.length !== 1 && "s"} found.
       </p>
-      {
-        !isSaved && (
-          <SaveChangesButton
-            isSaving={isSaving}
-            setIsSaving={setIsSaving}
-            saveQueryKey={ ['languages', language.id, 'mass-edit-dictionary'] }
-            saveQueryFn={ async () => await sendPerformMassEditRequest(changes.current, editField, language.id) }
-            handleSave={ () => setIsSaved(true) }
-            style={{ marginBottom: "1em" }}
-          >
-            Save changes
-          </SaveChangesButton>
-        )
-      }
+      {!isSaved && (
+        <SaveChangesButton
+          isSaving={isSaving}
+          setIsSaving={setIsSaving}
+          saveQueryKey={['languages', language.id, 'mass-edit-dictionary']}
+          saveQueryFn={async () => {
+            return await sendPerformMassEditRequest(changes.current, editField, language.id);
+          }}
+          handleSave={() => setIsSaved(true)}
+          style={{ marginBottom: "1em" }}
+        >
+          Save changes
+        </SaveChangesButton>
+      )}
       <DictionaryTable>
         <tr>
-          {
-            fields.map(
-              f => f.isDisplaying && (
-                <th key={f.name}>
-                  { userFacingFieldName(f.name) }
-                  {
-                    f.name !== 'word' && f.name !== 'meaning' && f.name !== editField && (
-                      <button
-                        className="letter-button letter-button-x"
-                        onClick={ () => disableField(f) }
-                      />
-                    )
-                  }
-                </th>
-              )
-            )
-          }
+          {fields.map(f => f.isDisplaying && (
+            <th key={f.name}>
+              {userFacingFieldName(f.name)}
+              {f.name !== 'word' && f.name !== 'meaning' && f.name !== editField && (
+                <button
+                  className="letter-button letter-button-x"
+                  onClick={() => disableField(f)}
+                />
+              )}
+            </th>
+          ))}
         </tr>
-        {
-          words.map(word => (
-            <MassEditDictionaryRow
-              word={word}
-              fields={displayedFieldNames}
-              editField={editField}
-              updateEditField={ makeUpdateEditField(word) }
-              language={language}
-              partsOfSpeech={partsOfSpeech}
-              key={ word.id }
-            />
-          ))
-        }
+        {words.map(word => (
+          <MassEditDictionaryRow
+            word={word}
+            fields={displayedFieldNames}
+            editField={editField}
+            updateEditField={makeUpdateEditField(word)}
+            language={language}
+            partsOfSpeech={partsOfSpeech}
+            key={word.id}
+          />
+        ))}
       </DictionaryTable>
-      {
-        !isSaved && (
-          <SaveChangesButton
-            isSaving={isSaving}
-            setIsSaving={setIsSaving}
-            saveQueryKey={ ['languages', language.id, 'mass-edit-dictionary'] }
-            saveQueryFn={ async () => await sendPerformMassEditRequest(changes.current, editField, language.id) }
-            handleSave={ () => setIsSaved(true) }
-            style={{ marginTop: "1em" }}
-          >
-            Save changes
-          </SaveChangesButton>
-        )
-      }
+      {!isSaved && (
+        <SaveChangesButton
+          isSaving={isSaving}
+          setIsSaving={setIsSaving}
+          saveQueryKey={['languages', language.id, 'mass-edit-dictionary']}
+          saveQueryFn={async () => {
+            return await sendPerformMassEditRequest(changes.current, editField, language.id);
+          }}
+          handleSave={() => setIsSaved(true)}
+          style={{ marginTop: "1em" }}
+        >
+          Save changes
+        </SaveChangesButton>
+      )}
     </>
   );
 }
@@ -285,7 +271,7 @@ function MassEditDictionaryInner(
       setMessage("Please select a field to edit.");
       return;
     }
-    
+
     setMessage("");
 
     if(editingWords !== null) {
@@ -300,7 +286,9 @@ function MassEditDictionaryInner(
   return (
     <>
       <h2>Mass Edit Dictionary</h2>
-      <p>Mass edit <Link to={ '/language/' + language.id }>{ language.name }</Link>'s dictionary.</p>
+      <p>
+        Mass edit <Link to={'/language/' + language.id}>{language.name}</Link>'s dictionary.
+      </p>
       <DictionaryFilterSelect
         fields={filterFieldNames}
         filter={filter}
@@ -309,32 +297,28 @@ function MassEditDictionaryInner(
       <p>
         Edit field:{" "}
         <select
-          value={ editField as string }
-          onChange={ e => setEditField(e.target.value as IEditField) }
+          value={editField as string}
+          onChange={e => setEditField(e.target.value as IEditField)}
         >
           <option value="">---</option>
-          {
-            editFieldNames.map(field => (
-              <option value={field} key={field}>
-                { userFacingFieldName(field) }
-              </option>
-            ))
-          }
+          {editFieldNames.map(field => (
+            <option value={field} key={field}>
+              {userFacingFieldName(field)}
+            </option>
+          ))}
         </select>
       </p>
-      { message && <p><b>{message}</b></p> }
+      {message && <p><b>{message}</b></p>}
       <button onClick={beginMassEdit}>Search</button>
-      {
-        editingField && editingWords && (
-          <MassEditDictionaryTable
-            language={language}
-            initialWords={editingWords}
-            dictSettings={dictSettings}
-            partsOfSpeech={partsOfSpeech}
-            initialEditField={ editingField as keyof IWord }
-          />
-        )
-      }
+      {editingField && editingWords && (
+        <MassEditDictionaryTable
+          language={language}
+          initialWords={editingWords}
+          dictSettings={dictSettings}
+          partsOfSpeech={partsOfSpeech}
+          initialEditField={editingField as keyof IWord}
+        />
+      )}
     </>
   );
 }
@@ -351,7 +335,7 @@ export default function MassEditDictionary() {
   const posResponse = usePartsOfSpeech();
 
   useSetPageTitle("Mass Edit Dictionary");
-  
+
   if(languageResponse.status !== 'success') {
     return renderDatalessQueryResult(languageResponse);
   }
@@ -370,10 +354,10 @@ export default function MassEditDictionary() {
 
   return (
     <MassEditDictionaryInner
-      language={ languageResponse.data }
-      initialWords={ dictResponse.data }
-      dictSettings={ dictSettingsResponse.data }
-      partsOfSpeech={ posResponse.data }
+      language={languageResponse.data}
+      initialWords={dictResponse.data}
+      dictSettings={dictSettingsResponse.data}
+      partsOfSpeech={posResponse.data}
     />
   );
 };

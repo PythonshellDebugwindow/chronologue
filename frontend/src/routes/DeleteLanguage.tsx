@@ -7,29 +7,30 @@ import { renderDatalessQueryResult, useSetPageTitle } from '../utils.tsx';
 
 function DeleteLanguageInner({ language }: { language: ILanguage }) {
   const navigate = useNavigate();
-  
+
   const { selectedLanguage, setSelectedLanguage } = useContext(SelectedLanguageContext);
 
-  const [ errorMessage, setErrorMessage ] = useState("");
-  
+  const [errorMessage, setErrorMessage] = useState("");
+
   async function deleteFormLanguage() {
     const result = await deleteLanguage(language.id);
     if(!result.ok) {
       setErrorMessage(result.body.message);
       return;
     }
-    
+
     navigate("/languages");
     if(selectedLanguage?.id === language.id) {
       setSelectedLanguage(null);
     }
   }
-  
+
   return (
     <>
       <h2>Delete Language</h2>
       <p>
-        Really delete <Link to={ '/language/' + language.id }>{ language.name }</Link> and all its data?
+        Really delete <Link to={'/language/' + language.id}>{language.name}</Link> and
+        all its data?
       </p>
       <p>
         <b>This action cannot be undone!</b>
@@ -38,10 +39,10 @@ function DeleteLanguageInner({ language }: { language: ILanguage }) {
         Delete language
       </button>
       <br />
-      <button onClick={ () => navigate(-1) }>
+      <button onClick={() => navigate(-1)}>
         Go back
       </button>
-      { errorMessage && <p><b>Error: {errorMessage}</b></p> }
+      {errorMessage && <p><b>Error: {errorMessage}</b></p>}
     </>
   );
 };
@@ -51,14 +52,14 @@ export default function DeleteLanguage() {
   if(!languageId) {
     throw new Error("No language ID was provided");
   }
-  
+
   const languageResponse = useLanguage(languageId);
-  
+
   useSetPageTitle("Delete Language");
 
   if(languageResponse.status !== 'success') {
     return renderDatalessQueryResult(languageResponse);
   }
-  
-  return <DeleteLanguageInner language={ languageResponse.data } />;
+
+  return <DeleteLanguageInner language={languageResponse.data} />;
 };

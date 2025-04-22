@@ -1,4 +1,4 @@
-import { Link }  from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 import { useFamily } from '../familyData';
 
@@ -15,8 +15,8 @@ function useFamilyName(id: string) {
 
 export default function FamilyLink({ id }: { id: string }) {
   return (
-    <Link to={ '/family/' + id }>
-      { useFamilyName(id) }
+    <Link to={'/family/' + id}>
+      {useFamilyName(id)}
     </Link>
   );
 };

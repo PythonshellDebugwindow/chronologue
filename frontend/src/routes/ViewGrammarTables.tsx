@@ -14,9 +14,9 @@ import {
 } from '../wordData.tsx';
 
 function formatGrammarFormsList(codes: string[], grammarForms: IGrammarForm[]) {
-  return codes.flatMap((code, i) => {
+  return codes.map((code, i) => {
     const posNodes = formatPeriodSeparatedGrammarForms(code, grammarForms);
-    return <Fragment key={i}>{ i > 0 && ", " }{posNodes}</Fragment>
+    return <Fragment key={i}>{i > 0 && ", "}{posNodes}</Fragment>;
   });
 }
 
@@ -34,22 +34,20 @@ function ViewGrammarTablesInner({ language, tables, grammarForms, partsOfSpeech 
     <>
       <h2>View Grammar Tables</h2>
       <p>
-        Viewing <Link to={ '/language/' + language.id }>{ language.name }</Link>'s grammar tables.
+        Viewing <Link to={'/language/' + language.id}>{language.name}</Link>'s grammar tables.
       </p>
       <div className="grammar-tables-grid">
-        {
-          tables.map(table => (
-            <div key={table.id}>
-              <Link to={ '/grammar-table/' + table.id}>
-                { table.name && (table.name + " ") }
-                [{ formatPosFieldValue(table.pos, partsOfSpeech) }]
-              </Link>
-              <br />
-              { formatGrammarFormsList(table.rows, grammarForms) }
-              ; { formatGrammarFormsList(table.columns, grammarForms) }
-            </div>
-          ))
-        }
+        {tables.map(table => (
+          <div key={table.id}>
+            <Link to={'/grammar-table/' + table.id}>
+              {table.name && (table.name + " ")}
+              [{formatPosFieldValue(table.pos, partsOfSpeech)}]
+            </Link>
+            <br />
+            {formatGrammarFormsList(table.rows, grammarForms)}
+            ; {formatGrammarFormsList(table.columns, grammarForms)}
+          </div>
+        ))}
       </div>
     </>
   );
@@ -60,12 +58,12 @@ export default function ViewGrammarTables() {
   if(!id) {
     throw new Error("No language ID was provided");
   }
-  
+
   const languageResponse = useLanguage(id);
   const tablesResponse = useLanguageGrammarTables(id);
   const grammarFormsResponse = useGrammarForms();
   const partsOfSpeechResponse = usePartsOfSpeech();
-  
+
   const language = languageResponse.data;
   useSetPageTitle(language ? language.name + "'s Grammar Tables" : "Grammar Tables");
 
@@ -84,13 +82,13 @@ export default function ViewGrammarTables() {
   if(partsOfSpeechResponse.status !== 'success') {
     return renderDatalessQueryResult(partsOfSpeechResponse);
   }
-  
+
   return (
     <ViewGrammarTablesInner
-      language={ languageResponse.data }
-      tables={ tablesResponse.data }
-      grammarForms={ grammarFormsResponse.data }
-      partsOfSpeech={ partsOfSpeechResponse.data }
+      language={languageResponse.data}
+      tables={tablesResponse.data}
+      grammarForms={grammarFormsResponse.data}
+      partsOfSpeech={partsOfSpeechResponse.data}
     />
   );
 };

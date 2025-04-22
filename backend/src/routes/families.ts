@@ -9,10 +9,10 @@ export const addFamily: RequestHandler = async (req, res, next) => {
       res.status(400).json({ message: "Please provide all required fields." });
       return;
     }
-    
+
     const value = await query(
       "INSERT INTO families (name, description) VALUES ($1, $2) RETURNING id",
-      [ req.body.name, req.body.description ]
+      [req.body.name, req.body.description]
     );
     res.status(201).json(value.rows[0].id.replaceAll("-", ""));
   } catch(err) {
@@ -37,7 +37,7 @@ export const deleteFamily: RequestHandler = async (req, res) => {
         WHERE family_id = $1
         LIMIT 1
       `,
-      [ req.params.id ]
+      [req.params.id]
     );
     if(someMember.rows.length > 0) {
       res.status(400).json({ message: "Cannot delete a non-empty family." });
@@ -46,10 +46,10 @@ export const deleteFamily: RequestHandler = async (req, res) => {
 
     await client.query(
       "DELETE FROM families WHERE id = $1",
-      [ req.params.id ]
+      [req.params.id]
     );
   });
-  
+
   res.status(204).send();
 };
 
@@ -63,17 +63,17 @@ export const editFamily: RequestHandler = async (req, res, next) => {
       res.status(400).json({ message: "Please provide all required fields." });
       return;
     }
-    
+
     await query(
       `
         UPDATE families
         SET name = $1, description = $2
         WHERE id = $3
       `,
-      [ req.body.name, req.body.description, req.params.id ]
+      [req.body.name, req.body.description, req.params.id]
     );
-    
-    res.status(204).end();
+
+    res.status(204).send();
   } catch(err) {
     if((err as IQueryError).code === '23505') {
       res.status(400).json({ message: `The name '${req.body.name}' is already taken.` });
@@ -89,8 +89,7 @@ export const getAllFamilies: RequestHandler = async (req, res) => {
       SELECT translate(id::text, '-', '') AS id,
              name, description, created
       FROM families
-    `,
-    []
+    `
   );
   res.json(families.rows);
 };
@@ -100,7 +99,7 @@ export const getFamily: RequestHandler = async (req, res) => {
     res.status(400).json({ title: "Invalid ID", message: "The given family ID is not valid." });
     return;
   }
-  
+
   const value = await query(
     `
       SELECT translate(id::text, '-', '') AS id,
@@ -108,7 +107,7 @@ export const getFamily: RequestHandler = async (req, res) => {
       FROM families
       WHERE id = $1
     `,
-    [ req.params.id ]
+    [req.params.id]
   );
   if(value.rows.length === 1) {
     res.json(value.rows[0]);
@@ -122,7 +121,7 @@ export const getFamilyMembers: RequestHandler = async (req, res) => {
     res.status(400).json({ title: "Invalid ID", message: "The given family ID is not valid." });
     return;
   }
-  
+
   const value = await query(
     `
       SELECT translate(id::text, '-', '') AS id,
@@ -133,7 +132,7 @@ export const getFamilyMembers: RequestHandler = async (req, res) => {
       WHERE family_id = $1
       ORDER BY name
     `,
-    [ req.params.id ]
+    [req.params.id]
   );
   res.json(value.rows);
 };

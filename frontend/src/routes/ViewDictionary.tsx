@@ -54,12 +54,12 @@ function ViewDictionaryInner({ language, words, dictSettings, partsOfSpeech }: I
   const displayedFieldNames = fields.flatMap(f => f.isDisplaying ? [f.name] : []);
 
   const filteredWords = sortAndFilterWords(words, filter);
-  
+
   function enableField(field: IDictionaryField) {
     const index = fields.indexOf(field);
     setFields(fields.with(index, { name: field.name, isDisplaying: true }));
   }
-  
+
   function disableField(field: IDictionaryField) {
     const index = fields.indexOf(field);
     setFields(fields.with(index, { name: field.name, isDisplaying: false }));
@@ -68,63 +68,53 @@ function ViewDictionaryInner({ language, words, dictSettings, partsOfSpeech }: I
   return (
     <>
       <h2>View Dictionary</h2>
-      <p>Viewing <Link to={ '/language/' + language.id }>{ language.name }</Link>'s dictionary.</p>
+      <p>
+        Viewing <Link to={'/language/' + language.id}>{language.name}</Link>'s dictionary.
+      </p>
       <p>
         More fields:
-        {
-          fields.map(field => (
-            !field.isDisplaying && (
-              <button
-                className="enable-dictionary-field-button"
-                onClick={ () => enableField(field) }
-                key={field.name}
-              >
-                + { userFacingFieldName(field.name) }
-              </button>
-            )
-          ))
-        }
+        {fields.map(field => !field.isDisplaying && (
+          <button
+            className="enable-dictionary-field-button"
+            onClick={() => enableField(field)}
+            key={field.name}
+          >
+            + {userFacingFieldName(field.name)}
+          </button>
+        ))}
       </p>
       <DictionaryFilterSelect
-        fields={ fields.map(f => f.name) }
+        fields={fields.map(f => f.name)}
         filter={filter}
         setFilter={setFilter}
       />
       <p>
-        { filteredWords.length || "No" } word{ filteredWords.length !== 1 && "s" } found.
+        {filteredWords.length || "No"} word{filteredWords.length !== 1 && "s"} found.
       </p>
       <DictionaryTable>
         <tr>
           <th>Word</th>
-          {
-            fields.map(
-              field => field.isDisplaying && (
-                <th key={field.name}>
-                  { userFacingFieldName(field.name) }
-                  {
-                    field.name !== 'meaning' && (
-                      <button
-                        className="letter-button letter-button-x"
-                        onClick={ () => disableField(field) }
-                      />
-                    )
-                  }
-                </th>
-              )
-            )
-          }
+          {fields.map(field => field.isDisplaying && (
+            <th key={field.name}>
+              {userFacingFieldName(field.name)}
+              {field.name !== 'meaning' && (
+                <button
+                  className="letter-button letter-button-x"
+                  onClick={() => disableField(field)}
+                />
+              )}
+            </th>
+          ))}
         </tr>
-        {
-          filteredWords.map(word => (
-            <DictionaryRow
-              word={word}
-              fields={displayedFieldNames}
-              language={language}
-              partsOfSpeech={partsOfSpeech}
-              key={ word.id }
-            />
-          ))
-        }
+        {filteredWords.map(word => (
+          <DictionaryRow
+            word={word}
+            fields={displayedFieldNames}
+            language={language}
+            partsOfSpeech={partsOfSpeech}
+            key={word.id}
+          />
+        ))}
       </DictionaryTable>
     </>
   );
@@ -140,7 +130,7 @@ export default function ViewDictionary() {
   const dictResponse = useLanguageWords(languageId);
   const dictSettingsResponse = useLanguageDictionarySettings(languageId);
   const posResponse = usePartsOfSpeech();
-  
+
   const language = languageResponse.data;
   useSetPageTitle(language ? language.name + "'s Dictionary" : "Dictionary");
 
@@ -162,10 +152,10 @@ export default function ViewDictionary() {
 
   return (
     <ViewDictionaryInner
-      language={ languageResponse.data }
-      words={ dictResponse.data }
-      dictSettings={ dictSettingsResponse.data }
-      partsOfSpeech={ posResponse.data }
+      language={languageResponse.data}
+      words={dictResponse.data}
+      dictSettings={dictSettingsResponse.data}
+      partsOfSpeech={posResponse.data}
     />
   );
 };

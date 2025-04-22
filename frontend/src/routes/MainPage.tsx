@@ -10,5 +10,5 @@ export default function MainPage() {
       <h2>Chronologue</h2>
       <p>Chronologue is intended to make it easy to create large language families.</p>
     </>
-  )
+  );
 };

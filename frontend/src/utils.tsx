@@ -16,7 +16,7 @@ interface IFormData {
 
 export async function getFormJson(request: Request) {
   const formData = await request.formData();
-  
+
   const formJson: IFormData = {};
   for(const [key, value] of [...formData.entries()]) {
     if(typeof value === 'string') {
@@ -122,8 +122,8 @@ export function renderDatalessQueryResult<T>(query: DatalessQueryResult<T>) {
   if(query.status === 'error') {
     return (
       <>
-        <h2>{ query.error.title ?? "Error" }</h2>
-        <p>{ query.error.message }</p>
+        <h2>{query.error.title ?? "Error"}</h2>
+        <p>{query.error.message}</p>
       </>
     );
   } else {

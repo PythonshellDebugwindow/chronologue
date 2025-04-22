@@ -31,7 +31,7 @@ export const applySCARules: RequestHandler = async (req, res) => {
       FROM ${tableName}
       WHERE lang_id = $1
     `,
-    [ req.params.id ]
+    [req.params.id]
   );
 
   const sca = new SCA(categories.rows);
@@ -72,14 +72,14 @@ export const getOrthographyCategories: RequestHandler = async (req, res) => {
     res.status(400).json({ title: "Invalid ID", message: "The given language ID is not valid." });
     return;
   }
-  
+
   const value = await query(
     `
       SELECT letter, string_to_array(members, ',') AS members
       FROM orthography_categories
       WHERE lang_id = $1
     `,
-    [ req.params.id ]
+    [req.params.id]
   );
   res.json(value.rows);
 };
@@ -89,14 +89,14 @@ export const getPhoneCategories: RequestHandler = async (req, res) => {
     res.status(400).json({ title: "Invalid ID", message: "The given language ID is not valid." });
     return;
   }
-  
+
   const value = await query(
     `
       SELECT letter, string_to_array(members, ',') AS members
       FROM phonology_categories
       WHERE lang_id = $1
     `,
-    [ req.params.id ]
+    [req.params.id]
   );
   res.json(value.rows);
 };
@@ -106,7 +106,7 @@ export const getPhones: RequestHandler = async (req, res) => {
     res.status(400).json({ title: "Invalid ID", message: "The given language ID is not valid." });
     return;
   }
-  
+
   const value = await query(
     `
       SELECT id, base, type, qualities, is_allophone AS "isAllophone",
@@ -115,7 +115,7 @@ export const getPhones: RequestHandler = async (req, res) => {
       WHERE lang_id = $1
       ORDER BY id DESC
     `,
-    [ req.params.id ]
+    [req.params.id]
   );
   res.json(value.rows);
 };
@@ -125,14 +125,14 @@ export const getPronunciationEstimation: RequestHandler = async (req, res) => {
     res.status(400).json({ title: "Invalid ID", message: "The given language ID is not valid." });
     return;
   }
-  
+
   const value = await query(
     `
       SELECT letter_replacements AS "letterReplacements", rewrite_rules AS "rewriteRules"
       FROM pronunciation_estimation
       WHERE lang_id = $1
     `,
-    [ req.params.id ]
+    [req.params.id]
   );
   if(value.rows.length === 1) {
     res.json(value.rows[0]);
@@ -156,7 +156,9 @@ const makeUpdateCategories = (tableName: 'orthography_categories' | 'phonology_c
       const lettersSeen: string[] = [];
       for(const category of req.body.categories) {
         if(!/^\p{Lu}$/u.test(category.letter)) {
-          res.status(400).json({ message: "Each category letter must be a single uppercase letter." });
+          res.status(400).json({
+            message: "Each category letter must be a single uppercase letter."
+          });
           return;
         } else if(lettersSeen.includes(category.letter)) {
           res.status(400).json({ message: "All category letters must be unique." });
@@ -167,17 +169,17 @@ const makeUpdateCategories = (tableName: 'orthography_categories' | 'phonology_c
         }
         lettersSeen.push(category.letter);
       }
-      
+
       await transact(async client => {
         const langId = req.params.id;
-        
+
         const categories = req.body.categories.map((p: any) => ({
           lang_id: p.langId,
           letter: p.letter,
           members: p.members
         }));
         const categoryLetters = req.body.categories.map((c: any) => c.letter);
-        
+
         await client.query(
           `
             INSERT INTO ${escapedTableName} (
@@ -189,16 +191,16 @@ const makeUpdateCategories = (tableName: 'orthography_categories' | 'phonology_c
             ON CONFLICT (lang_id, letter) DO UPDATE
             SET members = EXCLUDED.members
           `,
-          [ langId, JSON.stringify(categories) ]
+          [langId, JSON.stringify(categories)]
         );
         await client.query(
           `
             DELETE FROM ${escapedTableName}
             WHERE lang_id = $1 AND NOT (letter = ANY($2::text[]))
           `,
-          [ langId, categoryLetters ]
+          [langId, categoryLetters]
         );
-        
+
         req.body.categories.sort(
           (c1: any, c2: any) => c1.letter.localeCompare(c2.letter)
         );
@@ -232,12 +234,12 @@ export const updatePhones: RequestHandler = async (req, res) => {
     res.status(400).json({ message: "Phones cannot be blank." });
     return;
   }
-  
+
   await transact(async client => {
     const langId = req.params.id;
     const oldGraphs = (await client.query(
       `SELECT graph FROM phones WHERE lang_id = $1 AND graph != '' ORDER BY graph`,
-      [ langId ]
+      [langId]
     )).rows;
 
     const toAdd = req.body.new.map((p: any) => ({
@@ -274,28 +276,29 @@ export const updatePhones: RequestHandler = async (req, res) => {
             notes = EXCLUDED.notes,
             graph = EXCLUDED.graph
       `,
-      [ langId, JSON.stringify(toAdd) ]
+      [langId, JSON.stringify(toAdd)]
     );
     await client.query(
       "DELETE FROM phones WHERE id = ANY($1::bigint[])",
-      [ req.body.deleted ]
+      [req.body.deleted]
     );
-    
+
     const newGraphs = (await client.query(
       "SELECT graph FROM phones WHERE lang_id = $1 AND graph != '' ORDER BY graph",
-      [ langId ]
+      [langId]
     )).rows;
-    if(oldGraphs.length !== newGraphs.length || oldGraphs.some((g, i) => newGraphs[i].graph !== g.graph)) {
+    if(oldGraphs.length !== newGraphs.length ||
+       oldGraphs.some((g, i) => newGraphs[i].graph !== g.graph)) {
       await client.query(
         `
           UPDATE orthography_settings
           SET alphabetical_order = NULL
           WHERE lang_id = $1
         `,
-        [ langId ]
+        [langId]
       );
     }
-    
+
     const langPhones = await client.query(
       `
         SELECT id, base, type, qualities, is_allophone AS "isAllophone",
@@ -304,7 +307,7 @@ export const updatePhones: RequestHandler = async (req, res) => {
         WHERE lang_id = $1
         ORDER BY id DESC
       `,
-      [ langId ]
+      [langId]
     );
     res.json(langPhones.rows);
   });
@@ -330,7 +333,7 @@ export const updatePronunciationEstimation: RequestHandler = async (req, res) =>
       SET letter_replacements = EXCLUDED.letter_replacements,
           rewrite_rules = EXCLUDED.rewrite_rules
     `,
-    [ req.params.id, req.body.letterReplacements, req.body.rewriteRules ]
+    [req.params.id, req.body.letterReplacements, req.body.rewriteRules]
   );
   res.status(204).send();
 };

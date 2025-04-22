@@ -32,7 +32,7 @@ export async function makeEstimatePronunciation(langId: string) {
         WHERE lang_id = $1
         ORDER BY length(graph) DESC
       `,
-      [ langId ]
+      [langId]
     );
     const phones = phonesQuery.rows as IPartialPhone[];
     phones.sort((p1, p2) => p2.graph.length - p1.graph.length);
@@ -44,31 +44,31 @@ export async function makeEstimatePronunciation(langId: string) {
         FROM pronunciation_estimation
         WHERE lang_id = $1
       `,
-      [ langId ]
+      [langId]
     );
     const { letterReplacements, rewriteRules } = (
       peQuery.rows.length === 1
-      ? splitLetterReplacements(peQuery.rows[0] as IPronunciationEstimation)
-      : { letterReplacements: [], rewriteRules: "" }
+        ? splitLetterReplacements(peQuery.rows[0] as IPronunciationEstimation)
+        : { letterReplacements: [], rewriteRules: "" }
     );
-    
+
     const categoriesQuery = await client.query(
       `
         SELECT letter, string_to_array(members, ',') AS members
         FROM phonology_categories
         WHERE lang_id = $1
       `,
-      [ langId ]
+      [langId]
     );
     const categories = categoriesQuery.rows;
-    
+
     const orthSettingsQuery = await client.query(
       `
         SELECT case_sensitive
         FROM orthography_settings
         WHERE lang_id = $1
       `,
-      [ langId ]
+      [langId]
     );
     const caseSensitive = orthSettingsQuery.rows[0].case_sensitive;
 
@@ -91,17 +91,17 @@ export async function makeEstimatePronunciation(langId: string) {
           continue;
         }
         const foldedWord = foldCase(word);
-        const replacement = letterReplacements.find(
-          lr => foldCase(lr[0]) === foldedWord.substring(i, i + lr[0].length)
-        );
+        const replacement = letterReplacements.find(lr => (
+          foldCase(lr[0]) === foldedWord.substring(i, i + lr[0].length)
+        ));
         if(replacement) {
           estimation += replacement[1];
           i += replacement[0].length;
           continue;
         }
-        const phone = phones.find(
-          p => p.graph && foldedWord.substring(i, i + p.graph.length) === p.graph
-        );
+        const phone = phones.find(p => (
+          p.graph && foldedWord.substring(i, i + p.graph.length) === p.graph
+        ));
         if(phone) {
           const phoneString = phoneToString(phone);
           estimation += phoneString;

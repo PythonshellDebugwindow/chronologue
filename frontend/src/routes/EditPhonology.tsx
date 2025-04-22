@@ -31,10 +31,10 @@ function PhoneTableHalfCell({ type, phone, addedPhones, addPhone, colSpan = 1 }:
     <td
       className={className}
       style={{ cursor: "pointer" }}
-      onClick={ () => addPhone(phone)}
+      onClick={() => addPhone(phone)}
       colSpan={colSpan}
     >
-      { phone }
+      {phone}
     </td>
   );
 }
@@ -56,8 +56,8 @@ function PhoneTableCell({ data, addedPhones, addPhone, row, col }: IPhoneTableCe
   if(hasDoubleWidthCell(data.phones[row][col * 2])) {
     return (
       <PhoneTableHalfCell
-        type={ data.type }
-        phone={ data.phones[row][col * 2] }
+        type={data.type}
+        phone={data.phones[row][col * 2]}
         addedPhones={addedPhones}
         addPhone={addPhone}
         colSpan={2}
@@ -69,23 +69,23 @@ function PhoneTableCell({ data, addedPhones, addPhone, row, col }: IPhoneTableCe
     <>
       {
         hasLeft
-        ? <PhoneTableHalfCell
-            type={ data.type }
-            phone={ data.phones[row][col * 2] }
-            addedPhones={addedPhones}
-            addPhone={addPhone}
-          />
-        : <td>&nbsp;</td>
+          ? <PhoneTableHalfCell
+              type={data.type}
+              phone={data.phones[row][col * 2]}
+              addedPhones={addedPhones}
+              addPhone={addPhone}
+            />
+          : <td>&nbsp;</td>
       }
       {
         hasRight
-        ? <PhoneTableHalfCell
-            type={ data.type }
-            phone={ data.phones[row][col * 2 + 1] }
-            addedPhones={addedPhones}
-            addPhone={addPhone}
-        />
-        : <td>&nbsp;</td>
+          ? <PhoneTableHalfCell
+              type={data.type}
+              phone={data.phones[row][col * 2 + 1]}
+              addedPhones={addedPhones}
+              addPhone={addPhone}
+            />
+          : <td>&nbsp;</td>
       }
     </>
   );
@@ -105,39 +105,33 @@ function PhonologyTable({ data, phones, dispatchPhones }: IPhonologyTable) {
     };
     dispatchPhones({ type: 'add', newPhone });
   }
-  
+
   return (
     <table className="phone-table">
       <tbody>
         <tr>
-          <th><b>{ data.type === 'consonant' ? "Consonants": "Vowels" }</b></th>
-          {
-            data.horizontal.map((label, i) => (
-              <th key={i} colSpan={2}>{label}</th>
-            ))
-          }
+          <th><b>{data.type === 'consonant' ? "Consonants" : "Vowels"}</b></th>
+          {data.horizontal.map((label, i) => (
+            <th key={i} colSpan={2}>{label}</th>
+          ))}
         </tr>
-        {
-          data.vertical.map((label, i) => (
-            <tr key={i}>
-              <th>{label}</th>
-              {
-                data.horizontal.map((_, j) => (
-                  data.phones[i][j * 2] || data.phones[i][j * 2 + 1]
-                  ? <PhoneTableCell
-                      data={data}
-                      addedPhones={phones}
-                      addPhone={addPhone}
-                      row={i}
-                      col={j}
-                      key={j}
-                    />
-                  : <td key={j} colSpan={2}>&nbsp;</td>
-                ))
-              }
-            </tr>
-          ))
-        }
+        {data.vertical.map((label, i) => (
+          <tr key={i}>
+            <th>{label}</th>
+            {data.horizontal.map((_, j) => (
+              (data.phones[i][j * 2] || data.phones[i][j * 2 + 1])
+                ? <PhoneTableCell
+                    data={data}
+                    addedPhones={phones}
+                    addPhone={addPhone}
+                    row={i}
+                    col={j}
+                    key={j}
+                  />
+                : <td key={j} colSpan={2}>&nbsp;</td>
+            ))}
+          </tr>
+        ))}
       </tbody>
     </table>
   );
@@ -153,20 +147,16 @@ function AllophoneSelect({ phone, allPhones, onChange }: IAllophoneSelect) {
   const options = allPhones.filter(phone => !phone.isAllophone).map(phoneToString);
   return (
     <select
-      value={ phone.allophoneOf }
-      onChange={ e => onChange(e.target.value) }
+      value={phone.allophoneOf}
+      onChange={e => onChange(e.target.value)}
     >
       <option value=""></option>
-      {
-        phone.allophoneOf && !options.includes(phone.allophoneOf) && (
-          <option value={ phone.allophoneOf }>/{ phone.allophoneOf }/</option>
-        )
-      }
-      {
-        options.map((phoneme, i) => options.indexOf(phoneme) === i && (
-          <option key={i} value={phoneme}>/{phoneme}/</option>
-        ))
-      }
+      {phone.allophoneOf && !options.includes(phone.allophoneOf) && (
+        <option value={phone.allophoneOf}>/{phone.allophoneOf}/</option>
+      )}
+      {options.map((phoneme, i) => options.indexOf(phoneme) === i && (
+        <option key={i} value={phoneme}>/{phoneme}/</option>
+      ))}
     </select>
   );
 }
@@ -178,48 +168,47 @@ interface IPhoneListRow {
 }
 
 function PhoneListRow({ phone, allPhones, dispatchPhones }: IPhoneListRow) {
+  const qualities = phone.qualities.map(
+    name => ({ value: name, label: name + " - " + qualityData.get(name) })
+  ).sort((q1, q2) => q1.value.localeCompare(q2.value));
+
   function updateField(field: string, newValue: string | boolean | string[]) {
     dispatchPhones({ type: 'edit', phone, field, newValue });
   }
+
   function deletePhone() {
     dispatchPhones({ type: 'delete', phone });
   }
 
-  const qualities = phone.qualities.map(
-    name => ({ value: name, label: name + " - " + qualityData.get(name) })
-  ).sort((q1, q2) => q1.value.localeCompare(q2.value));
-  
   return (
     <tr>
       <td>
         {
           phone.type === 'other'
-          ? <input
-              type="text"
-              style={{ width: "3em", textAlign: "center" }}
-              value={ phone.base }
-              onChange={ e => updateField('base', e.target.value) }
-            />
-          : phoneToString(phone)
+            ? <input
+                type="text"
+                style={{ width: "3em", textAlign: "center" }}
+                value={phone.base}
+                onChange={e => updateField('base', e.target.value)}
+              />
+            : phoneToString(phone)
         }
       </td>
       <td>
         <input
           type="text"
           style={{ width: "3em" }}
-          value={ phone.graph }
-          onChange={ e => updateField('graph', e.target.value) }
+          value={phone.graph}
+          onChange={e => updateField('graph', e.target.value)}
         />
       </td>
       <td style={{ fontSize: "0.9em", textAlign: "left" }}>
         <ReactSelect
           isMulti
           value={qualities}
-          options={
-            [...qualityData.entries()].map(
-              ([name, symbol]) => ({ value: name, label: name + " - " + symbol })
-            )
-          }
+          options={[...qualityData.entries()].map(
+            ([name, symbol]) => ({ value: name, label: name + " - " + symbol })
+          )}
           isClearable={false}
           components={{
             IndicatorSeparator: () => null
@@ -234,41 +223,41 @@ function PhoneListRow({ phone, allPhones, dispatchPhones }: IPhoneListRow) {
             option: styles => ({ ...styles, fontSize: "0.8rem", padding: "5px" }),
             menu: styles => ({ ...styles, top: "auto", bottom: "100%", width: "12em" }),
             multiValueLabel: styles => ({ ...styles, padding: "0", paddingLeft: "3px", paddingRight: "2px" }),
-            multiValueRemove: styles => ({ ...styles, paddingLeft: "3px", paddingRight: "3px"})
+            multiValueRemove: styles => ({ ...styles, paddingLeft: "3px", paddingRight: "3px" })
           }}
-          onChange={ e => updateField('qualities', e.map(option => option.value).sort()) }
+          onChange={e => updateField('qualities', e.map(option => option.value).sort())}
         />
       </td>
       <td>
         <input
           type="checkbox"
-          checked={ phone.isAllophone }
-          onChange={ e => updateField('isAllophone', e.target.checked) }
+          checked={phone.isAllophone}
+          onChange={e => updateField('isAllophone', e.target.checked)}
         />
-        {
-          phone.isAllophone && <>
+        {phone.isAllophone && (
+          <>
             of{" "}
             <AllophoneSelect
               phone={phone}
               allPhones={allPhones}
-              onChange={ value => updateField('allophoneOf', value) }
+              onChange={value => updateField('allophoneOf', value)}
             />
           </>
-        }
+        )}
       </td>
       <td>
         <input
           type="checkbox"
-          checked={ phone.isForeign }
-          onChange={ e => updateField('isForeign', e.target.checked) }
+          checked={phone.isForeign}
+          onChange={e => updateField('isForeign', e.target.checked)}
         />
       </td>
       <td>
         <input
           type="text"
           style={{ width: "8em" }}
-          value={ phone.notes }
-          onChange={ e => updateField('notes', e.target.value) }
+          value={phone.notes}
+          onChange={e => updateField('notes', e.target.value)}
         />
       </td>
       <td>
@@ -302,16 +291,14 @@ function PhoneList({ phones, dispatchPhones }: IPhoneList) {
             <th>Notes</th>
             <th>&nbsp;</th>
           </tr>
-          {
-            phones.map((phone, i) => (
-              <PhoneListRow
-                key={i}
-                phone={phone}
-                allPhones={phones}
-                dispatchPhones={dispatchPhones}
-              />
-            ))
-          }
+          {phones.map((phone, i) => (
+            <PhoneListRow
+              key={i}
+              phone={phone}
+              allPhones={phones}
+              dispatchPhones={dispatchPhones}
+            />
+          ))}
         </tbody>
       </table>
     </div>
@@ -366,8 +353,8 @@ function phonesReducer(state: IPhonesReducerState, action: IPhonesReducerAction)
   const { phones, deleted } = state;
   switch(action.type) {
     case 'add':
-      return { phones: [ action.newPhone, ...phones ], deleted, saved: false };
-    
+      return { phones: [action.newPhone, ...phones], deleted, saved: false };
+
     case 'edit': {
       if(!(action.field in action.phone)) {
         throw new Error("Invalid field: " + action.field);
@@ -386,19 +373,19 @@ function phonesReducer(state: IPhonesReducerState, action: IPhonesReducerAction)
         saved: false
       };
     }
-    
+
     case 'delete': {
-      const newDeleted = action.phone.id === null ? deleted : [ ...deleted, action.phone.id ];
+      const newDeleted = action.phone.id === null ? deleted : [...deleted, action.phone.id];
       return {
         phones: phones.filter(phone => phone !== action.phone),
         deleted: newDeleted,
         saved: false
       };
     }
-    
+
     case 'markSaved':
       return { phones: action.newPhones, deleted: [], saved: true };
-    
+
     default:
       throw new Error("Unknown action type: " + (action as any).type);
   }
@@ -410,18 +397,18 @@ interface IEditPhonologyInner {
 }
 
 function EditPhonologyInner({ language, defaultPhones }: IEditPhonologyInner) {
-  const [ currentType, setCurrentType ] = useState<PhoneType>('consonant');
+  const [currentType, setCurrentType] = useState<PhoneType>('consonant');
   const currentTableData = getPhoneTableDataByType(currentType);
-  
-  const [ phonesState, dispatchPhones ] = useReducer(phonesReducer, {
+
+  const [phonesState, dispatchPhones] = useReducer(phonesReducer, {
     phones: defaultPhones, deleted: [], saved: true
   });
   const { phones, saved: phonesAreSaved } = phonesState;
 
-  const [ isSavingPhones, setIsSavingPhones ] = useState(false);
-  
+  const [isSavingPhones, setIsSavingPhones] = useState(false);
+
   useUnsavedPopup(!phonesAreSaved);
-  
+
   function addOtherPhone() {
     const newPhone: IPhone = {
       id: null, base: "", type: 'other', graph: "", qualities: [],
@@ -429,69 +416,68 @@ function EditPhonologyInner({ language, defaultPhones }: IEditPhonologyInner) {
     };
     dispatchPhones({ type: 'add', newPhone });
   }
-  
+
   return (
     <>
       <h2>Edit Phonology</h2>
-      <p>Editing <Link to={ '/language/' + language.id }>{ language.name }</Link>'s phonology.</p>
+      <p>
+        Editing <Link to={'/language/' + language.id}>{language.name}</Link>'s phonology.
+      </p>
       <label style={{ marginBottom: "1em", display: "block" }}>
         Adding:{" "}
-        <select value={currentType} onChange={ e => setCurrentType(e.target.value as PhoneType) }>
+        <select
+          value={currentType}
+          onChange={e => setCurrentType(e.target.value as PhoneType)}
+        >
           <option value='consonant'>Consonants</option>
           <option value='vowel'>Vowels</option>
           <option value='other'>Other</option>
         </select>
       </label>
-      {
-        currentTableData && (
-          <PhonologyTable
-            data={currentTableData}
-            phones={phones}
-            dispatchPhones={dispatchPhones}
-          />
-        )
-      }
-      {
-        currentType === 'other' && <div>
+      {currentTableData && (
+        <PhonologyTable
+          data={currentTableData}
+          phones={phones}
+          dispatchPhones={dispatchPhones}
+        />
+      )}
+      {currentType === 'other' && (
+        <div>
           <button onClick={addOtherPhone}>+ Other Phone</button>
         </div>
-      }
-      {
-        !phonesAreSaved && (
-          <SaveChangesButton<IPhone[]>
-            isSaving={isSavingPhones}
-            setIsSaving={setIsSavingPhones}
-            saveQueryKey={ ['languages', language.id, 'phones', 'update'] }
-            saveQueryFn={ async () => await sendSavePhonesRequest(phonesState, language.id) }
-            handleSave={ data => dispatchPhones({ type: 'markSaved', newPhones: data }) }
-            style={{ marginTop: "1.2em" }}
-          >
-            Save changes
-          </SaveChangesButton>
-        )
-      }
+      )}
+      {!phonesAreSaved && (
+        <SaveChangesButton
+          isSaving={isSavingPhones}
+          setIsSaving={setIsSavingPhones}
+          saveQueryKey={['languages', language.id, 'phones', 'update']}
+          saveQueryFn={async () => await sendSavePhonesRequest(phonesState, language.id)}
+          handleSave={data => dispatchPhones({ type: 'markSaved', newPhones: data })}
+          style={{ marginTop: "1.2em" }}
+        >
+          Save changes
+        </SaveChangesButton>
+      )}
       {
         phones.length > 0
-        ? <PhoneList
-            phones={phones}
-            dispatchPhones={dispatchPhones}
-          />
-        : <p>You have not added any phones.</p>
+          ? <PhoneList
+              phones={phones}
+              dispatchPhones={dispatchPhones}
+            />
+          : <p>You have not added any phones.</p>
       }
-      {
-        !phonesAreSaved && (
-          <SaveChangesButton<IPhone[]>
-            isSaving={isSavingPhones}
-            setIsSaving={setIsSavingPhones}
-            saveQueryKey={ ['languages', language.id, 'phones', 'update'] }
-            saveQueryFn={ async () => await sendSavePhonesRequest(phonesState, language.id) }
-            handleSave={ data => dispatchPhones({ type: 'markSaved', newPhones: data }) }
-            style={ phones.length > 0 ? { marginTop: "0.8em" } : undefined }
-          >
-            Save changes
-          </SaveChangesButton>
-        )
-      }
+      {!phonesAreSaved && (
+        <SaveChangesButton
+          isSaving={isSavingPhones}
+          setIsSaving={setIsSavingPhones}
+          saveQueryKey={['languages', language.id, 'phones', 'update']}
+          saveQueryFn={async () => await sendSavePhonesRequest(phonesState, language.id)}
+          handleSave={data => dispatchPhones({ type: 'markSaved', newPhones: data })}
+          style={phones.length > 0 ? { marginTop: "0.8em" } : undefined}
+        >
+          Save changes
+        </SaveChangesButton>
+      )}
     </>
   );
 }
@@ -501,12 +487,12 @@ export default function EditPhonology() {
   if(!id) {
     throw new Error("No language ID was provided");
   }
-  
+
   const languageResponse = useLanguage(id);
   const phonesResponse = useLanguagePhones(id);
 
   useSetPageTitle("Edit Phonology");
-  
+
   if(languageResponse.status !== 'success') {
     return renderDatalessQueryResult(languageResponse);
   }
@@ -517,8 +503,8 @@ export default function EditPhonology() {
 
   return (
     <EditPhonologyInner
-      language={ languageResponse.data }
-      defaultPhones={ phonesResponse.data }
+      language={languageResponse.data}
+      defaultPhones={phonesResponse.data}
     />
   );
 };

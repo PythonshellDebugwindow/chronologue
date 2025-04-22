@@ -11,11 +11,11 @@ function getHeaderText(error: any) {
 export default function ErrorPage() {
   const error = useRouteError();
   useSetPageTitle("Error");
-  
+
   return (
     <>
       <Header />
-      <h2>{ getHeaderText(error) }</h2>
+      <h2>{getHeaderText(error)}</h2>
       <p>An error has occurred.</p>
     </>
   )

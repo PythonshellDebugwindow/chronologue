@@ -53,4 +53,4 @@ export function useLanguageIsolates() {
     queryKey: ['language-isolates'],
     queryFn: async () => parseRecordDates(await getBackendJson('language-isolates'))
   });
-}
+};

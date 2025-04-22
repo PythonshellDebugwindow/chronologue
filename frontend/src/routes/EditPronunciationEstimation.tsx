@@ -27,69 +27,73 @@ interface IEditPronunciationEstimationInner {
 }
 
 function EditPronunciationEstimationInner({ language, initialSettings }: IEditPronunciationEstimationInner) {
-  const [ letterReplacements, setLetterReplacements ] = useState(initialSettings.letterReplacements);
-  const [ rewriteRules, setRewriteRules ] = useState(initialSettings.rewriteRules);
-  
-  const [ isSaved, setIsSaved ] = useState(true);
-  const [ isSaving, setIsSaving ] = useState(false);
+  const [letterReplacements, setLetterReplacements] = useState(
+    initialSettings.letterReplacements
+  );
+  const [rewriteRules, setRewriteRules] = useState(initialSettings.rewriteRules);
+
+  const [isSaved, setIsSaved] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
 
   return (
     <>
       <h2>Edit Pronunciation Estimation</h2>
       <p>
-        Editing <Link to={ '/language/' + language.id }>{ language.name }</Link>'s
+        Editing <Link to={'/language/' + language.id}>{language.name}</Link>'s
         pronunciation estimation.
       </p>
       <h4>Rewrite Rules</h4>
       <p>
         Rewrite the generated IPA after initial estimation using ChronoSCA rules. Rules can be
-        tested on the <Link to={ '/chronosca/' + language.id }>ChronoSCA testing page</Link>.
+        tested on the <Link to={'/chronosca/' + language.id}>ChronoSCA testing page</Link>.
       </p>
       <textarea
         value={rewriteRules}
-        onChange={ e => { setRewriteRules(e.target.value); setIsSaved(false); } }
+        onChange={e => {
+          setRewriteRules(e.target.value);
+          setIsSaved(false);
+        }}
         style={{ width: "20em", height: "10em" }}
       />
-      {
-        !isSaved && (
-          <SaveChangesButton<string[]>
-            isSaving={isSaving}
-            setIsSaving={setIsSaving}
-            saveQueryKey={ ['languages', language.id, 'pronunciation-estimation', 'update'] }
-            saveQueryFn={
-              async () => await sendSaveSettingsRequest(letterReplacements, rewriteRules, language.id)
-            }
-            handleSave={ () => setIsSaved(true) }
-            style={{ marginTop: "0.8em" }}
-          >
-            Save
-          </SaveChangesButton>
-        )
-      }
+      {!isSaved && (
+        <SaveChangesButton
+          isSaving={isSaving}
+          setIsSaving={setIsSaving}
+          saveQueryKey={['languages', language.id, 'pronunciation-estimation', 'update']}
+          saveQueryFn={async () => {
+            return await sendSaveSettingsRequest(letterReplacements, rewriteRules, language.id);
+          }}
+          handleSave={() => setIsSaved(true)}
+          style={{ marginTop: "0.8em" }}
+        >
+          Save
+        </SaveChangesButton>
+      )}
       <h4>Pre-Rewrite Replacements</h4>
-      <p>Change how letters are converted to IPA before the pronunciation is estimated.</p>
+      <p>Change how letters are converted to IPA during initial estimation.</p>
       <p>Format: <code>letter|estimation</code> (one per line)</p>
       <textarea
         value={letterReplacements}
-        onChange={ e => { setLetterReplacements(e.target.value); setIsSaved(false); } }
+        onChange={e => {
+          setLetterReplacements(e.target.value);
+          setIsSaved(false);
+        }}
         style={{ width: "20em", height: "10em" }}
       />
-      {
-        !isSaved && (
-          <SaveChangesButton<string[]>
-            isSaving={isSaving}
-            setIsSaving={setIsSaving}
-            saveQueryKey={ ['languages', language.id, 'pronunciation-estimation', 'update'] }
-            saveQueryFn={
-              async () => await sendSaveSettingsRequest(letterReplacements, rewriteRules, language.id)
-            }
-            handleSave={ () => setIsSaved(true) }
-            style={{ marginTop: "0.8em" }}
-          >
-            Save
-          </SaveChangesButton>
-        )
-      }
+      {!isSaved && (
+        <SaveChangesButton
+          isSaving={isSaving}
+          setIsSaving={setIsSaving}
+          saveQueryKey={['languages', language.id, 'pronunciation-estimation', 'update']}
+          saveQueryFn={async () => {
+            return await sendSaveSettingsRequest(letterReplacements, rewriteRules, language.id);
+          }}
+          handleSave={() => setIsSaved(true)}
+          style={{ marginTop: "0.8em" }}
+        >
+          Save
+        </SaveChangesButton>
+      )}
     </>
   );
 }
@@ -99,10 +103,10 @@ export default function EditPronunciationEstimation() {
   if(!languageId) {
     throw new Error("No language ID was provided");
   }
-  
+
   const languageResponse = useLanguage(languageId);
   const settingsResponse = useLanguagePronunciationEstimationSettings(languageId);
-  
+
   useSetPageTitle("Pronunciation Estimation");
 
   if(languageResponse.status !== 'success') {
@@ -115,8 +119,8 @@ export default function EditPronunciationEstimation() {
 
   return (
     <EditPronunciationEstimationInner
-      language={ languageResponse.data }
-      initialSettings={ settingsResponse.data }
+      language={languageResponse.data}
+      initialSettings={settingsResponse.data}
     />
   );
 };

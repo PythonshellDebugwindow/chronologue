@@ -1,4 +1,4 @@
-import { Link }  from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 import { useLanguage } from '../languageData.tsx';
 
@@ -15,8 +15,8 @@ function useLanguageName(id: string) {
 
 export default function LanguageLink({ id }: { id: string }) {
   return (
-    <Link to={ '/language/' + id }>
-      { useLanguageName(id) }
+    <Link to={'/language/' + id}>
+      {useLanguageName(id)}
     </Link>
   );
 };

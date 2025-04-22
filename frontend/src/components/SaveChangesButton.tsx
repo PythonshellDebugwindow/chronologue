@@ -17,28 +17,28 @@ export default function SaveChangesButton<SaveQueryData>({
   isSaving, setIsSaving, saveQueryKey, saveQueryFn, handleSave, style = {}, children
 }: ISaveChangesButton<SaveQueryData>) {
   const queryClient = useQueryClient();
-  
+
   const saveQuery = useQuery<SaveQueryData, ITitledError>({
     queryKey: saveQueryKey,
     queryFn: saveQueryFn,
     enabled: isSaving,
     refetchOnWindowFocus: false
   });
-  
+
   const disableButtons = isSaving && saveQuery.error === null;
-  
+
   useEffect(() => {
     if(isSaving && saveQuery.status === 'success') {
       handleSave(saveQuery.data);
       setIsSaving(false);
     }
   }, [isSaving, saveQuery, handleSave, setIsSaving]);
-  
+
   function saveChanges() {
     queryClient.resetQueries({ queryKey: saveQueryKey });
     setIsSaving(true);
   }
-  
+
   return (
     <div style={style}>
       <button disabled={disableButtons} onClick={saveChanges}>
@@ -48,8 +48,8 @@ export default function SaveChangesButton<SaveQueryData>({
         isSaving && <p style={{ margin: "0.4em 0 0" }}>
           {
             saveQuery.isPending
-            ? "Saving..."
-            : (saveQuery.error && <b>Could not save: { saveQuery.error.message }</b>)
+              ? "Saving..."
+              : (saveQuery.error && <b>Could not save: {saveQuery.error.message}</b>)
           }
         </p>
       }

@@ -8,7 +8,7 @@ import { useEstimateWordIPAQuery } from '../phoneData.tsx';
 export function CForm({ action, children }: { action: string, children: ReactNode }) {
   return (
     <Form method="post" action={action} className="chronologue-form">
-      { children }
+      {children}
     </Form>
   )
 };
@@ -17,7 +17,7 @@ export function CFormBody({ children }: { children: ReactNode }) {
   return (
     <table>
       <tbody>
-        { children }
+        {children}
       </tbody>
     </table>
   );
@@ -35,7 +35,7 @@ export function CCheckbox({ label, labelColon, name, state, setState }: ICCheckb
   return (
     <tr>
       <td>
-        <label htmlFor={"ccb-" + name}>{label}{ (labelColon ?? true) && ":" }</label>
+        <label htmlFor={"ccb-" + name}>{label}{labelColon && ":"}</label>
       </td>
       <td>
         <input
@@ -43,7 +43,7 @@ export function CCheckbox({ label, labelColon, name, state, setState }: ICCheckb
           name={name}
           id={"ccb-" + name}
           checked={state}
-          onChange={ setState && (e => setState(e.target.checked)) }
+          onChange={setState && (e => setState(e.target.checked))}
         />
       </td>
     </tr>
@@ -59,8 +59,8 @@ interface IIpaTextInput {
 
 function IpaEstimationText({ languageId, setIpa, word }: IIpaTextInput) {
   const query = useEstimateWordIPAQuery(languageId, word, word.length > 0);
-  const [ estimation, setEstimation ] = useState("");
-  
+  const [estimation, setEstimation] = useState("");
+
   useEffect(() => {
     if(query.data && estimation !== query.data) {
       setEstimation(query.data);
@@ -71,13 +71,13 @@ function IpaEstimationText({ languageId, setIpa, word }: IIpaTextInput) {
     return (
       <small>
         [{estimation}]{" "}
-        <LinkButton onClick={ () => setIpa(estimation) }>[fill]</LinkButton>
+        <LinkButton onClick={() => setIpa(estimation)}>[fill]</LinkButton>
       </small>
     );
   } else if(query.status === 'pending') {
     return <small>Estimating IPA...</small>;
   } else if(query.status === 'error') {
-    return <small>Could not estimate IPA: { query.error.message }</small>;
+    return <small>Could not estimate IPA: {query.error.message}</small>;
   } else {
     return <small>Could not estimate IPA</small>;
   }
@@ -95,7 +95,7 @@ export function CIpaTextInput({ languageId, ipa, setIpa, word }: IIpaTextInput) 
           name="ipa"
           id="cti-ipa"
           value={ipa}
-          onChange={ e => setIpa(e.target.value) }
+          onChange={e => setIpa(e.target.value)}
         />
         {
           word && (
@@ -135,8 +135,8 @@ export function CMultilineTextInput({ label, name, state, setState, height }: IT
           name={name}
           id={"cmti-" + name}
           value={state}
-          onChange={ setState && (e => setState(e.target.value)) }
-          style={ height ? { height } : undefined }
+          onChange={setState && (e => setState(e.target.value))}
+          style={height ? { height } : undefined}
         />
       </td>
     </tr>
@@ -162,9 +162,9 @@ export function CSelect({ label, name, children, state, setState }: ICSelect) {
           name={name}
           id={"cs-" + name}
           value={state}
-          onChange={ setState && (e => setState(e.target.value)) }
+          onChange={setState && (e => setState(e.target.value))}
         >
-          { children }
+          {children}
         </select>
       </td>
     </tr>
@@ -183,8 +183,8 @@ export function CTextInput({ label, name, state, setState, width }: ITextInput) 
           name={name}
           id={"cti-" + name}
           value={state}
-          onChange={ setState && (e => setState(e.target.value)) }
-          style={ width ? { width } : undefined }
+          onChange={setState && (e => setState(e.target.value))}
+          style={width ? { width } : undefined}
         />
       </td>
     </tr>

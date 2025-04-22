@@ -3,7 +3,7 @@ import { Link, Outlet } from 'react-router-dom';
 
 import SelectedLanguageContext from '../SelectedLanguageContext.tsx';
 
-import chronologue from '/chronologue.png';
+import chronologueLogo from '/chronologue.png';
 
 interface IMenuBarItem {
   name: string;
@@ -13,20 +13,18 @@ interface IMenuBarItem {
 
 function MenuBarItem({ name, items, setCanHover }: IMenuBarItem) {
   return (
-    <div className="header-menu-item" onMouseEnter={ () => setCanHover(true) }>
+    <div className="header-menu-item" onMouseEnter={() => setCanHover(true)}>
       {name}
       <div className="header-submenu">
-        {
-          items.map((item, i) => (
-            <div
-              className="header-submenu-item"
-              onClick={ () => setCanHover(false) }
-              key={i}
-            >
-              {item}
-            </div>
-          ))
-        }
+        {items.map((item, i) => (
+          <div
+            className="header-submenu-item"
+            onClick={() => setCanHover(false)}
+            key={i}
+          >
+            {item}
+          </div>
+        ))}
       </div>
     </div>
   );
@@ -34,23 +32,24 @@ function MenuBarItem({ name, items, setCanHover }: IMenuBarItem) {
 
 export default function Header() {
   const { selectedLanguage } = useContext(SelectedLanguageContext);
-  const [ canHover, setCanHover ] = useState(true);
-  
+
+  const [canHover, setCanHover] = useState(true);
+
   return (
     <>
       <p id="selected-language">
         Selected:{" "}
         {
           selectedLanguage
-          ? <Link to={ '/language/' + selectedLanguage.id }>{selectedLanguage.name}</Link>
-          : "None"
+            ? <Link to={'/language/' + selectedLanguage.id}>{selectedLanguage.name}</Link>
+            : "None"
         }
       </p>
       <Link to="/" className="top-left-logo">
-        <img src={chronologue} className="logo react" alt="Chronologue logo" />
+        <img src={chronologueLogo} className="logo react" alt="Chronologue logo" />
         <h1>Chronologue</h1>
       </Link>
-      <div className={ "header-menu" + (canHover ? "" : " no-dropdown") }>
+      <div className={"header-menu" + (canHover ? "" : " no-dropdown")}>
         <MenuBarItem
           name="Phonology"
           items={[
@@ -103,5 +102,5 @@ export default function Header() {
       </div>
       <Outlet />
     </>
-  )
+  );
 };

@@ -31,29 +31,25 @@ function TableOfContents() {
 
   return (
     <ol className="chronosca-help-toc">
-      {
-        sections.map(section => (
-          <li key={ section.id }>
-            <a href={ "#" + section.id }>{ section.title }</a>
-            <ul>
-              {
-                section.subsections.map(subheading => (
-                  <li key={ subheading.id }>
-                    <a href={ "#" + subheading.id }>{ subheading.title }</a>
-                  </li>
-                ))
-              }
-            </ul>
-          </li>
-        ))
-      }
+      {sections.map(section => (
+        <li key={section.id}>
+          <a href={"#" + section.id}>{section.title}</a>
+          <ul>
+            {section.subsections.map(subheading => (
+              <li key={subheading.id}>
+                <a href={"#" + subheading.id}>{subheading.title}</a>
+              </li>
+            ))}
+          </ul>
+        </li>
+      ))}
     </ol>
   );
 }
 
 export default function ChronoSCAHelpPage() {
   useSetPageTitle("ChronoSCA Help");
-  
+
   return (
     <>
       <h2>ChronoSCA Help</h2>
@@ -65,7 +61,10 @@ export default function ChronoSCAHelpPage() {
         <p>Table of Contents</p>
         <TableOfContents />
       </div>
-      <div className="chronosca-help" dangerouslySetInnerHTML={helpPageHtmlObject} />
+      <div
+        className="chronosca-help"
+        dangerouslySetInnerHTML={helpPageHtmlObject}
+      />
     </>
   );
 };

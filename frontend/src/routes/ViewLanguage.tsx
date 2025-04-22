@@ -37,102 +37,92 @@ interface IViewLanguageInner {
 
 function ViewLanguageInner({ language, summaryNotes }: IViewLanguageInner) {
   const { selectedLanguage, setSelectedLanguage } = useContext(SelectedLanguageContext);
-  
+
   return (
     <>
-      <h2>View Language: { language.name }</h2>
-      {
-        language.id !== selectedLanguage?.id && (
-          <p>
-            <LinkButton onClick={ () => setSelectedLanguage(language) }>
-              Select
-            </LinkButton>
-          </p>
-        )
-      }
+      <h2>View Language: {language.name}</h2>
+      {language.id !== selectedLanguage?.id && (
+        <p>
+          <LinkButton onClick={() => setSelectedLanguage(language)}>
+            Select
+          </LinkButton>
+        </p>
+      )}
       <table className="info-table">
         <tbody>
-          {
-            language.autonym && (
-              <tr>
-                <th>Autonym:</th>
-                <td>{ language.autonym }</td>
-              </tr>
-            )
-          }
+          {language.autonym && (
+            <tr>
+              <th>Autonym:</th>
+              <td>{language.autonym}</td>
+            </tr>
+          )}
           <tr>
             <th>Family:</th>
             <td>
               {
                 language.familyId !== null
-                ? <FamilyLink id={ language.familyId } />
-                : "None"
+                  ? <FamilyLink id={language.familyId} />
+                  : "None"
               }
             </td>
           </tr>
-          {
-            language.parentId !== null && (
-              <tr>
-                <th>Parent:</th>
-                <td>
-                  <LanguageLink id={ language.parentId } />
-                </td>
-              </tr>
-            )
-          }
+          {language.parentId !== null && (
+            <tr>
+              <th>Parent:</th>
+              <td>
+                <LanguageLink id={language.parentId} />
+              </td>
+            </tr>
+          )}
           <tr>
             <th>Created:</th>
             <td>
-              <DisplayDate date={ language.created } />
+              <DisplayDate date={language.created} />
             </td>
           </tr>
           <tr>
             <th>Status:</th>
             <td>
-              { formatLanguageStatus(language.status) }
+              {formatLanguageStatus(language.status)}
             </td>
           </tr>
-          {
-            language.era && (
-              <tr>
-                <th>Era:</th>
-                <td>{ language.era }</td>
-              </tr>
-            )
-          }
+          {language.era && (
+            <tr>
+              <th>Era:</th>
+              <td>{language.era}</td>
+            </tr>
+          )}
           <tr>
             <th>Words:</th>
             <td>
-              { useWordCount(language.id) }
+              {useWordCount(language.id)}
             </td>
           </tr>
         </tbody>
       </table>
-      {
-        summaryNotes.description && (
-          <p className="user-notes-paragraph" style={{ marginTop: "1em" }}>
-            { summaryNotes.description }
-          </p>
-        )
-      }
-      <p><Link to={ '/edit-language/' + language.id }>Edit language</Link></p>
+      {summaryNotes.description && (
+        <p className="user-notes-paragraph" style={{ marginTop: "1em" }}>
+          {summaryNotes.description}
+        </p>
+      )}
+      <p><Link to={'/edit-language/' + language.id}>Edit language</Link></p>
       <LanguageTree root={language} />
       <h3>Dictionary</h3>
-      <p><Link to={ '/dictionary/' + language.id }>View dictionary</Link></p>
-      <PhonologySection languageId={ language.id } />
-      {
-        summaryNotes.phonologyNotes && <>
+      <p><Link to={'/dictionary/' + language.id}>View dictionary</Link></p>
+      <PhonologySection languageId={language.id} />
+      {summaryNotes.phonologyNotes && (
+        <>
           <h4>Notes</h4>
-          <p className="user-notes-paragraph">{ summaryNotes.phonologyNotes }</p>
+          <p className="user-notes-paragraph">{summaryNotes.phonologyNotes}</p>
         </>
-      }
-      <OrthographySection languageId={ language.id } />
-      {
-        summaryNotes.orthographyNotes && <>
+      )}
+      <OrthographySection languageId={language.id} />
+      {summaryNotes.orthographyNotes && (
+        <>
           <h4>Notes</h4>
-          <p className="user-notes-paragraph">{ summaryNotes.orthographyNotes }</p>
+          <p className="user-notes-paragraph">{summaryNotes.orthographyNotes}</p>
         </>
-      }
+      )}
     </>
   );
 }
@@ -142,10 +132,10 @@ export default function ViewLanguage() {
   if(!id) {
     throw new Error("No language ID was provided");
   }
-  
+
   const languageResponse = useLanguage(id);
   const summaryNotesResponse = useLanguageSummaryNotes(id);
-  
+
   const language = languageResponse.data;
   useSetPageTitle(language ? "Language: " + language.name : "Language Summary");
 
@@ -156,11 +146,11 @@ export default function ViewLanguage() {
   if(summaryNotesResponse.status !== 'success') {
     return renderDatalessQueryResult(summaryNotesResponse);
   }
-  
+
   return (
     <ViewLanguageInner
-      language={ languageResponse.data }
-      summaryNotes={ summaryNotesResponse.data }
+      language={languageResponse.data}
+      summaryNotes={summaryNotesResponse.data}
     />
   );
 };

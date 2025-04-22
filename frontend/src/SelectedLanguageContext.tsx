@@ -6,8 +6,8 @@ export interface ISelectedLanguageData {
 };
 
 interface ISLObject {
-  selectedLanguage: ISelectedLanguageData | null,
-  setSelectedLanguage: (_: ISelectedLanguageData | null) => void
+  selectedLanguage: ISelectedLanguageData | null;
+  setSelectedLanguage: (language: ISelectedLanguageData | null) => void;
 }
 
 function loadSelectedLanguageFromStorage() {

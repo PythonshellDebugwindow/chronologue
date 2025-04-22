@@ -30,7 +30,7 @@ function wordName(query: ReturnType<typeof useWord>) {
   }
 }
 
-interface IWordAddedMessage { 
+interface IWordAddedMessage {
   prevId: string;
   copyWordData: (word: IWord, classIds: string[]) => void;
 }
@@ -44,12 +44,12 @@ function WordAddedMessage({ prevId, copyWordData }: IWordAddedMessage) {
       copyWordData(prevWordQuery.data, prevWordClassesQuery.data);
     }
   }
-  
+
   return (
     <p>
       Word '
-      <Link to={ '/word/' + prevId }>
-        { wordName(prevWordQuery) }
+      <Link to={'/word/' + prevId}>
+        {wordName(prevWordQuery)}
       </Link>
       ' added successfully
       {
@@ -76,7 +76,7 @@ interface IAddWordInner {
 }
 
 function AddWordInner({ language, dictSettings, langClasses, langPartsOfSpeech }: IAddWordInner) {
-  const [ searchParams ] = useSearchParams();
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
   const copyWordQuery = useWord(
@@ -85,20 +85,20 @@ function AddWordInner({ language, dictSettings, langClasses, langPartsOfSpeech }
   const copyWordClassesQuery = useWordClassIds(
     searchParams.get('copy') ?? "", searchParams.has('copy')
   );
-  const [ shouldCopyWord, setShouldCopyWord ] = useState(searchParams.has('copy'));
-  
-  const [ word, setWord ] = useState("");
-  const [ meaning, setMeaning ] = useState("");
-  const [ ipa, setIpa ] = useState("");
-  const [ pos, setPos ] = useState("");
-  const [ classes, setClasses ] = useState([] as IWordClass[]);
-  const [ etymology, setEtymology ] = useState("");
-  const [ notes, setNotes ] = useState("");
+  const [shouldCopyWord, setShouldCopyWord] = useState(searchParams.has('copy'));
 
-  const [ preserveFields, setPreserveFields ] = useState(false);
-  const [ message, setMessage ] = useState("");
-  const [ copyingMessage, setCopyingMessage ] = useState<ReactNode>(null);
-  
+  const [word, setWord] = useState("");
+  const [meaning, setMeaning] = useState("");
+  const [ipa, setIpa] = useState("");
+  const [pos, setPos] = useState("");
+  const [classes, setClasses] = useState<IWordClass[]>([]);
+  const [etymology, setEtymology] = useState("");
+  const [notes, setNotes] = useState("");
+
+  const [preserveFields, setPreserveFields] = useState(false);
+  const [message, setMessage] = useState("");
+  const [copyingMessage, setCopyingMessage] = useState<ReactNode>(null);
+
   const copyWordData = useCallback((word: IWord, classIds: string[]) => {
     setWord(word.word);
     setIpa(word.ipa);
@@ -127,14 +127,14 @@ function AddWordInner({ language, dictSettings, langClasses, langPartsOfSpeech }
         copyWordData(copied, copyWordClassesQuery.data);
         setCopyingMessage(
           <>
-            Copying: <Link to={ '/words/' + copied.id }>{ copied.word }</Link>{" "}
-            ({ copied.meaning })
+            Copying: <Link to={'/words/' + copied.id}>{copied.word}</Link>{" "}
+            ({copied.meaning})
           </>
         );
       }
     }
   }, [copyWordQuery, copyWordClassesQuery, shouldCopyWord, copyWordData]);
-  
+
   function resetFields() {
     setWord("");
     setMeaning("");
@@ -159,7 +159,7 @@ function AddWordInner({ language, dictSettings, langClasses, langPartsOfSpeech }
       setMessage("Please choose a part of speech");
       return;
     }
-    
+
     const result = await addWord({
       word,
       ipa,
@@ -178,28 +178,31 @@ function AddWordInner({ language, dictSettings, langClasses, langPartsOfSpeech }
     if(!preserveFields) {
       resetFields();
     }
-    
+
     navigate(`/add-word/${language.id}/?prev=${result.body}`);
   }
-  
+
   return (
     <>
       <h2>Add Word</h2>
-      <p>Add a word to <Link to={ '/language/' + language.id }>{ language.name }</Link>'s dictionary.</p>
+      <p>
+        Add a word to{" "}
+        <Link to={'/language/' + language.id}>{language.name}</Link>'s dictionary.
+      </p>
       {
         searchParams.has('prev') && (
           <WordAddedMessage
-            prevId={ searchParams.get('prev')! }
+            prevId={searchParams.get('prev')!}
             copyWordData={copyWordData}
           />
         )
       }
-      { copyingMessage && <p>{copyingMessage}</p> }
-      { message && <p>{message}</p> }
+      {copyingMessage && <p>{copyingMessage}</p>}
+      {message && <p>{message}</p>}
       <form className="chronologue-form">
         <CFormBody>
           <CTextInputWithAlphabet
-            langId={ language.id }
+            langId={language.id}
             label="Word"
             name="word"
             state={word}
@@ -214,7 +217,7 @@ function AddWordInner({ language, dictSettings, langClasses, langPartsOfSpeech }
           {
             dictSettings.showWordIpa && (
               <CIpaTextInput
-                languageId={ language.id }
+                languageId={language.id}
                 ipa={ipa}
                 setIpa={setIpa}
                 word={word}
@@ -249,7 +252,7 @@ function AddWordInner({ language, dictSettings, langClasses, langPartsOfSpeech }
           <input
             type="checkbox"
             checked={preserveFields}
-            onChange={ e => setPreserveFields(e.target.checked) }
+            onChange={e => setPreserveFields(e.target.checked)}
           />
           Preserve fields after adding
         </label>
@@ -268,18 +271,18 @@ export default function AddWord() {
   if(!languageId) {
     throw new Error("No language ID was provided");
   }
-  
+
   const languageResponse = useLanguage(languageId);
   const dictSettingsResponse = useLanguageDictionarySettings(languageId);
   const classesResponse = useLanguageWordClasses(languageId);
   const partsOfSpeechResponse = usePartsOfSpeech();
-  
+
   useSetPageTitle("Add Word");
 
   if(languageResponse.status !== 'success') {
     return renderDatalessQueryResult(languageResponse);
   }
-  
+
   if(dictSettingsResponse.status !== 'success') {
     return renderDatalessQueryResult(dictSettingsResponse);
   }
@@ -287,17 +290,17 @@ export default function AddWord() {
   if(classesResponse.status !== 'success') {
     return renderDatalessQueryResult(classesResponse);
   }
-  
+
   if(partsOfSpeechResponse.status !== 'success') {
     return renderDatalessQueryResult(partsOfSpeechResponse);
   }
 
   return (
     <AddWordInner
-      language={ languageResponse.data }
-      dictSettings={ dictSettingsResponse.data }
-      langClasses={ classesResponse.data }
-      langPartsOfSpeech={ partsOfSpeechResponse.data }
+      language={languageResponse.data}
+      dictSettings={dictSettingsResponse.data}
+      langClasses={classesResponse.data}
+      langPartsOfSpeech={partsOfSpeechResponse.data}
     />
   );
 };

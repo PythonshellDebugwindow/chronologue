@@ -71,7 +71,7 @@ function classesReducer(state: IClassesReducerState, action: IClassesReducerActi
 
   switch(action.type) {
     case 'add': {
-      const newClasses = [ ...classes, action.newClass ];
+      const newClasses = [...classes, action.newClass];
       newClasses.sort(compareClasses);
       return {
         classes: newClasses,
@@ -79,7 +79,7 @@ function classesReducer(state: IClassesReducerState, action: IClassesReducerActi
         saved: false
       };
     }
-    
+
     case 'edit': {
       const index = classes.indexOf(action.class);
       if(index < 0) {
@@ -101,7 +101,7 @@ function classesReducer(state: IClassesReducerState, action: IClassesReducerActi
         saved: false
       };
     }
-    
+
     case 'delete':
       if(action.class.id === UNADDED_CLASS_ID) {
         return {
@@ -112,25 +112,25 @@ function classesReducer(state: IClassesReducerState, action: IClassesReducerActi
       } else {
         return {
           classes,
-          deleted: [ ...deleted, action.class.id ],
+          deleted: [...deleted, action.class.id],
           saved: false
         };
       }
-    
+
     case 'restore':
       return {
         classes,
         deleted: deleted.filter(id => id !== action.class.id),
         saved: false
       };
-    
+
     case 'markSaved':
       return {
         classes: action.newClasses,
         deleted: [],
         saved: true
       };
-    
+
     default:
       throw new Error("Unknown action type: " + (action as any).type);
   }
@@ -152,20 +152,20 @@ interface IEditWordClasses {
 }
 
 function EditWordClasses({ language, initialClasses, partsOfSpeech }: IEditWordClasses) {
-  const [ newClassPos, setNewClassPos ] = useState("");
-  const [ newClassCode, setNewClassCode ] = useState("");
-  const [ newClassName, setNewClassName ] = useState("");
-  const [ classErrorMessage, setClassErrorMessage ] = useState("");
+  const [newClassPos, setNewClassPos] = useState("");
+  const [newClassCode, setNewClassCode] = useState("");
+  const [newClassName, setNewClassName] = useState("");
+  const [classErrorMessage, setClassErrorMessage] = useState("");
 
-  const [ classesState, dispatchClasses ] = useReducer(classesReducer, {
+  const [classesState, dispatchClasses] = useReducer(classesReducer, {
     classes: initialClasses.slice().sort(compareClasses), deleted: [], saved: true
   });
   const { classes, deleted: deletedClasses, saved: classesAreSaved } = classesState;
 
-  const [ isSaving, setIsSaving ] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   useUnsavedPopup(!classesAreSaved);
-  
+
   function addNewClass() {
     const pos = newClassPos;
     const code = newClassCode;
@@ -182,21 +182,21 @@ function EditWordClasses({ language, initialClasses, partsOfSpeech }: IEditWordC
       setClassErrorMessage("");
     }
   }
-  
+
   function deleteClass(cls: IWordClass) {
     dispatchClasses({
       type: 'delete',
       class: cls
     });
   }
-  
+
   function restoreClass(cls: IWordClass) {
     dispatchClasses({
       type: 'restore',
       class: cls
     });
   }
-  
+
   function editClassCode(cls: IWordClass, newCode: string) {
     dispatchClasses({
       type: 'edit',
@@ -204,7 +204,7 @@ function EditWordClasses({ language, initialClasses, partsOfSpeech }: IEditWordC
       newCode
     });
   }
-  
+
   function editClassName(cls: IWordClass, newName: string) {
     dispatchClasses({
       type: 'edit',
@@ -212,7 +212,7 @@ function EditWordClasses({ language, initialClasses, partsOfSpeech }: IEditWordC
       newName
     });
   }
-  
+
   function editClassPos(cls: IWordClass, newPos: string) {
     dispatchClasses({
       type: 'edit',
@@ -220,28 +220,26 @@ function EditWordClasses({ language, initialClasses, partsOfSpeech }: IEditWordC
       newPos
     });
   }
-  
+
   return (
     <>
       <h3>Word Classes</h3>
       <p>Edit word classes.</p>
-      {
-        classErrorMessage && <p><b>{classErrorMessage}</b></p>
-      }
-      {
-        !classesAreSaved && <>
-          <SaveChangesButton<IWordClass[]>
+      {classErrorMessage && <p><b>{classErrorMessage}</b></p>}
+      {!classesAreSaved && (
+        <>
+          <SaveChangesButton
             isSaving={isSaving}
             setIsSaving={setIsSaving}
-            saveQueryKey={ ['languages', language.id, 'word-classes', 'update'] }
-            saveQueryFn={ async () => await sendSaveClassesRequest(classesState, language.id) }
-            handleSave={ data => dispatchClasses({ type: 'markSaved', newClasses: data }) }
+            saveQueryKey={['languages', language.id, 'word-classes', 'update']}
+            saveQueryFn={async () => await sendSaveClassesRequest(classesState, language.id)}
+            handleSave={data => dispatchClasses({ type: 'markSaved', newClasses: data })}
             style={{ marginBottom: "0.8em" }}
           >
             Save changes
           </SaveChangesButton>
         </>
-      }
+      )}
       <table className="settings-table">
         <tbody>
           <tr>
@@ -255,7 +253,7 @@ function EditWordClasses({ language, initialClasses, partsOfSpeech }: IEditWordC
               <input
                 type="text"
                 value={newClassCode}
-                onChange={ e => setNewClassCode(e.target.value) }
+                onChange={e => setNewClassCode(e.target.value)}
                 style={{ width: "3em" }}
               />
             </td>
@@ -263,99 +261,93 @@ function EditWordClasses({ language, initialClasses, partsOfSpeech }: IEditWordC
               <input
                 type="text"
                 value={newClassName}
-                onChange={ e => setNewClassName(e.target.value) }
+                onChange={e => setNewClassName(e.target.value)}
               />
             </td>
             <td>
               <select
                 value={newClassPos}
-                onChange={ e => setNewClassPos(e.target.value) }
+                onChange={e => setNewClassPos(e.target.value)}
               >
                 <option value="">---</option>
-                {
-                  partsOfSpeech.map(
-                    pos => <option value={ pos.code } key={ pos.code }>{ pos.name }</option>
-                  )
-                }
+                {partsOfSpeech.map(
+                  pos => <option value={pos.code} key={pos.code}>{pos.name}</option>
+                )}
               </select>
             </td>
             <td>
-              <span className="hover-light-grey" onClick={ () => addNewClass() }>
+              <span className="hover-light-grey" onClick={() => addNewClass()}>
                 <span className="letter-button letter-button-small letter-button-t" />
               </span>
             </td>
           </tr>
-          {
-            classes.map((cls, i) => {
-              const isDeleted = deletedClasses.includes(cls.id);
-              return (
-                <tr key={i} className={ isDeleted ? "deleted-pos-row" : undefined }>
-                  <td>
-                    <input
-                      type="text"
-                      value={cls.code}
-                      onChange={ e => editClassCode(cls, e.target.value) }
-                      style={{ width: "3em" }}
-                      disabled={isDeleted}
-                    />
-                  </td>
-                  <td>
-                    <input
-                      type="text"
-                      value={cls.name}
-                      onChange={ e => editClassName(cls, e.target.value) }
-                      disabled={isDeleted}
-                    />
-                  </td>
-                  <td>
-                    {
-                      cls.id === UNADDED_CLASS_ID
+          {classes.map((cls, i) => {
+            const isDeleted = deletedClasses.includes(cls.id);
+            return (
+              <tr key={i} className={isDeleted ? "deleted-pos-row" : undefined}>
+                <td>
+                  <input
+                    type="text"
+                    value={cls.code}
+                    onChange={e => editClassCode(cls, e.target.value)}
+                    style={{ width: "3em" }}
+                    disabled={isDeleted}
+                  />
+                </td>
+                <td>
+                  <input
+                    type="text"
+                    value={cls.name}
+                    onChange={e => editClassName(cls, e.target.value)}
+                    disabled={isDeleted}
+                  />
+                </td>
+                <td>
+                  {
+                    cls.id === UNADDED_CLASS_ID
                       ? <select
                           value={cls.pos}
-                          onChange={ e => editClassPos(cls, e.target.value) }
+                          onChange={e => editClassPos(cls, e.target.value)}
                         >
                           <option value="">---</option>
-                          {
-                            partsOfSpeech.map(
-                              pos => <option value={ pos.code } key={ pos.code }>{ pos.name }</option>
-                            )
-                          }
+                          {partsOfSpeech.map(
+                            pos => <option value={pos.code} key={pos.code}>{pos.name}</option>
+                          )}
                         </select>
                       : partsOfSpeech.find(p => p.code === cls.pos)?.name
-                    }
-                  </td>
-                  <td>
-                    {
-                      isDeleted
-                      ? <span onClick={ () => restoreClass(cls) } className="hover-light-grey">
+                  }
+                </td>
+                <td>
+                  {
+                    isDeleted
+                      ? <span onClick={() => restoreClass(cls)} className="hover-light-grey">
                           <span className="letter-button letter-button-small letter-button-refresh" />
                         </span>
-                      : <span onClick={ () => deleteClass(cls) } className="hover-light-grey">
+                      : <span onClick={() => deleteClass(cls)} className="hover-light-grey">
                           <span className="letter-button letter-button-small letter-button-x" />
                         </span>
-                    }
-                  </td>
-                </tr>
-              );
-            })
-          }
+                  }
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
-      {
-        !classesAreSaved && <>
+      {!classesAreSaved && (
+        <>
           <br />
-          <SaveChangesButton<IWordClass[]>
+          <SaveChangesButton
             isSaving={isSaving}
             setIsSaving={setIsSaving}
-            saveQueryKey={ ['languages', language.id, 'word-classes', 'update'] }
-            saveQueryFn={ async () => await sendSaveClassesRequest(classesState, language.id) }
-            handleSave={ data => dispatchClasses({ type: 'markSaved', newClasses: data }) }
+            saveQueryKey={['languages', language.id, 'word-classes', 'update']}
+            saveQueryFn={async () => await sendSaveClassesRequest(classesState, language.id)}
+            handleSave={data => dispatchClasses({ type: 'markSaved', newClasses: data })}
             style={{ marginTop: "0.8em" }}
           >
             Save changes
           </SaveChangesButton>
         </>
-      }
+      )}
     </>
   );
 }
@@ -366,11 +358,11 @@ interface IEditOtherDictSettings {
 }
 
 function EditOtherDictSettings({ language, dictSettings }: IEditOtherDictSettings) {
-  const [ showWordIpa, setShowWordIpa ] = useState(dictSettings.showWordIpa);
-  
-  const [ settingsAreSaved, setSettingsAreSaved ] = useState(true);
-  const [ isSavingSettings, setIsSavingSettings ] = useState(false);
-  
+  const [showWordIpa, setShowWordIpa] = useState(dictSettings.showWordIpa);
+
+  const [settingsAreSaved, setSettingsAreSaved] = useState(true);
+  const [isSavingSettings, setIsSavingSettings] = useState(false);
+
   return (
     <>
       <h3>Show IPA</h3>
@@ -384,28 +376,27 @@ function EditOtherDictSettings({ language, dictSettings }: IEditOtherDictSetting
           <input
             type="checkbox"
             checked={showWordIpa}
-            onChange={
-              e => { setShowWordIpa(e.target.checked); setSettingsAreSaved(false); }
-            }
+            onChange={e => {
+              setShowWordIpa(e.target.checked);
+              setSettingsAreSaved(false);
+            }}
           />
         </label>
       </div>
-      {
-        !settingsAreSaved && <>
-          <SaveChangesButton
-            isSaving={isSavingSettings}
-            setIsSaving={setIsSavingSettings}
-            saveQueryKey={ ['languages', language.id, 'dictionary-settings', 'update'] }
-            saveQueryFn={
-              async () => await sendSaveDictSettingsRequest(showWordIpa, language.id)
-            }
-            handleSave={ () => setSettingsAreSaved(true) }
-            style={{ marginTop: "1em" }}
-          >
-            Save
-          </SaveChangesButton>
-        </>
-      }
+      {!settingsAreSaved && (
+        <SaveChangesButton
+          isSaving={isSavingSettings}
+          setIsSaving={setIsSavingSettings}
+          saveQueryKey={['languages', language.id, 'dictionary-settings', 'update']}
+          saveQueryFn={async () => {
+            return await sendSaveDictSettingsRequest(showWordIpa, language.id);
+          }}
+          handleSave={() => setSettingsAreSaved(true)}
+          style={{ marginTop: "1em" }}
+        >
+          Save
+        </SaveChangesButton>
+      )}
     </>
   );
 }
@@ -424,7 +415,7 @@ function EditDictionarySettingsInner(
     <>
       <h2>Edit Dictionary Settings</h2>
       <p>
-        Edit <Link to={ '/language/' + language.id }>{ language.name }</Link>'s
+        Edit <Link to={'/language/' + language.id}>{language.name}</Link>'s
         word classes and other dictionary settings.
       </p>
       <EditWordClasses
@@ -445,12 +436,12 @@ export default function EditDictionarySettings() {
   if(!languageId) {
     throw new Error("No language ID was provided");
   }
-  
+
   const languageResponse = useLanguage(languageId);
   const dictSettingsResponse = useLanguageDictionarySettings(languageId);
   const classesResponse = useLanguageWordClasses(languageId);
   const partsOfSpeechResponse = usePartsOfSpeech();
-  
+
   useSetPageTitle("Edit Dictionary Settings");
 
   if(languageResponse.status !== 'success') {
@@ -471,10 +462,10 @@ export default function EditDictionarySettings() {
 
   return (
     <EditDictionarySettingsInner
-      language={ languageResponse.data }
-      dictSettings={ dictSettingsResponse.data }
-      classes={ classesResponse.data }
-      partsOfSpeech={ partsOfSpeechResponse.data }
+      language={languageResponse.data}
+      dictSettings={dictSettingsResponse.data}
+      classes={classesResponse.data}
+      partsOfSpeech={partsOfSpeechResponse.data}
     />
   );
 };

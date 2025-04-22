@@ -44,9 +44,9 @@ export interface IPhoneTableData {
 export const consonantData: IPhoneTableData = {
   type: 'consonant',
   horizontal: [
-    "Bilabial", <>Labio-<br/>dental</>, "Dental", "Alveolar", <>Post-<br/>alveolar</>, "Retroflex",
-    <>Alveolo-<br/>palatal</>, "Palatal", <>Labio-<br/>velar</>, "Velar", "Uvular",
-    <>Pharyngeal/<br/>epiglottal</>, "Glottal", "Other"
+    "Bilabial", <>Labio-<br />dental</>, "Dental", "Alveolar", <>Post-<br />alveolar</>,
+    "Retroflex", <>Alveolo-<br />palatal</>, "Palatal", <>Labio-<br />velar</>, "Velar",
+    "Uvular", <>Pharyngeal/<br />epiglottal</>, "Glottal", "Other"
   ],
   vertical: [
     "Nasal", "Plosive", "Affricate", "Fricative", "Approximant", "Tap/flap",
@@ -59,7 +59,7 @@ export const consonantData: IPhoneTableData = {
 export const vowelData: IPhoneTableData = {
   type: 'vowel',
   horizontal: [
-    "Front", <>Near-<br/>front</>, "Central", <>Near-<br/>back</>, "Back"
+    "Front", <>Near-<br />front</>, "Central", <>Near-<br />back</>, "Back"
   ],
   vertical: [
     "Close", "Near-close", "Close-mid", "Mid", "Open-mid", "Near-open", "Open"

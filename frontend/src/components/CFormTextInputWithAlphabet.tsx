@@ -10,7 +10,7 @@ interface IInsertAlphabetGraph {
 }
 
 function InsertAlphabetGraph({ graph, insertGraph }: IInsertAlphabetGraph) {
-  return <span onClick={ () => insertGraph(graph) }>{graph}</span>;
+  return <span onClick={() => insertGraph(graph)}>{graph}</span>;
 }
 
 interface IAlphabetListingLetter {
@@ -35,12 +35,12 @@ function AlphabetListingGraph({ graph, orthSettings, insertGraph }: IAlphabetLis
       return (
         <>
           <InsertAlphabetGraph
-            graph={ graph.toUpperCase() }
+            graph={graph.toUpperCase()}
             insertGraph={insertGraph}
           />
-          { formatType === 'upper-space-lower' && <>&nbsp;</> }
+          {formatType === 'upper-space-lower' && <>&nbsp;</>}
           <InsertAlphabetGraph
-            graph={ graph.toLowerCase() }
+            graph={graph.toLowerCase()}
             insertGraph={insertGraph}
           />
         </>
@@ -58,7 +58,7 @@ interface IAlphabetListing {
 function AlphabetListing({ langId, insertGraph }: IAlphabetListing) {
   const { status, error, data: orthSettings } = useLanguageOrthographySettings(langId);
   if(status === 'error') {
-    return <b>Error: { error.message }</b>;
+    return <b>Error: {error.message}</b>;
   } else if(status === 'pending') {
     return "Loading...";
   } else if(orthSettings.alphabeticalOrder.length === 0) {
@@ -86,12 +86,12 @@ function AlphabetListing({ langId, insertGraph }: IAlphabetListing) {
 }
 
 function AlphabetListingDropdown({ langId, insertGraph }: IAlphabetListing) {
-  const [ isOpen, setIsOpen ] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
   return (
     <>
       <div className="clickable-alphabet-dropdown">
-        <span onClick={ () => setIsOpen(!isOpen) }>
-          Alphabet { isOpen ? "▼" : "▶" }
+        <span onClick={() => setIsOpen(!isOpen)}>
+          Alphabet {isOpen ? "▼" : "▶"}
         </span>
       </div>
       {
@@ -146,7 +146,7 @@ export default function CTextInputWithAlphabet(
             name={name}
             id={"cti-" + name}
             value={state}
-            onChange={ setState && (e => setState(e.target.value)) }
+            onChange={setState && (e => setState(e.target.value))}
             ref={inputRef}
           />
         </td>

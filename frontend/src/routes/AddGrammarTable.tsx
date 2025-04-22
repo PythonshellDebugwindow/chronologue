@@ -29,10 +29,10 @@ interface IAddGrammarTableInner {
 }
 
 function AddGrammarTableInner({ language, langClasses, langTables, partsOfSpeech }: IAddGrammarTableInner) {
-  const [ searchParams ] = useSearchParams();
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  
-  const [ tableIdToCopy, setTableIdToCopy ] = useState("");
+
+  const [tableIdToCopy, setTableIdToCopy] = useState("");
   const copyTableQuery = useGrammarTable(
     tableIdToCopy || (searchParams.get('copy') ?? ""),
     tableIdToCopy !== "" || searchParams.has('copy')
@@ -41,19 +41,19 @@ function AddGrammarTableInner({ language, langClasses, langTables, partsOfSpeech
     tableIdToCopy || (searchParams.get('copy') ?? ""),
     tableIdToCopy !== "" || searchParams.has('copy')
   );
-  const [ shouldCopyTable, setShouldCopyTable ] = useState(searchParams.has('copy'));
-  
-  const [ name, setName ] = useState("");
-  const [ pos, setPos ] = useState("");
-  const [ rows, setRows ] = useState([ "Ø" ]);
-  const [ columns, setColumns ] = useState([ "Ø" ]);
-  const [ showIpa, setShowIpa ] = useState(false);
-  const [ classes, setClasses ] = useState([] as IWordClass[]);
-  const [ invertClasses, setInvertClasses ] = useState(false);
-  const [ notes, setNotes ] = useState("");
+  const [shouldCopyTable, setShouldCopyTable] = useState(searchParams.has('copy'));
 
-  const [ message, setMessage ] = useState("");
-  const [ copyingMessage, setCopyingMessage ] = useState<ReactNode>(null);
+  const [name, setName] = useState("");
+  const [pos, setPos] = useState("");
+  const [rows, setRows] = useState(["Ø"]);
+  const [columns, setColumns] = useState(["Ø"]);
+  const [showIpa, setShowIpa] = useState(false);
+  const [classes, setClasses] = useState<IWordClass[]>([]);
+  const [invertClasses, setInvertClasses] = useState(false);
+  const [notes, setNotes] = useState("");
+
+  const [message, setMessage] = useState("");
+  const [copyingMessage, setCopyingMessage] = useState<ReactNode>(null);
 
   langTables.sort(compareGrammarTables);
 
@@ -87,9 +87,9 @@ function AddGrammarTableInner({ language, langClasses, langTables, partsOfSpeech
         setCopyingMessage(
           <>
             Copying:{" "}
-            <Link to={ '/grammar-table/' + copied.id}>
-              { copied.name && (copied.name + " ") }
-              [{ formatPosFieldValue(copied.pos, partsOfSpeech) }]
+            <Link to={'/grammar-table/' + copied.id}>
+              {copied.name && (copied.name + " ")}
+              [{formatPosFieldValue(copied.pos, partsOfSpeech)}]
             </Link>
           </>
         );
@@ -109,13 +109,13 @@ function AddGrammarTableInner({ language, langClasses, langTables, partsOfSpeech
       setShouldCopyTable(true);
     }
   }
-  
+
   async function addFormTable() {
     if(!pos) {
       setMessage("Please choose a part of speech");
       return;
     }
-    
+
     const result = await addGrammarTable({
       langId: language.id,
       name,
@@ -134,12 +134,12 @@ function AddGrammarTableInner({ language, langClasses, langTables, partsOfSpeech
 
     navigate('/grammar-table/' + result.body);
   }
-  
+
   return (
     <>
       <h2>Add Grammar Table</h2>
       <p className="grammar-table-paragraph">
-        Add a grammar table to <Link to={ '/language/' + language.id }>{ language.name }</Link>.
+        Add a grammar table to <Link to={'/language/' + language.id}>{language.name}</Link>.
         Grammar tables are used to show inflected forms of words, like declensions or conjugations.
       </p>
       <p className="grammar-table-paragraph">
@@ -148,21 +148,19 @@ function AddGrammarTableInner({ language, langClasses, langTables, partsOfSpeech
         them. Selecting "Show IPA" will cause an IPA estimation to be shown beneath each word form
         in the table.
       </p>
-      { copyingMessage && <p>{copyingMessage}</p> }
-      { message && <p><b>{message}</b></p> }
+      {copyingMessage && <p>{copyingMessage}</p>}
+      {message && <p><b>{message}</b></p>}
       <p>
         <label>
           Copy table:{" "}
-          <select value={tableIdToCopy} onChange={ e => setTableIdToCopy(e.target.value) }>
+          <select value={tableIdToCopy} onChange={e => setTableIdToCopy(e.target.value)}>
             <option value="">---</option>
-            {
-              langTables.map(table => (
-                <option value={table.id} key={table.id}>
-                  { table.name && (table.name + " ") }
-                  [{ formatPosFieldValue(table.pos, partsOfSpeech) }]
-                </option>
-              ))
-            }
+            {langTables.map(table => (
+              <option value={table.id} key={table.id}>
+                {table.name && (table.name + " ")}
+                [{formatPosFieldValue(table.pos, partsOfSpeech)}]
+              </option>
+            ))}
           </select>
         </label>
         {" "}
@@ -176,7 +174,12 @@ function AddGrammarTableInner({ language, langClasses, langTables, partsOfSpeech
       </p>
       <form className="chronologue-form">
         <CFormBody>
-          <CTextInput label="Name" name="name" state={name} setState={setName} />
+          <CTextInput
+            label="Name"
+            name="name"
+            state={name}
+            setState={setName}
+          />
           <POSAndClassesSelect
             pos={pos}
             setPos={setPos}
@@ -218,7 +221,7 @@ function AddGrammarTableInner({ language, langClasses, langTables, partsOfSpeech
         setRows={setRows}
         setColumns={setColumns}
       />
-      { message && <p><b>{message}</b></p> }
+      {message && <p><b>{message}</b></p>}
       <form className="chronologue-form" style={{ marginTop: "1em" }}>
         <CFormBody>
           <CMultilineTextInput
@@ -242,12 +245,12 @@ export default function AddGrammarTable() {
   if(!languageId) {
     throw new Error("No language ID was provided");
   }
-  
+
   const languageResponse = useLanguage(languageId);
   const classesResponse = useLanguageWordClasses(languageId);
   const tablesResponse = useLanguageGrammarTables(languageId);
   const partsOfSpeechResponse = usePartsOfSpeech();
-  
+
   useSetPageTitle("Add Grammar Table");
 
   if(languageResponse.status !== 'success') {
@@ -257,21 +260,21 @@ export default function AddGrammarTable() {
   if(classesResponse.status !== 'success') {
     return renderDatalessQueryResult(classesResponse);
   }
-  
+
   if(tablesResponse.status !== 'success') {
     return renderDatalessQueryResult(tablesResponse);
   }
-  
+
   if(partsOfSpeechResponse.status !== 'success') {
     return renderDatalessQueryResult(partsOfSpeechResponse);
   }
 
   return (
     <AddGrammarTableInner
-      language={ languageResponse.data }
-      langClasses={ classesResponse.data }
-      langTables={ tablesResponse.data }
-      partsOfSpeech={ partsOfSpeechResponse.data }
+      language={languageResponse.data}
+      langClasses={classesResponse.data}
+      langTables={tablesResponse.data}
+      partsOfSpeech={partsOfSpeechResponse.data}
     />
   );
 };
