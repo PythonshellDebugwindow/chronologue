@@ -26,7 +26,7 @@ function DisplayWordGrammarTable({ word, tableOverview, partsOfSpeech }: IDispla
 
   const tableQuery = useGrammarTable(tableOverview.id, showTable);
   const grammarFormsQuery = useGrammarForms(showTable);
-  const runQuery = useRunGrammarTableOnWordQuery(tableOverview.id, word.word, showTable);
+  const runQuery = useRunGrammarTableOnWordQuery(tableOverview.id, word.id, showTable);
 
   const tableNode = showTable && (() => {
     const queries = [tableQuery, grammarFormsQuery, runQuery];
@@ -49,6 +49,10 @@ function DisplayWordGrammarTable({ word, tableOverview, partsOfSpeech }: IDispla
           {" "}
           <Link to={'/edit-grammar-table/' + tableOverview.id}>
             [edit table]
+          </Link>
+          {" "}
+          <Link to={`/irregular-forms/${tableOverview.id}?word=${word.id}`}>
+            [irregular forms]
           </Link>
         </small>
         <WordGrammarTable

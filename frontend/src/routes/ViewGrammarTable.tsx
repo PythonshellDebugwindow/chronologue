@@ -66,7 +66,7 @@ function DisplayRandomTableWord({ table, filledCells, grammarForms }: IDisplayRa
   if(result.data) {
     return (
       <>
-        <p style={{ margin: "0" }}>
+        <p style={{ marginBottom: "0.4em" }}>
           Random word:{" "}
           <Link to={'/word/' + result.data.id}>{result.data.word}</Link>{" "}
           ({result.data.meaning})
@@ -78,6 +78,10 @@ function DisplayRandomTableWord({ table, filledCells, grammarForms }: IDisplayRa
           <small>
             <Link to={'/edit-word/' + result.data.id}>
               [edit word]
+            </Link>
+            {" "}
+            <Link to={`/irregular-forms/${table.id}?word=${result.data.id}`}>
+              [irregular forms]
             </Link>
           </small>
           <WordGrammarTable
@@ -163,12 +167,14 @@ function ViewGrammarTableInner(
             />
       }
       {table.notes && (
-        <p
-          className="user-notes-paragraph"
-          style={{ marginTop: "1em" }}
-        >
-          {table.notes}
-        </p>
+        <div>
+          <p
+            className="user-notes-paragraph"
+            style={{ marginTop: "1em" }}
+          >
+            {table.notes}
+          </p>
+        </div>
       )}
       <p><Link to={'/edit-grammar-table/' + table.id}>Edit table</Link></p>
       <p><Link to={`/add-grammar-table/${table.langId}?copy=${table.id}`}>Copy table</Link></p>

@@ -319,6 +319,27 @@ export const getGrammarTablesForWord: RequestHandler = async (req, res) => {
   });
 };
 
+export const getIrregularForms: RequestHandler = async (req, res) => {
+  if(!isValidUUID(req.params.id)) {
+    res.status(400).json({ title: "Invalid ID", message: "The given table ID is not valid." });
+    return;
+  }
+  if(!isValidUUID(req.params.word)) {
+    res.status(400).json({ title: "Invalid ID", message: "The given word ID is not valid." });
+    return;
+  }
+
+  const value = await query(
+    `
+      SELECT row_index AS "row", column_index AS "column", form
+      FROM grammar_table_irregular_forms
+      WHERE table_id = $1 AND word_id = $2
+    `,
+    [req.params.id, req.params.word]
+  );
+  res.json(value.rows);
+};
+
 export const getLanguageGrammarTables: RequestHandler = async (req, res) => {
   if(!isValidUUID(req.params.id)) {
     res.status(400).json({ title: "Invalid ID", message: "The given language ID is not valid." });
@@ -393,7 +414,8 @@ export const getRandomWordForGrammarTable: RequestHandler = async (req, res) => 
       res.json(null);
       return;
     }
-    const word = wordResult.rows[0].word;
+    
+    const word = wordResult.rows[0];
     const runResult = await runGrammarTableRules(req.params.id, word, client);
     if(runResult.success) {
       res.json({ ...wordResult.rows[0], cells: runResult.result });
@@ -408,13 +430,23 @@ export const runGrammarTableOnWord: RequestHandler = async (req, res) => {
     res.status(400).json({ title: "Invalid ID", message: "The given table ID is not valid." });
     return;
   }
-  if(!hasAllStrings(req.body, ['word'])) {
+  if(!hasAllStrings(req.body, ['wordId'])) {
     res.status(400).json({ message: "Invalid request body." });
     return;
   }
 
   await transact(async client => {
-    const result = await runGrammarTableRules(req.params.id, req.body.word, client);
+    const wordResult = await client.query(
+      "SELECT id, word FROM words WHERE id = $1",
+      [req.body.wordId]
+    );
+    if(wordResult.rows.length === 0) {
+      res.status(400).json({ message: "The requested word was not found." });
+      return;
+    }
+    
+    const word = wordResult.rows[0];
+    const result = await runGrammarTableRules(req.params.id, word, client);
     if(result.success) {
       res.json(result.result);
     } else {
@@ -484,4 +516,63 @@ export const updateGrammarForms: RequestHandler = async (req, res, next) => {
       next(err);
     }
   }
+};
+
+export const updateIrregularForms: RequestHandler = async (req, res) => {
+  if(!isValidUUID(req.params.id)) {
+    res.status(400).json({ title: "Invalid ID", message: "The given table ID is not valid." });
+    return;
+  }
+  if(!isValidUUID(req.params.word)) {
+    res.status(400).json({ title: "Invalid ID", message: "The given word ID is not valid." });
+    return;
+  }
+  if(!(req.body.cells instanceof Array)) {
+    res.status(400).json({ message: "Please provide all required fields." });
+    return;
+  }
+
+  const tableId = req.params.id;
+  const wordId = req.params.word;
+  const cells = (req.body.cells as string[][]).flatMap((row, i) => (
+    row.flatMap((cell, j) => cell ? [{
+      table_id: tableId,
+      word_id: wordId,
+      row_index: i,
+      column_index: j,
+      form: cell
+    }] : [])
+  ));
+  const cellPosRows = cells.map(cell => cell.row_index);
+  const cellPosColumns = cells.map(cell => cell.column_index);
+
+  await transact(async client => {
+    await client.query(
+      `
+        DELETE FROM grammar_table_irregular_forms
+        WHERE table_id = $1 AND word_id = $2 AND NOT (
+          (row_index, column_index) = ANY(
+            SELECT * FROM unnest($3::integer[], $4::integer[])
+          )
+        )
+      `,
+      [tableId, wordId, cellPosRows, cellPosColumns]
+    );
+    if(cells.length > 0) {
+      await client.query(
+        `
+          INSERT INTO grammar_table_irregular_forms (
+            table_id, word_id, row_index, column_index, form
+          )
+          SELECT c.table_id, c.word_id, c.row_index, c.column_index, c.form
+          FROM json_populate_recordset(NULL::grammar_table_irregular_forms, $1) AS c
+          ON CONFLICT (table_id, word_id, row_index, column_index) DO UPDATE
+          SET form = EXCLUDED.form
+        `,
+        [JSON.stringify(cells)]
+      );
+    }
+  });
+
+  res.status(204).send();
 };

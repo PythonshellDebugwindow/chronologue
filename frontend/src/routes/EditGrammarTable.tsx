@@ -1,5 +1,5 @@
 import { useEffect, useState, ReactNode } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, useParams, Link } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 
 import {
@@ -14,9 +14,7 @@ import {
   IGrammarTable, IGrammarTableCell, IGrammarTableOverview
 } from '../grammarData.tsx';
 import { useLanguageWordClasses } from '../languageData.tsx';
-import {
-  renderDatalessQueryResult, useGetParamsOrSelectedId, useSetPageTitle
-} from '../utils.tsx';
+import { renderDatalessQueryResult, useSetPageTitle } from '../utils.tsx';
 import {
   formatPosFieldValue, usePartsOfSpeech, IPartOfSpeech, IWordClass
 } from '../wordData.tsx';
@@ -259,7 +257,7 @@ function EditGrammarTableInner({
       </form>
     </>
   );
-};
+}
 
 function EditGrammarTableWithTable({ table }: { table: IGrammarTable }) {
   const tableClassIdsResponse = useGrammarTableClassIds(table.id);
@@ -301,7 +299,7 @@ function EditGrammarTableWithTable({ table }: { table: IGrammarTable }) {
 }
 
 export default function EditGrammarTable() {
-  const tableId = useGetParamsOrSelectedId();
+  const { id: tableId } = useParams();
   if(!tableId) {
     throw new Error("No table ID was provided");
   }

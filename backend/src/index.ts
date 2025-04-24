@@ -40,6 +40,8 @@ app.delete('/grammar-tables/:id', grammar.deleteGrammarTable);
 app.get('/grammar-tables/:id/classes', grammar.getGrammarTableClasses);
 app.get('/grammar-tables/:id/class-ids', grammar.getGrammarTableClassIds);
 app.get('/grammar-tables/:id/filled-cells', grammar.getGrammarTableFilledCells);
+app.get('/grammar-tables/:id/irregular-forms/:word', grammar.getIrregularForms);
+app.put('/grammar-tables/:id/irregular-forms/:word', grammar.updateIrregularForms);
 app.get('/grammar-tables/:id/random-word', grammar.getRandomWordForGrammarTable);
 app.post('/grammar-tables/:id/run-on-word', grammar.runGrammarTableOnWord);
 

@@ -3,8 +3,13 @@ import type { PoolClient } from 'pg';
 import { makeEstimatePronunciation } from './estimateIpa.js';
 import { SCA } from './sca.js';
 
+interface IWordWithId {
+  id: string;
+  word: string;
+}
+
 export default async function runGrammarTableRules(
-  tableId: string, word: string, client: PoolClient
+  tableId: string, word: IWordWithId, client: PoolClient
 ) {
   const tableDataResult = await client.query(
     `
@@ -33,6 +38,17 @@ export default async function runGrammarTableRules(
     [tableId]
   );
 
+  const irregularFormsResult = await client.query(
+    `
+      SELECT row_index AS "row",
+             column_index AS "column",
+             form AS "form"
+      FROM grammar_table_irregular_forms
+      WHERE table_id = $1 AND word_id = $2
+    `,
+    [tableId, word.id]
+  )
+
   const categoriesResult = await client.query(
     `
       SELECT letter, string_to_array(members, ',') AS members
@@ -48,10 +64,18 @@ export default async function runGrammarTableRules(
   for(let row = 0; row < tableData.numRows; ++row) {
     result.push(Array(tableData.numColumns).fill(null));
   }
+
+  for(const cell of irregularFormsResult.rows) {
+    result[cell.row][cell.column] = { success: true, result: cell.form };
+  }
+  
   for(const cell of filledCellsResult.rows) {
+    if(result[cell.row][cell.column]) {
+      continue;
+    }
     const setRulesResult = tableSCA.setRules(cell.rules);
     if(setRulesResult.success) {
-      result[cell.row][cell.column] = tableSCA.applySoundChanges(word);
+      result[cell.row][cell.column] = tableSCA.applySoundChanges(word.word);
     } else {
       result[cell.row][cell.column] = setRulesResult;
     }
@@ -60,12 +84,13 @@ export default async function runGrammarTableRules(
   if(tableData.showIpa) {
     const makeEstimateResult = await makeEstimatePronunciation(tableData.langId);
     if(makeEstimateResult.success) {
-      for(const position of filledCellsResult.rows) {
-        const cell = result[position.row][position.column];
-        if(cell.success) {
-          const estimateResult = makeEstimateResult.estimate(cell.result);
-          if(estimateResult.success) {
-            cell.ipa = estimateResult.result;
+      for(const row of result) {
+        for(const cell of row) {
+          if(cell?.success) {
+            const estimateResult = makeEstimateResult.estimate(cell.result);
+            if(estimateResult.success) {
+              cell.ipa = estimateResult.result;
+            }
           }
         }
       }

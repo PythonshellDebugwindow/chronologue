@@ -92,6 +92,21 @@ export function useGrammarTableFilledCells(id: string, enabled: boolean = true) 
   });
 };
 
+export interface IGrammarTableIrregularFormCell {
+  row: number;
+  column: number;
+  form: string;
+};
+
+export function useGrammarTableIrregularForms(tableId: string, wordId: string) {
+  return useQuery<IGrammarTableIrregularFormCell[], ITitledError>({
+    queryKey: ['grammar-tables', tableId, 'irregular-forms', wordId],
+    queryFn: async () => {
+      return await getBackendJson(`grammar-tables/${tableId}/irregular-forms/${wordId}`);
+    }
+  });
+};
+
 export interface IGrammarTableOverview {
   id: string;
   name: string;
@@ -142,11 +157,11 @@ export function useRandomGrammarTableWord(id: string) {
   });
 };
 
-export function useRunGrammarTableOnWordQuery(tableId: string, word: string, enabled: boolean) {
+export function useRunGrammarTableOnWordQuery(tableId: string, wordId: string, enabled: boolean) {
   return useQuery<RunGrammarTableResultCell[][], ITitledError>({
-    queryKey: ['grammar-tables', tableId, 'run-on-word', word],
+    queryKey: ['grammar-tables', tableId, 'run-on-word', wordId],
     queryFn: async () => await sendBackendJsonForQuery(
-      `grammar-tables/${tableId}/run-on-word`, 'POST', { word }
+      `grammar-tables/${tableId}/run-on-word`, 'POST', { wordId }
     ),
     staleTime: 0,
     enabled

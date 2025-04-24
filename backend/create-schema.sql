@@ -141,3 +141,12 @@ CREATE TABLE IF NOT EXISTS grammar_table_cells (
 	rules text NOT NULL,
 	PRIMARY KEY (table_id, row_index, column_index)
 );
+
+CREATE TABLE IF NOT EXISTS grammar_table_irregular_forms (
+  table_id uuid NOT NULL REFERENCES grammar_tables ON DELETE CASCADE,
+  word_id uuid NOT NULL REFERENCES words ON DELETE CASCADE,
+  row_index integer NOT NULL,
+  column_index integer NOT NULL,
+  form text NOT NULL,
+  PRIMARY KEY (table_id, word_id, row_index, column_index)
+);

@@ -18,6 +18,7 @@ import DeleteFamily from './routes/DeleteFamily.tsx';
 import DeleteLanguage from './routes/DeleteLanguage.tsx';
 import DeleteWord from './routes/DeleteWord.tsx';
 import ChronoSCAHelpPage from './routes/ChronoSCAHelpPage.tsx';
+import DefineIrregularForms from './routes/DefineIrregularForms.tsx';
 import DeleteGrammarTable from './routes/DeleteGrammarTable.tsx';
 import EditDictionarySettings from './routes/EditDictionarySettings.tsx';
 import EditFamily from './routes/EditFamily.tsx';
@@ -156,6 +157,10 @@ const router = createBrowserRouter([
       {
         path: "import-words/:id?",
         element: <ImportWords />
+      },
+      {
+        path: "irregular-forms/:id?",
+        element: <DefineIrregularForms />
       },
       {
         path: "language/:id?",

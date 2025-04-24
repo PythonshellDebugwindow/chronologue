@@ -1,6 +1,8 @@
 import { Fragment } from 'react';
 import { Link } from 'react-router-dom';
 
+import GrammarTableLink from '../components/GrammarTableLink.tsx';
+
 import {
   compareGrammarTables, formatPeriodSeparatedGrammarForms, useGrammarForms,
   useLanguageGrammarTables, IGrammarForm, IGrammarTableOverview
@@ -9,9 +11,7 @@ import { ILanguage, useLanguage } from '../languageData.tsx';
 import {
   renderDatalessQueryResult, useGetParamsOrSelectedId, useSetPageTitle
 } from '../utils.tsx';
-import {
-  formatPosFieldValue, usePartsOfSpeech, IPartOfSpeech
-} from '../wordData.tsx';
+import { usePartsOfSpeech, IPartOfSpeech } from '../wordData.tsx';
 
 function formatGrammarFormsList(codes: string[], grammarForms: IGrammarForm[]) {
   return codes.map((code, i) => {
@@ -39,10 +39,10 @@ function ViewGrammarTablesInner({ language, tables, grammarForms, partsOfSpeech 
       <div className="grammar-tables-grid">
         {tables.map(table => (
           <div key={table.id}>
-            <Link to={'/grammar-table/' + table.id}>
-              {table.name && (table.name + " ")}
-              [{formatPosFieldValue(table.pos, partsOfSpeech)}]
-            </Link>
+            <GrammarTableLink
+              table={table}
+              partsOfSpeech={partsOfSpeech}
+            />
             <br />
             {formatGrammarFormsList(table.rows, grammarForms)}
             ; {formatGrammarFormsList(table.columns, grammarForms)}
