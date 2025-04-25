@@ -117,8 +117,9 @@ export const editGrammarTable: RequestHandler = async (req, res) => {
     await client.query(
       `
         UPDATE grammar_tables
-        SET name = $1, pos = $2, rows = $3, columns = $4,
-            show_ipa = $5, invert_classes = $6, post_rules = $7, notes = $8
+        SET
+          name = $1, pos = $2, rows = $3, columns = $4,
+          show_ipa = $5, invert_classes = $6, post_rules = $7, notes = $8
         WHERE id = $9
       `,
       [
@@ -189,12 +190,13 @@ export const getGrammarTable: RequestHandler = async (req, res) => {
 
   const value = await query(
     `
-      SELECT translate(lang_id::text, '-', '') AS "langId",
-             name, pos, rows, columns,
-             post_rules AS "postRules",
-             show_ipa AS "showIpa",
-             invert_classes AS "invertClasses",
-             notes
+      SELECT
+        translate(lang_id::text, '-', '') AS "langId",
+        name, pos, rows, columns,
+        post_rules AS "postRules",
+        show_ipa AS "showIpa",
+        invert_classes AS "invertClasses",
+        notes
       FROM grammar_tables
       WHERE id = $1
     `,
@@ -348,8 +350,9 @@ export const getLanguageGrammarTables: RequestHandler = async (req, res) => {
 
   const value = await query(
     `
-      SELECT translate(id::text, '-', '') AS id,
-             name, pos, rows, columns
+      SELECT
+        translate(id::text, '-', '') AS id,
+        name, pos, rows, columns
       FROM grammar_tables
       WHERE lang_id = $1
     `,
@@ -490,8 +493,9 @@ export const updateGrammarForms: RequestHandler = async (req, res, next) => {
             p.code, p.name
           FROM json_populate_recordset(NULL::grammar_forms, $1) AS p
           ON CONFLICT (id) DO UPDATE
-          SET code = EXCLUDED.code,
-              name = EXCLUDED.name
+          SET
+            code = EXCLUDED.code,
+            name = EXCLUDED.name
         `,
         [JSON.stringify(req.body.new)]
       );

@@ -39,8 +39,9 @@ export async function makeEstimatePronunciation(langId: string) {
 
     const peQuery = await client.query(
       `
-        SELECT letter_replacements AS "letterReplacements",
-               rewrite_rules AS "rewriteRules"
+        SELECT
+          letter_replacements AS "letterReplacements",
+          rewrite_rules AS "rewriteRules"
         FROM pronunciation_estimation
         WHERE lang_id = $1
       `,

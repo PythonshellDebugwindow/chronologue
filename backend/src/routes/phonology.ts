@@ -109,8 +109,9 @@ export const getPhones: RequestHandler = async (req, res) => {
 
   const value = await query(
     `
-      SELECT id, base, type, qualities, is_allophone AS "isAllophone",
-             allophone_of AS "allophoneOf", is_foreign AS "isForeign", notes, graph
+      SELECT
+        id, base, type, qualities, is_allophone AS "isAllophone",
+        allophone_of AS "allophoneOf", is_foreign AS "isForeign", notes, graph
       FROM phones
       WHERE lang_id = $1
       ORDER BY id DESC
@@ -266,15 +267,16 @@ export const updatePhones: RequestHandler = async (req, res) => {
           p.allophone_of, p.is_foreign, p.notes, p.graph
         FROM json_populate_recordset(NULL::phones, $2) AS p
         ON CONFLICT (id) DO UPDATE
-        SET lang_id = EXCLUDED.lang_id,
-            base = EXCLUDED.base,
-            type = EXCLUDED.type,
-            qualities = EXCLUDED.qualities,
-            is_allophone = EXCLUDED.is_allophone,
-            allophone_of = EXCLUDED.allophone_of,
-            is_foreign = EXCLUDED.is_foreign,
-            notes = EXCLUDED.notes,
-            graph = EXCLUDED.graph
+        SET
+          lang_id = EXCLUDED.lang_id,
+          base = EXCLUDED.base,
+          type = EXCLUDED.type,
+          qualities = EXCLUDED.qualities,
+          is_allophone = EXCLUDED.is_allophone,
+          allophone_of = EXCLUDED.allophone_of,
+          is_foreign = EXCLUDED.is_foreign,
+          notes = EXCLUDED.notes,
+          graph = EXCLUDED.graph
       `,
       [langId, JSON.stringify(toAdd)]
     );
@@ -301,8 +303,9 @@ export const updatePhones: RequestHandler = async (req, res) => {
 
     const langPhones = await client.query(
       `
-        SELECT id, base, type, qualities, is_allophone AS "isAllophone",
-               allophone_of AS "allophoneOf", is_foreign AS "isForeign", notes, graph
+        SELECT
+          id, base, type, qualities, is_allophone AS "isAllophone",
+          allophone_of AS "allophoneOf", is_foreign AS "isForeign", notes, graph
         FROM phones
         WHERE lang_id = $1
         ORDER BY id DESC
@@ -330,8 +333,9 @@ export const updatePronunciationEstimation: RequestHandler = async (req, res) =>
       )
       VALUES ($1, $2, $3)
       ON CONFLICT (lang_id) DO UPDATE
-      SET letter_replacements = EXCLUDED.letter_replacements,
-          rewrite_rules = EXCLUDED.rewrite_rules
+      SET
+        letter_replacements = EXCLUDED.letter_replacements,
+        rewrite_rules = EXCLUDED.rewrite_rules
     `,
     [req.params.id, req.body.letterReplacements, req.body.rewriteRules]
   );

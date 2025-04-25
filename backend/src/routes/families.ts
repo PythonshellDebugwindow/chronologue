@@ -86,8 +86,9 @@ export const editFamily: RequestHandler = async (req, res, next) => {
 export const getAllFamilies: RequestHandler = async (req, res) => {
   const families = await query(
     `
-      SELECT translate(id::text, '-', '') AS id,
-             name, description, created
+      SELECT
+        translate(id::text, '-', '') AS id,
+        name, description, created
       FROM families
     `
   );
@@ -102,8 +103,9 @@ export const getFamily: RequestHandler = async (req, res) => {
 
   const value = await query(
     `
-      SELECT translate(id::text, '-', '') AS id,
-             name, description, created
+      SELECT
+        translate(id::text, '-', '') AS id,
+        name, description, created
       FROM families
       WHERE id = $1
     `,
@@ -124,10 +126,11 @@ export const getFamilyMembers: RequestHandler = async (req, res) => {
 
   const value = await query(
     `
-      SELECT translate(id::text, '-', '') AS id,
-             name, autonym,
-             translate(parent_id::text, '-', '') AS "parentId",
-             status, era, created
+      SELECT
+        translate(id::text, '-', '') AS id,
+        name, autonym,
+        translate(parent_id::text, '-', '') AS "parentId",
+        status, era, created
       FROM languages
       WHERE family_id = $1
       ORDER BY name
@@ -140,10 +143,11 @@ export const getFamilyMembers: RequestHandler = async (req, res) => {
 export const getLanguageIsolates: RequestHandler = async (req, res) => {
   const value = await query(
     `
-      SELECT translate(id::text, '-', '') AS id,
-             name, autonym,
-             translate(parent_id::text, '-', '') AS "parentId",
-             status, era, created
+      SELECT
+        translate(id::text, '-', '') AS id,
+        name, autonym,
+        translate(parent_id::text, '-', '') AS "parentId",
+        status, era, created
       FROM languages
       WHERE family_id IS NULL
       ORDER BY name

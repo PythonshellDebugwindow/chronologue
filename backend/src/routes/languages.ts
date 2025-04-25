@@ -64,7 +64,7 @@ export const addLanguage: RequestHandler = async (req, res, next) => {
       const value = await client.query(
         `
           INSERT INTO languages (name, autonym, family_id, parent_id, status, era)
-                 VALUES ($1, $2, $3, $4, $5, $6)
+          VALUES ($1, $2, $3, $4, $5, $6)
           RETURNING id
         `,
         [
@@ -294,10 +294,11 @@ export const getLanguage: RequestHandler = async (req, res) => {
   
   const value = await query(
     `
-      SELECT name, autonym,
-             translate(family_id::text, '-', '') AS "familyId",
-             translate(parent_id::text, '-', '') AS "parentId",
-             status, era, created
+      SELECT
+        name, autonym,
+        translate(family_id::text, '-', '') AS "familyId",
+        translate(parent_id::text, '-', '') AS "parentId",
+        status, era, created
       FROM languages
       WHERE id = $1
     `,
@@ -321,17 +322,18 @@ export const getOrthographySettings: RequestHandler = async (req, res) => {
   
   const value = await query(
     `
-      SELECT COALESCE(
-        alphabetical_order,
-        ARRAY(
-          SELECT DISTINCT graph
-          FROM phones
-          WHERE lang_id = $1 AND graph != ''
-          ORDER BY graph
-        )
-      ) AS "alphabeticalOrder",
-      alphabetical_order IS NOT NULL AS "hasSetAlphabeticalOrder",
-      case_sensitive AS "caseSensitive"
+      SELECT
+        COALESCE(
+          alphabetical_order,
+          ARRAY(
+            SELECT DISTINCT graph
+            FROM phones
+            WHERE lang_id = $1 AND graph != ''
+            ORDER BY graph
+          )
+        ) AS "alphabeticalOrder",
+        alphabetical_order IS NOT NULL AS "hasSetAlphabeticalOrder",
+        case_sensitive AS "caseSensitive"
       FROM orthography_settings
       WHERE lang_id = $1
     `,
@@ -354,9 +356,10 @@ export const getSummaryNotes: RequestHandler = async (req, res) => {
   
   const value = await query(
     `
-      SELECT description,
-             phonology_notes AS "phonologyNotes",
-             orthography_notes AS "orthographyNotes"
+      SELECT
+        description,
+        phonology_notes AS "phonologyNotes",
+        orthography_notes AS "orthographyNotes"
       FROM language_summary_notes
       WHERE lang_id = $1
     `,

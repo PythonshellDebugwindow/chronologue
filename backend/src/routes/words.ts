@@ -85,8 +85,9 @@ export const editWord: RequestHandler = async (req, res) => {
     await client.query(
       `
         UPDATE words
-        SET word = $1, ipa = $2, meaning = $3, pos = $4, etymology = $5, notes = $6,
-            updated = CURRENT_TIMESTAMP
+        SET
+          word = $1, ipa = $2, meaning = $3, pos = $4, etymology = $5, notes = $6,
+          updated = CURRENT_TIMESTAMP
         WHERE id = $7
       `,
       [
@@ -125,8 +126,9 @@ export const getLanguageWords: RequestHandler = async (req, res) => {
 
   const value = await query(
     `
-      SELECT translate(id::text, '-', '') AS id,
-             word, ipa, meaning, pos, etymology, notes, created, updated
+      SELECT
+        translate(id::text, '-', '') AS id,
+        word, ipa, meaning, pos, etymology, notes, created, updated
       FROM words
       WHERE lang_id = $1
     `,
@@ -170,9 +172,10 @@ export const getWord: RequestHandler = async (req, res) => {
 
   const value = await query(
     `
-      SELECT word, ipa, meaning, pos, etymology, notes,
-             translate(lang_id::text, '-', '') AS "langId",
-             created, updated
+      SELECT
+        word, ipa, meaning, pos, etymology, notes,
+        translate(lang_id::text, '-', '') AS "langId",
+        created, updated
       FROM words
       WHERE id = $1
     `,
@@ -419,8 +422,9 @@ export const updateWordClasses: RequestHandler = async (req, res, next) => {
             $1, p.pos, p.code, p.name
           FROM json_populate_recordset(NULL::word_classes, $2) AS p
           ON CONFLICT (id) DO UPDATE
-          SET code = EXCLUDED.code,
-              name = EXCLUDED.name
+          SET
+            code = EXCLUDED.code,
+            name = EXCLUDED.name
         `,
         [langId, JSON.stringify(toAdd)]
       );

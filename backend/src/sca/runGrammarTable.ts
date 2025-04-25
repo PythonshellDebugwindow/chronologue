@@ -13,10 +13,11 @@ export default async function runGrammarTableRules(
 ) {
   const tableDataResult = await client.query(
     `
-      SELECT lang_id AS "langId",
-             cardinality(rows) AS "numRows",
-             cardinality(columns) AS "numColumns",
-             show_ipa AS "showIpa"
+      SELECT
+        lang_id AS "langId",
+        cardinality(rows) AS "numRows",
+        cardinality(columns) AS "numColumns",
+        show_ipa AS "showIpa"
       FROM grammar_tables
       WHERE id = $1
     `,
@@ -29,9 +30,10 @@ export default async function runGrammarTableRules(
 
   const filledCellsResult = await client.query(
     `
-      SELECT row_index AS "row",
-             column_index AS "column",
-             rules AS "rules"
+      SELECT
+        row_index AS "row",
+        column_index AS "column",
+        rules
       FROM grammar_table_cells
       WHERE table_id = $1
     `,
@@ -40,14 +42,15 @@ export default async function runGrammarTableRules(
 
   const irregularFormsResult = await client.query(
     `
-      SELECT row_index AS "row",
-             column_index AS "column",
-             form AS "form"
+      SELECT
+        row_index AS "row",
+        column_index AS "column",
+        form
       FROM grammar_table_irregular_forms
       WHERE table_id = $1 AND word_id = $2
     `,
     [tableId, word.id]
-  )
+  );
 
   const categoriesResult = await client.query(
     `
