@@ -17,6 +17,7 @@ export default async function runGrammarTableRules(
         lang_id AS "langId",
         cardinality(rows) AS "numRows",
         cardinality(columns) AS "numColumns",
+        post_rules AS "postRules",
         show_ipa AS "showIpa"
       FROM grammar_tables
       WHERE id = $1
@@ -63,6 +64,9 @@ export default async function runGrammarTableRules(
 
   const tableSCA = new SCA(categoriesResult.rows);
 
+  const postRulesSCA = tableData.postRules ? new SCA(categoriesResult.rows) : null;
+  const setPostRulesResult = postRulesSCA?.setRules(tableData.postRules);
+
   const result = [];
   for(let row = 0; row < tableData.numRows; ++row) {
     result.push(Array(tableData.numColumns).fill(null));
@@ -71,16 +75,25 @@ export default async function runGrammarTableRules(
   for(const cell of irregularFormsResult.rows) {
     result[cell.row][cell.column] = { success: true, result: cell.form };
   }
-  
+
   for(const cell of filledCellsResult.rows) {
     if(result[cell.row][cell.column]) {
       continue;
     }
     const setRulesResult = tableSCA.setRules(cell.rules);
-    if(setRulesResult.success) {
-      result[cell.row][cell.column] = tableSCA.applySoundChanges(word.word);
-    } else {
+    if(!setRulesResult.success) {
       result[cell.row][cell.column] = setRulesResult;
+      continue;
+    } else if(setPostRulesResult && !setPostRulesResult.success) {
+      result[cell.row][cell.column] = setPostRulesResult;
+      continue;
+    }
+
+    const scaResult = tableSCA.applySoundChanges(word.word);
+    if(postRulesSCA && scaResult.success) {
+      result[cell.row][cell.column] = postRulesSCA.applySoundChanges(scaResult.result);
+    } else {
+      result[cell.row][cell.column] = scaResult;
     }
   }
 
