@@ -4,7 +4,7 @@ import runGrammarTableRules from '../sca/runGrammarTable.js';
 
 import query, { transact } from '../db/index.js';
 import {
-  hasAllArrays, hasAllBooleans, hasAllStrings, isValidUUID, IQueryError
+  hasAllArrays, hasAllBooleans, hasAllStrings, isValidUUID, partsOfSpeech, IQueryError
 } from '../utils.js';
 
 function validateRowsAndColumns(rows: string[], columns: string[]) {
@@ -361,6 +361,24 @@ export const getLanguageGrammarTables: RequestHandler = async (req, res) => {
   res.json(value.rows);
 };
 
+export const getLanguageWordStems: RequestHandler = async (req, res) => {
+  if(!isValidUUID(req.params.id)) {
+    res.status(400).json({ title: "Invalid ID", message: "The given language ID is not valid." });
+    return;
+  }
+
+  const value = await query(
+    `
+      SELECT id, pos, name, rules
+      FROM word_stems
+      WHERE lang_id = $1
+      ORDER BY pos, name
+    `,
+    [req.params.id]
+  );
+  res.json(value.rows);
+};
+
 export const getRandomWordForGrammarTable: RequestHandler = async (req, res) => {
   if(!isValidUUID(req.params.id)) {
     res.status(400).json({ title: "Invalid ID", message: "The given table ID is not valid." });
@@ -579,4 +597,77 @@ export const updateIrregularForms: RequestHandler = async (req, res) => {
   });
 
   res.status(204).send();
+};
+
+export const updateLanguageWordStems: RequestHandler = async (req, res, next) => {
+  try {
+    if(!isValidUUID(req.params.id)) {
+      res.status(400).json({ message: "The given language ID is not valid." });
+      return;
+    }
+    if(!(req.body.new instanceof Array && req.body.deleted instanceof Array)) {
+      res.status(400).json({ message: "Invalid request body." });
+      return;
+    }
+    for(const stem of req.body.new) {
+      if(!stem.name) {
+        res.status(400).json({ message: "All stems must have a name." });
+        return;
+      } else if(!partsOfSpeech.some(pos => stem.pos === pos.code)) {
+        res.status(400).json({
+          message: `Invalid part of speech '${stem.pos}'.`
+        });
+        return;
+      }
+    }
+
+    const langId = req.params.id;
+    const toAdd = req.body.new.map((stem: any) => ({
+      id: stem.id,
+      lang_id: langId,
+      pos: stem.pos,
+      name: stem.name,
+      rules: stem.rules
+    }));
+
+    await transact(async client => {
+      await client.query(
+        `
+          INSERT INTO word_stems (
+            id, lang_id, pos, name, rules
+          )
+          SELECT
+            COALESCE(p.id, nextval(pg_get_serial_sequence('word_stems', 'id'))),
+            $1, p.pos, p.name, p.rules
+          FROM json_populate_recordset(NULL::word_stems, $2) AS p
+          ON CONFLICT (id) DO UPDATE
+          SET
+            name = EXCLUDED.name,
+            rules = EXCLUDED.rules
+        `,
+        [langId, JSON.stringify(toAdd)]
+      );
+      await client.query(
+        "DELETE FROM word_stems WHERE id = ANY($1::bigint[])",
+        [req.body.deleted]
+      );
+
+      const langWordStems = await client.query(
+        `
+          SELECT id, pos, name, rules
+          FROM word_stems
+          WHERE lang_id = $1
+          ORDER BY pos, name
+        `,
+        [langId]
+      );
+      res.json(langWordStems.rows);
+    });
+  } catch(err) {
+    if((err as IQueryError).code === '23505') {
+      res.status(400).json({ message: "All stem names must be unique for a given part of speech." });
+    } else {
+      next(err);
+    }
+  }
 };

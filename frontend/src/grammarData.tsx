@@ -32,6 +32,13 @@ export interface IGrammarTableCell {
   rules: string;
 };
 
+export interface IWordStem {
+  id: string;
+  pos: string;
+  name: string;
+  rules: string;
+};
+
 type AddGrammarTableArgument = Omit<IGrammarTable, 'id' | 'postRules'> & {
   classIds: string[];
 };
@@ -119,6 +126,13 @@ export function useLanguageGrammarTables(id: string) {
   return useQuery<IGrammarTableOverview[], ITitledError>({
     queryKey: ['languages', id, 'grammar-tables'],
     queryFn: async () => await getBackendJson(`languages/${id}/grammar-tables`)
+  });
+};
+
+export function useLanguageWordStems(id: string) {
+  return useQuery<IWordStem[], ITitledError>({
+    queryKey: ['languages', id, 'word-stems'],
+    queryFn: async () => await getBackendJson(`languages/${id}/word-stems`)
   });
 };
 

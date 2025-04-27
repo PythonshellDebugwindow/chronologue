@@ -46,7 +46,7 @@ export default function Header() {
         }
       </p>
       <Link to="/" className="top-left-logo">
-        <img src={chronologueLogo} className="logo react" alt="Chronologue logo" />
+        <img src={chronologueLogo} className="logo" alt="Chronologue logo" />
         <h1>Chronologue</h1>
       </Link>
       <div className={"header-menu" + (canHover ? "" : " no-dropdown")}>
@@ -79,6 +79,7 @@ export default function Header() {
           items={[
             <Link to="/grammar-tables">View Grammar Tables</Link>,
             <Link to="/add-grammar-table">Add Grammar Table</Link>,
+            <Link to="/edit-stems">Edit Word Stems</Link>,
             <Link to="/grammar-forms">Grammar Forms</Link>
           ]}
           setCanHover={setCanHover}

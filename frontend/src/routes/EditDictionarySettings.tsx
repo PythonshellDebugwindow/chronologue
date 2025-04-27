@@ -227,18 +227,16 @@ function EditWordClasses({ language, initialClasses, partsOfSpeech }: IEditWordC
       <p>Edit word classes.</p>
       {classErrorMessage && <p><b>{classErrorMessage}</b></p>}
       {!classesAreSaved && (
-        <>
-          <SaveChangesButton
-            isSaving={isSaving}
-            setIsSaving={setIsSaving}
-            saveQueryKey={['languages', language.id, 'word-classes', 'update']}
-            saveQueryFn={async () => await sendSaveClassesRequest(classesState, language.id)}
-            handleSave={data => dispatchClasses({ type: 'markSaved', newClasses: data })}
-            style={{ marginBottom: "0.8em" }}
-          >
-            Save changes
-          </SaveChangesButton>
-        </>
+        <SaveChangesButton
+          isSaving={isSaving}
+          setIsSaving={setIsSaving}
+          saveQueryKey={['languages', language.id, 'word-classes', 'update']}
+          saveQueryFn={async () => await sendSaveClassesRequest(classesState, language.id)}
+          handleSave={data => dispatchClasses({ type: 'markSaved', newClasses: data })}
+          style={{ marginBottom: "0.8em" }}
+        >
+          Save changes
+        </SaveChangesButton>
       )}
       <table className="settings-table">
         <tbody>
@@ -284,7 +282,7 @@ function EditWordClasses({ language, initialClasses, partsOfSpeech }: IEditWordC
           {classes.map((cls, i) => {
             const isDeleted = deletedClasses.includes(cls.id);
             return (
-              <tr key={i} className={isDeleted ? "deleted-pos-row" : undefined}>
+              <tr key={i} className={isDeleted ? "deleted-row" : undefined}>
                 <td>
                   <input
                     type="text"
@@ -309,7 +307,6 @@ function EditWordClasses({ language, initialClasses, partsOfSpeech }: IEditWordC
                           value={cls.pos}
                           onChange={e => editClassPos(cls, e.target.value)}
                         >
-                          <option value="">---</option>
                           {partsOfSpeech.map(
                             pos => <option value={pos.code} key={pos.code}>{pos.name}</option>
                           )}
@@ -428,7 +425,7 @@ function EditDictionarySettingsInner(
         dictSettings={dictSettings}
       />
     </>
-  )
+  );
 }
 
 export default function EditDictionarySettings() {

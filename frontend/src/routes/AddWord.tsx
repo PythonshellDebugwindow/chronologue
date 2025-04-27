@@ -259,7 +259,7 @@ function AddWordInner({ language, dictSettings, langClasses, langPartsOfSpeech }
       </form>
     </>
   );
-};
+}
 
 export default function AddWord() {
   /*const { selectedLanguage } = useContext(SelectedLanguageContext);

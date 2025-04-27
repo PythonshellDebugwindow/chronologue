@@ -75,10 +75,14 @@ app.get('/languages/:id/summary-notes', languages.getSummaryNotes);
 app.put('/languages/:id/summary-notes', languages.updateSummaryNotes);
 app.get('/languages/:id/word-classes', words.getWordClassesByLanguage);
 app.put('/languages/:id/word-classes', words.updateWordClasses);
+app.get('/languages/:id/word-stems', grammar.getLanguageWordStems);
+app.put('/languages/:id/word-stems', grammar.updateLanguageWordStems);
 app.get('/languages/:id/words', words.getLanguageWords);
 app.get('/languages/:id/word-count', words.getLanguageWordCount);
 
 app.get('/parts-of-speech', words.getPartsOfSpeech);
+
+app.get('/sca', sca.testSCA);
 
 app.post('/words', words.addWord);
 app.get('/words/:id', words.getWord);
@@ -87,8 +91,6 @@ app.delete('/words/:id', words.deleteWord);
 app.get('/words/:id/classes', words.getWordClassesByWord);
 app.get('/words/:id/class-ids', words.getWordClassIdsByWord);
 app.get('/words/:id/grammar-tables', grammar.getGrammarTablesForWord);
-
-app.get('/sca', sca.testSCA);
 
 app.use(((err, req, res, _next) => {
   res.status(500).json({ title: "Internal error", message: err.message });

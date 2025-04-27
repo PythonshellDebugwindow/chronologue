@@ -230,7 +230,7 @@ function EditDictionarySettingsInner({ initialForms }: { initialForms: IGrammarF
             grammarForms.map((form, i) => {
               const isDeleted = form.id !== UNADDED_FORM_ID && deletedForms.includes(form.id);
               return (
-                <tr key={i} className={isDeleted ? "deleted-pos-row" : undefined}>
+                <tr key={i} className={isDeleted ? "deleted-row" : undefined}>
                   <td>
                     <input
                       type="text"

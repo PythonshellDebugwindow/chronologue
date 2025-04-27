@@ -29,6 +29,7 @@ import EditOrthographySettings from './routes/EditOrthographySettings.tsx';
 import EditPhoneAndOrthCategories from './routes/EditPhoneAndOrthCategories.tsx';
 import EditPhonology from './routes/EditPhonology.tsx';
 import EditPronunciationEstimation from './routes/EditPronunciationEstimation.tsx';
+import EditStems from './routes/EditStems.tsx';
 import EditSummaryNotes from './routes/EditSummaryNotes.tsx';
 import EditWord from './routes/EditWord.tsx';
 import ErrorPage from './routes/ErrorPage.tsx';
@@ -129,6 +130,10 @@ const router = createBrowserRouter([
       {
         path: "edit-language/:id?",
         element: <EditLanguage />
+      },
+      {
+        path: "edit-stems/:id?",
+        element: <EditStems />
       },
       {
         path: "edit-word/:id",
