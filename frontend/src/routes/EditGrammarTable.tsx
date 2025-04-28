@@ -11,7 +11,7 @@ import POSAndClassesSelect from '../components/POSAndClassesSelect.tsx';
 import {
   compareGrammarTables, editGrammarTable, useGrammarTable,
   useGrammarTableClassIds, useGrammarTableFilledCells, useLanguageGrammarTables,
-  IGrammarTable, IGrammarTableCell, IGrammarTableOverview
+  IGrammarTable, IGrammarTableCell, IGrammarTableCellWithPosition, IGrammarTableOverview
 } from '../grammarData.tsx';
 import { useLanguageWordClasses } from '../languageData.tsx';
 import { renderDatalessQueryResult, useSetPageTitle } from '../utils.tsx';
@@ -19,13 +19,14 @@ import {
   formatPosFieldValue, usePartsOfSpeech, IPartOfSpeech, IWordClass
 } from '../wordData.tsx';
 
-function createCellMatrix(table: IGrammarTable, filledCells: IGrammarTableCell[]) {
-  const result: string[][] = [];
+function createCellMatrix(table: IGrammarTable, filledCells: IGrammarTableCellWithPosition[]) {
+  const result: IGrammarTableCell[][] = [];
+  const emptyCell: IGrammarTableCell = { rules: "", stemId: null };
   for(let i = 0; i < table.rows.length; ++i) {
-    result.push(Array(table.columns.length).fill(""));
+    result.push(Array(table.columns.length).fill(emptyCell));
   }
   for(const cell of filledCells) {
-    result[cell.row][cell.column] = cell.rules;
+    result[cell.row][cell.column] = { rules: cell.rules, stemId: cell.stemId };
   }
   return result;
 }
@@ -33,7 +34,7 @@ function createCellMatrix(table: IGrammarTable, filledCells: IGrammarTableCell[]
 interface IEditGrammarTableInner {
   table: IGrammarTable;
   initialTableClassIds: string[];
-  initialFilledCells: IGrammarTableCell[];
+  initialFilledCells: IGrammarTableCellWithPosition[];
   langClasses: IWordClass[];
   langTables: IGrammarTableOverview[];
   partsOfSpeech: IPartOfSpeech[];
@@ -76,7 +77,9 @@ function EditGrammarTableInner({
   langTables.sort(compareGrammarTables);
 
   useEffect(() => {
-    function copyTableData(table: IGrammarTable, classIds: string[], cells: IGrammarTableCell[]) {
+    function copyTableData(
+      table: IGrammarTable, classIds: string[], cells: IGrammarTableCellWithPosition[]
+    ) {
       setPos(table.pos);
       setRows(table.rows);
       setColumns(table.columns);
@@ -223,6 +226,8 @@ function EditGrammarTableInner({
         Empty table cells are treated as invalid forms.
       </p>
       <EditableGrammarTable
+        langId={table.langId}
+        pos={pos}
         rows={rows}
         columns={columns}
         cells={cells}

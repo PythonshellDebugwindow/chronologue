@@ -44,7 +44,7 @@ function EditableIrregularFormsTable(
   { rows, columns, cells, setCells, grammarForms }: IEditableIrregularFormsTable
 ) {
   return (
-    <table className="grammar-table grammar-table-non-editable">
+    <table className="grammar-table">
       <tbody>
         <tr>
           <th>&nbsp;</th>

@@ -15,6 +15,7 @@ export default async function runGrammarTableRules(
     `
       SELECT
         lang_id AS "langId",
+        pos,
         cardinality(rows) AS "numRows",
         cardinality(columns) AS "numColumns",
         post_rules AS "postRules",
@@ -34,7 +35,8 @@ export default async function runGrammarTableRules(
       SELECT
         row_index AS "row",
         column_index AS "column",
-        rules
+        rules,
+        stem_id AS "stemId"
       FROM grammar_table_cells
       WHERE table_id = $1
     `,
@@ -53,6 +55,17 @@ export default async function runGrammarTableRules(
     [tableId, word.id]
   );
 
+  const langStemsResult = await client.query({
+    text: `
+      SELECT id, rules
+      FROM word_stems
+      WHERE lang_id = $1 AND pos = $2
+    `,
+    values: [tableData.langId, tableData.pos],
+    rowMode: 'array'
+  });
+  const langStemRules = new Map(langStemsResult.rows as [string, string][]);
+
   const categoriesResult = await client.query(
     `
       SELECT letter, string_to_array(members, ',') AS members
@@ -65,7 +78,15 @@ export default async function runGrammarTableRules(
   const tableSCA = new SCA(categoriesResult.rows);
 
   const postRulesSCA = tableData.postRules ? new SCA(categoriesResult.rows) : null;
-  const setPostRulesResult = postRulesSCA?.setRules(tableData.postRules);
+  if(postRulesSCA) {
+    const setPostRulesResult = postRulesSCA.setRules(tableData.postRules);
+    if(!setPostRulesResult.success) {
+      return {
+        success: false as const,
+        message: "Error in post rules: " + setPostRulesResult.message
+      };
+    }
+  }
 
   const result = [];
   for(let row = 0; row < tableData.numRows; ++row) {
@@ -80,16 +101,37 @@ export default async function runGrammarTableRules(
     if(result[cell.row][cell.column]) {
       continue;
     }
+
+    if(cell.stemId) {
+      const stemRules = langStemRules.get(cell.stemId);
+      if(stemRules === undefined) {
+        result[cell.row][cell.column] = {
+          success: false as const, message: "Invalid stem ID"
+        };
+        continue;
+      }
+      
+      const setRulesResult = tableSCA.setRules(stemRules);
+      if(!setRulesResult.success) {
+        result[cell.row][cell.column] = setRulesResult;
+        continue;
+      }
+
+      const scaResult = tableSCA.applySoundChanges(word.word);
+      result[cell.row][cell.column] = scaResult;
+      if(!scaResult.success) {
+        continue;
+      }
+    }
+    
     const setRulesResult = tableSCA.setRules(cell.rules);
     if(!setRulesResult.success) {
       result[cell.row][cell.column] = setRulesResult;
       continue;
-    } else if(setPostRulesResult && !setPostRulesResult.success) {
-      result[cell.row][cell.column] = setPostRulesResult;
-      continue;
     }
 
-    const scaResult = tableSCA.applySoundChanges(word.word);
+    const base = cell.stemId ? result[cell.row][cell.column].result : word.word;
+    const scaResult = tableSCA.applySoundChanges(base);
     if(postRulesSCA && scaResult.success) {
       result[cell.row][cell.column] = postRulesSCA.applySoundChanges(scaResult.result);
     } else {

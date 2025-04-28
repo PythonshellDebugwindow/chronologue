@@ -102,12 +102,13 @@ export const editGrammarTable: RequestHandler = async (req, res) => {
   }
 
   const tableId = req.params.id;
-  const cells = (req.body.cells as string[][]).flatMap((row, i) => (
-    row.flatMap((cell, j) => cell ? [{
+  const cells = (req.body.cells as any[][]).flatMap((row, i) => (
+    row.flatMap((cell, j) => (cell.rules || cell.stemId) ? [{
       table_id: tableId,
       row_index: i,
       column_index: j,
-      rules: cell
+      rules: cell.rules,
+      stem_id: cell.stemId
     }] : [])
   ));
   const cellPosRows = cells.map(cell => cell.row_index);
@@ -161,11 +162,15 @@ export const editGrammarTable: RequestHandler = async (req, res) => {
     if(cells.length > 0) {
       await client.query(
         `
-          INSERT INTO grammar_table_cells (table_id, row_index, column_index, rules)
-          SELECT c.table_id, c.row_index, c.column_index, c.rules
+          INSERT INTO grammar_table_cells (
+            table_id, row_index, column_index, rules, stem_id
+          )
+          SELECT c.table_id, c.row_index, c.column_index, c.rules, c.stem_id
           FROM json_populate_recordset(NULL::grammar_table_cells, $1) AS c
           ON CONFLICT (table_id, row_index, column_index) DO UPDATE
-          SET rules = EXCLUDED.rules
+          SET
+            rules = EXCLUDED.rules,
+            stem_id = EXCLUDED.stem_id
         `,
         [JSON.stringify(cells)]
       );
@@ -259,9 +264,10 @@ export const getGrammarTableFilledCells: RequestHandler = async (req, res) => {
 
   const value = await query(
     `
-      SELECT row_index AS "row", column_index AS "column", rules
+      SELECT
+        row_index AS "row", column_index AS "column", rules, stem_id AS "stemId"
       FROM grammar_table_cells
-      WHERE table_id = $1 AND rules != ''
+      WHERE table_id = $1
     `,
     [req.params.id]
   );
@@ -375,6 +381,28 @@ export const getLanguageWordStems: RequestHandler = async (req, res) => {
       ORDER BY pos, name
     `,
     [req.params.id]
+  );
+  res.json(value.rows);
+};
+
+export const getLanguageWordStemsByPos: RequestHandler = async (req, res) => {
+  if(!isValidUUID(req.params.id)) {
+    res.status(400).json({ title: "Invalid ID", message: "The given language ID is not valid." });
+    return;
+  }
+  if(!partsOfSpeech.some(pos => req.params.pos === pos.code)) {
+    res.status(400).json({ title: "Invalid POS", message: "The given POS is not valid." });
+    return;
+  }
+
+  const value = await query(
+    `
+      SELECT id, name
+      FROM word_stems
+      WHERE lang_id = $1 AND pos = $2
+      ORDER BY name
+    `,
+    [req.params.id, req.params.pos]
   );
   res.json(value.rows);
 };

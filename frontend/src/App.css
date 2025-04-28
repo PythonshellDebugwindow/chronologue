@@ -449,14 +449,21 @@
   margin: 0 0.5em;
   text-align: center;
 }
-.grammar-table-non-editable th,
-.grammar-table-non-editable td
+.grammar-table-padded th,
+.grammar-table-padded td
 {
   box-sizing: border-box;
   padding: 0 5px;
 }
 .grammar-table td:not(.empty-cell) {
   background: #f3f3f3;
+}
+.grammar-table .select-stem {
+  margin: 4px 0;
+  font-size: 0.8em;
+}
+.grammar-table textarea {
+  height: 4em;
 }
 
 .grammar-tables-grid {

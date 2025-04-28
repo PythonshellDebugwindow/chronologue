@@ -33,7 +33,7 @@ interface IWordGrammarTable {
 
 export default function WordGrammarTable({ table, grammarForms, cells }: IWordGrammarTable) {
   return (
-    <table className="grammar-table grammar-table-non-editable">
+    <table className="grammar-table grammar-table-padded">
       <tbody>
         <tr>
           <th>&nbsp;</th>

@@ -7,7 +7,7 @@ import WordGrammarTable from '../components/WordGrammarTable.tsx';
 import {
   formatPeriodSeparatedGrammarForms, useGrammarForms, useGrammarTable,
   useGrammarTableClasses, useGrammarTableFilledCells,
-  useRandomGrammarTableWord, IGrammarForm, IGrammarTable, IGrammarTableCell
+  useRandomGrammarTableWord, IGrammarForm, IGrammarTable, IGrammarTableCellWithPosition
 } from '../grammarData.tsx';
 import { renderDatalessQueryResult, useSetPageTitle } from '../utils.tsx';
 import {
@@ -17,13 +17,13 @@ import {
 
 interface IGrammarTableDisplay {
   table: IGrammarTable;
-  filledCells: IGrammarTableCell[];
+  filledCells: IGrammarTableCellWithPosition[];
   grammarForms: IGrammarForm[];
 }
 
 function GrammarTableDisplay({ table, filledCells, grammarForms }: IGrammarTableDisplay) {
   return (
-    <table className="grammar-table grammar-table-non-editable">
+    <table className="grammar-table grammar-table-padded">
       <tbody>
         <tr>
           <th>&nbsp;</th>
@@ -50,7 +50,7 @@ function GrammarTableDisplay({ table, filledCells, grammarForms }: IGrammarTable
 
 interface IDisplayRandomTableWord {
   table: IGrammarTable;
-  filledCells: IGrammarTableCell[];
+  filledCells: IGrammarTableCellWithPosition[];
   grammarForms: IGrammarForm[];
 }
 
@@ -109,7 +109,7 @@ function DisplayRandomTableWord({ table, filledCells, grammarForms }: IDisplayRa
 interface IViewGrammarTableInner {
   table: IGrammarTable;
   classes: IWordClassNoPOS[];
-  filledCells: IGrammarTableCell[];
+  filledCells: IGrammarTableCellWithPosition[];
   grammarForms: IGrammarForm[];
   partsOfSpeech: IPartOfSpeech[];
 }

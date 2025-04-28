@@ -27,9 +27,13 @@ export interface IGrammarTable {
 };
 
 export interface IGrammarTableCell {
+  rules: string;
+  stemId: string | null;
+};
+
+export type IGrammarTableCellWithPosition = IGrammarTableCell & {
   row: number;
   column: number;
-  rules: string;
 };
 
 export interface IWordStem {
@@ -53,7 +57,7 @@ export async function deleteGrammarTable(id: string) {
 
 type EditGrammarTableArgument = Omit<IGrammarTable, 'id' | 'langId'> & {
   classIds: string[];
-  cells: string[][];
+  cells: IGrammarTableCell[][];
 };
 
 export async function editGrammarTable(id: string, data: EditGrammarTableArgument) {
@@ -92,7 +96,7 @@ export function useGrammarTableClassIds(id: string, enabled: boolean = true) {
 };
 
 export function useGrammarTableFilledCells(id: string, enabled: boolean = true) {
-  return useQuery<IGrammarTableCell[], ITitledError>({
+  return useQuery<IGrammarTableCellWithPosition[], ITitledError>({
     queryKey: ['grammar-tables', id, 'filled-cells'],
     queryFn: async () => await getBackendJson(`grammar-tables/${id}/filled-cells`),
     enabled
@@ -133,6 +137,15 @@ export function useLanguageWordStems(id: string) {
   return useQuery<IWordStem[], ITitledError>({
     queryKey: ['languages', id, 'word-stems'],
     queryFn: async () => await getBackendJson(`languages/${id}/word-stems`)
+  });
+};
+
+type IWordStemNameOnly = Omit<IWordStem, 'pos' | 'rules'>;
+
+export function useLanguageWordStemsByPOS(id: string, pos: string) {
+  return useQuery<IWordStemNameOnly[], ITitledError>({
+    queryKey: ['languages', id, 'pos-word-stems', pos],
+    queryFn: async () => await getBackendJson(`languages/${id}/pos-word-stems/${pos}`)
   });
 };
 
