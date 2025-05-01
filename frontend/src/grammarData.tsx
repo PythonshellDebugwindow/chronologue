@@ -149,6 +149,15 @@ export function useLanguageWordStemsByPOS(id: string, pos: string) {
   });
 };
 
+export type IrregularWordStems = { [stemId: string]: string };
+
+export function useIrregularWordStems(wordId: string) {
+  return useQuery<IrregularWordStems, ITitledError>({
+    queryKey: ['words', wordId, 'irregular-stems'],
+    queryFn: async () => await getBackendJson(`words/${wordId}/irregular-stems`)
+  });
+};
+
 export interface IGrammarTableIdAndName {
   id: string;
   name: string;

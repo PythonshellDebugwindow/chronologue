@@ -92,6 +92,7 @@ app.delete('/words/:id', words.deleteWord);
 app.get('/words/:id/classes', words.getWordClassesByWord);
 app.get('/words/:id/class-ids', words.getWordClassIdsByWord);
 app.get('/words/:id/grammar-tables', grammar.getGrammarTablesForWord);
+app.get('/words/:id/irregular-stems', grammar.getIrregularStemsForWord);
 
 app.use(((err, req, res, _next) => {
   res.status(500).json({ title: "Internal error", message: err.message });

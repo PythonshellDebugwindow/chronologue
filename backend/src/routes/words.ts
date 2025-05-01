@@ -46,6 +46,26 @@ export const addWord: RequestHandler = async (req, res) => {
       );
     }
 
+    if(req.body.irregularStems) {
+      const allIrregularStems = req.body.irregularStems;
+      const filledStemIds = Object.keys(allIrregularStems).filter(
+        id => allIrregularStems[id]
+      );
+      const filledIrregularStems = filledStemIds.map(stemId => ({
+        word_id: addedId,
+        stem_id: stemId,
+        form: allIrregularStems[stemId]
+      }));
+      await client.query(
+        `
+          INSERT INTO word_stems_irregular (word_id, stem_id, form)
+          SELECT wsi.word_id, wsi.stem_id, wsi.form
+          FROM json_populate_recordset(NULL::word_stems_irregular, $1) AS wsi
+        `,
+        [JSON.stringify(filledIrregularStems)]
+      );
+    }
+
     res.status(201).json(addedId);
   });
 };
@@ -111,6 +131,35 @@ export const editWord: RequestHandler = async (req, res) => {
           ON CONFLICT DO NOTHING
         `,
         [wordId, req.body.classIds]
+      );
+    }
+
+    if(req.body.irregularStems) {
+      const allIrregularStems = req.body.irregularStems;
+      const filledStemIds = Object.keys(allIrregularStems).filter(
+        id => allIrregularStems[id]
+      );
+      const filledIrregularStems = filledStemIds.map(stemId => ({
+        word_id: wordId,
+        stem_id: stemId,
+        form: allIrregularStems[stemId]
+      }));
+      await client.query(
+        `
+          DELETE FROM word_stems_irregular
+          WHERE word_id = $1 AND NOT (stem_id = ANY($2::bigint[]))
+        `,
+        [wordId, filledStemIds]
+      );
+      await client.query(
+        `
+          INSERT INTO word_stems_irregular (word_id, stem_id, form)
+          SELECT wsi.word_id, wsi.stem_id, wsi.form
+          FROM json_populate_recordset(NULL::word_stems_irregular, $1) AS wsi
+          ON CONFLICT (word_id, stem_id) DO UPDATE
+          SET form = EXCLUDED.form
+        `,
+        [JSON.stringify(filledIrregularStems)]
       );
     }
   });

@@ -1,7 +1,7 @@
 import type { RequestHandler } from 'express';
 
 import query, { transact } from '../db/index.js';
-import { hasAllStrings, isValidUUID, IQueryError } from '../utils.js';
+import { hasAllBooleans, hasAllStrings, isValidUUID, IQueryError } from '../utils.js';
 
 export const addLanguage: RequestHandler = async (req, res, next) => {
   try {
@@ -13,7 +13,7 @@ export const addLanguage: RequestHandler = async (req, res, next) => {
       res.status(400).json({ message: "Languages with no family cannot have a parent." });
       return;
     }
-    
+
     await transact(async client => {
       if(req.body.parentId) {
         const parentFamily = await client.query(
@@ -25,10 +25,10 @@ export const addLanguage: RequestHandler = async (req, res, next) => {
           [req.body.parentId]
         );
         if(parentFamily.rows.length === 0) {
-          res.status(400).json({ message: "The given parent language does not exist."});
+          res.status(400).json({ message: "The given parent language does not exist." });
           return;
         } else if(parentFamily.rows[0].familyId !== req.body.familyId) {
-          res.status(400).json({ message: "The given parent language is of a different family."});
+          res.status(400).json({ message: "The given parent language is of a different family." });
           return;
         }
       } else if(req.body.familyId) {
@@ -86,7 +86,7 @@ export const addLanguage: RequestHandler = async (req, res, next) => {
         "INSERT INTO dictionary_settings (lang_id) VALUES ($1)",
         [addedLanguageId]
       );
-      
+
       res.status(201).json(addedLanguageId);
     });
   } catch(err) {
@@ -123,7 +123,7 @@ export const deleteLanguage: RequestHandler = async (req, res) => {
       [req.params.id]
     );
   });
-  
+
   res.status(204).send();
 };
 
@@ -139,7 +139,7 @@ export const editLanguage: RequestHandler = async (req, res, next) => {
       res.status(400).json({ message: "Please provide all required fields." });
       return;
     }
-    
+
     await transact(async client => {
       const langId = req.params.id;
 
@@ -174,7 +174,7 @@ export const editLanguage: RequestHandler = async (req, res, next) => {
             return;
           }
         }
-          
+
         const descendantIds = (await query({
           text: `
             WITH RECURSIVE children AS (
@@ -207,7 +207,7 @@ export const editLanguage: RequestHandler = async (req, res, next) => {
           [req.body.familyId, descendantIds]
         );
       }
-      
+
       await client.query(
         `
           UPDATE languages
@@ -236,7 +236,7 @@ export const getDescendants: RequestHandler = async (req, res) => {
     res.status(400).json({ title: "Invalid ID", message: "The given language ID is not valid." });
     return;
   }
-  
+
   const value = await query(
     `
       WITH RECURSIVE children AS (
@@ -268,10 +268,12 @@ export const getDictionarySettings: RequestHandler = async (req, res) => {
     res.status(400).json({ title: "Invalid ID", message: "The given language ID is not valid." });
     return;
   }
-  
+
   const value = await query(
     `
-      SELECT show_word_ipa AS "showWordIpa"
+      SELECT
+        show_word_ipa AS "showWordIpa",
+        can_edit_irregular_stems AS "canEditIrregularStems"
       FROM dictionary_settings
       WHERE lang_id = $1
     `,
@@ -291,7 +293,7 @@ export const getLanguage: RequestHandler = async (req, res) => {
     res.status(400).json({ title: "Invalid ID", message: "The given language ID is not valid." });
     return;
   }
-  
+
   const value = await query(
     `
       SELECT
@@ -319,7 +321,7 @@ export const getOrthographySettings: RequestHandler = async (req, res) => {
     res.status(400).json({ title: "Invalid ID", message: "The given language ID is not valid." });
     return;
   }
-  
+
   const value = await query(
     `
       SELECT
@@ -353,7 +355,7 @@ export const getSummaryNotes: RequestHandler = async (req, res) => {
     res.status(400).json({ title: "Invalid ID", message: "The given language ID is not valid." });
     return;
   }
-  
+
   const value = await query(
     `
       SELECT
@@ -400,7 +402,7 @@ export const updateDictionarySettings: RequestHandler = async (req, res) => {
     res.status(400).json({ message: "The given language ID is not valid." });
     return;
   }
-  if(typeof req.body.showWordIpa !== 'boolean') {
+  if(!hasAllBooleans(req.body, ['showWordIpa', 'canEditIrregularStems'])) {
     res.status(400).json({ message: "Invalid request body." });
     return;
   }
@@ -408,10 +410,12 @@ export const updateDictionarySettings: RequestHandler = async (req, res) => {
   await query(
     `
       UPDATE dictionary_settings
-      SET show_word_ipa = $1
-      WHERE lang_id = $2
+      SET
+        show_word_ipa = $1,
+        can_edit_irregular_stems = $2
+      WHERE lang_id = $3
     `,
-    [req.body.showWordIpa, req.params.id]
+    [req.body.showWordIpa, req.body.canEditIrregularStems, req.params.id]
   );
   res.status(204).send();
 };

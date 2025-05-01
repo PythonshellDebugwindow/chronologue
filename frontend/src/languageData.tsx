@@ -27,6 +27,7 @@ export interface ILanguageSummaryNotes {
 
 export interface IDictionarySettings {
   showWordIpa: boolean;
+  canEditIrregularStems: boolean;
 };
 
 export interface IOrthographySettings {

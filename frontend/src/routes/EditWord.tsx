@@ -6,8 +6,10 @@ import {
   CFormBody, CIpaTextInput, CMultilineTextInput, CTextInput
 } from '../components/CForm.tsx';
 import CTextInputWithAlphabet from '../components/CFormTextInputWithAlphabet.tsx';
+import IrregularWordStemsEdit from '../components/IrregularWordStemsEdit.tsx';
 import POSAndClassesSelect from '../components/POSAndClassesSelect.tsx';
 
+import { IrregularWordStems } from '../grammarData.tsx';
 import {
   useLanguageDictionarySettings, useLanguageWordClasses, IDictionarySettings
 } from '../languageData.tsx';
@@ -40,6 +42,7 @@ function EditWordInner(
   );
   const [etymology, setEtymology] = useState(initialWord.etymology);
   const [notes, setNotes] = useState(initialWord.notes);
+  const [irregularStems, setIrregularStems] = useState<IrregularWordStems | null>(null);
   const [errorMessage, setErrorMessage] = useState("");
 
   async function editFormWord() {
@@ -64,7 +67,8 @@ function EditWordInner(
       etymology,
       notes,
       langId: initialWord.langId,
-      classIds: classes.map(cls => cls.id)
+      classIds: classes.map(cls => cls.id),
+      irregularStems
     });
     if(!result.ok) {
       setErrorMessage(result.body.message);
@@ -104,7 +108,7 @@ function EditWordInner(
           )}
           <POSAndClassesSelect
             pos={pos}
-            setPos={setPos}
+            setPos={pos => { setPos(pos); setIrregularStems(null); }}
             allLangPos={partsOfSpeech}
             classes={classes}
             setClasses={setClasses}
@@ -123,6 +127,15 @@ function EditWordInner(
             setState={setNotes}
           />
         </CFormBody>
+        {dictSettings.canEditIrregularStems && (
+          <IrregularWordStemsEdit
+            wordId={initialWord.id}
+            langId={initialWord.langId}
+            pos={pos}
+            irregularStems={irregularStems}
+            setIrregularStems={setIrregularStems}
+          />
+        )}
         <button type="button" onClick={editFormWord}>
           Save changes
         </button>
@@ -132,7 +145,7 @@ function EditWordInner(
       </form>
     </>
   );
-};
+}
 
 function EditWordWithWord({ word }: { word: IWord }) {
   const wordClassIdsResponse = useWordClassIds(word.id);

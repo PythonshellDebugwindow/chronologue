@@ -136,9 +136,8 @@ function classesReducer(state: IClassesReducerState, action: IClassesReducerActi
   }
 }
 
-async function sendSaveDictSettingsRequest(showWordIpa: boolean, langId: string) {
-  const reqBody = { showWordIpa };
-  const res = await sendBackendJson(`languages/${langId}/dictionary-settings`, 'PUT', reqBody);
+async function sendSaveDictSettingsRequest(settings: IDictionarySettings, langId: string) {
+  const res = await sendBackendJson(`languages/${langId}/dictionary-settings`, 'PUT', settings);
   if(!res.ok) {
     throw res.body;
   }
@@ -356,18 +355,35 @@ interface IEditOtherDictSettings {
 
 function EditOtherDictSettings({ language, dictSettings }: IEditOtherDictSettings) {
   const [showWordIpa, setShowWordIpa] = useState(dictSettings.showWordIpa);
+  const [canEditStems, setCanEditStems] = useState(dictSettings.canEditIrregularStems);
 
   const [settingsAreSaved, setSettingsAreSaved] = useState(true);
   const [isSavingSettings, setIsSavingSettings] = useState(false);
 
   return (
     <>
-      <h3>Show IPA</h3>
+      <h3>Other Settings</h3>
+      {!settingsAreSaved && (
+        <SaveChangesButton
+          isSaving={isSavingSettings}
+          setIsSaving={setIsSavingSettings}
+          saveQueryKey={['languages', language.id, 'dictionary-settings', 'update']}
+          saveQueryFn={async () => {
+            const newSettings = { showWordIpa, canEditIrregularStems: canEditStems };
+            return await sendSaveDictSettingsRequest(newSettings, language.id);
+          }}
+          handleSave={() => setSettingsAreSaved(true)}
+          style={{ marginTop: "1em" }}
+        >
+          Save
+        </SaveChangesButton>
+      )}
+      <h4 style={{ marginTop: "1em" }}>Show IPA</h4>
       <p>
         Disabling this option will remove the IPA field when adding words and
         viewing the dictionary.
       </p>
-      <div>
+      <p>
         <label>
           Show the IPA field?{" "}
           <input
@@ -379,14 +395,33 @@ function EditOtherDictSettings({ language, dictSettings }: IEditOtherDictSetting
             }}
           />
         </label>
-      </div>
+      </p>
+      <h4>Irregular Stems</h4>
+      <p>
+        Enabling this option will allow you to define irregular word stems when
+        adding or editing words.
+      </p>
+      <p>
+        <label>
+          Allow adding irregular stems?{" "}
+          <input
+            type="checkbox"
+            checked={canEditStems}
+            onChange={e => {
+              setCanEditStems(e.target.checked);
+              setSettingsAreSaved(false);
+            }}
+          />
+        </label>
+      </p>
       {!settingsAreSaved && (
         <SaveChangesButton
           isSaving={isSavingSettings}
           setIsSaving={setIsSavingSettings}
           saveQueryKey={['languages', language.id, 'dictionary-settings', 'update']}
           saveQueryFn={async () => {
-            return await sendSaveDictSettingsRequest(showWordIpa, language.id);
+            const newSettings = { showWordIpa, canEditIrregularStems: canEditStems };
+            return await sendSaveDictSettingsRequest(newSettings, language.id);
           }}
           handleSave={() => setSettingsAreSaved(true)}
           style={{ marginTop: "1em" }}

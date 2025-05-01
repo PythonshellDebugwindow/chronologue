@@ -71,7 +71,8 @@ CREATE TABLE IF NOT EXISTS orthography_settings (
 
 CREATE TABLE IF NOT EXISTS dictionary_settings (
 	lang_id uuid NOT NULL REFERENCES languages ON DELETE CASCADE PRIMARY KEY,
-	show_word_ipa boolean NOT NULL DEFAULT TRUE
+	show_word_ipa boolean NOT NULL DEFAULT TRUE,
+	can_edit_irregular_stems boolean NOT NULL DEFAULT FALSE
 );
 
 CREATE TABLE IF NOT EXISTS word_classes (
@@ -124,9 +125,10 @@ CREATE TABLE IF NOT EXISTS word_stems (
 	UNIQUE (lang_id, pos, name)
 );
 
-CREATE TABLE IF NOT EXISTS word_stems_by_word (
+CREATE TABLE IF NOT EXISTS word_stems_irregular (
 	word_id uuid NOT NULL REFERENCES words ON DELETE CASCADE,
 	stem_id bigint NOT NULL REFERENCES word_stems ON DELETE CASCADE,
+	form text NOT NULL,
 	PRIMARY KEY (word_id, stem_id)
 );
 

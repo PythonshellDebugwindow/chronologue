@@ -4,6 +4,7 @@ import DisplayDate from './components/DisplayDate.tsx';
 import LanguageLink from './components/LanguageLink.tsx';
 import WordLink from './components/WordLink.tsx';
 
+import { IrregularWordStems } from './grammarData.tsx';
 import {
   getBackendJson, parseRecordDates, parseSingleRecordDates, sendBackendJson,
   sendBackendRequest, ITitledError
@@ -38,6 +39,7 @@ export type IWordClassNoPOS = Omit<IWordClass, 'pos'>;
 
 type IAddWordArgument = Omit<IWord, 'id' | 'created' | 'updated'> & {
   classIds: string[];
+  irregularStems: IrregularWordStems | null;
 };
 
 export async function addWord(data: IAddWordArgument) {

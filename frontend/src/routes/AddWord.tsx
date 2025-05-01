@@ -5,9 +5,11 @@ import {
   CFormBody, CIpaTextInput, CMultilineTextInput, CTextInput
 } from '../components/CForm.tsx';
 import CTextInputWithAlphabet from '../components/CFormTextInputWithAlphabet.tsx';
+import IrregularWordStemsEdit from '../components/IrregularWordStemsEdit.tsx';
 import LinkButton from '../components/LinkButton.tsx';
 import POSAndClassesSelect from '../components/POSAndClassesSelect.tsx';
 
+import { IrregularWordStems } from '../grammarData.tsx';
 import {
   useLanguageDictionarySettings, useLanguage, useLanguageWordClasses,
   IDictionarySettings, ILanguage
@@ -94,6 +96,7 @@ function AddWordInner({ language, dictSettings, langClasses, langPartsOfSpeech }
   const [classes, setClasses] = useState<IWordClass[]>([]);
   const [etymology, setEtymology] = useState("");
   const [notes, setNotes] = useState("");
+  const [irregularStems, setIrregularStems] = useState<IrregularWordStems | null>(null);
 
   const [preserveFields, setPreserveFields] = useState(false);
   const [message, setMessage] = useState("");
@@ -168,7 +171,8 @@ function AddWordInner({ language, dictSettings, langClasses, langPartsOfSpeech }
       etymology,
       notes,
       langId: language.id,
-      classIds: classes.map(cls => cls.id)
+      classIds: classes.map(cls => cls.id),
+      irregularStems
     });
     if(!result.ok) {
       setMessage(result.body.message);
@@ -245,6 +249,14 @@ function AddWordInner({ language, dictSettings, langClasses, langPartsOfSpeech }
             setState={setNotes}
           />
         </CFormBody>
+        {dictSettings.canEditIrregularStems && pos && (
+          <IrregularWordStemsEdit
+            langId={language.id}
+            pos={pos}
+            irregularStems={irregularStems}
+            setIrregularStems={setIrregularStems}
+          />
+        )}
         <button type="button" onClick={addFormWord}>
           Add Word
         </button>

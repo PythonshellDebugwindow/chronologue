@@ -327,6 +327,27 @@ export const getGrammarTablesForWord: RequestHandler = async (req, res) => {
   });
 };
 
+export const getIrregularStemsForWord: RequestHandler = async (req, res) => {
+  if(!isValidUUID(req.params.id)) {
+    res.status(400).json({ title: "Invalid ID", message: "The given word ID is not valid." });
+    return;
+  }
+
+  const value = await query(
+    `
+      SELECT stem_id AS "stemId", form
+      FROM word_stems_irregular
+      WHERE word_id = $1
+    `,
+    [req.params.id]
+  );
+  const result: { [stemId: string]: string } = {};
+  for(const row of value.rows) {
+    result[row.stemId] = row.form;
+  }
+  res.json(result);
+};
+
 export const getIrregularForms: RequestHandler = async (req, res) => {
   if(!isValidUUID(req.params.id)) {
     res.status(400).json({ title: "Invalid ID", message: "The given table ID is not valid." });
@@ -463,7 +484,7 @@ export const getRandomWordForGrammarTable: RequestHandler = async (req, res) => 
       res.json(null);
       return;
     }
-    
+
     const word = wordResult.rows[0];
     const runResult = await runGrammarTableRules(req.params.id, word, client);
     if(runResult.success) {
@@ -493,7 +514,7 @@ export const runGrammarTableOnWord: RequestHandler = async (req, res) => {
       res.status(400).json({ message: "The requested word was not found." });
       return;
     }
-    
+
     const word = wordResult.rows[0];
     const result = await runGrammarTableRules(req.params.id, word, client);
     if(result.success) {

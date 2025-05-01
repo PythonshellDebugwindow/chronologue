@@ -66,6 +66,17 @@ export default async function runGrammarTableRules(
   });
   const langStemRules = new Map(langStemsResult.rows as [string, string][]);
 
+  const irregularStemsResult = await client.query({
+    text: `
+      SELECT stem_id AS "stemId", form
+      FROM word_stems_irregular
+      WHERE word_id = $1
+    `,
+    values: [word.id],
+    rowMode: 'array'
+  });
+  const irregularStems = new Map(irregularStemsResult.rows as [string, string][]);
+
   const categoriesResult = await client.query(
     `
       SELECT letter, string_to_array(members, ',') AS members
@@ -110,20 +121,27 @@ export default async function runGrammarTableRules(
         };
         continue;
       }
-      
-      const setRulesResult = tableSCA.setRules(stemRules);
-      if(!setRulesResult.success) {
-        result[cell.row][cell.column] = setRulesResult;
-        continue;
-      }
 
-      const scaResult = tableSCA.applySoundChanges(word.word);
-      result[cell.row][cell.column] = scaResult;
-      if(!scaResult.success) {
-        continue;
+      const irregularStem = irregularStems.get(cell.stemId);
+      if(irregularStem !== undefined) {
+        result[cell.row][cell.column] = {
+          success: true as const, result: irregularStem
+        };
+      } else {
+        const setRulesResult = tableSCA.setRules(stemRules);
+        if(!setRulesResult.success) {
+          result[cell.row][cell.column] = setRulesResult;
+          continue;
+        }
+
+        const scaResult = tableSCA.applySoundChanges(word.word);
+        result[cell.row][cell.column] = scaResult;
+        if(!scaResult.success) {
+          continue;
+        }
       }
     }
-    
+
     const setRulesResult = tableSCA.setRules(cell.rules);
     if(!setRulesResult.success) {
       result[cell.row][cell.column] = setRulesResult;
