@@ -10,6 +10,17 @@ export default defineConfig({
       "@shared": path.resolve(__dirname, "../shared/src")
     }
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if(id.includes('node_modules/react-dom/')) {
+            return 'react-dom';
+          }
+        }
+      }
+    }
+  },
   server: {
     port: 5173
   },
