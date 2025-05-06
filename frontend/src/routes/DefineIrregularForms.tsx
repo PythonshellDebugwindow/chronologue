@@ -101,7 +101,7 @@ function DefineIrregularFormsInner({
       return;
     }
 
-    navigate('/grammar-table/' + table.id);
+    navigate('/word/' + word.id);
     queryClient.resetQueries({ queryKey: ['grammar-tables', table.id] });
   }
 

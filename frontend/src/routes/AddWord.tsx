@@ -130,7 +130,7 @@ function AddWordInner({ language, dictSettings, langClasses, langPartsOfSpeech }
         copyWordData(copied, copyWordClassesQuery.data);
         setCopyingMessage(
           <>
-            Copying: <Link to={'/words/' + copied.id}>{copied.word}</Link>{" "}
+            Copying: <Link to={'/word/' + copied.id}>{copied.word}</Link>{" "}
             ({copied.meaning})
           </>
         );
