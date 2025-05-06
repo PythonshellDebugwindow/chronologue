@@ -36,16 +36,18 @@ function StemSelect({ langId, pos, stemId, setStemId }: IStemSelect) {
 }
 
 type IEditableGrammarTable = {
-  langId: string;
-  pos: string;
   rows: string[];
   columns: string[];
   setRows: Dispatch<SetStateAction<string[]>>;
   setColumns: Dispatch<SetStateAction<string[]>>;
 } & ({
+  langId: string;
+  pos: string;
   cells: IGrammarTableCell[][];
   setCells: Dispatch<SetStateAction<IGrammarTableCell[][]>>;
 } | {
+  langId?: never;
+  pos?: never;
   cells?: never;
   setCells?: never;
 });
