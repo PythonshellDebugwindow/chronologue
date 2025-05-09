@@ -144,8 +144,8 @@ function SCAResultsPreview(
 
   const changedWords = words.flatMap((word, i) => (
     (!scaResults[i].success || word[editField] !== scaResults[i].result)
-    ? [{ word, scaResult: scaResults[i] }]
-    : []
+      ? [{ word, scaResult: scaResults[i] }]
+      : []
   ));
 
   function enableField(field: IDictionaryField) {
@@ -318,11 +318,11 @@ function RunDictionarySCAInner(
     setIsPreviewing(true);
     setPreviewFilter(filter);
     setPreviewField(editField);
-    
+
     queryClient.removeQueries({ queryKey: ['languages', language.id, 'apply-sca-rules'] });
     queryClient.removeQueries({ queryKey: ['languages', language.id, 'words'] });
   }
-  
+
   function cancelChanges() {
     setIsPreviewing(false);
     setPreviewFilter(null);
@@ -367,8 +367,8 @@ function RunDictionarySCAInner(
       {message && <p style={{ marginTop: "0" }}><b>{message}</b></p>}
       {
         isPreviewing
-        ? <button onClick={cancelChanges}>Cancel</button>
-        : <button onClick={previewChanges}>Preview changes</button>
+          ? <button onClick={cancelChanges}>Cancel</button>
+          : <button onClick={previewChanges}>Preview changes</button>
       }
       {previewFilter && previewField && (
         <SCAResultsPreviewGetWords
