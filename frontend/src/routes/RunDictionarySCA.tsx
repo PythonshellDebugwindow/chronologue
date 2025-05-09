@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { Dispatch, SetStateAction, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 
@@ -107,10 +107,11 @@ interface ISCAResultsPreview {
   rules: string;
   dictSettings: IDictionarySettings;
   partsOfSpeech: IPartOfSpeech[];
+  setIsPreviewing: Dispatch<SetStateAction<boolean>>;
 }
 
 function SCAResultsPreview(
-  { language, words, editField, rules, dictSettings, partsOfSpeech }: ISCAResultsPreview
+  { language, words, editField, rules, dictSettings, partsOfSpeech, setIsPreviewing }: ISCAResultsPreview
 ) {
   const allFields = getAllFields(dictSettings);
   const [fields, setFields] = useState<IDictionaryField[]>(allFields);
@@ -119,12 +120,6 @@ function SCAResultsPreview(
 
   const [isSaving, setIsSaving] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
-
-  const [lastSavedWords, setLastSavedWords] = useState<IWord[] | null>(null);
-  if(lastSavedWords !== words) {
-    setLastSavedWords(words);
-    setIsSaved(false);
-  }
 
   const scaQuery = useApplySCARulesQuery(
     language.id, words.map(w => w[editField]), rules,
@@ -147,6 +142,12 @@ function SCAResultsPreview(
 
   const anyScaResultFailed = scaResults.some(r => !r.success);
 
+  const changedWords = words.flatMap((word, i) => (
+    (!scaResults[i].success || word[editField] !== scaResults[i].result)
+    ? [{ word, scaResult: scaResults[i] }]
+    : []
+  ));
+
   function enableField(field: IDictionaryField) {
     const index = fields.indexOf(field);
     setFields(fields.with(index, { name: field.name, isDisplaying: true }));
@@ -158,14 +159,22 @@ function SCAResultsPreview(
   }
 
   async function confirmChanges() {
-    const changes: { [id: string]: string } = {};
-    for(const i in words) {
-      if(!scaResults[i].success) {
+    const changeMap: { [id: string]: string } = {};
+    for(const changed of changedWords) {
+      if(!changed.scaResult.success) {
         return null;
       }
-      changes[words[i].id] = scaResults[i].result;
+      changeMap[changed.word.id] = changed.scaResult.result;
     }
-    return await sendPerformMassEditRequest(changes, editField, language.id);
+    const result = await sendPerformMassEditRequest(changeMap, editField, language.id);
+    setIsPreviewing(false);
+    return result;
+  }
+
+  if(changedWords?.length === 0) {
+    return (
+      <p>The given rules do not affect any words in {language.name}'s dictionary.</p>
+    );
   }
 
   return (
@@ -185,7 +194,7 @@ function SCAResultsPreview(
         ))}
       </p>
       <p>
-        {words.length || "No"} word{words.length !== 1 && "s"} found.
+        {changedWords.length || "No"} word{changedWords.length !== 1 && "s"} found.
       </p>
       {!isSaved && (
         anyScaResultFailed
@@ -217,15 +226,15 @@ function SCAResultsPreview(
             </th>
           ))}
         </tr>
-        {words.map((word, i) => (
+        {changedWords.map(changed => (
           <PreviewChangesRow
-            word={word}
+            word={changed.word}
             fields={displayedFieldNames}
             editField={editField}
-            result={scaResults[i]}
+            result={changed.scaResult}
             language={language}
             partsOfSpeech={partsOfSpeech}
-            key={word.id}
+            key={changed.word.id}
           />
         ))}
       </DictionaryTable>
@@ -247,15 +256,42 @@ function SCAResultsPreview(
   );
 }
 
+type ISCAResultsPreviewGetWords = Omit<ISCAResultsPreview, 'words'> & {
+  filter: IDictionaryFilter;
+};
+
+function SCAResultsPreviewGetWords({
+  language, filter, editField, rules, dictSettings, partsOfSpeech, setIsPreviewing
+}: ISCAResultsPreviewGetWords) {
+  const dictResponse = useLanguageWords(language.id);
+
+  if(dictResponse.status === 'pending') {
+    return <p>Loading...</p>;
+  } else if(dictResponse.status === 'error') {
+    return <p>Error: {dictResponse.error.message}</p>;
+  }
+
+  return (
+    <SCAResultsPreview
+      language={language}
+      words={sortAndFilterWords(dictResponse.data, filter)}
+      editField={editField}
+      rules={rules}
+      dictSettings={dictSettings}
+      partsOfSpeech={partsOfSpeech}
+      setIsPreviewing={setIsPreviewing}
+    />
+  );
+}
+
 interface IRunDictionarySCAInner {
   language: ILanguage;
-  initialWords: IWord[];
   dictSettings: IDictionarySettings;
   partsOfSpeech: IPartOfSpeech[];
 }
 
 function RunDictionarySCAInner(
-  { language, initialWords, dictSettings, partsOfSpeech }: IRunDictionarySCAInner
+  { language, dictSettings, partsOfSpeech }: IRunDictionarySCAInner
 ) {
   const queryClient = useQueryClient();
 
@@ -265,10 +301,12 @@ function RunDictionarySCAInner(
   });
 
   const [editField, setEditField] = useState<IEditField>('word');
-  const [editingWords, setEditingWords] = useState<IWord[] | null>(null);
-  const [editingField, setEditingField] = useState<IEditField | null>(null);
   const [rules, setRules] = useState("");
   const [message, setMessage] = useState("");
+
+  const [isPreviewing, setIsPreviewing] = useState(false);
+  const [previewFilter, setPreviewFilter] = useState<IDictionaryFilter | null>(null);
+  const [previewField, setPreviewField] = useState<IEditField | null>(null);
 
   const filterFieldNames = getAllFields(dictSettings).flatMap(f => (
     f.name === 'word' ? [] : [f.name]
@@ -276,21 +314,19 @@ function RunDictionarySCAInner(
   const editFieldNames = dictSettings.showWordIpa ? ['word', 'ipa'] : ['word'];
 
   function previewChanges() {
-    if(!editField) {
-      setMessage("Please select a field to edit.");
-      return;
-    }
-
     setMessage("");
-
-    if(editingWords !== null) {
-      if(!confirm("This will overwrite any unsaved changes you have made. Continue?")) {
-        return;
-      }
-    }
-    setEditingWords(sortAndFilterWords(initialWords, filter));
-    setEditingField(editField);
+    setIsPreviewing(true);
+    setPreviewFilter(filter);
+    setPreviewField(editField);
+    
     queryClient.removeQueries({ queryKey: ['languages', language.id, 'apply-sca-rules'] });
+    queryClient.removeQueries({ queryKey: ['languages', language.id, 'words'] });
+  }
+  
+  function cancelChanges() {
+    setIsPreviewing(false);
+    setPreviewFilter(null);
+    setPreviewField(null);
   }
 
   return (
@@ -304,12 +340,14 @@ function RunDictionarySCAInner(
         fields={filterFieldNames}
         filter={filter}
         setFilter={setFilter}
+        disabled={isPreviewing}
       />
       <p>
         Edit field:{" "}
         <select
           value={editField as string}
           onChange={e => setEditField(e.target.value as IEditField)}
+          disabled={isPreviewing}
         >
           {editFieldNames.map(field => (
             <option value={field} key={field}>
@@ -322,19 +360,25 @@ function RunDictionarySCAInner(
       <textarea
         value={rules}
         onChange={e => setRules(e.target.value)}
+        disabled={isPreviewing}
         style={{ width: "20em", height: "10em", marginBottom: "1em" }}
       />
       <br />
       {message && <p style={{ marginTop: "0" }}><b>{message}</b></p>}
-      <button onClick={previewChanges}>Preview changes</button>
-      {editingField && editingWords && (
-        <SCAResultsPreview
+      {
+        isPreviewing
+        ? <button onClick={cancelChanges}>Cancel</button>
+        : <button onClick={previewChanges}>Preview changes</button>
+      }
+      {previewFilter && previewField && (
+        <SCAResultsPreviewGetWords
           language={language}
-          words={editingWords}
-          editField={editingField}
+          filter={previewFilter}
+          editField={previewField}
           rules={rules}
           dictSettings={dictSettings}
           partsOfSpeech={partsOfSpeech}
+          setIsPreviewing={setIsPreviewing}
         />
       )}
     </>
@@ -348,7 +392,6 @@ export default function RunDictionarySCA() {
   }
 
   const languageResponse = useLanguage(languageId);
-  const dictResponse = useLanguageWords(languageId);
   const dictSettingsResponse = useLanguageDictionarySettings(languageId);
   const posResponse = usePartsOfSpeech();
 
@@ -356,10 +399,6 @@ export default function RunDictionarySCA() {
 
   if(languageResponse.status !== 'success') {
     return renderDatalessQueryResult(languageResponse);
-  }
-
-  if(dictResponse.status !== 'success') {
-    return renderDatalessQueryResult(dictResponse);
   }
 
   if(dictSettingsResponse.status !== 'success') {
@@ -373,7 +412,6 @@ export default function RunDictionarySCA() {
   return (
     <RunDictionarySCAInner
       language={languageResponse.data}
-      initialWords={dictResponse.data}
       dictSettings={dictSettingsResponse.data}
       partsOfSpeech={posResponse.data}
     />

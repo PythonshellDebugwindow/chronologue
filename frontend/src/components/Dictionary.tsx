@@ -91,9 +91,12 @@ interface IDictionaryFilterSelect {
   filter: IDictionaryFilter;
   setFilter: Dispatch<SetStateAction<IDictionaryFilter>>;
   fields: (keyof IWord)[];
+  disabled?: boolean;
 }
 
-export function DictionaryFilterSelect({ filter, setFilter, fields }: IDictionaryFilterSelect) {
+export function DictionaryFilterSelect(
+  { filter, setFilter, fields, disabled = false }: IDictionaryFilterSelect
+) {
   return (
     <>
       <p>
@@ -101,6 +104,7 @@ export function DictionaryFilterSelect({ filter, setFilter, fields }: IDictionar
         <select
           value={filter.sortField}
           onChange={e => setFilter({ ...filter, sortField: e.target.value as keyof IWord })}
+          disabled={disabled}
         >
           <option value="word">Word</option>
           {
@@ -115,6 +119,7 @@ export function DictionaryFilterSelect({ filter, setFilter, fields }: IDictionar
         <select
           value={filter.sortDir}
           onChange={e => setFilter({ ...filter, sortDir: e.target.value as 'asc' | 'desc' })}
+          disabled={disabled}
         >
           <option value="asc">ascending</option>
           <option value="desc">descending</option>
@@ -125,6 +130,7 @@ export function DictionaryFilterSelect({ filter, setFilter, fields }: IDictionar
         <select
           value={filter.field as string}
           onChange={e => setFilter({ ...filter, field: e.target.value as FilterField })}
+          disabled={disabled}
         >
           <option value="">None</option>
           <option value="word">Word</option>
@@ -142,6 +148,7 @@ export function DictionaryFilterSelect({ filter, setFilter, fields }: IDictionar
             <select
               value={filter.type}
               onChange={e => setFilter({ ...filter, type: e.target.value as FilterType })}
+              disabled={disabled}
             >
               <option value='begins'>begins with</option>
               <option value='ends'>ends with</option>
@@ -153,6 +160,7 @@ export function DictionaryFilterSelect({ filter, setFilter, fields }: IDictionar
             <input
               value={filter.value}
               onChange={e => setFilter({ ...filter, value: e.target.value })}
+              disabled={disabled}
               style={{ width: "7em" }}
             />
             {" "}
@@ -162,6 +170,7 @@ export function DictionaryFilterSelect({ filter, setFilter, fields }: IDictionar
                 checked={filter.matchCase}
                 onChange={e => setFilter({ ...filter, matchCase: e.target.checked })}
                 type="checkbox"
+                disabled={disabled}
                 style={{ position: "relative", top: "2px", marginLeft: "1px" }}
               />
               match case
