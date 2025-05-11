@@ -171,7 +171,7 @@ function SCAResultsPreview(
     return result;
   }
 
-  if(changedWords?.length === 0) {
+  if(changedWords.length === 0) {
     return (
       <p>The given rules do not affect any words in {language.name}'s dictionary.</p>
     );
@@ -179,6 +179,9 @@ function SCAResultsPreview(
 
   return (
     <>
+      <p>
+        {changedWords.length} word{changedWords.length !== 1 && "s"} found.
+      </p>
       <p>
         More fields:
         {fields.map(field => (
@@ -192,9 +195,6 @@ function SCAResultsPreview(
             </button>
           )
         ))}
-      </p>
-      <p>
-        {changedWords.length || "No"} word{changedWords.length !== 1 && "s"} found.
       </p>
       {!isSaved && (
         anyScaResultFailed

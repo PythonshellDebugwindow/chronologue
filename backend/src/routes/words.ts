@@ -390,9 +390,11 @@ export const massEditLanguageDictionary: RequestHandler = async (req, res) => {
   await query(
     `
       UPDATE words
-      SET ${escapedField} = updated.field
-      FROM (SELECT unnest($1::uuid[]) AS id, unnest($2::text[]) AS field) AS updated
-      WHERE words.id = updated.id
+      SET
+        ${escapedField} = updates.field,
+        updated = CURRENT_TIMESTAMP
+      FROM (SELECT unnest($1::uuid[]) AS id, unnest($2::text[]) AS field) AS updates
+      WHERE words.id = updates.id
     `,
     [changedIds, changedFields]
   );

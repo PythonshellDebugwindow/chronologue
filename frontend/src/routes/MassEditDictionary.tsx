@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 
 import {
   DictionaryFilterSelect, DictionaryTable, IDictionaryFilter, sortAndFilterWords
@@ -50,6 +51,7 @@ type IEditField = Omit<keyof IWord, 'created' | 'updated'>;
 
 interface IMassEditDictionaryRow {
   word: IWord;
+  linkText: string;
   fields: (keyof IWord)[];
   editField: IEditField;
   updateEditField: (value: string) => void;
@@ -57,9 +59,9 @@ interface IMassEditDictionaryRow {
   partsOfSpeech: IPartOfSpeech[];
 }
 
-function MassEditDictionaryRow(
-  { word, fields, editField, updateEditField, language, partsOfSpeech }: IMassEditDictionaryRow
-) {
+function MassEditDictionaryRow({
+  word, linkText, fields, editField, updateEditField, language, partsOfSpeech
+}: IMassEditDictionaryRow) {
   function formatValue(field: keyof IWord) {
     if(field === editField && !(word[field] instanceof Date)) {
       return word[field];
@@ -68,7 +70,7 @@ function MassEditDictionaryRow(
       case 'word':
         return (
           <Link to={'/word/' + word.id}>
-            {(language.status === 'proto' ? "*" : "") + word.word}
+            {(language.status === 'proto' ? "*" : "") + linkText}
           </Link>
         );
       case 'pos':
@@ -82,6 +84,13 @@ function MassEditDictionaryRow(
 
   return (
     <tr>
+      {editField === 'word' && (
+        <td>
+          <Link to={'/word/' + word.id}>
+            {(language.status === 'proto' ? "*" : "") + linkText}
+          </Link>
+        </td>
+      )}
       {fields.map((field, i) => (
         <td key={i}>
           {
@@ -104,40 +113,23 @@ interface IMassEditDictionaryTable {
   initialWords: IWord[];
   dictSettings: IDictionarySettings;
   partsOfSpeech: IPartOfSpeech[];
-  initialEditField: keyof IWord;
+  editField: keyof IWord;
 }
 
 function MassEditDictionaryTable(
-  { language, initialWords, dictSettings, partsOfSpeech, initialEditField }: IMassEditDictionaryTable
+  { language, initialWords, dictSettings, partsOfSpeech, editField }: IMassEditDictionaryTable
 ) {
-  const allFields = getAllFields(dictSettings, initialEditField);
+  const allFields = getAllFields(dictSettings, editField);
   const [fields, setFields] = useState<IDictionaryField[]>(allFields);
 
   const displayedFieldNames = fields.flatMap(f => f.isDisplaying ? [f.name] : []);
 
   const [words, setWords] = useState(initialWords);
-  const [oldInitialWords, setOldInitialWords] = useState<IWord[] | null>(null);
-
-  const [editField, setEditField] = useState(initialEditField);
-  const [oldInitialEditField, setOldInitialEditField] = useState<keyof IWord | null>(null);
 
   const changes = useRef<{ [id: string]: string }>({});
 
   const [isSaving, setIsSaving] = useState(false);
   const [isSaved, setIsSaved] = useState(true);
-
-  if(initialWords !== oldInitialWords) {
-    setWords(initialWords);
-    setOldInitialWords(initialWords);
-    setIsSaved(true);
-  }
-
-  if(initialEditField !== oldInitialEditField) {
-    setFields(allFields);
-    setEditField(initialEditField);
-    setOldInitialEditField(initialEditField);
-    setIsSaved(true);
-  }
 
   useUnsavedPopup(!isSaved);
 
@@ -153,18 +145,23 @@ function MassEditDictionaryTable(
 
   function makeUpdateEditField(word: IWord) {
     return (value: string) => {
-      if(editField) {
-        setWords(words.map(w => (
-          w === word ? { ...w, [editField as string]: value } : w
-        )));
-        changes.current[word.id] = value;
-        setIsSaved(false);
-      }
+      setWords(words.map(w => (
+        w === word ? { ...w, [editField]: value } : w
+      )));
+      changes.current[word.id] = value;
+      setIsSaved(false);
     };
+  }
+
+  if(words.length === 0) {
+    return <p>No words found.</p>;
   }
 
   return (
     <>
+      <p>
+        {words.length} word{words.length !== 1 && "s"} found.
+      </p>
       <p>
         More fields:
         {fields.map(field => !field.isDisplaying && (
@@ -176,9 +173,6 @@ function MassEditDictionaryTable(
             + {userFacingFieldName(field.name)}
           </button>
         ))}
-      </p>
-      <p>
-        {words.length || "No"} word{words.length !== 1 && "s"} found.
       </p>
       {!isSaved && (
         <SaveChangesButton
@@ -196,6 +190,9 @@ function MassEditDictionaryTable(
       )}
       <DictionaryTable>
         <tr>
+          {editField === 'word' && (
+            <th>Link</th>
+          )}
           {fields.map(f => f.isDisplaying && (
             <th key={f.name}>
               {userFacingFieldName(f.name)}
@@ -208,9 +205,10 @@ function MassEditDictionaryTable(
             </th>
           ))}
         </tr>
-        {words.map(word => (
+        {words.map((word, i) => (
           <MassEditDictionaryRow
             word={word}
+            linkText={initialWords[i].word}
             fields={displayedFieldNames}
             editField={editField}
             updateEditField={makeUpdateEditField(word)}
@@ -238,23 +236,50 @@ function MassEditDictionaryTable(
   );
 }
 
+type IMassEditDictionaryTableGetWords = Omit<IMassEditDictionaryTable, 'initialWords'> & {
+  filter: IDictionaryFilter;
+};
+
+function MassEditDictionaryTableGetWords({
+  language, filter, dictSettings, partsOfSpeech, editField
+}: IMassEditDictionaryTableGetWords) {
+  const dictResponse = useLanguageWords(language.id);
+
+  if(dictResponse.status === 'pending') {
+    return <p>Loading...</p>;
+  } else if(dictResponse.status === 'error') {
+    return <p>Error: {dictResponse.error.message}</p>;
+  }
+
+  return (
+    <MassEditDictionaryTable
+      language={language}
+      initialWords={sortAndFilterWords(dictResponse.data, filter)}
+      dictSettings={dictSettings}
+      partsOfSpeech={partsOfSpeech}
+      editField={editField}
+    />
+  );
+}
+
 interface IMassEditDictionaryInner {
   language: ILanguage;
-  initialWords: IWord[];
   dictSettings: IDictionarySettings;
   partsOfSpeech: IPartOfSpeech[];
 }
 
 function MassEditDictionaryInner(
-  { language, initialWords, dictSettings, partsOfSpeech }: IMassEditDictionaryInner
+  { language, dictSettings, partsOfSpeech }: IMassEditDictionaryInner
 ) {
+  const queryClient = useQueryClient();
+
   const [filter, setFilter] = useState<IDictionaryFilter>({
     field: '', type: 'begins', value: "", matchCase: false,
     sortField: 'word', sortDir: 'asc'
   });
 
   const [editField, setEditField] = useState<IEditField | "">("");
-  const [editingWords, setEditingWords] = useState<IWord[] | null>(null);
+  const [editingFilter, setEditingFilter] = useState<IDictionaryFilter | null>(null);
   const [editingField, setEditingField] = useState<IEditField | null>(null);
   const [message, setMessage] = useState("");
 
@@ -274,13 +299,15 @@ function MassEditDictionaryInner(
 
     setMessage("");
 
-    if(editingWords !== null) {
+    if(editingFilter !== null) {
       if(!confirm("This will overwrite any unsaved edits you have made below. Continue?")) {
         return;
       }
     }
-    setEditingWords(sortAndFilterWords(initialWords, filter));
+    setEditingFilter({ ...filter });
     setEditingField(editField);
+
+    queryClient.removeQueries({ queryKey: ['languages', language.id, 'words'] });
   }
 
   return (
@@ -310,13 +337,13 @@ function MassEditDictionaryInner(
       </p>
       {message && <p><b>{message}</b></p>}
       <button onClick={beginMassEdit}>Search</button>
-      {editingField && editingWords && (
-        <MassEditDictionaryTable
+      {editingFilter && editingField && (
+        <MassEditDictionaryTableGetWords
           language={language}
-          initialWords={editingWords}
+          filter={editingFilter}
           dictSettings={dictSettings}
           partsOfSpeech={partsOfSpeech}
-          initialEditField={editingField as keyof IWord}
+          editField={editingField as keyof IWord}
         />
       )}
     </>
@@ -330,7 +357,6 @@ export default function MassEditDictionary() {
   }
 
   const languageResponse = useLanguage(languageId);
-  const dictResponse = useLanguageWords(languageId);
   const dictSettingsResponse = useLanguageDictionarySettings(languageId);
   const posResponse = usePartsOfSpeech();
 
@@ -338,10 +364,6 @@ export default function MassEditDictionary() {
 
   if(languageResponse.status !== 'success') {
     return renderDatalessQueryResult(languageResponse);
-  }
-
-  if(dictResponse.status !== 'success') {
-    return renderDatalessQueryResult(dictResponse);
   }
 
   if(dictSettingsResponse.status !== 'success') {
@@ -355,7 +377,6 @@ export default function MassEditDictionary() {
   return (
     <MassEditDictionaryInner
       language={languageResponse.data}
-      initialWords={dictResponse.data}
       dictSettings={dictSettingsResponse.data}
       partsOfSpeech={posResponse.data}
     />
