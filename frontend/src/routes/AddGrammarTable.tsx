@@ -138,11 +138,11 @@ function AddGrammarTableInner({ language, langClasses, langTables, partsOfSpeech
   return (
     <>
       <h2>Add Grammar Table</h2>
-      <p className="grammar-table-paragraph">
+      <p className="info-paragraph">
         Add a grammar table to <Link to={'/language/' + language.id}>{language.name}</Link>.
         Grammar tables are used to show inflected forms of words, like declensions or conjugations.
       </p>
-      <p className="grammar-table-paragraph">
+      <p className="info-paragraph">
         If any classes are selected, the table will only apply to words with all those classes; if
         the "Invert classes" option is selected, then it will instead apply to words with none of
         them. Selecting "Show IPA" will cause an IPA estimation to be shown beneath each word form
@@ -204,14 +204,14 @@ function AddGrammarTableInner({ language, langClasses, langTables, partsOfSpeech
           />
         </CFormBody>
       </form>
-      <p className="grammar-table-paragraph">
+      <p className="info-paragraph">
         Below you can specify the table's row and column names, which should be grammatical
         abbreviations (codes) set on the <Link to="/grammar-forms">Grammar Forms page</Link>.
         For example, in a table for adjectives, the row names could be <code>SG</code> and{" "}
         <code>PL</code> and the column names could be <code>M</code> and <code>F</code> (assuming
         those forms are all defined).
       </p>
-      <p className="grammar-table-paragraph">
+      <p className="info-paragraph">
         Multiple forms in a single row/header name can be separated with a period. The symbol
         Ø means "no form".
       </p>

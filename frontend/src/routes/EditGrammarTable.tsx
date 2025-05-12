@@ -220,7 +220,7 @@ function EditGrammarTableInner({
           />
         </CFormBody>
       </form>
-      <p className="grammar-table-paragraph">
+      <p className="info-paragraph">
         Rules in the below table are run through <Link to="/chronosca">ChronoSCA</Link>.
         Post rules are run on the result of each table cell after initial inflection.
         Empty table cells are treated as invalid forms.

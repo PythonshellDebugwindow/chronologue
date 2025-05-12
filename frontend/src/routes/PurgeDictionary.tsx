@@ -28,7 +28,7 @@ function PurgeDictionaryInner({ language }: { language: ILanguage }) {
       <p>
         Purging <Link to={'/language/' + language.id}>{language.name}</Link>'s dictionary.
       </p>
-      <p className="grammar-table-paragraph">
+      <p className="info-paragraph">
         This action will <b>irreversibly</b> delete all words you've added so far.
         Please ensure you have made a backup of any important data before proceeding.
       </p>
