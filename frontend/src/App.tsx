@@ -13,9 +13,11 @@ import AddGrammarTable from './routes/AddGrammarTable.tsx';
 import AddLanguage, {
   action as addLanguageAction
 } from './routes/AddLanguage.tsx';
+import AddTranslation from './routes/AddTranslation.tsx';
 import AddWord from './routes/AddWord.tsx';
 import DeleteFamily from './routes/DeleteFamily.tsx';
 import DeleteLanguage from './routes/DeleteLanguage.tsx';
+import DeleteTranslation from './routes/DeleteTranslation.tsx';
 import DeleteWord from './routes/DeleteWord.tsx';
 import ChronoSCAHelpPage from './routes/ChronoSCAHelpPage.tsx';
 import DefineIrregularForms from './routes/DefineIrregularForms.tsx';
@@ -31,6 +33,7 @@ import EditPhonology from './routes/EditPhonology.tsx';
 import EditPronunciationEstimation from './routes/EditPronunciationEstimation.tsx';
 import EditStems from './routes/EditStems.tsx';
 import EditSummaryNotes from './routes/EditSummaryNotes.tsx';
+import EditTranslation from './routes/EditTranslation.tsx';
 import EditWord from './routes/EditWord.tsx';
 import ErrorPage from './routes/ErrorPage.tsx';
 import ImportWords from './routes/ImportWords.tsx';
@@ -45,6 +48,8 @@ import ViewGrammarTable from './routes/ViewGrammarTable.tsx';
 import ViewGrammarTables from './routes/ViewGrammarTables.tsx';
 import ViewLanguage from './routes/ViewLanguage.tsx';
 import ViewLanguages from './routes/ViewLanguages.tsx';
+import ViewTranslation from './routes/ViewTranslation.tsx';
+import ViewTranslations from './routes/ViewTranslations.tsx';
 import ViewWord from './routes/ViewWord.tsx';
 
 import SelectedLanguageContext, {
@@ -76,6 +81,10 @@ const router = createBrowserRouter([
         action: addLanguageAction
       },
       {
+        path: "add-translation",
+        element: <AddTranslation />
+      },
+      {
         path: "add-word/:id?",
         element: <AddWord />
       },
@@ -98,6 +107,10 @@ const router = createBrowserRouter([
       {
         path: "delete-language/:id",
         element: <DeleteLanguage />
+      },
+      {
+        path: "delete-translation/:id",
+        element: <DeleteTranslation />
       },
       {
         path: "delete-word/:id",
@@ -134,6 +147,10 @@ const router = createBrowserRouter([
       {
         path: "edit-stems/:id?",
         element: <EditStems />
+      },
+      {
+        path: "edit-translation/:id",
+        element: <EditTranslation />
       },
       {
         path: "edit-word/:id",
@@ -194,6 +211,14 @@ const router = createBrowserRouter([
       {
         path: "summary-notes/:id?",
         element: <EditSummaryNotes />
+      },
+      {
+        path: "translation/:id",
+        element: <ViewTranslation />
+      },
+      {
+        path: "translations",
+        element: <ViewTranslations />
       },
       {
         path: "word/:id",

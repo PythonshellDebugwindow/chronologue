@@ -42,11 +42,8 @@ export async function sendBackendJson(
     const json = response.status !== 204 ? await response.json() : null;
     return { status: response.status, ok: response.ok, body: json };
   } catch(err) {
-    if(err instanceof TypeError) {
-      return { status: 0, ok: false, body: { message: err.message } };
-    } else {
-      throw err;
-    }
+    const json = { message: (err as Error).message };
+    return { status: 0, ok: false, body: json };
   }
 };
 

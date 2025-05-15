@@ -87,7 +87,8 @@ export default function Header() {
         <MenuBarItem
           name="Literature"
           items={[
-            <Link to="/">Something</Link>
+            <Link to="/translations">View Translations</Link>,
+            <Link to="/add-translation">Add Translation</Link>
           ]}
           setCanHover={setCanHover}
         />

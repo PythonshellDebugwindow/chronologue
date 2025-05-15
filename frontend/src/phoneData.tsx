@@ -144,7 +144,7 @@ export function useApplySCARulesQuery(
   });
 };
 
-export function useEstimateWordIPAQuery(langId: string, word: string, enabled: boolean) {
+export function useEstimateWordIPAQuery(langId: string, word: string, enabled: boolean = true) {
   return useQuery<string, ITitledError>({
     queryKey: ['languages', langId, 'estimate-ipa', word],
     queryFn: async () => await sendBackendJsonForQuery(

@@ -5,7 +5,9 @@ import * as families from './routes/families.js';
 import * as grammar from './routes/grammar.js';
 import * as languages from './routes/languages.js';
 import * as phonology from './routes/phonology.js';
+import * as translations from './routes/translations.js';
 import * as words from './routes/words.js';
+
 import * as sca from './sca/sca.js';
 
 const app = express();
@@ -74,6 +76,7 @@ app.put('/languages/:id/pronunciation-estimation', phonology.updatePronunciation
 app.delete('/languages/:id/purge-dictionary', words.purgeLanguageDictionary);
 app.get('/languages/:id/summary-notes', languages.getSummaryNotes);
 app.put('/languages/:id/summary-notes', languages.updateSummaryNotes);
+app.get('/languages/:id/translation-ids', translations.getLanguageTranslationIds);
 app.get('/languages/:id/word-classes', words.getWordClassesByLanguage);
 app.put('/languages/:id/word-classes', words.updateWordClasses);
 app.get('/languages/:id/word-stems', grammar.getLanguageWordStems);
@@ -84,6 +87,13 @@ app.get('/languages/:id/word-count', words.getLanguageWordCount);
 app.get('/parts-of-speech', words.getPartsOfSpeech);
 
 app.get('/sca', sca.testSCA);
+
+app.get('/translations', translations.getAllTranslations);
+app.post('/translations', translations.addTranslation);
+app.get('/translations/:id', translations.getTranslation);
+app.put('/translations/:id', translations.editTranslation);
+app.delete('/translations/:id', translations.deleteTranslation);
+app.get('/translations/:id/languages', translations.getTranslationLanguages);
 
 app.post('/words', words.addWord);
 app.get('/words/:id', words.getWord);

@@ -520,3 +520,75 @@
 .clickable-alphabet-listing > span > span:hover {
   background: #ddd;
 }
+
+.translations-table {
+  margin: 0 auto;
+  text-align: left;
+  border-collapse: collapse;
+}
+.translations-table tr {
+  border-bottom: 1px solid #eee;
+}
+.translations-table tr:hover {
+  border-bottom-color: lightgrey;
+}
+.translations-table .unadded-translation {
+  background: lightyellow;
+}
+.translations-table th,
+.translations-table td {
+  padding: 1px 5px;
+}
+
+.translation-info {
+  white-space: pre-wrap;
+  width: 50%;
+  text-align: left;
+  margin: 0 auto;
+  padding: 5px;
+}
+.translation-info h4 {
+  margin: 0;
+  font-size: 1em;
+  margin-bottom: 5px;
+}
+.translation-info p {
+  padding: 5px;
+  margin: 0;
+  border: 1px solid #aaa;
+  line-height: 1.4em;
+}
+.translation-info-small p {
+  font-size: 0.9em;
+}
+.translation-info-small p {
+  padding: 3px;
+}
+
+.language-translations-table {
+  margin: 1em auto 0;
+  width: 50%;
+  text-align: left;
+}
+.language-translations-table td:first-child {
+  vertical-align: top;
+}
+.language-translations-table p {
+  margin: 0;
+}
+.language-translations-table .translation-content,
+.language-translations-table .translation-content-small {
+  border: 1px solid #aaa;
+  padding: 3px;
+  margin-top: 5px;
+}
+.language-translations-table .translation-date,
+.language-translations-table .translation-content-small {
+  font-size: 0.9em;
+}
+.language-translations-table .translation-dropdowns {
+  display: flex;
+  justify-content: space-between;
+  margin: 3px 2em 0;
+  font-size: 0.9em;
+}

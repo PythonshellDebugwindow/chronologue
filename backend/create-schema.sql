@@ -168,3 +168,22 @@ CREATE TABLE IF NOT EXISTS grammar_table_irregular_forms (
 	form text NOT NULL,
 	PRIMARY KEY (table_id, word_id, row_index, column_index)
 );
+
+CREATE TABLE IF NOT EXISTS translations (
+	id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+	content text NOT NULL,
+	notes text NOT NULL,
+	created timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS language_translations (
+	transl_id uuid NOT NULL REFERENCES translations ON DELETE CASCADE,
+	lang_id uuid NOT NULL REFERENCES languages ON DELETE CASCADE,
+	content text NOT NULL,
+	ipa text NOT NULL,
+	gloss text NOT NULL,
+	notes text NOT NULL,
+	work_in_progress boolean NOT NULL,
+	created timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	PRIMARY KEY (transl_id, lang_id)
+);
