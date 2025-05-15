@@ -16,7 +16,7 @@ function DeleteWordInner({ word }: { word: IWord }) {
       return;
     }
 
-    navigate("/dictionary");
+    navigate('/dictionary');
   }
 
   return (
@@ -38,7 +38,7 @@ function DeleteWordInner({ word }: { word: IWord }) {
       {errorMessage && <p><b>Error: {errorMessage}</b></p>}
     </>
   );
-};
+}
 
 export default function DeleteWord() {
   const { id: wordId } = useParams();

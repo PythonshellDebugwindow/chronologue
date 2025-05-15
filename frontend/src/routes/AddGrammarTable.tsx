@@ -238,7 +238,7 @@ function AddGrammarTableInner({ language, langClasses, langTables, partsOfSpeech
       </form>
     </>
   );
-};
+}
 
 export default function AddGrammarTable() {
   const languageId = useGetParamsOrSelectedId();

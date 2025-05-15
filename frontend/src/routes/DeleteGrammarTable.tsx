@@ -18,7 +18,7 @@ function DeleteGrammarTableInner({ table }: { table: IGrammarTable }) {
       return;
     }
 
-    navigate("/grammar-tables/" + table.langId);
+    navigate('/grammar-tables/' + table.langId);
   }
 
   return (
@@ -41,7 +41,7 @@ function DeleteGrammarTableInner({ table }: { table: IGrammarTable }) {
       {errorMessage && <p><b>Error: {errorMessage}</b></p>}
     </>
   );
-};
+}
 
 export default function DeleteGrammarTable() {
   const { id: tableId } = useParams();

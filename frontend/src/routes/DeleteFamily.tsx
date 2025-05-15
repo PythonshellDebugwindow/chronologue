@@ -16,7 +16,7 @@ function DeleteFamilyInner({ family }: { family: IFamily }) {
       return;
     }
 
-    navigate("/languages");
+    navigate('/languages');
   }
 
   return (
@@ -38,7 +38,7 @@ function DeleteFamilyInner({ family }: { family: IFamily }) {
       {errorMessage && <p><b>Error: {errorMessage}</b></p>}
     </>
   );
-};
+}
 
 export default function DeleteFamily() {
   const { id: familyId } = useParams();

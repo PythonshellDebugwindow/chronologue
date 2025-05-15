@@ -67,8 +67,8 @@ function EditFamilyInner({ initialFamily }: { initialFamily: IFamily }) {
         </Link>
       </p>
     </>
-  )
-};
+  );
+}
 
 export default function EditFamily() {
   const { id: familyId } = useParams();

@@ -49,5 +49,5 @@ export default function AddFamily() {
         <button type="submit">Add Family</button>
       </CForm>
     </>
-  )
+  );
 };

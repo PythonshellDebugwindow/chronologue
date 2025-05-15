@@ -226,8 +226,8 @@ function EditLanguageInner({ initialLanguage }: { initialLanguage: ILanguage }) 
         </Link>
       </p>
     </>
-  )
-};
+  );
+}
 
 export default function EditLanguage() {
   const languageId = useGetParamsOrSelectedId();

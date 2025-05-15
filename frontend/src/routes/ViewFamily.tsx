@@ -41,7 +41,7 @@ export default function ViewFamily() {
   const familyResponse = useFamily(id);
 
   const family = familyResponse.data;
-  useSetPageTitle(family ? "Family: " + family.name : "View family");
+  useSetPageTitle(family ? "Family: " + family.name : "View Family");
 
   if(familyResponse.status !== 'success') {
     return renderDatalessQueryResult(familyResponse);

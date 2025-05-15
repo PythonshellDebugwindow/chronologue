@@ -19,7 +19,7 @@ function DeleteLanguageInner({ language }: { language: ILanguage }) {
       return;
     }
 
-    navigate("/languages");
+    navigate('/languages');
     if(selectedLanguage?.id === language.id) {
       setSelectedLanguage(null);
     }
@@ -45,7 +45,7 @@ function DeleteLanguageInner({ language }: { language: ILanguage }) {
       {errorMessage && <p><b>Error: {errorMessage}</b></p>}
     </>
   );
-};
+}
 
 export default function DeleteLanguage() {
   const { id: languageId } = useParams();

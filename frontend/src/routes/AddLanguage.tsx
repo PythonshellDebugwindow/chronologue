@@ -139,5 +139,5 @@ export default function AddLanguage() {
         <button type="submit">Add Language</button>
       </CForm>
     </>
-  )
+  );
 };
