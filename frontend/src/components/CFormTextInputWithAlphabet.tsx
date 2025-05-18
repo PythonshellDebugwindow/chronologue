@@ -1,5 +1,7 @@
 import { Dispatch, ReactNode, SetStateAction, useRef, useState } from 'react';
 
+import DropdownToggle from './DropdownToggle.tsx';
+
 import { IOrthographySettings, useLanguageOrthographySettings } from '../languageData.tsx';
 import { getGraphFormatTypeForAlphabet } from '../phoneData.tsx';
 import { assertUnreachable } from '../utils.tsx';
@@ -86,17 +88,15 @@ function AlphabetListing({ langId, insertGraph }: IAlphabetListing) {
 }
 
 function AlphabetListingDropdown({ langId, insertGraph }: IAlphabetListing) {
-  const [isOpen, setIsOpen] = useState(false);
+  const [open, setOpen] = useState(false);
   return (
     <>
-      <div className="clickable-alphabet-dropdown">
-        <span onClick={() => setIsOpen(!isOpen)}>
-          Alphabet {isOpen ? "▼" : "▶"}
-        </span>
-      </div>
-      {
-        isOpen && <AlphabetListing langId={langId} insertGraph={insertGraph} />
-      }
+      <DropdownToggle
+        label="Alphabet"
+        open={open}
+        setOpen={setOpen}
+      />
+      {open && <AlphabetListing langId={langId} insertGraph={insertGraph} />}
     </>
   );
 }

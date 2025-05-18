@@ -2,6 +2,7 @@ import { useContext, useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 
 import DisplayDate from '../components/DisplayDate.tsx';
+import DropdownToggle from '../components/DropdownToggle.tsx';
 import LanguageLink from '../components/LanguageLink.tsx';
 
 import { useLanguage } from '../languageData.tsx';
@@ -68,24 +69,24 @@ function LanguageTranslationRow({ languageTranslation: langTr, translationId }: 
         )}
         <p className="translation-content">{langTr.content}</p>
         <div className="translation-dropdowns">
-          <div className="clickable-alphabet-dropdown">
-            <span onClick={() => setShowingIpa(!showingIpa)}>
-              IPA&nbsp;{showingIpa ? "▼" : "▶"}
-            </span>
-          </div>
+          <DropdownToggle
+            label="IPA"
+            open={showingIpa}
+            setOpen={setShowingIpa}
+          />
           {langTr.gloss && (
-            <div className="clickable-alphabet-dropdown">
-              <span onClick={() => setShowingGloss(!showingGloss)}>
-                Gloss&nbsp;{showingGloss ? "▼" : "▶"}
-              </span>
-            </div>
+            <DropdownToggle
+              label="Gloss"
+              open={showingGloss}
+              setOpen={setShowingGloss}
+            />
           )}
           {langTr.notes && (
-            <div className="clickable-alphabet-dropdown">
-              <span onClick={() => setShowingNotes(!showingNotes)}>
-                Notes&nbsp;{showingNotes ? "▼" : "▶"}
-              </span>
-            </div>
+            <DropdownToggle
+              label="Notes"
+              open={showingNotes}
+              setOpen={setShowingNotes}
+            />
           )}
         </div>
         {showingIpa && (
