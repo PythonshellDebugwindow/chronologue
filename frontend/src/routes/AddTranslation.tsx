@@ -1,8 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { CFormBody, CMultilineTextInput } from '../components/CForm.tsx';
-
 import { sendBackendJson, useSetPageTitle } from '../utils.tsx';
 
 export default function AddTranslation() {
@@ -33,28 +31,29 @@ export default function AddTranslation() {
   return (
     <>
       <h2>Add Translation</h2>
-      <p>Add a translation.</p>
+      <p style={{ marginBottom: "0" }}>Add a translation.</p>
       {message && <p><b>{message}</b></p>}
-      <form className="chronologue-form">
-        <CFormBody>
-          <CMultilineTextInput
-            label="Content"
-            name="content"
-            state={content}
-            setState={setContent}
-          />
-          <CMultilineTextInput
-            label="Notes"
-            name="notes"
-            state={notes}
-            setState={setNotes}
-            height="5em"
-          />
-        </CFormBody>
+      <div className="translation-info">
+        <h4>Text:</h4>
+        <textarea
+          value={content}
+          onChange={e => setContent(e.target.value)}
+          spellCheck={false}
+          style={{ height: "10.5em" }}
+        />
+        <h4>Notes:</h4>
+        <textarea
+          value={notes}
+          onChange={e => setNotes(e.target.value)}
+          spellCheck={false}
+        />
+      </div>
+      {message && <p style={{ marginTop: "0" }}><b>{message}</b></p>}
+      <div style={{ marginTop: "0.5em" }}>
         <button type="button" onClick={addFormTranslation}>
           Add Translation
         </button>
-      </form>
+      </div>
     </>
   );
 };

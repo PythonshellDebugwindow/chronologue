@@ -2,8 +2,6 @@ import { useState } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 
-import { CFormBody, CMultilineTextInput } from '../components/CForm.tsx';
-
 import { ITranslation, useTranslation } from '../translationData.tsx';
 import { renderDatalessQueryResult, sendBackendJson, useSetPageTitle } from '../utils.tsx';
 
@@ -37,36 +35,37 @@ function EditTranslationInner({ initialTranslation }: { initialTranslation: ITra
     <>
       <h2>Edit Translation</h2>
       {message && <p>{message}</p>}
-      <form className="chronologue-form">
-        <CFormBody>
-          <CMultilineTextInput
-            label="Content"
-            name="content"
-            state={content}
-            setState={setContent}
-          />
-          <CMultilineTextInput
-            label="Notes"
-            name="notes"
-            state={notes}
-            setState={setNotes}
-            height="5em"
-          />
-        </CFormBody>
+      <div className="translation-info">
+        <h4>Text:</h4>
+        <textarea
+          value={content}
+          onChange={e => setContent(e.target.value)}
+          spellCheck={false}
+          style={{ height: "10.5em" }}
+        />
+        <h4>Notes:</h4>
+        <textarea
+          value={notes}
+          onChange={e => setNotes(e.target.value)}
+          spellCheck={false}
+        />
+      </div>
+      {message && <p style={{ marginTop: "0" }}>{message}</p>}
+      <div style={{ margin: "0.5em 0 1em" }}>
         <button type="button" onClick={editFormTranslation}>
           Save changes
         </button>
-        <button
-          type="button"
-          onClick={() => navigate('/translation/' + initialTranslation.id)}
-        >
-          Back
-        </button>
-      </form>
+      </div>
+      <button
+        type="button"
+        onClick={() => navigate('/translation/' + initialTranslation.id)}
+      >
+        Back
+      </button>
       <h4>Delete Translation</h4>
       <p>
         <Link to={'/delete-translation/' + initialTranslation.id}>
-          Delete
+          Delete this translation
         </Link>
       </p>
     </>

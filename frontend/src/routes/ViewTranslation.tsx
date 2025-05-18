@@ -1,20 +1,25 @@
-import { useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { useContext, useState } from 'react';
+import { Link, useParams, useSearchParams } from 'react-router-dom';
 
 import DisplayDate from '../components/DisplayDate.tsx';
 import LanguageLink from '../components/LanguageLink.tsx';
 
+import { useLanguage } from '../languageData.tsx';
 import { useEstimateWordIPAQuery } from '../phoneData.tsx';
+import SelectedLanguageContext, {
+  ISelectedLanguageData
+} from '../SelectedLanguageContext.tsx';
 import {
-  ILanguageTranslation, ITranslation, useTranslation, useTranslationLanguages
+  ILanguageTranslation, ITranslation, useLanguageTranslation, useTranslation,
+  useTranslationLanguages
 } from '../translationData.tsx';
 import { renderDatalessQueryResult, useSetPageTitle } from '../utils.tsx';
 
-interface ILanguageTranslationRow {
+interface ITranslationIpaEstimate {
   languageTranslation: ILanguageTranslation;
 }
 
-function TranslationIpaEstimate({ languageTranslation: langTr }: ILanguageTranslationRow) {
+function TranslationIpaEstimate({ languageTranslation: langTr }: ITranslationIpaEstimate) {
   const query = useEstimateWordIPAQuery(langTr.langId, langTr.content);
 
   if(query.status === 'pending') {
@@ -26,36 +31,59 @@ function TranslationIpaEstimate({ languageTranslation: langTr }: ILanguageTransl
   return query.data;
 }
 
-function LanguageTranslationRow({ languageTranslation: langTr }: ILanguageTranslationRow) {
+interface ILanguageTranslationRow {
+  languageTranslation: ILanguageTranslation;
+  translationId: string;
+}
+
+function LanguageTranslationRow({ languageTranslation: langTr, translationId }: ILanguageTranslationRow) {
   const [showingIpa, setShowingIpa] = useState(false);
   const [showingNotes, setShowingNotes] = useState(false);
   const [showingGloss, setShowingGloss] = useState(false);
 
   return (
-    <tr>
+    <tr className={langTr.workInProgress ? "translation-wip" : undefined}>
       <td>
         <LanguageLink id={langTr.langId} />
       </td>
       <td>
-        <p className="translation-date">Added on <DisplayDate date={langTr.created} /></p>
+        <p className="translation-date">
+          Added on <DisplayDate date={langTr.created} />
+          <span style={{ float: "right" }}>
+            <Link to={`/translation/${translationId}?lang=${langTr.langId}`}>
+              [link]
+            </Link>
+            {" "}
+            <Link to={`/translate-text/${translationId}?lang=${langTr.langId}`}>
+              [edit]
+            </Link>
+            {" "}
+            <Link to={`/delete-text-translation/${translationId}?lang=${langTr.langId}`}>
+              [delete]
+            </Link>
+          </span>
+        </p>
+        {langTr.workInProgress && (
+          <span className="translation-wip-text">Work In Progress</span>
+        )}
         <p className="translation-content">{langTr.content}</p>
         <div className="translation-dropdowns">
           <div className="clickable-alphabet-dropdown">
             <span onClick={() => setShowingIpa(!showingIpa)}>
-              IPA {showingIpa ? "▼" : "▶"}
+              IPA&nbsp;{showingIpa ? "▼" : "▶"}
             </span>
           </div>
-          {langTr.notes && (
-            <div className="clickable-alphabet-dropdown">
-              <span onClick={() => setShowingNotes(!showingNotes)}>
-                Notes {showingNotes ? "▼" : "▶"}
-              </span>
-            </div>
-          )}
           {langTr.gloss && (
             <div className="clickable-alphabet-dropdown">
               <span onClick={() => setShowingGloss(!showingGloss)}>
-                Gloss {showingGloss ? "▼" : "▶"}
+                Gloss&nbsp;{showingGloss ? "▼" : "▶"}
+              </span>
+            </div>
+          )}
+          {langTr.notes && (
+            <div className="clickable-alphabet-dropdown">
+              <span onClick={() => setShowingNotes(!showingNotes)}>
+                Notes&nbsp;{showingNotes ? "▼" : "▶"}
               </span>
             </div>
           )}
@@ -69,23 +97,132 @@ function LanguageTranslationRow({ languageTranslation: langTr }: ILanguageTransl
             }
           </p>
         )}
-        {showingNotes && (
-          <p className="translation-content-small">{langTr.notes}</p>
-        )}
         {showingGloss && (
           <p className="translation-content-small">{langTr.gloss}</p>
+        )}
+        {showingNotes && (
+          <p className="translation-content-small">{langTr.notes}</p>
         )}
       </td>
     </tr>
   );
 }
 
-interface IViewTranslationInner {
+interface ISingleLanguageTranslation {
   translation: ITranslation;
-  languageTranslations: ILanguageTranslation[];
+  languageId: string;
 }
 
-function ViewTranslationInner({ translation, languageTranslations }: IViewTranslationInner) {
+function SingleLanguageTranslation(
+  { translation, languageId }: ISingleLanguageTranslation
+) {
+  const languageResponse = useLanguage(languageId);
+  const langTrResponse = useLanguageTranslation(languageId, translation.id);
+
+  if(languageResponse.status === 'pending') {
+    return <p>Loading...</p>;
+  } else if(languageResponse.status === 'error') {
+    return <p>Error: {languageResponse.error.message}</p>;
+  }
+
+  if(langTrResponse.status === 'pending') {
+    return <p>Loading...</p>;
+  } else if(langTrResponse.status === 'error') {
+    return <p>Error: {langTrResponse.error.message}</p>;
+  }
+
+  const languageName = languageResponse.data.name;
+  const langTr = langTrResponse.data;
+
+  return (
+    <>
+      <p>Viewing translation into {languageName}.</p>
+      <p style={{ marginBottom: "0" }}>
+        <Link to={'/translation/' + translation.id}>View all translated languages</Link>
+      </p>
+      {langTr && (
+        <table className="language-translations-table">
+          <tbody>
+            <LanguageTranslationRow
+              languageTranslation={langTr}
+              translationId={translation.id}
+            />
+          </tbody>
+        </table>
+      )}
+      {!langTr && (
+        <>
+          <p>
+            You have not yet translated this text into{" "}
+            <Link to={'/language/' + languageId}>{languageName}</Link>.
+          </p>
+          <p>
+            <Link to={`/translate-text/${translation.id}?lang=${languageId}`}>
+              Translate to {languageName}
+            </Link>
+          </p>
+        </>
+      )}
+    </>
+  );
+}
+
+interface IAllLanguageTranslations {
+  translation: ITranslation;
+  selectedLanguage: ISelectedLanguageData | null;
+}
+
+function AllLanguageTranslations({ translation, selectedLanguage }: IAllLanguageTranslations) {
+  const languagesResponse = useTranslationLanguages(translation.id);
+
+  if(languagesResponse.status === 'pending') {
+    return <p>Loading...</p>;
+  } else if(languagesResponse.status === 'error') {
+    return <p>Error: {languagesResponse.error.message}</p>;
+  }
+
+  const languageTranslations = languagesResponse.data;
+
+  return (
+    <>
+      {selectedLanguage && (
+        !languageTranslations.some(langTr => langTr.langId === selectedLanguage.id) && (
+          <p style={{ marginBottom: "0" }}>
+            <Link to={'/translate-text/' + translation.id}>
+              Translate to {selectedLanguage.name}
+            </Link>
+          </p>
+        )
+      )}
+      {languageTranslations.length > 0 && (
+        <table className="language-translations-table">
+          <tbody>
+            {languageTranslations.map(langTr => (
+              <LanguageTranslationRow
+                languageTranslation={langTr}
+                translationId={translation.id}
+                key={langTr.langId}
+              />
+            ))}
+          </tbody>
+        </table>
+      )}
+      {languageTranslations.length === 0 && (
+        <p>You have not yet translated this text into any languages.</p>
+      )}
+    </>
+  );
+}
+
+interface IViewTranslationInner {
+  translation: ITranslation;
+  selectedLanguage: ISelectedLanguageData | null;
+  showingLanguageId: string | null;
+}
+
+function ViewTranslationInner(
+  { translation, selectedLanguage, showingLanguageId }: IViewTranslationInner
+) {
   return (
     <div>
       <h2>View Translation</h2>
@@ -100,7 +237,7 @@ function ViewTranslationInner({ translation, languageTranslations }: IViewTransl
         </tbody>
       </table>
       <div className="translation-info">
-        <h4>Content:</h4>
+        <h4>Text:</h4>
         <p>{translation.content}</p>
       </div>
       {translation.notes && (
@@ -111,20 +248,17 @@ function ViewTranslationInner({ translation, languageTranslations }: IViewTransl
       )}
       <p><Link to={'/edit-translation/' + translation.id}>Edit translation</Link></p>
       <h3>Languages</h3>
-      {languageTranslations.length > 0 && (
-        <table className="language-translations-table">
-          <tbody>
-            {languageTranslations.map(langTr => (
-              <LanguageTranslationRow
-                languageTranslation={langTr}
-                key={langTr.langId}
-              />
-            ))}
-          </tbody>
-        </table>
+      {showingLanguageId && (
+        <SingleLanguageTranslation
+          translation={translation}
+          languageId={showingLanguageId}
+        />
       )}
-      {languageTranslations.length === 0 && (
-        <p>You have not yet translated this text into any languages.</p>
+      {!showingLanguageId && (
+        <AllLanguageTranslations
+          translation={translation}
+          selectedLanguage={selectedLanguage}
+        />
       )}
     </div>
   );
@@ -136,8 +270,12 @@ export default function ViewTranslation() {
     throw new Error("No translation ID was provided");
   }
 
+  const [searchParams] = useSearchParams();
+  const showingLanguageId = searchParams.get('lang');
+
   const translationResponse = useTranslation(id);
-  const languagesResponse = useTranslationLanguages(id);
+
+  const { selectedLanguage } = useContext(SelectedLanguageContext);
 
   useSetPageTitle("View Translation");
 
@@ -145,14 +283,11 @@ export default function ViewTranslation() {
     return renderDatalessQueryResult(translationResponse);
   }
 
-  if(languagesResponse.status !== 'success') {
-    return renderDatalessQueryResult(languagesResponse);
-  }
-
   return (
     <ViewTranslationInner
       translation={translationResponse.data}
-      languageTranslations={languagesResponse.data}
+      selectedLanguage={selectedLanguage}
+      showingLanguageId={showingLanguageId}
     />
   );
 };

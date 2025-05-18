@@ -30,12 +30,22 @@ export interface ILanguageTranslation {
   created: Date;
 };
 
+export function useLanguageTranslation(langId: string, translId: string) {
+  return useQuery<ILanguageTranslation | null, ITitledError>({
+    queryKey: ['translations', translId, 'languages', langId],
+    queryFn: async () => {
+      const langTr = await getBackendJson(`translations/${translId}/languages/${langId}`);
+      return langTr && parseSingleRecordDates(langTr);
+    }
+  });
+};
+
 export function useLanguageTranslationIds(langId: string) {
   return useQuery<string[], ITitledError>({
     queryKey: ['languages', langId, 'translation-ids'],
     queryFn: async () => await getBackendJson(`languages/${langId}/translation-ids`)
   });
-}
+};
 
 export function useTranslation(id: string) {
   return useQuery<ITranslation, ITitledError>({

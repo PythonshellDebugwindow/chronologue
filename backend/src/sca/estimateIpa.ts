@@ -86,8 +86,13 @@ export async function makeEstimatePronunciation(langId: string) {
     const estimate = (word: string) => {
       let estimation = "";
       for(let i = 0; i < word.length; ) {
-        if(word[i] === " ") {
-          estimation += " ";
+        if(/\s/.test(word[i])) {
+          if(!estimation.endsWith(" ")) {
+            estimation += " ";
+          }
+          if(i > 0 && ".!?".includes(word[i - 1])) {
+            estimation += "| ";
+          }
           ++i;
           continue;
         }
@@ -108,7 +113,7 @@ export async function makeEstimatePronunciation(langId: string) {
           estimation += phoneString;
           i += phone.graph.length;
         } else {
-          estimation += "*";
+          estimation += /\p{P}|\p{S}/u.test(word[i]) ? "" : "*";
           ++i;
         }
       }

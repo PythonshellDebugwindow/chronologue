@@ -2,7 +2,9 @@ import { useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 
 import { useTranslation } from '../translationData.tsx';
-import { renderDatalessQueryResult, sendBackendRequest, useSetPageTitle } from '../utils.tsx';
+import {
+  renderDatalessQueryResult, sendBackendRequest, useSetPageTitle
+} from '../utils.tsx';
 
 function DeleteTranslationInner({ translationId }: { translationId: string }) {
   const navigate = useNavigate();

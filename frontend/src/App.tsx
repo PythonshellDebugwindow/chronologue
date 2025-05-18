@@ -17,6 +17,7 @@ import AddTranslation from './routes/AddTranslation.tsx';
 import AddWord from './routes/AddWord.tsx';
 import DeleteFamily from './routes/DeleteFamily.tsx';
 import DeleteLanguage from './routes/DeleteLanguage.tsx';
+import DeleteTextTranslation from './routes/DeleteTextTranslation.tsx';
 import DeleteTranslation from './routes/DeleteTranslation.tsx';
 import DeleteWord from './routes/DeleteWord.tsx';
 import ChronoSCAHelpPage from './routes/ChronoSCAHelpPage.tsx';
@@ -42,6 +43,7 @@ import MassEditDictionary from './routes/MassEditDictionary.tsx';
 import PurgeDictionary from './routes/PurgeDictionary.tsx';
 import RunDictionarySCA from './routes/RunDictionarySCA.tsx';
 import TestChronoSCA from './routes/TestChronoSCA.tsx';
+import TranslateText from './routes/TranslateText.tsx';
 import ViewDictionary from './routes/ViewDictionary.tsx';
 import ViewFamily from './routes/ViewFamily.tsx';
 import ViewGrammarTable from './routes/ViewGrammarTable.tsx';
@@ -107,6 +109,10 @@ const router = createBrowserRouter([
       {
         path: "delete-language/:id",
         element: <DeleteLanguage />
+      },
+      {
+        path: "delete-text-translation/:id",
+        element: <DeleteTextTranslation />
       },
       {
         path: "delete-translation/:id",
@@ -211,6 +217,10 @@ const router = createBrowserRouter([
       {
         path: "summary-notes/:id?",
         element: <EditSummaryNotes />
+      },
+      {
+        path: "translate-text/:id",
+        element: <TranslateText />
       },
       {
         path: "translation/:id",

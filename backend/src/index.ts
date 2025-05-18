@@ -94,6 +94,9 @@ app.get('/translations/:id', translations.getTranslation);
 app.put('/translations/:id', translations.editTranslation);
 app.delete('/translations/:id', translations.deleteTranslation);
 app.get('/translations/:id/languages', translations.getTranslationLanguages);
+app.get('/translations/:id/languages/:langId', translations.getLanguageTranslation);
+app.put('/translations/:id/languages/:langId', translations.addLanguageTranslation);
+app.delete('/translations/:id/languages/:langId', translations.deleteLanguageTranslation);
 
 app.post('/words', words.addWord);
 app.get('/words/:id', words.getWord);
