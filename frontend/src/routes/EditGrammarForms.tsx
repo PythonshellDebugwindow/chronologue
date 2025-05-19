@@ -1,4 +1,5 @@
 import { useReducer, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 
 import SaveChangesButton from '../components/SaveChangesButton.tsx';
 
@@ -123,6 +124,8 @@ function formsReducer(state: IFormsReducerState, action: IFormsReducerAction) {
 }
 
 function EditDictionarySettingsInner({ initialForms }: { initialForms: IGrammarForm[] }) {
+  const queryClient = useQueryClient();
+
   const [newFormCode, setNewFormCode] = useState("");
   const [newFormName, setNewFormName] = useState("");
   const [formErrorMessage, setFormErrorMessage] = useState("");
@@ -176,6 +179,12 @@ function EditDictionarySettingsInner({ initialForms }: { initialForms: IGrammarF
     });
   }
 
+  async function saveForms() {
+    const response = await sendSaveFormsRequest(formsState);
+    queryClient.resetQueries({ queryKey: ['grammar-forms'] });
+    return response;
+  }
+
   return (
     <>
       <h2>Edit Grammar Forms</h2>
@@ -190,7 +199,7 @@ function EditDictionarySettingsInner({ initialForms }: { initialForms: IGrammarF
           isSaving={isSaving}
           setIsSaving={setIsSaving}
           saveQueryKey={['grammar-forms', 'update']}
-          saveQueryFn={async () => await sendSaveFormsRequest(formsState)}
+          saveQueryFn={saveForms}
           handleSave={data => dispatchForms({ type: 'markSaved', newForms: data })}
           style={{ marginBottom: "0.8em" }}
         >
@@ -272,7 +281,7 @@ function EditDictionarySettingsInner({ initialForms }: { initialForms: IGrammarF
             isSaving={isSaving}
             setIsSaving={setIsSaving}
             saveQueryKey={['grammar-forms', 'update']}
-            saveQueryFn={async () => await sendSaveFormsRequest(formsState)}
+            saveQueryFn={saveForms}
             handleSave={data => dispatchForms({ type: 'markSaved', newForms: data })}
             style={{ marginTop: "0.8em" }}
           >

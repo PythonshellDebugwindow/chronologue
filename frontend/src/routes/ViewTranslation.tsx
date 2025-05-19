@@ -5,8 +5,10 @@ import DisplayDate from '../components/DisplayDate.tsx';
 import DropdownToggle from '../components/DropdownToggle.tsx';
 import LanguageLink from '../components/LanguageLink.tsx';
 
+import {
+  IGrammarForm, formatTextWithGrammarForms, useGrammarForms
+} from '../grammarData.tsx';
 import { useLanguage } from '../languageData.tsx';
-import { useEstimateWordIPAQuery } from '../phoneData.tsx';
 import SelectedLanguageContext, {
   ISelectedLanguageData
 } from '../SelectedLanguageContext.tsx';
@@ -16,28 +18,15 @@ import {
 } from '../translationData.tsx';
 import { renderDatalessQueryResult, useSetPageTitle } from '../utils.tsx';
 
-interface ITranslationIpaEstimate {
-  languageTranslation: ILanguageTranslation;
-}
-
-function TranslationIpaEstimate({ languageTranslation: langTr }: ITranslationIpaEstimate) {
-  const query = useEstimateWordIPAQuery(langTr.langId, langTr.content);
-
-  if(query.status === 'pending') {
-    return "Estimating IPA...";
-  } else if(query.status === 'error') {
-    return "Error: " + query.error.message;
-  }
-
-  return query.data;
-}
-
 interface ILanguageTranslationRow {
   languageTranslation: ILanguageTranslation;
   translationId: string;
+  grammarForms: IGrammarForm[];
 }
 
-function LanguageTranslationRow({ languageTranslation: langTr, translationId }: ILanguageTranslationRow) {
+function LanguageTranslationRow(
+  { languageTranslation: langTr, translationId, grammarForms }: ILanguageTranslationRow
+) {
   const [showingIpa, setShowingIpa] = useState(false);
   const [showingNotes, setShowingNotes] = useState(false);
   const [showingGloss, setShowingGloss] = useState(false);
@@ -69,11 +58,13 @@ function LanguageTranslationRow({ languageTranslation: langTr, translationId }: 
         )}
         <p className="translation-content">{langTr.content}</p>
         <div className="translation-dropdowns">
-          <DropdownToggle
-            label="IPA"
-            open={showingIpa}
-            setOpen={setShowingIpa}
-          />
+          {langTr.ipa && (
+            <DropdownToggle
+              label="IPA"
+              open={showingIpa}
+              setOpen={setShowingIpa}
+            />
+          )}
           {langTr.gloss && (
             <DropdownToggle
               label="Gloss"
@@ -90,16 +81,12 @@ function LanguageTranslationRow({ languageTranslation: langTr, translationId }: 
           )}
         </div>
         {showingIpa && (
-          <p className="translation-content-small">
-            {
-              langTr.ipa
-                ? langTr.ipa
-                : <TranslationIpaEstimate languageTranslation={langTr} />
-            }
-          </p>
+          <p className="translation-content-small">{langTr.ipa}</p>
         )}
         {showingGloss && (
-          <p className="translation-content-small">{langTr.gloss}</p>
+          <p className="translation-content-small">
+            {formatTextWithGrammarForms(langTr.gloss, grammarForms)}
+          </p>
         )}
         {showingNotes && (
           <p className="translation-content-small">{langTr.notes}</p>
@@ -112,10 +99,11 @@ function LanguageTranslationRow({ languageTranslation: langTr, translationId }: 
 interface ISingleLanguageTranslation {
   translation: ITranslation;
   languageId: string;
+  grammarForms: IGrammarForm[];
 }
 
 function SingleLanguageTranslation(
-  { translation, languageId }: ISingleLanguageTranslation
+  { translation, languageId, grammarForms }: ISingleLanguageTranslation
 ) {
   const languageResponse = useLanguage(languageId);
   const langTrResponse = useLanguageTranslation(languageId, translation.id);
@@ -147,6 +135,7 @@ function SingleLanguageTranslation(
             <LanguageTranslationRow
               languageTranslation={langTr}
               translationId={translation.id}
+              grammarForms={grammarForms}
             />
           </tbody>
         </table>
@@ -171,9 +160,12 @@ function SingleLanguageTranslation(
 interface IAllLanguageTranslations {
   translation: ITranslation;
   selectedLanguage: ISelectedLanguageData | null;
+  grammarForms: IGrammarForm[];
 }
 
-function AllLanguageTranslations({ translation, selectedLanguage }: IAllLanguageTranslations) {
+function AllLanguageTranslations(
+  { translation, selectedLanguage, grammarForms }: IAllLanguageTranslations
+) {
   const languagesResponse = useTranslationLanguages(translation.id);
 
   if(languagesResponse.status === 'pending') {
@@ -202,6 +194,7 @@ function AllLanguageTranslations({ translation, selectedLanguage }: IAllLanguage
               <LanguageTranslationRow
                 languageTranslation={langTr}
                 translationId={translation.id}
+                grammarForms={grammarForms}
                 key={langTr.langId}
               />
             ))}
@@ -219,10 +212,11 @@ interface IViewTranslationInner {
   translation: ITranslation;
   selectedLanguage: ISelectedLanguageData | null;
   showingLanguageId: string | null;
+  grammarForms: IGrammarForm[];
 }
 
 function ViewTranslationInner(
-  { translation, selectedLanguage, showingLanguageId }: IViewTranslationInner
+  { translation, selectedLanguage, showingLanguageId, grammarForms }: IViewTranslationInner
 ) {
   return (
     <div>
@@ -253,12 +247,14 @@ function ViewTranslationInner(
         <SingleLanguageTranslation
           translation={translation}
           languageId={showingLanguageId}
+          grammarForms={grammarForms}
         />
       )}
       {!showingLanguageId && (
         <AllLanguageTranslations
           translation={translation}
           selectedLanguage={selectedLanguage}
+          grammarForms={grammarForms}
         />
       )}
     </div>
@@ -275,6 +271,7 @@ export default function ViewTranslation() {
   const showingLanguageId = searchParams.get('lang');
 
   const translationResponse = useTranslation(id);
+  const grammarFormsResponse = useGrammarForms();
 
   const { selectedLanguage } = useContext(SelectedLanguageContext);
 
@@ -284,11 +281,16 @@ export default function ViewTranslation() {
     return renderDatalessQueryResult(translationResponse);
   }
 
+  if(grammarFormsResponse.status !== 'success') {
+    return renderDatalessQueryResult(grammarFormsResponse);
+  }
+
   return (
     <ViewTranslationInner
       translation={translationResponse.data}
       selectedLanguage={selectedLanguage}
       showingLanguageId={showingLanguageId}
+      grammarForms={grammarFormsResponse.data}
     />
   );
 };

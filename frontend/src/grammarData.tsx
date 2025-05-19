@@ -216,12 +216,36 @@ export function compareGrammarTables(t1: IGrammarTableOverview, t2: IGrammarTabl
 
 export function formatPeriodSeparatedGrammarForms(code: string, grammarForms: IGrammarForm[]) {
   return code.split(".").map((code, i) => {
-    const period = i > 0 && ".";
+    const period = i > 0 ? "." : "";
     if(code === "Ø") {
-      return <Fragment key={i}>{period}{code}</Fragment>
+      return period + code;
     }
-    const posName = grammarForms.find(form => form.code === code)?.name ?? "unknown";
-    const posNode = <abbr title={posName}>{code}</abbr>;
-    return <Fragment key={i}>{period}{posNode}</Fragment>
-  })
+    const formName = grammarForms.find(form => form.code === code)?.name ?? "unknown";
+    const formNode = <abbr title={formName}>{code}</abbr>;
+    return <Fragment key={i}>{period}{formNode}</Fragment>
+  });
+};
+
+export function formatTextWithGrammarForms(text: string, grammarForms: IGrammarForm[]) {
+  const result = [];
+  const formRegexp = /(?<!\p{L}|\p{N})((?:\p{Lu}|\p{N})+)(?=$|\P{L})/gu;
+  let prevEnd = 0;
+  let match;
+  while((match = formRegexp.exec(text)) !== null) {
+    const before = text.substring(prevEnd, match.index);
+    const code = match[1];
+    if(code === "Ø") {
+      result.push(before + code);
+    } else {
+      const formName = grammarForms.find(form => form.code === code)?.name ?? "unknown";
+      const formNode = <abbr title={formName} key={match.index}>{code}</abbr>;
+      result.push(before);
+      result.push(formNode);
+    }
+    prevEnd = formRegexp.lastIndex;
+  }
+  if(prevEnd < text.length) {
+    result.push(text.substring(prevEnd));
+  }
+  return result;
 };
