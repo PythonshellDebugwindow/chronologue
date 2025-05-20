@@ -47,7 +47,7 @@ function ViewDictionaryInner({ language, words, dictSettings, partsOfSpeech }: I
   const [fields, setFields] = useState<IDictionaryField[]>(getAllFields(dictSettings));
 
   const [filter, setFilter] = useState<IDictionaryFilter>({
-    field: '', type: 'begins', value: "", matchCase: false,
+    field: 'meaning', type: 'begins', value: "", matchCase: false,
     sortField: 'word', sortDir: 'asc'
   });
 
