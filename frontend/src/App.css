@@ -575,12 +575,19 @@
 .language-translations-table {
   margin: 0 auto;
   text-align: left;
+  max-width: 90%;
 }
 .language-translations-table td {
   padding-top: 1em;
 }
-.language-translations-table td:first-child {
+.language-translations-table.ltt-equal td {
   vertical-align: top;
+  width: 50%;
+}
+.language-translations-table.ltt-equal tr:nth-child(2) td {
+  padding-top: 0.5em;
+}
+.language-translations-table td:first-child {
   max-width: 12em;
   padding-right: 1em;
 }
@@ -600,6 +607,9 @@
 .language-translations-table .translation-date,
 .language-translations-table .translation-content-small {
   font-size: 0.9em;
+}
+.language-translations-table.ltt-equal .translation-date {
+  font-size: 0.95em;
 }
 .language-translations-table .translation-dropdowns {
   display: flex;

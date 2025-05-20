@@ -117,6 +117,8 @@ function ViewLanguageInner({ language, summaryNotes }: IViewLanguageInner) {
         languageId={language.id}
         notes={summaryNotes.orthographyNotes}
       />
+      <h3>Translations</h3>
+      <p><Link to={'/language-translations/' + language.id}>View translations</Link></p>
     </>
   );
 }

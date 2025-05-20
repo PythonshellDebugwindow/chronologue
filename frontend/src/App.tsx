@@ -50,6 +50,7 @@ import ViewGrammarTable from './routes/ViewGrammarTable.tsx';
 import ViewGrammarTables from './routes/ViewGrammarTables.tsx';
 import ViewLanguage from './routes/ViewLanguage.tsx';
 import ViewLanguages from './routes/ViewLanguages.tsx';
+import ViewLanguageTranslations from './routes/ViewLanguageTranslations.tsx';
 import ViewTranslation from './routes/ViewTranslation.tsx';
 import ViewTranslations from './routes/ViewTranslations.tsx';
 import ViewWord from './routes/ViewWord.tsx';
@@ -197,6 +198,10 @@ const router = createBrowserRouter([
       {
         path: "languages",
         element: <ViewLanguages />
+      },
+      {
+        path: "language-translations/:id?",
+        element: <ViewLanguageTranslations />
       },
       {
         path: "mass-edit-dictionary/:id?",

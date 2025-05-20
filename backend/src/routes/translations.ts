@@ -3,7 +3,7 @@ import type { RequestHandler } from 'express';
 import query from '../db/index.js';
 import { hasAllStrings, isValidUUID } from '../utils.js';
 
-export const addLanguageTranslation: RequestHandler = async (req, res, next) => {
+export const addLanguageTranslation: RequestHandler = async (req, res) => {
   if(!isValidUUID(req.params.id)) {
     res.status(400).json({
       title: "Invalid ID", message: "The given translation ID is not valid."
@@ -119,6 +119,31 @@ export const editTranslation: RequestHandler = async (req, res) => {
   );
 
   res.status(204).send();
+};
+
+export const getAllLanguageTranslations: RequestHandler = async (req, res) => {
+  if(!isValidUUID(req.params.id)) {
+    res.status(400).json({ title: "Invalid ID", message: "The given language ID is not valid." });
+    return;
+  }
+
+  const value = await query(
+    `
+      SELECT
+        translate(tr.id::text, '-', '') AS "translId",
+        tr.content AS "translText",
+        lt.content,
+        lt.work_in_progress AS "workInProgress",
+        lt.created
+      FROM language_translations AS lt
+      INNER JOIN translations AS tr
+      ON lt.transl_id = tr.id
+      WHERE lang_id = $1
+      ORDER BY lt.created DESC
+    `,
+    [req.params.id]
+  );
+  res.json(value.rows);
 };
 
 export const getAllTranslations: RequestHandler = async (req, res) => {

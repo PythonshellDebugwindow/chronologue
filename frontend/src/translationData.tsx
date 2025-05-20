@@ -6,7 +6,6 @@ import {
 
 export interface ITranslation {
   id: string;
-  title: string;
   content: string;
   notes: string;
   created: Date;
@@ -14,7 +13,6 @@ export interface ITranslation {
 
 export interface ITranslationOverview {
   id: string;
-  title: string;
   content: string;
   created: Date;
   numLanguages: number;
@@ -30,6 +28,14 @@ export interface ILanguageTranslation {
   created: Date;
 };
 
+export interface ILanguageTranslationOverview {
+  translId: string;
+  translText: string;
+  content: string;
+  workInProgress: boolean;
+  created: Date;
+};
+
 export function useLanguageTranslation(langId: string, translId: string) {
   return useQuery<ILanguageTranslation | null, ITitledError>({
     queryKey: ['translations', translId, 'languages', langId],
@@ -37,6 +43,13 @@ export function useLanguageTranslation(langId: string, translId: string) {
       const langTr = await getBackendJson(`translations/${translId}/languages/${langId}`);
       return langTr && parseSingleRecordDates(langTr);
     }
+  });
+};
+
+export function useLanguageTranslations(langId: string) {
+  return useQuery<ILanguageTranslationOverview[], ITitledError>({
+    queryKey: ['languages', langId, 'translations'],
+    queryFn: async () => parseRecordDates(await getBackendJson(`languages/${langId}/translations`))
   });
 };
 
