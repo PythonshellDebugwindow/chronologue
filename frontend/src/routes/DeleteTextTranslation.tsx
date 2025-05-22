@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { useParams, useNavigate, useSearchParams, Link } from 'react-router-dom';
 
-import { ILanguage, useLanguage } from '../languageData.tsx';
-import { useLanguageTranslation, useTranslation } from '../translationData.tsx';
-import {
-  renderDatalessQueryResult, sendBackendRequest, useSetPageTitle
-} from '../utils.tsx';
+import { useLanguage } from '@/hooks/languages';
+import { useLanguageTranslation, useTranslation } from '@/hooks/translations';
+
+import { ILanguage } from '@/types/languages';
+
+import { useSetPageTitle } from '@/utils/global/hooks';
+import { renderDatalessQueryResult, sendBackendRequest } from '@/utils/global/queries';
 
 interface IDeleteTextTranslationInner {
   language: ILanguage;

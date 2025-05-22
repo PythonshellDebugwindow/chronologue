@@ -9,15 +9,18 @@ import CTextInputWithAlphabet from '../components/CFormTextInputWithAlphabet.tsx
 import IrregularWordStemsEdit from '../components/IrregularWordStemsEdit.tsx';
 import POSAndClassesSelect from '../components/POSAndClassesSelect.tsx';
 
-import { IrregularWordStems } from '../grammarData.tsx';
 import {
-  useLanguageDictionarySettings, useLanguageWordClasses, IDictionarySettings
-} from '../languageData.tsx';
-import { renderDatalessQueryResult, useSetPageTitle } from '../utils.tsx';
-import {
-  editWord, usePartsOfSpeech, useWord, useWordClassIds,
-  IPartOfSpeech, IWord, IWordClass
-} from '../wordData.tsx';
+  useLanguageDictionarySettings,
+  useLanguageWordClasses
+} from '@/hooks/languages';
+import { usePartsOfSpeech, useWord, useWordClassIds } from '@/hooks/words';
+
+import { IrregularWordStems } from '@/types/grammar';
+import { IDictionarySettings } from '@/types/languages';
+import { IPartOfSpeech, IWord, IWordClass } from '@/types/words';
+
+import { useSetPageTitle } from '@/utils/global/hooks';
+import { renderDatalessQueryResult, sendBackendJson } from '@/utils/global/queries';
 
 interface IAddWordInner {
   initialWord: IWord;
@@ -59,7 +62,7 @@ function EditWordInner(
       return;
     }
 
-    const result = await editWord(initialWord.id, {
+    const data = {
       word,
       ipa,
       meaning,
@@ -69,7 +72,8 @@ function EditWordInner(
       langId: initialWord.langId,
       classIds: classes.map(cls => cls.id),
       irregularStems
-    });
+    };
+    const result = await sendBackendJson(`words/${initialWord.id}`, 'PUT', data);
     if(!result.ok) {
       setErrorMessage(result.body.message);
       return;

@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 
-import { useLanguage } from '../languageData.tsx';
+import { useLanguage } from '@/hooks/languages';
 
 function useLanguageName(id: string) {
   const { isPending, error, data } = useLanguage(id);

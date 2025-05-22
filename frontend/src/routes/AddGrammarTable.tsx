@@ -8,18 +8,23 @@ import EditableGrammarTable from '../components/EditableGrammarTable.tsx';
 import POSAndClassesSelect from '../components/POSAndClassesSelect.tsx';
 
 import {
-  addGrammarTable, compareGrammarTables, useGrammarTable, useGrammarTableClassIds,
-  useLanguageGrammarTables, IGrammarTable, IGrammarTableOverview
-} from '../grammarData.tsx';
-import {
-  useLanguage, useLanguageWordClasses, ILanguage
-} from '../languageData.tsx';
-import {
-  renderDatalessQueryResult, useGetParamsOrSelectedId, useSetPageTitle
-} from '../utils.tsx';
-import {
-  formatPosFieldValue, usePartsOfSpeech, IPartOfSpeech, IWordClass
-} from '../wordData.tsx';
+  useGrammarTable,
+  useGrammarTableClassIds,
+  useLanguageGrammarTables
+} from '@/hooks/grammar';
+import { usePartsOfSpeech } from '@/hooks/words';
+
+import { useLanguage, useLanguageWordClasses } from '@/hooks/languages';
+
+import { IGrammarTable, IGrammarTableOverview } from '@/types/grammar';
+import { ILanguage } from '@/types/languages';
+import { IPartOfSpeech, IWordClass } from '@/types/words';
+
+import { useGetParamsOrSelectedId, useSetPageTitle } from '@/utils/global/hooks';
+import { renderDatalessQueryResult, sendBackendJson } from '@/utils/global/queries';
+
+import { compareGrammarTables } from '@/utils/grammar';
+import { formatPosFieldValue } from '@/utils/words';
 
 interface IAddGrammarTableInner {
   language: ILanguage;
@@ -116,7 +121,7 @@ function AddGrammarTableInner({ language, langClasses, langTables, partsOfSpeech
       return;
     }
 
-    const result = await addGrammarTable({
+    const data = {
       langId: language.id,
       name,
       pos,
@@ -126,7 +131,8 @@ function AddGrammarTableInner({ language, langClasses, langTables, partsOfSpeech
       classIds: classes.map(cls => cls.id),
       invertClasses,
       notes
-    });
+    };
+    const result = await sendBackendJson('grammar-tables', 'POST', data);
     if(!result.ok) {
       setMessage(result.body.message);
       return;

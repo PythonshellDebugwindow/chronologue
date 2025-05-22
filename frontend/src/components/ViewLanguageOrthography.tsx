@@ -1,10 +1,13 @@
 import { Link } from 'react-router-dom';
 
-import { useLanguageOrthographySettings, IOrthographySettings } from '../languageData.tsx';
-import {
-  formatGraphForAlphabet, useLanguagePhones, phoneToStringWithBrackets, IPhone
-} from '../phoneData.tsx';
-import { renderDatalessQueryResult } from '../utils.tsx';
+import { useLanguageOrthographySettings } from '@/hooks/languages';
+import { useLanguagePhones } from '@/hooks/phones';
+
+import { IOrthographySettings } from '@/types/languages';
+import { IPhone } from '@/types/phones';
+
+import { renderDatalessQueryResult } from '@/utils/global/queries';
+import { formatGraphForAlphabet, phoneToStringWithBrackets } from '@/utils/phones';
 
 interface IGraphCell {
   phones: IPhone[];

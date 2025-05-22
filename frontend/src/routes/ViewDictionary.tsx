@@ -6,15 +6,16 @@ import {
   sortAndFilterWords
 } from '../components/Dictionary.tsx';
 
-import {
-  useLanguage, useLanguageDictionarySettings, IDictionarySettings, ILanguage
-} from '../languageData.tsx';
-import {
-  renderDatalessQueryResult, useGetParamsOrSelectedId, useSetPageTitle
-} from '../utils.tsx';
-import {
-  usePartsOfSpeech, useLanguageWords, userFacingFieldName, IPartOfSpeech, IWord
-} from '../wordData.tsx';
+import { useLanguage, useLanguageDictionarySettings } from '@/hooks/languages';
+import { useLanguageWords, usePartsOfSpeech } from '@/hooks/words';
+
+import { IDictionarySettings, ILanguage } from '@/types/languages';
+import { IPartOfSpeech, IWord } from '@/types/words';
+
+import { useGetParamsOrSelectedId, useSetPageTitle } from '@/utils/global/hooks';
+import { renderDatalessQueryResult } from '@/utils/global/queries';
+
+import { userFacingFieldName } from '@/utils/words';
 
 interface IDictionaryField {
   name: keyof IWord;

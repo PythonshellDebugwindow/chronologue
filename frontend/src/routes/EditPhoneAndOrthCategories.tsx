@@ -5,14 +5,26 @@ import { phoneToString } from '@shared/phones.ts';
 
 import SaveChangesButton from '../components/SaveChangesButton.tsx';
 
-import { useLanguage, ILanguage } from '../languageData.tsx';
+import { useLanguage } from '@/hooks/languages';
 import {
-  useLanguageOrthographyCategories, useLanguagePhoneCategories, IPhone
-} from '../phoneData.tsx';
+  useLanguageOrthographyCategories,
+  useLanguagePhoneCategories
+} from '@/hooks/phones';
+
+import { ILanguage } from '@/types/languages';
+import { IPhone } from '@/types/phones';
+import { ITitledError } from '@/types/titledError';
+
 import {
-  getBackendJson, renderDatalessQueryResult, sendBackendJson,
-  useGetParamsOrSelectedId, useSetPageTitle, useUnsavedPopup, ITitledError
-} from '../utils.tsx';
+  useGetParamsOrSelectedId,
+  useSetPageTitle,
+  useUnsavedPopup
+} from '@/utils/global/hooks';
+import {
+  getBackendJson,
+  renderDatalessQueryResult,
+  sendBackendJson
+} from '@/utils/global/queries';
 
 interface ICategory {
   letter: string;

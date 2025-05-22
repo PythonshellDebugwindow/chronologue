@@ -4,14 +4,16 @@ import { useQueryClient } from '@tanstack/react-query';
 
 import LinkButton from '../components/LinkButton.tsx';
 
-import { ILanguage, useLanguage } from '../languageData.tsx';
-import SelectedLanguageContext from '../SelectedLanguageContext.tsx';
-import {
-  ILanguageTranslation, ITranslation, useLanguageTranslation, useTranslation
-} from '../translationData.tsx';
-import {
-  renderDatalessQueryResult, sendBackendJson, useSetPageTitle
-} from '../utils.tsx';
+import SelectedLanguageContext from '@/contexts/SelectedLanguageContext';
+
+import { useLanguage } from '@/hooks/languages';
+import { useLanguageTranslation, useTranslation } from '@/hooks/translations';
+
+import { ILanguage } from '@/types/languages';
+import { ILanguageTranslation, ITranslation } from '@/types/translations';
+
+import { useSetPageTitle } from '@/utils/global/hooks';
+import { renderDatalessQueryResult, sendBackendJson } from '@/utils/global/queries';
 
 interface ITranslateTextInner {
   language: ILanguage;

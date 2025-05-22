@@ -5,15 +5,26 @@ import LanguageLink from '../components/LanguageLink.tsx';
 import WordGrammarTable from '../components/WordGrammarTable.tsx';
 
 import {
-  useGrammarForms, useGrammarTable, useWordGrammarTables,
-  useRunGrammarTableOnWordQuery, IGrammarTableIdAndName
-} from '../grammarData.tsx';
-import { renderDatalessQueryResult, useSetPageTitle } from '../utils.tsx';
+  useGrammarForms,
+  useGrammarTable,
+  useRunGrammarTableOnWordQuery,
+  useWordGrammarTables
+} from '@/hooks/grammar';
+import { usePartsOfSpeech, useWord, useWordClasses } from '@/hooks/words';
+
+import { IGrammarTableIdAndName } from '@/types/grammar';
+import { IPartOfSpeech, IWord, IWordClassNoPOS } from '@/types/words';
+
+import { useSetPageTitle } from '@/utils/global/hooks';
+import { renderDatalessQueryResult } from '@/utils/global/queries';
+
 import {
-  formatDictionaryFieldValue, formatPosFieldValue, formatWordClasses,
-  formatWordEtymology, usePartsOfSpeech, useWord, useWordClasses, userFacingFieldName,
-  IPartOfSpeech, IWord, IWordClassNoPOS
-} from '../wordData.tsx';
+  formatDictionaryFieldValue,
+  formatPosFieldValue,
+  formatWordClasses,
+  formatWordEtymology,
+  userFacingFieldName
+} from '@/utils/words';
 
 interface IDisplayWordGrammarTable {
   word: IWord;

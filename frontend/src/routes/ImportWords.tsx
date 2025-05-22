@@ -7,11 +7,14 @@ import { CFormBody, CSelect, CTextInput } from '../components/CForm.tsx';
 import { DictionaryRow, DictionaryTable } from '../components/Dictionary.tsx';
 import SaveChangesButton from '../components/SaveChangesButton.tsx';
 
-import { useLanguage, ILanguage, useLanguageWordClasses } from '../languageData';
-import {
-  renderDatalessQueryResult, sendBackendJson, useGetParamsOrSelectedId, useSetPageTitle
-} from '../utils.tsx';
-import { IPartOfSpeech, IWord, IWordClass, usePartsOfSpeech } from '../wordData.tsx';
+import { useLanguage, useLanguageWordClasses } from '@/hooks/languages';
+import { usePartsOfSpeech } from '@/hooks/words';
+
+import { ILanguage } from '@/types/languages';
+import { IPartOfSpeech, IWord, IWordClass } from '@/types/words';
+
+import { useGetParamsOrSelectedId, useSetPageTitle } from '@/utils/global/hooks';
+import { renderDatalessQueryResult, sendBackendJson } from '@/utils/global/queries';
 
 type IImportedWord = Omit<IWord, 'id' | 'created' | 'updated' | 'langId'> & {
   classes: string[];

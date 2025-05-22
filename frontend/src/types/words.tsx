@@ -1,0 +1,26 @@
+export interface IWord {
+  id: string;
+  word: string;
+  ipa: string;
+  meaning: string;
+  pos: string;
+  etymology: string;
+  notes: string;
+  langId: string;
+  created: Date;
+  updated: Date | null;
+}
+
+export interface IPartOfSpeech {
+  code: string;
+  name: string;
+}
+
+export interface IWordClass {
+  id: string;
+  pos: string;
+  code: string;
+  name: string;
+}
+
+export type IWordClassNoPOS = Omit<IWordClass, 'pos'>;

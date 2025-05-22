@@ -3,14 +3,14 @@ import { Link } from 'react-router-dom';
 
 import SaveChangesButton from '../components/SaveChangesButton.tsx';
 
-import { useLanguage, ILanguage } from '../languageData.tsx';
-import {
-  IPronunciationEstimationSettings, useLanguagePronunciationEstimationSettings
-} from '../phoneData.tsx';
-import {
-  renderDatalessQueryResult, sendBackendJson, useGetParamsOrSelectedId,
-  useSetPageTitle
-} from '../utils.tsx';
+import { useLanguage } from '@/hooks/languages';
+import { useLanguagePronunciationEstimationSettings } from '@/hooks/phones';
+
+import { ILanguage } from '@/types/languages';
+import { IPronunciationEstimationSettings } from '@/types/phones';
+
+import { useGetParamsOrSelectedId, useSetPageTitle } from '@/utils/global/hooks';
+import { renderDatalessQueryResult, sendBackendJson } from '@/utils/global/queries';
 
 async function sendSaveSettingsRequest(letterReplacements: string, rewriteRules: string, langId: string) {
   const reqBody = { letterReplacements, rewriteRules };

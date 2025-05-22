@@ -3,7 +3,7 @@ import ReactSelect from 'react-select';
 
 import { CSelect } from './CForm.tsx';
 
-import { IPartOfSpeech, IWordClass } from '../wordData.tsx';
+import { IPartOfSpeech, IWordClass } from '@/types/words';
 
 interface IPOSAndClassesSelect {
   pos: string;

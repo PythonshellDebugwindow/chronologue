@@ -3,9 +3,13 @@ import { Link } from 'react-router-dom';
 
 import { FamilyTree } from '../components/LanguageTree.tsx';
 
-import { useFamilies, useLanguageIsolates, IFamily } from '../familyData.tsx';
-import { ILanguage } from '../languageData.tsx';
-import { renderDatalessQueryResult, useSetPageTitle } from '../utils.tsx';
+import { useFamilies, useLanguageIsolates } from '@/hooks/families';
+
+import { IFamily } from '@/types/families';
+import { ILanguage } from '@/types/languages';
+
+import { useSetPageTitle } from '@/utils/global/hooks';
+import { renderDatalessQueryResult } from '@/utils/global/queries';
 
 function LanguageIsolates({ languages }: { languages: ILanguage[] }) {
   if(languages.length === 0) {

@@ -9,18 +9,19 @@ import IrregularWordStemsEdit from '../components/IrregularWordStemsEdit.tsx';
 import LinkButton from '../components/LinkButton.tsx';
 import POSAndClassesSelect from '../components/POSAndClassesSelect.tsx';
 
-import { IrregularWordStems } from '../grammarData.tsx';
 import {
-  useLanguageDictionarySettings, useLanguage, useLanguageWordClasses,
-  IDictionarySettings, ILanguage
-} from '../languageData.tsx';
-import {
-  renderDatalessQueryResult, useGetParamsOrSelectedId, useSetPageTitle
-} from '../utils.tsx';
-import {
-  addWord, usePartsOfSpeech, useWord, useWordClassIds,
-  IPartOfSpeech, IWord, IWordClass
-} from '../wordData.tsx';
+  useLanguage,
+  useLanguageDictionarySettings,
+  useLanguageWordClasses
+} from '@/hooks/languages';
+import { usePartsOfSpeech, useWord, useWordClassIds } from '@/hooks/words';
+
+import { IrregularWordStems } from '@/types/grammar';
+import { IDictionarySettings, ILanguage } from '@/types/languages';
+import { IPartOfSpeech, IWord, IWordClass } from '@/types/words';
+
+import { useGetParamsOrSelectedId, useSetPageTitle } from '@/utils/global/hooks';
+import { renderDatalessQueryResult, sendBackendJson } from '@/utils/global/queries';
 
 function wordName(query: ReturnType<typeof useWord>) {
   if(query.isPending) {
@@ -163,7 +164,7 @@ function AddWordInner({ language, dictSettings, langClasses, langPartsOfSpeech }
       return;
     }
 
-    const result = await addWord({
+    const data = {
       word,
       ipa,
       meaning,
@@ -173,7 +174,8 @@ function AddWordInner({ language, dictSettings, langClasses, langPartsOfSpeech }
       langId: language.id,
       classIds: classes.map(cls => cls.id),
       irregularStems
-    });
+    };
+    const result = await sendBackendJson('words', 'POST', data);
     if(!result.ok) {
       setMessage(result.body.message);
       return;

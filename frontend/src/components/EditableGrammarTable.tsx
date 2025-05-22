@@ -1,5 +1,8 @@
 import { Dispatch, SetStateAction } from 'react';
-import { IGrammarTableCell, useLanguageWordStemsByPOS } from '../grammarData';
+
+import { useLanguageWordStemsByPOS } from '@/hooks/grammar';
+
+import { IGrammarTableCell } from '@/types/grammar';
 
 interface IStemSelect {
   langId: string;

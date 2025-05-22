@@ -1,7 +1,7 @@
 import { ReactNode, useContext, useState } from 'react';
 import { Link, Outlet } from 'react-router-dom';
 
-import SelectedLanguageContext from '../SelectedLanguageContext.tsx';
+import SelectedLanguageContext from '@/contexts/SelectedLanguageContext';
 
 import chronologueLogo from '/chronologue.png';
 

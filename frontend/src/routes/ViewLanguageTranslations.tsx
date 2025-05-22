@@ -2,13 +2,14 @@ import { Link } from 'react-router-dom';
 
 import DisplayDate from '../components/DisplayDate.tsx';
 
-import { ILanguage, useLanguage } from '../languageData.tsx';
-import {
-  ILanguageTranslationOverview, useLanguageTranslations
-} from '../translationData.tsx';
-import {
-  renderDatalessQueryResult, useGetParamsOrSelectedId, useSetPageTitle
-} from '../utils.tsx';
+import { useLanguage } from '@/hooks/languages';
+import { useLanguageTranslations } from '@/hooks/translations';
+
+import { ILanguage } from '@/types/languages';
+import { ILanguageTranslationOverview } from '@/types/translations';
+
+import { useGetParamsOrSelectedId, useSetPageTitle } from '@/utils/global/hooks';
+import { renderDatalessQueryResult } from '@/utils/global/queries';
 
 interface ILanguageTranslationRow {
   langTranslation: ILanguageTranslationOverview;

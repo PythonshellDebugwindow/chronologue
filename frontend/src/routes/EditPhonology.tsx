@@ -6,15 +6,20 @@ import { qualityData, phoneToString } from '@shared/phones.ts';
 
 import SaveChangesButton from '../components/SaveChangesButton.tsx';
 
-import { useLanguage, ILanguage } from '../languageData.tsx';
+import { useLanguage } from '@/hooks/languages';
+import { useLanguagePhones } from '@/hooks/phones';
+
+import { ILanguage } from '@/types/languages';
+import { IPhone, IPhoneTableData, PhoneType } from '@/types/phones';
+
 import {
-  consonantData, useLanguagePhones, hasDoubleWidthCell, vowelData,
-  IPhone, IPhoneTableData, PhoneType
-} from '../phoneData.tsx';
-import {
-  renderDatalessQueryResult, sendBackendJson, useGetParamsOrSelectedId,
-  useSetPageTitle, useUnsavedPopup
-} from '../utils.tsx';
+  useGetParamsOrSelectedId,
+  useSetPageTitle,
+  useUnsavedPopup
+} from '@/utils/global/hooks';
+import { renderDatalessQueryResult, sendBackendJson } from '@/utils/global/queries';
+
+import { consonantData, hasDoubleWidthCell, vowelData } from '@/utils/phones';
 
 interface IPhoneTableHalfCell {
   type: PhoneType;

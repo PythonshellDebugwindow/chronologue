@@ -3,15 +3,21 @@ import { Link } from 'react-router-dom';
 
 import GrammarTableLink from '../components/GrammarTableLink.tsx';
 
+import { useGrammarForms, useLanguageGrammarTables } from '@/hooks/grammar';
+import { useLanguage } from '@/hooks/languages';
+import { usePartsOfSpeech } from '@/hooks/words';
+
+import { IGrammarForm, IGrammarTableOverview } from '@/types/grammar';
+import { ILanguage } from '@/types/languages';
+import { IPartOfSpeech } from '@/types/words';
+
+import { useGetParamsOrSelectedId, useSetPageTitle } from '@/utils/global/hooks';
+import { renderDatalessQueryResult } from '@/utils/global/queries';
+
 import {
-  compareGrammarTables, formatPeriodSeparatedGrammarForms, useGrammarForms,
-  useLanguageGrammarTables, IGrammarForm, IGrammarTableOverview
-} from '../grammarData.tsx';
-import { ILanguage, useLanguage } from '../languageData.tsx';
-import {
-  renderDatalessQueryResult, useGetParamsOrSelectedId, useSetPageTitle
-} from '../utils.tsx';
-import { usePartsOfSpeech, IPartOfSpeech } from '../wordData.tsx';
+  compareGrammarTables,
+  formatPeriodSeparatedGrammarForms
+} from '@/utils/grammar';
 
 function formatGrammarFormsList(codes: string[], grammarForms: IGrammarForm[]) {
   return codes.map((code, i) => {

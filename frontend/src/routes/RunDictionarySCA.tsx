@@ -7,18 +7,27 @@ import {
 } from '../components/Dictionary.tsx';
 import SaveChangesButton from '../components/SaveChangesButton.tsx';
 
+import { useLanguage, useLanguageDictionarySettings } from '@/hooks/languages';
+import { useApplySCARulesQuery } from '@/hooks/phones';
+import { useLanguageWords, usePartsOfSpeech } from '@/hooks/words';
+
+import { IDictionarySettings, ILanguage } from '@/types/languages';
+import { ApplySCARulesQueryResult } from '@/types/phones';
+import { IPartOfSpeech, IWord } from '@/types/words';
+
 import {
-  useLanguage, ILanguage, useLanguageDictionarySettings, IDictionarySettings
-} from '../languageData.tsx';
-import { ApplySCARulesQueryResult, useApplySCARulesQuery } from '../phoneData.tsx';
-import {
-  renderDatalessQueryResult, sendBackendJson, useGetParamsOrSelectedId, useSetPageTitle,
+  useGetParamsOrSelectedId,
+  useSetPageTitle,
   useUnsavedPopup
-} from '../utils.tsx';
+} from '@/utils/global/hooks';
+import { renderDatalessQueryResult, sendBackendJson } from '@/utils/global/queries';
+
 import {
-  formatDictionaryFieldValue, formatPosAbbr, formatWordEtymology, usePartsOfSpeech,
-  useLanguageWords, userFacingFieldName, IPartOfSpeech, IWord
-} from '../wordData.tsx';
+  formatDictionaryFieldValue,
+  formatPosAbbr,
+  formatWordEtymology,
+  userFacingFieldName
+} from '@/utils/words';
 
 async function sendPerformMassEditRequest(
   changes: { [id: string]: string }, field: string, langId: string

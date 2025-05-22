@@ -3,10 +3,12 @@ import { useQueryClient } from '@tanstack/react-query';
 
 import SaveChangesButton from '../components/SaveChangesButton.tsx';
 
-import { IGrammarForm, useGrammarForms } from '../grammarData.tsx';
-import {
-  renderDatalessQueryResult, sendBackendJson, useSetPageTitle, useUnsavedPopup
-} from '../utils.tsx';
+import { useGrammarForms } from '@/hooks/grammar';
+
+import { IGrammarForm } from '@/types/grammar';
+
+import { useSetPageTitle, useUnsavedPopup } from '@/utils/global/hooks';
+import { renderDatalessQueryResult, sendBackendJson } from '@/utils/global/queries';
 
 const UNADDED_FORM_ID = "";
 

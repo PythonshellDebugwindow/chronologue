@@ -1,7 +1,7 @@
 import { CSSProperties, Dispatch, ReactNode, SetStateAction, useEffect } from 'react';
 import { QueryKey, useQuery, useQueryClient } from '@tanstack/react-query';
 
-import { ITitledError } from '../utils.tsx';
+import { ITitledError } from '@/types/titledError';
 
 interface ISaveChangesButton<SaveQueryData> {
   isSaving: boolean;

@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 
-import { useTranslation } from '../translationData.tsx';
-import {
-  renderDatalessQueryResult, sendBackendRequest, useSetPageTitle
-} from '../utils.tsx';
+import { useTranslation } from '@/hooks/translations';
+
+import { useSetPageTitle } from '@/utils/global/hooks';
+import { renderDatalessQueryResult, sendBackendRequest } from '@/utils/global/queries';
 
 function DeleteTranslationInner({ translationId }: { translationId: string }) {
   const navigate = useNavigate();

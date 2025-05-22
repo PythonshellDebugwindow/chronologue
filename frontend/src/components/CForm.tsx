@@ -3,7 +3,7 @@ import { Form } from 'react-router-dom';
 
 import LinkButton from '../components/LinkButton.tsx';
 
-import { useEstimateWordIPAQuery } from '../phoneData.tsx';
+import { useEstimateWordIPAQuery } from '@/hooks/phones';
 
 export function CForm({ action, children }: { action: string, children: ReactNode }) {
   return (

@@ -3,13 +3,12 @@ import { Link } from 'react-router-dom';
 
 import SaveChangesButton from '../components/SaveChangesButton.tsx';
 
-import {
-  useLanguage, useLanguageSummaryNotes, ILanguage, ILanguageSummaryNotes
-} from '../languageData.tsx';
-import {
-  renderDatalessQueryResult, sendBackendJson, useGetParamsOrSelectedId,
-  useSetPageTitle
-} from '../utils.tsx';
+import { useLanguage, useLanguageSummaryNotes } from '@/hooks/languages';
+
+import { ILanguage, ILanguageSummaryNotes } from '@/types/languages';
+
+import { useGetParamsOrSelectedId, useSetPageTitle } from '@/utils/global/hooks';
+import { renderDatalessQueryResult, sendBackendJson } from '@/utils/global/queries';
 
 async function sendSaveNotesRequest(notes: ILanguageSummaryNotes, langId: string) {
   const reqBody = {

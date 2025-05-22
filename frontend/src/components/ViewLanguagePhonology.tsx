@@ -1,11 +1,16 @@
 import { ReactNode } from 'react';
 
+import { useLanguagePhones } from '@/hooks/phones';
+
+import { IPhone, IPhoneTableData } from '@/types/phones';
+
+import { renderDatalessQueryResult } from '@/utils/global/queries';
 import {
-  consonantData, formatPhoneForPhonologyTable, useLanguagePhones,
-  hasDoubleWidthCell, vowelData,
-  IPhone, IPhoneTableData
-} from '../phoneData.tsx';
-import { renderDatalessQueryResult } from '../utils.tsx';
+  consonantData,
+  formatPhoneForPhonologyTable,
+  hasDoubleWidthCell,
+  vowelData
+} from '@/utils/phones.tsx';
 
 interface IPhoneWithFormatted {
   phone: IPhone;

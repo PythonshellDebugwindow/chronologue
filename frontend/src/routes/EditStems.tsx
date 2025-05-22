@@ -3,13 +3,20 @@ import { Link } from 'react-router-dom';
 
 import SaveChangesButton from '../components/SaveChangesButton.tsx';
 
-import { IWordStem, useLanguageWordStems } from '../grammarData.tsx';
-import { useLanguage, ILanguage } from '../languageData.tsx';
+import { useLanguageWordStems } from '@/hooks/grammar';
+import { useLanguage } from '@/hooks/languages';
+import { usePartsOfSpeech } from '@/hooks/words';
+
+import { IWordStem } from '@/types/grammar';
+import { ILanguage } from '@/types/languages';
+import { IPartOfSpeech } from '@/types/words';
+
 import {
-  renderDatalessQueryResult, sendBackendJson, useGetParamsOrSelectedId,
-  useSetPageTitle, useUnsavedPopup
-} from '../utils.tsx';
-import { usePartsOfSpeech, IPartOfSpeech } from '../wordData.tsx';
+  useGetParamsOrSelectedId,
+  useSetPageTitle,
+  useUnsavedPopup
+} from '@/utils/global/hooks';
+import { renderDatalessQueryResult, sendBackendJson } from '@/utils/global/queries';
 
 const UNADDED_STEM_ID = "";
 

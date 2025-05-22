@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { sendBackendJson, useSetPageTitle } from '../utils.tsx';
+import { useSetPageTitle } from '@/utils/global/hooks';
+import { sendBackendJson } from '@/utils/global/queries';
 
 export default function AddTranslation() {
   const navigate = useNavigate();

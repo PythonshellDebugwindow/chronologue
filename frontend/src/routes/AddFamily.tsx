@@ -4,8 +4,8 @@ import {
   CForm, CFormBody, CMultilineTextInput, CTextInput
 } from '../components/CForm.tsx';
 
-import { addFamily } from '../familyData.tsx';
-import { getFormJson, useSetPageTitle } from '../utils.tsx';
+import { useSetPageTitle } from '@/utils/global/hooks';
+import { getFormJson, sendBackendJson } from '@/utils/global/queries';
 
 export async function action({ request }: ActionFunctionArgs) {
   const formJson = await getFormJson(request);
@@ -14,10 +14,11 @@ export async function action({ request }: ActionFunctionArgs) {
     return json({ message: "Please enter a language name" });
   }
 
-  const result = await addFamily({
+  const data = {
     name: formJson.name,
     description: formJson.description
-  });
+  };
+  const result = await sendBackendJson('families', 'POST', data);
   if(!result.ok) {
     return json({ message: result.body.message });
   }

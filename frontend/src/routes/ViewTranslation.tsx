@@ -5,18 +5,25 @@ import DisplayDate from '../components/DisplayDate.tsx';
 import DropdownToggle from '../components/DropdownToggle.tsx';
 import LanguageLink from '../components/LanguageLink.tsx';
 
-import {
-  IGrammarForm, formatTextWithGrammarForms, useGrammarForms
-} from '../grammarData.tsx';
-import { useLanguage } from '../languageData.tsx';
 import SelectedLanguageContext, {
   ISelectedLanguageData
-} from '../SelectedLanguageContext.tsx';
+} from '@/contexts/SelectedLanguageContext';
+
+import { useGrammarForms } from '@/hooks/grammar';
+import { useLanguage } from '@/hooks/languages';
 import {
-  ILanguageTranslation, ITranslation, useLanguageTranslation, useTranslation,
+  useLanguageTranslation,
+  useTranslation,
   useTranslationLanguages
-} from '../translationData.tsx';
-import { renderDatalessQueryResult, useSetPageTitle } from '../utils.tsx';
+} from '@/hooks/translations';
+
+import { IGrammarForm } from '@/types/grammar';
+import { ILanguageTranslation, ITranslation } from '@/types/translations';
+
+import { useSetPageTitle } from '@/utils/global/hooks';
+import { renderDatalessQueryResult } from '@/utils/global/queries';
+
+import { formatTextWithGrammarForms } from '@/utils/grammar';
 
 interface ILanguageTranslationRow {
   languageTranslation: ILanguageTranslation;

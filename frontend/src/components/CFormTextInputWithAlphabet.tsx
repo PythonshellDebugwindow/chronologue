@@ -2,9 +2,12 @@ import { Dispatch, ReactNode, SetStateAction, useRef, useState } from 'react';
 
 import DropdownToggle from './DropdownToggle.tsx';
 
-import { IOrthographySettings, useLanguageOrthographySettings } from '../languageData.tsx';
-import { getGraphFormatTypeForAlphabet } from '../phoneData.tsx';
-import { assertUnreachable } from '../utils.tsx';
+import { useLanguageOrthographySettings } from '@/hooks/languages';
+
+import { IOrthographySettings } from '@/types/languages';
+
+import { assertUnreachable } from '@/utils/global/asserts';
+import { getGraphFormatTypeForAlphabet } from '@/utils/phones';
 
 interface IInsertAlphabetGraph {
   graph: string;

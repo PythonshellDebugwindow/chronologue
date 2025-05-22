@@ -1,4 +1,4 @@
-import { createContext } from 'react';
+import { createContext, PropsWithChildren, useState } from 'react';
 
 export interface ISelectedLanguageData {
   id: string;
@@ -24,7 +24,7 @@ export function saveSelectedLanguageToStorage(sl: ISelectedLanguageData | null) 
     localStorage.removeItem('sl-id');
     localStorage.removeItem('sl-name');
   }
-};
+}
 
 const slObject: ISLObject = {
   selectedLanguage: loadSelectedLanguageFromStorage(),
@@ -32,5 +32,23 @@ const slObject: ISLObject = {
 };
 
 const SelectedLanguageContext = createContext(slObject);
+
+export function SelectedLanguageContextProvider({ children }: PropsWithChildren) {
+  const initialSelected = loadSelectedLanguageFromStorage();
+  const [selectedLanguage, setSelectedLanguage] = useState(initialSelected);
+
+  function setSLState(languageData: ISelectedLanguageData | null) {
+    setSelectedLanguage(languageData);
+    saveSelectedLanguageToStorage(languageData);
+  }
+
+  const value = { selectedLanguage, setSelectedLanguage: setSLState };
+
+  return (
+    <SelectedLanguageContext.Provider value={value}>
+      {children}
+    </SelectedLanguageContext.Provider>
+  );
+}
 
 export default SelectedLanguageContext;

@@ -7,6 +7,9 @@
     "skipLibCheck": true,
     
     "paths": {
+      "@/*": [
+        "./src/*"
+      ],
       "@shared/*": [
         "../shared/src/*"
       ]

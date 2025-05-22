@@ -1,8 +1,8 @@
 import { Dispatch, SetStateAction, useEffect } from 'react';
 
-import {
-  IrregularWordStems, useIrregularWordStems, useLanguageWordStemsByPOS
-} from '../grammarData.tsx';
+import { useIrregularWordStems, useLanguageWordStemsByPOS } from '@/hooks/grammar';
+
+import { IrregularWordStems } from '@/types/grammar';
 
 interface IIrregularStemsEditInner {
   langId: string;

@@ -3,8 +3,12 @@ import { Link, useParams } from 'react-router-dom';
 import DisplayDate from '../components/DisplayDate.tsx';
 import { FamilyTree } from '../components/LanguageTree.tsx';
 
-import { useFamily, IFamily } from '../familyData.tsx';
-import { renderDatalessQueryResult, useSetPageTitle } from '../utils.tsx';
+import { useFamily } from '@/hooks/families';
+
+import { IFamily } from '@/types/families';
+
+import { useSetPageTitle } from '@/utils/global/hooks';
+import { renderDatalessQueryResult } from '@/utils/global/queries';
 
 function ViewFamilyInner({ family }: { family: IFamily }) {
   return (

@@ -1,9 +1,14 @@
 import { useContext, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 
-import { deleteLanguage, useLanguage, ILanguage } from '../languageData.tsx';
-import SelectedLanguageContext from '../SelectedLanguageContext.tsx';
-import { renderDatalessQueryResult, useSetPageTitle } from '../utils.tsx';
+import SelectedLanguageContext from '@/contexts/SelectedLanguageContext';
+
+import { useLanguage } from '@/hooks/languages';
+
+import { ILanguage } from '@/types/languages';
+
+import { useSetPageTitle } from '@/utils/global/hooks';
+import { renderDatalessQueryResult, sendBackendRequest } from '@/utils/global/queries';
 
 function DeleteLanguageInner({ language }: { language: ILanguage }) {
   const navigate = useNavigate();
@@ -13,7 +18,7 @@ function DeleteLanguageInner({ language }: { language: ILanguage }) {
   const [errorMessage, setErrorMessage] = useState("");
 
   async function deleteFormLanguage() {
-    const result = await deleteLanguage(language.id);
+    const result = await sendBackendRequest(`languages/${language.id}`, 'DELETE');
     if(!result.ok) {
       setErrorMessage(result.body.message);
       return;

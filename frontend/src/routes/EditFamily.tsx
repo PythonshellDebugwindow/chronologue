@@ -4,8 +4,12 @@ import { useQueryClient } from '@tanstack/react-query';
 
 import { CFormBody, CMultilineTextInput, CTextInput } from '../components/CForm.tsx';
 
-import { editFamily, useFamily, IFamily } from '../familyData.tsx';
-import { renderDatalessQueryResult, useSetPageTitle } from '../utils.tsx';
+import { useFamily } from '@/hooks/families';
+
+import { IFamily } from '@/types/families';
+
+import { useSetPageTitle } from '@/utils/global/hooks';
+import { renderDatalessQueryResult, sendBackendJson } from '@/utils/global/queries';
 
 function EditFamilyInner({ initialFamily }: { initialFamily: IFamily }) {
   const navigate = useNavigate();
@@ -21,10 +25,8 @@ function EditFamilyInner({ initialFamily }: { initialFamily: IFamily }) {
       return;
     }
 
-    const result = await editFamily(initialFamily.id, {
-      name,
-      description
-    });
+    const data = { name, description };
+    const result = await sendBackendJson(`families/${initialFamily.id}`, 'PUT', data);
     if(!result.ok) {
       setErrorMessage(result.body.message);
       return;

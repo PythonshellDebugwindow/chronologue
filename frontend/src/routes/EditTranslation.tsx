@@ -2,8 +2,12 @@ import { useState } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 
-import { ITranslation, useTranslation } from '../translationData.tsx';
-import { renderDatalessQueryResult, sendBackendJson, useSetPageTitle } from '../utils.tsx';
+import { useTranslation } from '@/hooks/translations';
+
+import { ITranslation } from '@/types/translations';
+
+import { useSetPageTitle } from '@/utils/global/hooks';
+import { renderDatalessQueryResult, sendBackendJson } from '@/utils/global/queries';
 
 function EditTranslationInner({ initialTranslation }: { initialTranslation: ITranslation }) {
   const navigate = useNavigate();

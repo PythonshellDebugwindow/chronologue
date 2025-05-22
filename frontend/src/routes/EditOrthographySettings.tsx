@@ -7,14 +7,14 @@ import { CSS } from '@dnd-kit/utilities';
 
 import SaveChangesButton from '../components/SaveChangesButton.tsx';
 
-import {
-  useLanguage, useLanguageOrthographySettings, ILanguage, IOrthographySettings
-} from '../languageData.tsx';
-import { formatGraphForAlphabet } from '../phoneData.tsx';
-import {
-  renderDatalessQueryResult, sendBackendJson, useGetParamsOrSelectedId,
-  useSetPageTitle
-} from '../utils.tsx';
+import { useLanguage, useLanguageOrthographySettings } from '@/hooks/languages';
+
+import { ILanguage, IOrthographySettings } from '@/types/languages';
+
+import { useGetParamsOrSelectedId, useSetPageTitle } from '@/utils/global/hooks';
+import { renderDatalessQueryResult, sendBackendJson } from '@/utils/global/queries';
+
+import { formatGraphForAlphabet } from '@/utils/phones';
 
 function getGraphCellShift(index: number, over: Over | null, active: Active | null) {
   if(over && active) {

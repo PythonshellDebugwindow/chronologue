@@ -1,15 +1,19 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-
-import { useLanguage, ILanguage } from '../languageData.tsx';
-import {
-  renderDatalessQueryResult, useGetParamsOrSelectedId, useSetPageTitle
-} from '../utils.tsx';
-import {
-  useLanguageOrthographyCategories, useLanguagePhoneCategories, useApplySCARulesQuery,
-  ApplySCARulesQueryResult, ICategory
-} from '../phoneData.tsx';
 import { useQueryClient } from '@tanstack/react-query';
+
+import { useLanguage } from '@/hooks/languages';
+import {
+  useApplySCARulesQuery,
+  useLanguageOrthographyCategories,
+  useLanguagePhoneCategories
+} from '@/hooks/phones';
+
+import { ILanguage } from '@/types/languages';
+import { ApplySCARulesQueryResult, ICategory } from '@/types/phones';
+
+import { useGetParamsOrSelectedId, useSetPageTitle } from '@/utils/global/hooks';
+import { renderDatalessQueryResult } from '@/utils/global/queries';
 
 function DisplayCategories({ categories }: { categories: ICategory[] }) {
   return (

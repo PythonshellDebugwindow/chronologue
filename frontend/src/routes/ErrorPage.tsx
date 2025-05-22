@@ -1,7 +1,8 @@
 import { useRouteError } from 'react-router-dom';
 
 import Header from '../components/Header.tsx';
-import { useSetPageTitle } from '../utils.tsx';
+
+import { useSetPageTitle } from '@/utils/global/hooks';
 
 function getHeaderText(error: any) {
   const message = error.statusText || error.message;

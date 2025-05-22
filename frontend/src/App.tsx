@@ -1,10 +1,13 @@
-import { useContext, useState } from 'react';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import './App.css';
 
 import Header from './components/Header.tsx';
+
+import {
+  SelectedLanguageContextProvider
+} from '@/contexts/SelectedLanguageContext';
 
 import AddFamily, {
   action as addFamilyAction
@@ -54,10 +57,6 @@ import ViewLanguageTranslations from './routes/ViewLanguageTranslations.tsx';
 import ViewTranslation from './routes/ViewTranslation.tsx';
 import ViewTranslations from './routes/ViewTranslations.tsx';
 import ViewWord from './routes/ViewWord.tsx';
-
-import SelectedLanguageContext, {
-  ISelectedLanguageData, saveSelectedLanguageToStorage
-} from './SelectedLanguageContext.tsx';
 
 const router = createBrowserRouter([
   {
@@ -255,19 +254,11 @@ const queryClient = new QueryClient({
 });
 
 export default function App() {
-  const initialSL = useContext(SelectedLanguageContext).selectedLanguage;
-  const [selectedLanguage, setSLState] = useState(initialSL);
-
-  function setSelectedLanguage(languageData: ISelectedLanguageData | null) {
-    setSLState(languageData);
-    saveSelectedLanguageToStorage(languageData);
-  }
-
   return (
     <QueryClientProvider client={queryClient}>
-      <SelectedLanguageContext.Provider value={{ selectedLanguage, setSelectedLanguage }}>
+      <SelectedLanguageContextProvider>
         <RouterProvider router={router} />
-      </SelectedLanguageContext.Provider>
+      </SelectedLanguageContextProvider>
     </QueryClientProvider>
   );
-};
+}

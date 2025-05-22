@@ -1,9 +1,12 @@
 import { useContext } from 'react';
 import { Link } from 'react-router-dom';
 
-import { useFamilyMembers } from '../familyData.tsx';
-import { useLanguageDescendants, ILanguage } from '../languageData.tsx';
-import SelectedLanguageContext from '../SelectedLanguageContext.tsx';
+import SelectedLanguageContext from '@/contexts/SelectedLanguageContext'
+
+import { useFamilyMembers } from '@/hooks/families';
+import { useLanguageDescendants } from '@/hooks/languages';
+
+import { ILanguage } from '@/types/languages';
 
 interface ILanguageTreeBranch {
   root: ILanguage;

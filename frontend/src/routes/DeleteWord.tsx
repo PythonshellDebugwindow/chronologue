@@ -1,8 +1,12 @@
 import { useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 
-import { deleteWord, useWord, IWord } from '../wordData.tsx';
-import { renderDatalessQueryResult, useSetPageTitle } from '../utils.tsx';
+import { useWord } from '@/hooks/words';
+
+import { IWord } from '@/types/words';
+
+import { useSetPageTitle } from '@/utils/global/hooks';
+import { renderDatalessQueryResult, sendBackendRequest } from '@/utils/global/queries';
 
 function DeleteWordInner({ word }: { word: IWord }) {
   const navigate = useNavigate();
@@ -10,7 +14,7 @@ function DeleteWordInner({ word }: { word: IWord }) {
   const [errorMessage, setErrorMessage] = useState("");
 
   async function deleteFormWord() {
-    const result = await deleteWord(word.id);
+    const result = await sendBackendRequest(`words/${word.id}`, 'DELETE');
     if(!result.ok) {
       setErrorMessage(result.body.message);
       return;

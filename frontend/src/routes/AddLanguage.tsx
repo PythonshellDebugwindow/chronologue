@@ -5,10 +5,12 @@ import {
 
 import { CForm, CFormBody, CSelect, CTextInput } from '../components/CForm.tsx';
 
-import { useFamilies, useFamilyMembers } from '../familyData.tsx';
-import { addLanguage } from '../languageData.tsx';
-import SelectedLanguageContext from '../SelectedLanguageContext.tsx';
-import { getFormJson, useSetPageTitle } from '../utils.tsx';
+import SelectedLanguageContext from '@/contexts/SelectedLanguageContext';
+
+import { useFamilies, useFamilyMembers } from '@/hooks/families';
+
+import { useSetPageTitle } from '@/utils/global/hooks';
+import { getFormJson, sendBackendJson } from '@/utils/global/queries';
 
 export async function action({ request }: ActionFunctionArgs) {
   const formJson = await getFormJson(request);
@@ -17,7 +19,7 @@ export async function action({ request }: ActionFunctionArgs) {
     return json({ message: "Please enter a language name" });
   }
 
-  const result = await addLanguage(formJson as any);
+  const result = await sendBackendJson('languages', 'POST', formJson);
   if(!result.ok) {
     return json({ message: result.body.message });
   }

@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 
-import { ILanguage, useLanguage } from '../languageData.tsx';
-import {
-  renderDatalessQueryResult, useGetParamsOrSelectedId, useSetPageTitle
-} from '../utils.tsx';
-import { purgeDictionary } from '../wordData.tsx';
+import { useLanguage } from '@/hooks/languages';
+
+import { ILanguage } from '@/types/languages';
+
+import { useGetParamsOrSelectedId, useSetPageTitle } from '@/utils/global/hooks';
+import { renderDatalessQueryResult, sendBackendRequest } from '@/utils/global/queries';
 
 function PurgeDictionaryInner({ language }: { language: ILanguage }) {
   const navigate = useNavigate();
@@ -13,7 +14,9 @@ function PurgeDictionaryInner({ language }: { language: ILanguage }) {
   const [errorMessage, setErrorMessage] = useState("");
 
   async function confirmPurgeDictionary() {
-    const result = await purgeDictionary(language.id);
+    const result = await sendBackendRequest(
+      `languages/${language.id}/purge-dictionary`, 'DELETE'
+    );
     if(!result.ok) {
       setErrorMessage(result.body.message);
       return;

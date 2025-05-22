@@ -1,11 +1,15 @@
 import { Dispatch, ReactNode, SetStateAction } from 'react';
 import { Link } from 'react-router-dom';
 
-import { ILanguage } from '../languageData.tsx';
+import { ILanguage } from '@/types/languages';
+import { IPartOfSpeech, IWord } from '@/types/words';
+
 import {
-  IPartOfSpeech, IWord, formatDictionaryFieldValue, formatPosAbbr, formatWordEtymology,
+  formatDictionaryFieldValue,
+  formatPosAbbr,
+  formatWordEtymology,
   userFacingFieldName
-} from '../wordData.tsx';
+} from '@/utils/words';
 
 type FilterField = Omit<keyof IWord, 'created' | 'updated'> | '';
 type FilterType = 'begins' | 'contains' | 'ends' | 'exact' | 'regexp';

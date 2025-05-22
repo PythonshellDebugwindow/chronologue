@@ -1,7 +1,10 @@
 import {
-  formatPeriodSeparatedGrammarForms, IGrammarForm, IGrammarTable,
+  IGrammarForm,
+  IGrammarTable,
   RunGrammarTableResultCell
-} from '../grammarData.tsx';
+} from '@/types/grammar';
+
+import { formatPeriodSeparatedGrammarForms } from '@/utils/grammar';
 
 function WordGrammarTableCell({ cell }: { cell: RunGrammarTableResultCell }) {
   if(cell === null) {

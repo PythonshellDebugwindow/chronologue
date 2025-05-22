@@ -1,7 +1,9 @@
 import { Link } from 'react-router-dom';
 
-import { IGrammarTableOverview } from '../grammarData.tsx';
-import { formatPosFieldValue, IPartOfSpeech } from '../wordData.tsx';
+import { IGrammarTableOverview } from '@/types/grammar';
+import { IPartOfSpeech } from '@/types/words';
+
+import { formatPosFieldValue } from '@/utils/words';
 
 interface IGrammarTableLink {
   table: IGrammarTableOverview;

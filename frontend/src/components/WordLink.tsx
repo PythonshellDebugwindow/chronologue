@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 
-import { useWord } from '../wordData.tsx';
+import { useWord } from '@/hooks/words';
 
 function useWordString(id: string) {
   const { isPending, error, data } = useWord(id);

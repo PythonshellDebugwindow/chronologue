@@ -5,14 +5,23 @@ import { useQueryClient } from '@tanstack/react-query';
 import GrammarTableLink from '../components/GrammarTableLink.tsx';
 
 import {
-  formatPeriodSeparatedGrammarForms, useGrammarForms, useGrammarTable,
-  useGrammarTableIrregularForms, IGrammarForm, IGrammarTable,
-  IGrammarTableIrregularFormCell
-} from '../grammarData.tsx';
-import { renderDatalessQueryResult, sendBackendJson, useSetPageTitle } from '../utils.tsx';
+  useGrammarForms,
+  useGrammarTable,
+  useGrammarTableIrregularForms
+} from '@/hooks/grammar';
+import { usePartsOfSpeech, useWord } from '@/hooks/words';
+
 import {
-  usePartsOfSpeech, useWord, IPartOfSpeech, IWord
-} from '../wordData.tsx';
+  IGrammarForm,
+  IGrammarTable,
+  IGrammarTableIrregularFormCell
+} from '@/types/grammar';
+import { IPartOfSpeech, IWord } from '@/types/words';
+
+import { useSetPageTitle } from '@/utils/global/hooks';
+import { renderDatalessQueryResult, sendBackendJson } from '@/utils/global/queries';
+
+import { formatPeriodSeparatedGrammarForms } from '@/utils/grammar';
 
 async function sendSaveIrregularFormsRequest(tableId: string, wordId: string, cells: string[][]) {
   const reqBody = { cells };

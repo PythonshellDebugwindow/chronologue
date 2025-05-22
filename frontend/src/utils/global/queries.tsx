@@ -1,18 +1,12 @@
-import { useContext, useEffect } from 'react';
-import { useBeforeUnload, useBlocker, useParams } from 'react-router-dom';
 import { UseQueryResult } from '@tanstack/react-query';
 
-import SelectedLanguageContext from './SelectedLanguageContext.tsx';
-
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
-
-export function assertUnreachable(value: never) {
-  throw new Error("Invalid value: " + value);
-};
+import { ITitledError } from '@/types/titledError';
 
 interface IFormData {
   [key: string]: string;
 }
+
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 export async function getFormJson(request: Request) {
   const formData = await request.formData();
@@ -25,7 +19,7 @@ export async function getFormJson(request: Request) {
   }
 
   return formJson;
-};
+}
 
 export async function sendBackendJson(
   url: string, method: 'POST' | 'PUT', requestBody: { [key: string]: any }
@@ -45,7 +39,7 @@ export async function sendBackendJson(
     const json = { message: (err as Error).message };
     return { status: 0, ok: false, body: json };
   }
-};
+}
 
 export async function sendBackendJsonForQuery(
   url: string, method: 'POST' | 'PUT', requestBody: { [key: string]: any }
@@ -63,7 +57,7 @@ export async function sendBackendJsonForQuery(
     throw json;
   }
   return json;
-};
+}
 
 export async function sendBackendRequest(url: string, method: 'DELETE') {
   try {
@@ -82,7 +76,7 @@ export async function sendBackendRequest(url: string, method: 'DELETE') {
       throw err;
     }
   }
-};
+}
 
 export async function getBackendJson(url: string) {
   const response = await fetch(BACKEND_URL + url);
@@ -91,12 +85,12 @@ export async function getBackendJson(url: string) {
     throw json;
   }
   return json;
-};
+}
 
 export function parseRecordDates(rows: { [key: string]: any }[]): any[] {
   rows.forEach(parseSingleRecordDates);
   return rows;
-};
+}
 
 export function parseSingleRecordDates(row: { [key: string]: any }): any {
   row.created = new Date(row.created);
@@ -104,12 +98,7 @@ export function parseSingleRecordDates(row: { [key: string]: any }): any {
     row.updated = new Date(row.updated);
   }
   return row;
-};
-
-export interface ITitledError {
-  title?: string;
-  message: string;
-};
+}
 
 type DatalessQueryResult<T> = UseQueryResult<T, ITitledError> & {
   status: 'error' | 'pending';
@@ -126,23 +115,4 @@ export function renderDatalessQueryResult<T>(query: DatalessQueryResult<T>) {
   } else {
     return <p>Loading...</p>;
   }
-};
-
-export function useGetParamsOrSelectedId() {
-  const paramsId = useParams().id;
-  const selectedId = useContext(SelectedLanguageContext).selectedLanguage?.id;
-  return paramsId ?? selectedId;
-};
-
-export function useSetPageTitle(title: string) {
-  useEffect(() => {
-    document.title = title + " | Chronologue";
-  }, [title]);
-};
-
-export function useUnsavedPopup(shouldShow: boolean) {
-  useBeforeUnload(e => shouldShow && e.preventDefault());
-  useBlocker(
-    () => shouldShow && !window.confirm("Not all changes are saved. Leave anyway?")
-  );
-};
+}

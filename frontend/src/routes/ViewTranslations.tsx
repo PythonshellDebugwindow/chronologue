@@ -2,13 +2,14 @@ import { Link } from 'react-router-dom';
 
 import DisplayDate from '../components/DisplayDate.tsx';
 
-import { ILanguage, useLanguage } from '../languageData.tsx';
-import {
-  ITranslationOverview, useLanguageTranslationIds, useTranslations
-} from '../translationData.tsx';
-import {
-  renderDatalessQueryResult, useGetParamsOrSelectedId, useSetPageTitle
-} from '../utils.tsx';
+import { useLanguage } from '@/hooks/languages';
+import { useLanguageTranslationIds, useTranslations } from '@/hooks/translations';
+
+import { ILanguage } from '@/types/languages';
+import { ITranslationOverview } from '@/types/translations';
+
+import { useGetParamsOrSelectedId, useSetPageTitle } from '@/utils/global/hooks';
+import { renderDatalessQueryResult } from '@/utils/global/queries';
 
 function summarise(text: string) {
   const maxLength = 50;

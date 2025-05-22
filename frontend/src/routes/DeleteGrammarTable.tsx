@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 
-import {
-  deleteGrammarTable, useGrammarTable, IGrammarTable
-} from '../grammarData.tsx';
-import { renderDatalessQueryResult, useSetPageTitle } from '../utils.tsx';
+import { useGrammarTable } from '@/hooks/grammar';
+
+import { IGrammarTable } from '@/types/grammar';
+
+import { useSetPageTitle } from '@/utils/global/hooks';
+import { renderDatalessQueryResult, sendBackendRequest } from '@/utils/global/queries';
 
 function DeleteGrammarTableInner({ table }: { table: IGrammarTable }) {
   const navigate = useNavigate();
@@ -12,7 +14,7 @@ function DeleteGrammarTableInner({ table }: { table: IGrammarTable }) {
   const [errorMessage, setErrorMessage] = useState("");
 
   async function deleteFormTable() {
-    const result = await deleteGrammarTable(table.id);
+    const result = await sendBackendRequest(`grammar-tables/${table.id}`, 'DELETE');
     if(!result.ok) {
       setErrorMessage(result.body.message);
       return;

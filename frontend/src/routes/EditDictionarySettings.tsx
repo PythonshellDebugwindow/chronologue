@@ -4,14 +4,21 @@ import { Link } from 'react-router-dom';
 import SaveChangesButton from '../components/SaveChangesButton.tsx';
 
 import {
-  useLanguageDictionarySettings, useLanguage, useLanguageWordClasses,
-  IDictionarySettings, ILanguage
-} from '../languageData.tsx';
+  useLanguage,
+  useLanguageDictionarySettings,
+  useLanguageWordClasses
+} from '@/hooks/languages';
+import { usePartsOfSpeech } from '@/hooks/words';
+
+import { IDictionarySettings, ILanguage } from '@/types/languages';
+import { IPartOfSpeech, IWordClass } from '@/types/words';
+
 import {
-  renderDatalessQueryResult, sendBackendJson, useGetParamsOrSelectedId,
-  useSetPageTitle, useUnsavedPopup
-} from '../utils.tsx';
-import { usePartsOfSpeech, IPartOfSpeech, IWordClass } from '../wordData.tsx';
+  useGetParamsOrSelectedId,
+  useSetPageTitle,
+  useUnsavedPopup
+} from '@/utils/global/hooks';
+import { renderDatalessQueryResult, sendBackendJson } from '@/utils/global/queries';
 
 const UNADDED_CLASS_ID = "";
 

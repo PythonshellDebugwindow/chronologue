@@ -1,8 +1,8 @@
 import { Link } from 'react-router-dom';
 
-import { useSetPageTitle } from '../utils.tsx';
+import { useSetPageTitle } from '@/utils/global/hooks';
 
-import helpPageHtmlRaw from '../assets/chronosca-help.html?raw';
+import helpPageHtmlRaw from '@/assets/chronosca-help.html?raw';
 
 const helpPageHtmlObject = { __html: helpPageHtmlRaw };
 

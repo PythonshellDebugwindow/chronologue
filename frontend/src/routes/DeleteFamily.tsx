@@ -1,8 +1,12 @@
 import { useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 
-import { renderDatalessQueryResult, useSetPageTitle } from '../utils.tsx';
-import { deleteFamily, useFamily, IFamily } from '../familyData.tsx';
+import { useFamily } from '@/hooks/families';
+
+import { IFamily } from '@/types/families';
+
+import { useSetPageTitle } from '@/utils/global/hooks';
+import { renderDatalessQueryResult, sendBackendRequest } from '@/utils/global/queries';
 
 function DeleteFamilyInner({ family }: { family: IFamily }) {
   const navigate = useNavigate();
@@ -10,7 +14,7 @@ function DeleteFamilyInner({ family }: { family: IFamily }) {
   const [errorMessage, setErrorMessage] = useState("");
 
   async function deleteFormFamily() {
-    const result = await deleteFamily(family.id);
+    const result = await sendBackendRequest(`families/${family.id}`, 'DELETE');
     if(!result.ok) {
       setErrorMessage(result.body.message);
       return;

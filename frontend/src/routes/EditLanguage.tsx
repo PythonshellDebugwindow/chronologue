@@ -4,14 +4,15 @@ import { useQueryClient } from '@tanstack/react-query';
 
 import { CFormBody, CSelect, CTextInput } from '../components/CForm.tsx';
 
-import { useFamilies, useFamilyMembers } from '../familyData.tsx';
-import {
-  editLanguage, useLanguage, ILanguage, LanguageStatus
-} from '../languageData.tsx';
-import {
-  renderDatalessQueryResult, useGetParamsOrSelectedId, useSetPageTitle
-} from '../utils.tsx';
-import SelectedLanguageContext from '../SelectedLanguageContext.tsx';
+import SelectedLanguageContext from '@/contexts/SelectedLanguageContext';
+
+import { useFamilies, useFamilyMembers } from '@/hooks/families';
+import { useLanguage } from '@/hooks/languages';
+
+import { ILanguage, LanguageStatus } from '@/types/languages';
+
+import { useGetParamsOrSelectedId, useSetPageTitle } from '@/utils/global/hooks';
+import { renderDatalessQueryResult, sendBackendJson } from '@/utils/global/queries';
 
 interface IParentSelect {
   familyId: string;
@@ -141,14 +142,15 @@ function EditLanguageInner({ initialLanguage }: { initialLanguage: ILanguage }) 
       return;
     }
 
-    const result = await editLanguage(initialLanguage.id, {
+    const data = {
       name,
       autonym,
       familyId: familyId || null,
       parentId: parentId || null,
       status,
       era
-    });
+    };
+    const result = await sendBackendJson(`languages/${initialLanguage.id}`, 'PUT', data);
     if(!result.ok) {
       setErrorMessage(result.body.message);
       return;

@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 
-import { useFamily } from '../familyData';
+import { useFamily } from '@/hooks/families';
 
 function useFamilyName(id: string) {
   const { isPending, error, data } = useFamily(id);

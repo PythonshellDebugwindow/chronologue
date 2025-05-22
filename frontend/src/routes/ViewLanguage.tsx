@@ -9,15 +9,17 @@ import LinkButton from '../components/LinkButton.tsx';
 import { OrthographySection } from '../components/ViewLanguageOrthography.tsx';
 import { PhonologySection } from '../components/ViewLanguagePhonology.tsx';
 
-import {
-  formatLanguageStatus, useLanguage, useLanguageSummaryNotes,
-  ILanguage, ILanguageSummaryNotes
-} from '../languageData.tsx';
-import SelectedLanguageContext from '../SelectedLanguageContext.tsx';
-import {
-  renderDatalessQueryResult, useGetParamsOrSelectedId, useSetPageTitle
-} from '../utils.tsx';
-import { useLanguageWordCount } from '../wordData.tsx';
+import SelectedLanguageContext from '@/contexts/SelectedLanguageContext';
+
+import { useLanguage, useLanguageSummaryNotes } from '@/hooks/languages';
+import { useLanguageWordCount } from '@/hooks/words';
+
+import { ILanguage, ILanguageSummaryNotes } from '@/types/languages';
+
+import { useGetParamsOrSelectedId, useSetPageTitle } from '@/utils/global/hooks';
+import { renderDatalessQueryResult } from '@/utils/global/queries';
+
+import { formatLanguageStatus } from '@/utils/languages';
 
 function useWordCount(id: string) {
   const { isPending, error, data } = useLanguageWordCount(id);

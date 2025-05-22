@@ -9,15 +9,27 @@ import EditableGrammarTable from '../components/EditableGrammarTable.tsx';
 import POSAndClassesSelect from '../components/POSAndClassesSelect.tsx';
 
 import {
-  compareGrammarTables, editGrammarTable, useGrammarTable,
-  useGrammarTableClassIds, useGrammarTableFilledCells, useLanguageGrammarTables,
-  IGrammarTable, IGrammarTableCell, IGrammarTableCellWithPosition, IGrammarTableOverview
-} from '../grammarData.tsx';
-import { useLanguageWordClasses } from '../languageData.tsx';
-import { renderDatalessQueryResult, useSetPageTitle } from '../utils.tsx';
+  useGrammarTable,
+  useGrammarTableClassIds,
+  useGrammarTableFilledCells,
+  useLanguageGrammarTables
+} from '@/hooks/grammar';
+import { useLanguageWordClasses } from '@/hooks/languages';
+import { usePartsOfSpeech } from '@/hooks/words';
+
 import {
-  formatPosFieldValue, usePartsOfSpeech, IPartOfSpeech, IWordClass
-} from '../wordData.tsx';
+  IGrammarTable,
+  IGrammarTableCell,
+  IGrammarTableCellWithPosition,
+  IGrammarTableOverview
+} from '@/types/grammar';
+import { IPartOfSpeech, IWordClass } from '@/types/words';
+
+import { useSetPageTitle } from '@/utils/global/hooks';
+import { renderDatalessQueryResult, sendBackendJson } from '@/utils/global/queries';
+
+import { compareGrammarTables } from '@/utils/grammar';
+import { formatPosFieldValue } from '@/utils/words';
 
 function createCellMatrix(table: IGrammarTable, filledCells: IGrammarTableCellWithPosition[]) {
   const result: IGrammarTableCell[][] = [];
@@ -143,7 +155,7 @@ function EditGrammarTableInner({
       return;
     }
 
-    const result = await editGrammarTable(table.id, {
+    const data = {
       name,
       pos,
       rows,
@@ -154,7 +166,8 @@ function EditGrammarTableInner({
       invertClasses,
       notes,
       cells
-    });
+    };
+    const result = await sendBackendJson(`grammar-tables/${table.id}`, 'PUT', data);
     if(!result.ok) {
       setMessage(result.body.message);
       return;

@@ -5,15 +5,30 @@ import LanguageLink from '../components/LanguageLink.tsx';
 import WordGrammarTable from '../components/WordGrammarTable.tsx';
 
 import {
-  formatPeriodSeparatedGrammarForms, useGrammarForms, useGrammarTable,
-  useGrammarTableClasses, useGrammarTableFilledCells,
-  useRandomGrammarTableWord, IGrammarForm, IGrammarTable, IGrammarTableCellWithPosition
-} from '../grammarData.tsx';
-import { renderDatalessQueryResult, useSetPageTitle } from '../utils.tsx';
+  useGrammarForms,
+  useGrammarTable,
+  useGrammarTableClasses,
+  useGrammarTableFilledCells,
+  useRandomGrammarTableWord
+} from '@/hooks/grammar';
+import { usePartsOfSpeech } from '@/hooks/words';
+
 import {
-  formatPosFieldValue, formatWordClasses, usePartsOfSpeech,
-  userFacingFieldName, IPartOfSpeech, IWordClassNoPOS
-} from '../wordData.tsx';
+  IGrammarForm,
+  IGrammarTable,
+  IGrammarTableCellWithPosition
+} from '@/types/grammar';
+import { IPartOfSpeech, IWordClassNoPOS } from '@/types/words';
+
+import { useSetPageTitle } from '@/utils/global/hooks';
+import { renderDatalessQueryResult, } from '@/utils/global/queries';
+
+import { formatPeriodSeparatedGrammarForms } from '@/utils/grammar';
+import {
+  formatPosFieldValue,
+  formatWordClasses,
+  userFacingFieldName
+} from '@/utils/words';
 
 interface IGrammarTableDisplay {
   table: IGrammarTable;
