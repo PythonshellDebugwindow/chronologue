@@ -123,4 +123,4 @@ export default function EditPronunciationEstimation() {
       initialSettings={settingsResponse.data}
     />
   );
-};
+}

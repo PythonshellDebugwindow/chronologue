@@ -197,4 +197,4 @@ export default function DefineIrregularForms() {
       partsOfSpeech={partsOfSpeechResponse.data}
     />
   );
-};
+}

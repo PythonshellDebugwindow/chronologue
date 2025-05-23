@@ -320,4 +320,4 @@ export default function AddWord() {
       langPartsOfSpeech={partsOfSpeechResponse.data}
     />
   );
-};
+}

@@ -3,7 +3,7 @@ import { createContext, PropsWithChildren, useState } from 'react';
 export interface ISelectedLanguageData {
   id: string;
   name: string;
-};
+}
 
 interface ISLObject {
   selectedLanguage: ISelectedLanguageData | null;

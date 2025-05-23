@@ -241,4 +241,4 @@ export default function ViewGrammarTable() {
       partsOfSpeech={partsOfSpeechResponse.data}
     />
   );
-};
+}

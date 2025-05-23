@@ -68,4 +68,4 @@ export default function PurgeDictionary() {
   }
 
   return <PurgeDictionaryInner language={languageResponse.data} />;
-};
+}

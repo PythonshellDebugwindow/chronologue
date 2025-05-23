@@ -295,4 +295,4 @@ export default function EditOrthographySettings() {
       orthSettings={orthSettingsResponse.data}
     />
   );
-};
+}

@@ -132,4 +132,4 @@ export default function EditSummaryNotes() {
       summaryNotes={summaryNotesResponse.data}
     />
   );
-};
+}

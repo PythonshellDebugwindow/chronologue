@@ -91,4 +91,4 @@ export default function EditTranslation() {
   }
 
   return <EditTranslationInner initialTranslation={translationResponse.data} />;
-};
+}

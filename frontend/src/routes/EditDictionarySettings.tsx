@@ -507,4 +507,4 @@ export default function EditDictionarySettings() {
       partsOfSpeech={partsOfSpeechResponse.data}
     />
   );
-};
+}

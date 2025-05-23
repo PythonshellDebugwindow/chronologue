@@ -300,4 +300,4 @@ export default function ViewTranslation() {
       grammarForms={grammarFormsResponse.data}
     />
   );
-};
+}

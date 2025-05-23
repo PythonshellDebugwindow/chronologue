@@ -199,4 +199,4 @@ export default function ViewWord() {
       partsOfSpeech={partsOfSpeechResponse.data}
     />
   );
-};
+}

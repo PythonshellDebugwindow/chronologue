@@ -57,7 +57,7 @@ function LanguageTreeBranch({ root, descendants, showSelect }: ILanguageTreeBran
       />
     </li>
   );
-};
+}
 
 export function LanguageTree({ root }: { root: ILanguage }) {
   const { isPending, error, data: descendants } = useLanguageDescendants(root.id);

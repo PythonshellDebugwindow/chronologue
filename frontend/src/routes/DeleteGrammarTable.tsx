@@ -60,4 +60,4 @@ export default function DeleteGrammarTable() {
   }
 
   return <DeleteGrammarTableInner table={tableResponse.data} />;
-};
+}

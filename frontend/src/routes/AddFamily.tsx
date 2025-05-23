@@ -22,7 +22,7 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 
   return redirect('/family/' + result.body);
-};
+}
 
 export default function AddFamily() {
   const actionData: any = useActionData();
@@ -49,4 +49,4 @@ export default function AddFamily() {
       </CForm>
     </>
   );
-};
+}

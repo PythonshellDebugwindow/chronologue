@@ -151,4 +151,4 @@ export default function ViewLanguage() {
       summaryNotes={summaryNotesResponse.data}
     />
   );
-};
+}

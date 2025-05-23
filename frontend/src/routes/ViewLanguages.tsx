@@ -83,4 +83,4 @@ export default function ViewLanguages() {
       isolates={isolatesResponse.data}
     />
   );
-};
+}

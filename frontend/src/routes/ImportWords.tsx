@@ -331,4 +331,4 @@ export default function ImportWords() {
       partsOfSpeech={partsOfSpeechResponse.data}
     />
   );
-};
+}

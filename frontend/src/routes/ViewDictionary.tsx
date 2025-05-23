@@ -160,4 +160,4 @@ export default function ViewDictionary() {
       partsOfSpeech={posResponse.data}
     />
   );
-};
+}

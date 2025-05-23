@@ -193,4 +193,4 @@ export default function TestChronoSCA() {
       phoneCategories={phoneCategoriesResponse.data}
     />
   );
-};
+}

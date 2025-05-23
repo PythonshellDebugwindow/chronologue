@@ -246,4 +246,4 @@ export default function EditLanguage() {
   }
 
   return <EditLanguageInner initialLanguage={languageResponse.data} />;
-};
+}

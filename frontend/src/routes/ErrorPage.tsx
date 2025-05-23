@@ -20,4 +20,4 @@ export default function ErrorPage() {
       <p>An error has occurred.</p>
     </>
   )
-};
+}

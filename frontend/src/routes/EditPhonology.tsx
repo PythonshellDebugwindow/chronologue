@@ -512,4 +512,4 @@ export default function EditPhonology() {
       defaultPhones={phonesResponse.data}
     />
   );
-};
+}

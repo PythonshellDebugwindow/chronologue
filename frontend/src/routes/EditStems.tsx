@@ -373,4 +373,4 @@ export default function EditStems() {
       partsOfSpeech={partsOfSpeechResponse.data}
     />
   );
-};
+}

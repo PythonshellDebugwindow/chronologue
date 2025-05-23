@@ -131,4 +131,4 @@ export default function ViewLanguageTranslations() {
       langTranslations={langTranslationsResponse.data}
     />
   );
-};
+}

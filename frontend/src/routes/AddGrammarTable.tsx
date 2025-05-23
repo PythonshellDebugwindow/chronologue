@@ -286,4 +286,4 @@ export default function AddGrammarTable() {
       partsOfSpeech={partsOfSpeechResponse.data}
     />
   );
-};
+}

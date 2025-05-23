@@ -59,4 +59,4 @@ export default function DeleteWord() {
   }
 
   return <DeleteWordInner word={wordResponse.data} />;
-};
+}

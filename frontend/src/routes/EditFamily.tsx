@@ -87,4 +87,4 @@ export default function EditFamily() {
   }
 
   return <EditFamilyInner initialFamily={familyResponse.data} />;
-};
+}

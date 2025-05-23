@@ -334,4 +334,4 @@ export default function EditGrammarTable() {
   }
 
   return <EditGrammarTableWithTable table={tableResponse.data} />;
-};
+}

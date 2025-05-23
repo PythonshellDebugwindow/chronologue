@@ -25,7 +25,7 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 
   return json({ addedId: result.body, addedName: formJson.name });
-};
+}
 
 function LanguageSelect({ familyId }: { familyId: string }) {
   const { isPending, error, data: languages } = useFamilyMembers(familyId);
@@ -142,4 +142,4 @@ export default function AddLanguage() {
       </CForm>
     </>
   );
-};
+}

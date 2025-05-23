@@ -179,4 +179,4 @@ export default function TranslateText() {
       langTr={langTrResponse.data}
     />
   );
-};
+}

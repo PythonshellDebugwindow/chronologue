@@ -293,7 +293,7 @@ function EditDictionarySettingsInner({ initialForms }: { initialForms: IGrammarF
       )}
     </>
   );
-};
+}
 
 export default function EditGrammarForms() {
   const grammarFormsResponse = useGrammarForms();
@@ -309,4 +309,4 @@ export default function EditGrammarForms() {
       initialForms={grammarFormsResponse.data}
     />
   );
-};
+}

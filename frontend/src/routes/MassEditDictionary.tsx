@@ -388,4 +388,4 @@ export default function MassEditDictionary() {
       partsOfSpeech={posResponse.data}
     />
   );
-};
+}

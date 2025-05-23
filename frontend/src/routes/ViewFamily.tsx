@@ -52,4 +52,4 @@ export default function ViewFamily() {
   }
 
   return <ViewFamilyInner family={familyResponse.data} />;
-};
+}

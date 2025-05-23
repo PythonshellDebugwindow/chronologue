@@ -67,4 +67,4 @@ export default function DeleteLanguage() {
   }
 
   return <DeleteLanguageInner language={languageResponse.data} />;
-};
+}

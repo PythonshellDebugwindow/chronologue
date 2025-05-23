@@ -98,4 +98,4 @@ export default function ViewTranslations() {
       language={languageResponse.data}
     />
   );
-};
+}

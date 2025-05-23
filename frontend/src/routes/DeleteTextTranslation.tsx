@@ -107,4 +107,4 @@ export default function DeleteTextTranslation() {
       isTranslated={langTrResponse.data !== null}
     />
   );
-};
+}

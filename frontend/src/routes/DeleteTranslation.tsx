@@ -57,4 +57,4 @@ export default function DeleteTranslation() {
   }
 
   return <DeleteTranslationInner translationId={id} />;
-};
+}

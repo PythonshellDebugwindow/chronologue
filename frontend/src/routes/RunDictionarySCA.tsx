@@ -424,4 +424,4 @@ export default function RunDictionarySCA() {
       partsOfSpeech={posResponse.data}
     />
   );
-};
+}
