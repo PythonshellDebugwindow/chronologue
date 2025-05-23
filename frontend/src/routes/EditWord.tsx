@@ -3,11 +3,14 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 
 import {
-  CFormBody, CIpaTextInput, CMultilineTextInput, CTextInput
-} from '../components/CForm.tsx';
-import CTextInputWithAlphabet from '../components/CFormTextInputWithAlphabet.tsx';
-import IrregularWordStemsEdit from '../components/IrregularWordStemsEdit.tsx';
-import POSAndClassesSelect from '../components/POSAndClassesSelect.tsx';
+  CFormBody,
+  CIpaTextInput,
+  CMultilineTextInput,
+  CTextInput,
+  CTextInputWithAlphabet
+} from '@/components/CForm';
+import IrregularWordStemsEdit from '@/components/IrregularWordStemsEdit';
+import POSAndClassesSelect from '@/components/POSAndClassesSelect';
 
 import {
   useLanguageDictionarySettings,

@@ -1,9 +1,9 @@
 import { useContext, useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 
-import DisplayDate from '../components/DisplayDate.tsx';
-import DropdownToggle from '../components/DropdownToggle.tsx';
-import LanguageLink from '../components/LanguageLink.tsx';
+import LanguageLink from '@/components/LanguageLink';
+import DisplayDate from '@/components/DisplayDate';
+import DropdownToggle from '@/components/DropdownToggle';
 
 import SelectedLanguageContext, {
   ISelectedLanguageData

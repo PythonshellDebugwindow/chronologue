@@ -1,6 +1,6 @@
 import { useRouteError } from 'react-router-dom';
 
-import Header from '../components/Header.tsx';
+import Header from '@/components/Header';
 
 import { useSetPageTitle } from '@/utils/global/hooks';
 

@@ -2,7 +2,7 @@ import { useContext, useState } from 'react';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 
-import LinkButton from '../components/LinkButton.tsx';
+import LinkButton from '@/components/LinkButton';
 
 import SelectedLanguageContext from '@/contexts/SelectedLanguageContext';
 

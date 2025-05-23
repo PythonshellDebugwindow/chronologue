@@ -6,4 +6,4 @@ export default function DisplayDate({ date }: { date: Date }) {
     month: 'short', day: 'numeric', year: 'numeric'
   });
   return <abbr title={longForm}>{shortForm}</abbr>;
-};
+}

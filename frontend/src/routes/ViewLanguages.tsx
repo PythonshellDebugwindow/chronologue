@@ -1,7 +1,7 @@
 import { Fragment } from 'react';
 import { Link } from 'react-router-dom';
 
-import { FamilyTree } from '../components/LanguageTree.tsx';
+import { FamilyTree } from '@/components/LanguageTree';
 
 import { useFamilies, useLanguageIsolates } from '@/hooks/families';
 

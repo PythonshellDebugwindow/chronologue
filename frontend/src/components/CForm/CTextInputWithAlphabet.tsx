@@ -1,6 +1,6 @@
 import { Dispatch, ReactNode, SetStateAction, useRef, useState } from 'react';
 
-import DropdownToggle from './DropdownToggle.tsx';
+import DropdownToggle from '../DropdownToggle';
 
 import { useLanguageOrthographySettings } from '@/hooks/languages';
 
@@ -71,20 +71,16 @@ function AlphabetListing({ langId, insertGraph }: IAlphabetListing) {
   } else {
     return (
       <div className="clickable-alphabet-listing">
-        {
-          orthSettings.alphabeticalOrder.map(
-            (graph, i) => (
-              <span key={i}>
-                <AlphabetListingGraph
-                  langId={langId}
-                  graph={graph}
-                  orthSettings={orthSettings}
-                  insertGraph={insertGraph}
-                />
-              </span>
-            )
-          )
-        }
+        {orthSettings.alphabeticalOrder.map((graph, i) => (
+          <span key={i}>
+            <AlphabetListingGraph
+              langId={langId}
+              graph={graph}
+              orthSettings={orthSettings}
+              insertGraph={insertGraph}
+            />
+          </span>
+        ))}
       </div>
     );
   }
@@ -112,7 +108,7 @@ interface ITextInputWithAlphabet {
   setState: Dispatch<SetStateAction<string>>;
 }
 
-export default function CTextInputWithAlphabet(
+export function CTextInputWithAlphabet(
   { langId, label, name, state, setState }: ITextInputWithAlphabet
 ) {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -156,4 +152,4 @@ export default function CTextInputWithAlphabet(
       </tr>
     </>
   );
-};
+}

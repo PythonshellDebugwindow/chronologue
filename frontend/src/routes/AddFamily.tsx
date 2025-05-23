@@ -1,8 +1,6 @@
 import { json, redirect, useActionData, ActionFunctionArgs } from 'react-router-dom';
 
-import {
-  CForm, CFormBody, CMultilineTextInput, CTextInput
-} from '../components/CForm.tsx';
+import { CForm, CFormBody, CMultilineTextInput, CTextInput } from '@/components/CForm';
 
 import { useSetPageTitle } from '@/utils/global/hooks';
 import { getFormJson, sendBackendJson } from '@/utils/global/queries';

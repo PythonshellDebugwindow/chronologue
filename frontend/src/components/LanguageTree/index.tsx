@@ -85,7 +85,7 @@ export function LanguageTree({ root }: { root: ILanguage }) {
       </>
     );
   }
-};
+}
 
 export function FamilyTree({ id, showSelect }: { id: string, showSelect: boolean }) {
   const { isPending, error, data: descendants } = useFamilyMembers(id);
@@ -108,4 +108,4 @@ export function FamilyTree({ id, showSelect }: { id: string, showSelect: boolean
       </ul>
     );
   }
-};
+}

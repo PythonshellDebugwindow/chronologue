@@ -10,7 +10,7 @@ import {
   formatPhoneForPhonologyTable,
   hasDoubleWidthCell,
   vowelData
-} from '@/utils/phones.tsx';
+} from '@/utils/phones';
 
 interface IPhoneWithFormatted {
   phone: IPhone;
@@ -327,4 +327,4 @@ export function PhonologySection({ languageId, notes }: { languageId: string, no
       )}
     </>
   );
-};
+}

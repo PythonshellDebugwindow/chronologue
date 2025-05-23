@@ -3,7 +3,7 @@ import {
   json, useActionData, useLocation, useNavigate, ActionFunctionArgs
 } from 'react-router-dom';
 
-import { CForm, CFormBody, CSelect, CTextInput } from '../components/CForm.tsx';
+import { CForm, CFormBody, CSelect, CTextInput } from '@/components/CForm';
 
 import SelectedLanguageContext from '@/contexts/SelectedLanguageContext';
 

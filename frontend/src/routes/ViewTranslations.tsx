@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 
-import DisplayDate from '../components/DisplayDate.tsx';
+import DisplayDate from '@/components/DisplayDate';
 
 import { useLanguage } from '@/hooks/languages';
 import { useLanguageTranslationIds, useTranslations } from '@/hooks/translations';

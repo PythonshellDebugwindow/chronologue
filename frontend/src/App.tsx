@@ -3,7 +3,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import './App.css';
 
-import Header from './components/Header.tsx';
+import Header from '@/components/Header';
 
 import {
   SelectedLanguageContextProvider

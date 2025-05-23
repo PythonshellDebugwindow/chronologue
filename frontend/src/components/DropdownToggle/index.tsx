@@ -12,4 +12,4 @@ export default function DropdownToggle({ label, open, setOpen }: IDropdownToggle
       </span>
     </div>
   );
-};
+}

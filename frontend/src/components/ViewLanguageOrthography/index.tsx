@@ -105,4 +105,4 @@ export function OrthographySection({ languageId, notes }: { languageId: string, 
       )}
     </>
   );
-};
+}

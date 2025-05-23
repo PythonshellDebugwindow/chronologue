@@ -2,9 +2,9 @@ import { useReducer, useState, Dispatch } from 'react';
 import { Link } from 'react-router-dom';
 import ReactSelect from 'react-select';
 
-import { qualityData, phoneToString } from '@shared/phones.ts';
+import { phoneToString, qualityData } from '@shared/phones';
 
-import SaveChangesButton from '../components/SaveChangesButton.tsx';
+import SaveChangesButton from '@/components/SaveChangesButton';
 
 import { useLanguage } from '@/hooks/languages';
 import { useLanguagePhones } from '@/hooks/phones';

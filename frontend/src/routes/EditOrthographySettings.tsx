@@ -5,7 +5,7 @@ import {
 } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
 
-import SaveChangesButton from '../components/SaveChangesButton.tsx';
+import SaveChangesButton from '@/components/SaveChangesButton';
 
 import { useLanguage, useLanguageOrthographySettings } from '@/hooks/languages';
 

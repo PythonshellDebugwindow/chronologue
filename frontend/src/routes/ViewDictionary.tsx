@@ -2,20 +2,21 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import {
-  DictionaryFilterSelect, DictionaryRow, DictionaryTable, IDictionaryFilter,
-  sortAndFilterWords
-} from '../components/Dictionary.tsx';
+  DictionaryFilterSelect,
+  DictionaryRow,
+  DictionaryTable
+} from '@/components/Dictionary';
 
 import { useLanguage, useLanguageDictionarySettings } from '@/hooks/languages';
 import { useLanguageWords, usePartsOfSpeech } from '@/hooks/words';
 
 import { IDictionarySettings, ILanguage } from '@/types/languages';
-import { IPartOfSpeech, IWord } from '@/types/words';
+import { IDictionaryFilter, IPartOfSpeech, IWord } from '@/types/words';
 
 import { useGetParamsOrSelectedId, useSetPageTitle } from '@/utils/global/hooks';
 import { renderDatalessQueryResult } from '@/utils/global/queries';
 
-import { userFacingFieldName } from '@/utils/words';
+import { sortAndFilterWords, userFacingFieldName } from '@/utils/words';
 
 interface IDictionaryField {
   name: keyof IWord;

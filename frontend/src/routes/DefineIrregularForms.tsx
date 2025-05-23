@@ -2,7 +2,7 @@ import { Dispatch, SetStateAction, useState } from 'react';
 import { useNavigate, useParams, useSearchParams, Link } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 
-import GrammarTableLink from '../components/GrammarTableLink.tsx';
+import GrammarTableLink from '@/components/GrammarTableLink';
 
 import {
   useGrammarForms,

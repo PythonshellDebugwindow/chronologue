@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 
-import { CFormBody, CMultilineTextInput, CTextInput } from '../components/CForm.tsx';
+import { CFormBody, CMultilineTextInput, CTextInput } from '@/components/CForm';
 
 import { useFamily } from '@/hooks/families';
 

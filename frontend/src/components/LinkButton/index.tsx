@@ -15,4 +15,4 @@ export default function LinkButton({ onClick, children }: ILinkButton) {
       {children}
     </Link>
   );
-};
+}

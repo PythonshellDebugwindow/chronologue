@@ -57,4 +57,4 @@ export default function WordGrammarTable({ table, grammarForms, cells }: IWordGr
       </tbody>
     </table>
   );
-};
+}

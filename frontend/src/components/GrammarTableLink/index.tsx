@@ -17,4 +17,4 @@ export default function GrammarTableLink({ table, partsOfSpeech }: IGrammarTable
       [{formatPosFieldValue(table.pos, partsOfSpeech)}]
     </Link>
   );
-};
+}

@@ -2,7 +2,7 @@ import { Dispatch, SetStateAction, useContext, useEffect, useState } from 'react
 import { Link, useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 
-import { CFormBody, CSelect, CTextInput } from '../components/CForm.tsx';
+import { CFormBody, CSelect, CTextInput } from '@/components/CForm';
 
 import SelectedLanguageContext from '@/contexts/SelectedLanguageContext';
 

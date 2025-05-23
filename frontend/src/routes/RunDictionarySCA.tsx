@@ -2,10 +2,8 @@ import { Dispatch, SetStateAction, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 
-import {
-  DictionaryFilterSelect, DictionaryTable, IDictionaryFilter, sortAndFilterWords
-} from '../components/Dictionary.tsx';
-import SaveChangesButton from '../components/SaveChangesButton.tsx';
+import { DictionaryFilterSelect, DictionaryTable } from '@/components/Dictionary';
+import SaveChangesButton from '@/components/SaveChangesButton';
 
 import { useLanguage, useLanguageDictionarySettings } from '@/hooks/languages';
 import { useApplySCARulesQuery } from '@/hooks/phones';
@@ -13,7 +11,7 @@ import { useLanguageWords, usePartsOfSpeech } from '@/hooks/words';
 
 import { IDictionarySettings, ILanguage } from '@/types/languages';
 import { ApplySCARulesQueryResult } from '@/types/phones';
-import { IPartOfSpeech, IWord } from '@/types/words';
+import { IDictionaryFilter, IPartOfSpeech, IWord } from '@/types/words';
 
 import {
   useGetParamsOrSelectedId,
@@ -26,6 +24,7 @@ import {
   formatDictionaryFieldValue,
   formatPosAbbr,
   formatWordEtymology,
+  sortAndFilterWords,
   userFacingFieldName
 } from '@/utils/words';
 

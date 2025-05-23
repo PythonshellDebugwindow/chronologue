@@ -1,7 +1,7 @@
 import { Link, useParams } from 'react-router-dom';
 
-import DisplayDate from '../components/DisplayDate.tsx';
-import { FamilyTree } from '../components/LanguageTree.tsx';
+import DisplayDate from '@/components/DisplayDate';
+import { FamilyTree } from '@/components/LanguageTree';
 
 import { useFamily } from '@/hooks/families';
 

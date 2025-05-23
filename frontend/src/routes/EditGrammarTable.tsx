@@ -3,10 +3,13 @@ import { useNavigate, useParams, Link } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 
 import {
-  CCheckbox, CFormBody, CMultilineTextInput, CTextInput
-} from '../components/CForm.tsx';
-import EditableGrammarTable from '../components/EditableGrammarTable.tsx';
-import POSAndClassesSelect from '../components/POSAndClassesSelect.tsx';
+  CCheckbox,
+  CFormBody,
+  CMultilineTextInput,
+  CTextInput
+} from '@/components/CForm';
+import EditableGrammarTable from '@/components/EditableGrammarTable';
+import POSAndClassesSelect from '@/components/POSAndClassesSelect';
 
 import {
   useGrammarTable,

@@ -19,4 +19,4 @@ export default function WordLink({ id }: { id: string }) {
       {useWordString(id)}
     </Link>
   );
-};
+}

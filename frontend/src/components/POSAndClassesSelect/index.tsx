@@ -1,7 +1,7 @@
 import { Dispatch, SetStateAction } from 'react';
 import ReactSelect from 'react-select';
 
-import { CSelect } from './CForm.tsx';
+import { CSelect } from '../CForm';
 
 import { IPartOfSpeech, IWordClass } from '@/types/words';
 
@@ -75,4 +75,4 @@ export default function POSAndClassesSelect(
       )}
     </>
   );
-};
+}

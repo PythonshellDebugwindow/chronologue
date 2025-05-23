@@ -1,8 +1,8 @@
 import { useParams, useSearchParams, Link } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 
-import LanguageLink from '../components/LanguageLink.tsx';
-import WordGrammarTable from '../components/WordGrammarTable.tsx';
+import LanguageLink from '@/components/LanguageLink';
+import WordGrammarTable from '@/components/WordGrammarTable';
 
 import {
   useGrammarForms,

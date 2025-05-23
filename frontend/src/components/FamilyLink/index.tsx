@@ -19,4 +19,4 @@ export default function FamilyLink({ id }: { id: string }) {
       {useFamilyName(id)}
     </Link>
   );
-};
+}

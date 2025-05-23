@@ -1,9 +1,9 @@
 import { useReducer, useState } from 'react';
 import { Link } from 'react-router-dom';
 
-import { phoneToString } from '@shared/phones.ts';
+import { phoneToString } from '@shared/phones';
 
-import SaveChangesButton from '../components/SaveChangesButton.tsx';
+import SaveChangesButton from '@/components/SaveChangesButton';
 
 import { useLanguage } from '@/hooks/languages';
 import {

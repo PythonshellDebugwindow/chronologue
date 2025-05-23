@@ -1,7 +1,7 @@
 import { Fragment } from 'react';
 import { Link } from 'react-router-dom';
 
-import GrammarTableLink from '../components/GrammarTableLink.tsx';
+import GrammarTableLink from '@/components/GrammarTableLink';
 
 import { useGrammarForms, useLanguageGrammarTables } from '@/hooks/grammar';
 import { useLanguage } from '@/hooks/languages';

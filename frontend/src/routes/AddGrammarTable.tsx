@@ -2,10 +2,13 @@ import { useEffect, useState, ReactNode } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 
 import {
-  CCheckbox, CFormBody, CMultilineTextInput, CTextInput
-} from '../components/CForm.tsx';
-import EditableGrammarTable from '../components/EditableGrammarTable.tsx';
-import POSAndClassesSelect from '../components/POSAndClassesSelect.tsx';
+  CCheckbox,
+  CFormBody,
+  CMultilineTextInput,
+  CTextInput
+} from '@/components/CForm';
+import EditableGrammarTable from '@/components/EditableGrammarTable';
+import POSAndClassesSelect from '@/components/POSAndClassesSelect';
 
 import {
   useGrammarTable,

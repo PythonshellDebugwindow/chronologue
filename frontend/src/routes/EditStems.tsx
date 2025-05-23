@@ -1,7 +1,7 @@
 import { useReducer, useState } from 'react';
 import { Link } from 'react-router-dom';
 
-import SaveChangesButton from '../components/SaveChangesButton.tsx';
+import SaveChangesButton from '@/components/SaveChangesButton';
 
 import { useLanguageWordStems } from '@/hooks/grammar';
 import { useLanguage } from '@/hooks/languages';

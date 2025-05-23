@@ -1,7 +1,7 @@
 import { useReducer, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 
-import SaveChangesButton from '../components/SaveChangesButton.tsx';
+import SaveChangesButton from '@/components/SaveChangesButton';
 
 import { useGrammarForms } from '@/hooks/grammar';
 

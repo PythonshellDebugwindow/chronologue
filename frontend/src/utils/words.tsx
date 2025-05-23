@@ -1,8 +1,8 @@
-import DisplayDate from '../components/DisplayDate.tsx';
-import LanguageLink from '../components/LanguageLink.tsx';
-import WordLink from '../components/WordLink.tsx';
+import DisplayDate from '@/components/DisplayDate';
+import LanguageLink from '@/components/LanguageLink';
+import WordLink from '@/components/WordLink';
 
-import { IPartOfSpeech, IWord, IWordClassNoPOS } from '@/types/words';
+import { IDictionaryFilter, IPartOfSpeech, IWord, IWordClassNoPOS } from '@/types/words';
 
 export function formatDictionaryFieldValue(word: IWord, field: keyof IWord) {
   const value = word[field];
@@ -82,4 +82,72 @@ export function userFacingFieldName(field: string) {
   } else {
     return field[0].toUpperCase() + field.substring(1);
   }
+}
+
+function filterWords(words: IWord[], filter: IDictionaryFilter) {
+  if(!filter.field) {
+    return words.slice();
+  }
+
+  let filterValue = filter.value;
+  if(!filter.matchCase && filter.type !== 'regexp') {
+    filterValue = filterValue.toLowerCase();
+  }
+  const regexp = (() => {
+    if(filter.type !== 'regexp') {
+      return null;
+    }
+    try {
+      return new RegExp(filterValue, filter.matchCase ? "u" : "iu");
+    } catch {
+      return null;
+    }
+  })();
+
+  return words.filter(word => {
+    const rawFieldValue = word[filter.field as keyof IWord] as string;
+    const fieldValue = filter.matchCase ? rawFieldValue : rawFieldValue.toLowerCase();
+    switch(filter.type) {
+      case 'begins':
+        return fieldValue.startsWith(filterValue);
+      case 'contains':
+        return fieldValue.includes(filterValue);
+      case 'ends':
+        return fieldValue.endsWith(filterValue);
+      case 'exact':
+        return fieldValue === filterValue;
+      case 'regexp':
+        return regexp?.test(fieldValue);
+      default:
+        throw new TypeError("Invalid filter type: " + filter.type);
+    }
+  });
+}
+
+function sortWords(words: IWord[], filter: IDictionaryFilter) {
+  const collator = new Intl.Collator();
+
+  return words.sort((a, b) => {
+    const aField = a[filter.sortField]!;
+    const bField = b[filter.sortField]!;
+    const sortDir = filter.sortDir === 'asc' ? 1 : -1;
+
+    if(typeof aField === 'string' && typeof bField === 'string') {
+      const lowComp = collator.compare(aField.toLowerCase(), bField.toLowerCase());
+      return (lowComp || collator.compare(aField, bField)) * sortDir;
+    }
+
+    if(aField < bField) {
+      return sortDir * -1;
+    } else if(aField > bField) {
+      return sortDir;
+    } else {
+      return 0;
+    }
+  });
+}
+
+export function sortAndFilterWords(words: IWord[], filter: IDictionaryFilter) {
+  const filtered = filterWords(words, filter);
+  return sortWords(filtered, filter);
 }

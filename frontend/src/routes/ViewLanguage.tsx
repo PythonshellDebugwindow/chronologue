@@ -1,13 +1,13 @@
 import { useContext } from 'react';
 import { Link } from 'react-router-dom';
 
-import DisplayDate from '../components/DisplayDate.tsx';
-import FamilyLink from '../components/FamilyLink.tsx';
-import LanguageLink from '../components/LanguageLink.tsx';
-import { LanguageTree } from '../components/LanguageTree.tsx';
-import LinkButton from '../components/LinkButton.tsx';
-import { OrthographySection } from '../components/ViewLanguageOrthography.tsx';
-import { PhonologySection } from '../components/ViewLanguagePhonology.tsx';
+import DisplayDate from '@/components/DisplayDate';
+import FamilyLink from '@/components/FamilyLink';
+import LanguageLink from '@/components/LanguageLink';
+import { LanguageTree } from '@/components/LanguageTree';
+import LinkButton from '@/components/LinkButton';
+import { OrthographySection } from '@/components/ViewLanguageOrthography';
+import { PhonologySection } from '@/components/ViewLanguagePhonology';
 
 import SelectedLanguageContext from '@/contexts/SelectedLanguageContext';
 

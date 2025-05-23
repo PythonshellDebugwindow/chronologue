@@ -19,4 +19,4 @@ export default function LanguageLink({ id }: { id: string }) {
       {useLanguageName(id)}
     </Link>
   );
-};
+}

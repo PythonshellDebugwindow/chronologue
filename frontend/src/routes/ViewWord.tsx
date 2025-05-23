@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 
-import LanguageLink from '../components/LanguageLink.tsx';
-import WordGrammarTable from '../components/WordGrammarTable.tsx';
+import LanguageLink from '@/components/LanguageLink';
+import WordGrammarTable from '@/components/WordGrammarTable';
 
 import {
   useGrammarForms,

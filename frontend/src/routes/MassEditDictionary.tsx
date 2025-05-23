@@ -2,16 +2,14 @@ import { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 
-import {
-  DictionaryFilterSelect, DictionaryTable, IDictionaryFilter, sortAndFilterWords
-} from '../components/Dictionary.tsx';
-import SaveChangesButton from '../components/SaveChangesButton.tsx';
+import { DictionaryFilterSelect, DictionaryTable } from '@/components/Dictionary';
+import SaveChangesButton from '@/components/SaveChangesButton';
 
 import { useLanguage, useLanguageDictionarySettings } from '@/hooks/languages';
 import { usePartsOfSpeech, useLanguageWords } from '@/hooks/words';
 
 import { IDictionarySettings, ILanguage } from '@/types/languages';
-import { IPartOfSpeech, IWord } from '@/types/words';
+import { IDictionaryFilter, IPartOfSpeech, IWord } from '@/types/words';
 
 import {
   useGetParamsOrSelectedId,
@@ -24,6 +22,7 @@ import {
   formatDictionaryFieldValue,
   formatPosAbbr,
   formatWordEtymology,
+  sortAndFilterWords,
   userFacingFieldName
 } from '@/utils/words';
 

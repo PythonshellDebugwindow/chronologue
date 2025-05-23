@@ -24,3 +24,15 @@ export interface IWordClass {
 }
 
 export type IWordClassNoPOS = Omit<IWordClass, 'pos'>;
+
+export type DictionaryFilterField = Omit<keyof IWord, 'created' | 'updated'> | '';
+export type DictionaryFilterType = 'begins' | 'contains' | 'ends' | 'exact' | 'regexp';
+
+export interface IDictionaryFilter {
+  field: DictionaryFilterField;
+  type: DictionaryFilterType;
+  value: string;
+  matchCase: boolean;
+  sortField: keyof IWord;
+  sortDir: 'asc' | 'desc';
+}

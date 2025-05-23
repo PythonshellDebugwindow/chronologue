@@ -44,15 +44,15 @@ export default function SaveChangesButton<SaveQueryData>({
       <button disabled={disableButtons} onClick={saveChanges}>
         {children}
       </button>
-      {
-        isSaving && <p style={{ margin: "0.4em 0 0" }}>
+      {isSaving && (
+        <p style={{ margin: "0.4em 0 0" }}>
           {
             saveQuery.isPending
               ? "Saving..."
               : (saveQuery.error && <b>Could not save: {saveQuery.error.message}</b>)
           }
         </p>
-      }
+      )}
     </div>
   );
-};
+}

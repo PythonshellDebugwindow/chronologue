@@ -3,9 +3,9 @@ import { Link, useNavigate } from 'react-router-dom';
 
 import Papa from 'papaparse';
 
-import { CFormBody, CSelect, CTextInput } from '../components/CForm.tsx';
-import { DictionaryRow, DictionaryTable } from '../components/Dictionary.tsx';
-import SaveChangesButton from '../components/SaveChangesButton.tsx';
+import { CFormBody, CSelect, CTextInput } from '@/components/CForm';
+import { DictionaryRow, DictionaryTable } from '@/components/Dictionary';
+import SaveChangesButton from '@/components/SaveChangesButton';
 
 import { useLanguage, useLanguageWordClasses } from '@/hooks/languages';
 import { usePartsOfSpeech } from '@/hooks/words';

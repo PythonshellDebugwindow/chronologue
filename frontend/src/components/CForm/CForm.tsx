@@ -1,7 +1,7 @@
 import { Dispatch, ReactNode, SetStateAction, useEffect, useState } from 'react';
 import { Form } from 'react-router-dom';
 
-import LinkButton from '../components/LinkButton.tsx';
+import LinkButton from '../LinkButton';
 
 import { useEstimateWordIPAQuery } from '@/hooks/phones';
 
@@ -11,7 +11,7 @@ export function CForm({ action, children }: { action: string, children: ReactNod
       {children}
     </Form>
   )
-};
+}
 
 export function CFormBody({ children }: { children: ReactNode }) {
   return (
@@ -21,7 +21,7 @@ export function CFormBody({ children }: { children: ReactNode }) {
       </tbody>
     </table>
   );
-};
+}
 
 interface ICCheckbox {
   label: ReactNode;
@@ -48,7 +48,7 @@ export function CCheckbox({ label, labelColon, name, state, setState }: ICCheckb
       </td>
     </tr>
   );
-};
+}
 
 interface IIpaTextInput {
   languageId: string;
@@ -97,23 +97,21 @@ export function CIpaTextInput({ languageId, ipa, setIpa, word }: IIpaTextInput) 
           value={ipa}
           onChange={e => setIpa(e.target.value)}
         />
-        {
-          word && (
-            <>
-              <br />
-              <IpaEstimationText
-                languageId={languageId}
-                ipa={ipa}
-                setIpa={setIpa}
-                word={word}
-              />
-            </>
-          )
-        }
+        {word && (
+          <>
+            <br />
+            <IpaEstimationText
+              languageId={languageId}
+              ipa={ipa}
+              setIpa={setIpa}
+              word={word}
+            />
+          </>
+        )}
       </td>
     </tr>
   );
-};
+}
 
 interface ITextInput {
   label: ReactNode;
@@ -141,7 +139,7 @@ export function CMultilineTextInput({ label, name, state, setState, height }: IT
       </td>
     </tr>
   );
-};
+}
 
 interface ICSelect {
   label: ReactNode;
@@ -169,7 +167,7 @@ export function CSelect({ label, name, children, state, setState }: ICSelect) {
       </td>
     </tr>
   );
-};
+}
 
 export function CTextInput({ label, name, state, setState, width }: ITextInput) {
   return (
@@ -189,4 +187,4 @@ export function CTextInput({ label, name, state, setState, width }: ITextInput) 
       </td>
     </tr>
   );
-};
+}
