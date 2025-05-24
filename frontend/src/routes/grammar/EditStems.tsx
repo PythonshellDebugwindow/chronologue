@@ -221,7 +221,7 @@ function EditStemsInner({ language, initialStems, partsOfSpeech }: IEditStemsInn
 
   return (
     <>
-      <h2>Edit Stems</h2>
+      <h2>Edit Word Stems</h2>
       <p>
         Edit <Link to={'/language/' + language.id}>{language.name}</Link>'s word stems.
       </p>
@@ -352,7 +352,7 @@ export default function EditStems() {
   const stemsResponse = useLanguageWordStems(languageId);
   const partsOfSpeechResponse = usePartsOfSpeech();
 
-  useSetPageTitle("Edit Dictionary Settings");
+  useSetPageTitle("Edit Word Stems");
 
   if(languageResponse.status !== 'success') {
     return renderDatalessQueryResult(languageResponse);
