@@ -22,7 +22,7 @@ export const addFamily: RequestHandler = async (req, res, next) => {
       next(err);
     }
   }
-};
+}
 
 export const deleteFamily: RequestHandler = async (req, res) => {
   if(!isValidUUID(req.params.id)) {
@@ -51,7 +51,7 @@ export const deleteFamily: RequestHandler = async (req, res) => {
   });
 
   res.status(204).send();
-};
+}
 
 export const editFamily: RequestHandler = async (req, res, next) => {
   try {
@@ -81,7 +81,7 @@ export const editFamily: RequestHandler = async (req, res, next) => {
       next(err);
     }
   }
-};
+}
 
 export const getAllFamilies: RequestHandler = async (req, res) => {
   const families = await query(
@@ -93,7 +93,7 @@ export const getAllFamilies: RequestHandler = async (req, res) => {
     `
   );
   res.json(families.rows);
-};
+}
 
 export const getFamily: RequestHandler = async (req, res) => {
   if(!isValidUUID(req.params.id)) {
@@ -116,7 +116,7 @@ export const getFamily: RequestHandler = async (req, res) => {
   } else {
     res.status(404).json({ title: "Family not found", message: "The requested family was not found." });
   }
-};
+}
 
 export const getFamilyMembers: RequestHandler = async (req, res) => {
   if(!isValidUUID(req.params.id)) {
@@ -138,7 +138,7 @@ export const getFamilyMembers: RequestHandler = async (req, res) => {
     [req.params.id]
   );
   res.json(value.rows);
-};
+}
 
 export const getLanguageIsolates: RequestHandler = async (req, res) => {
   const value = await query(
@@ -154,4 +154,4 @@ export const getLanguageIsolates: RequestHandler = async (req, res) => {
     `
   );
   res.json(value.rows);
-};
+}

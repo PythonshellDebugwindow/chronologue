@@ -68,7 +68,7 @@ export const addGrammarTable: RequestHandler = async (req, res) => {
 
     res.status(201).json(addedTableId);
   });
-};
+}
 
 export const deleteGrammarTable: RequestHandler = async (req, res) => {
   if(!isValidUUID(req.params.id)) {
@@ -82,7 +82,7 @@ export const deleteGrammarTable: RequestHandler = async (req, res) => {
   );
 
   res.status(204).send();
-};
+}
 
 export const editGrammarTable: RequestHandler = async (req, res) => {
   if(!isValidUUID(req.params.id)) {
@@ -178,14 +178,14 @@ export const editGrammarTable: RequestHandler = async (req, res) => {
   });
 
   res.status(204).send();
-};
+}
 
 export const getGrammarForms: RequestHandler = async (req, res) => {
   const value = await query(
     "SELECT id, code, name FROM grammar_forms"
   );
   res.json(value.rows);
-};
+}
 
 export const getGrammarTable: RequestHandler = async (req, res) => {
   if(!isValidUUID(req.params.id)) {
@@ -213,7 +213,7 @@ export const getGrammarTable: RequestHandler = async (req, res) => {
   } else {
     res.status(404).json({ title: "Table not found", message: "The requested table was not found." });
   }
-};
+}
 
 export const getGrammarTableClasses: RequestHandler = async (req, res) => {
   if(!isValidUUID(req.params.id)) {
@@ -233,7 +233,7 @@ export const getGrammarTableClasses: RequestHandler = async (req, res) => {
     [req.params.id]
   );
   res.json(value.rows);
-};
+}
 
 export const getGrammarTableClassIds: RequestHandler = async (req, res) => {
   if(!isValidUUID(req.params.id)) {
@@ -254,7 +254,7 @@ export const getGrammarTableClassIds: RequestHandler = async (req, res) => {
     rowMode: 'array'
   });
   res.json(value.rows.flat());
-};
+}
 
 export const getGrammarTableFilledCells: RequestHandler = async (req, res) => {
   if(!isValidUUID(req.params.id)) {
@@ -272,7 +272,7 @@ export const getGrammarTableFilledCells: RequestHandler = async (req, res) => {
     [req.params.id]
   );
   res.json(value.rows);
-};
+}
 
 export const getGrammarTablesForWord: RequestHandler = async (req, res) => {
   if(!isValidUUID(req.params.id)) {
@@ -325,7 +325,7 @@ export const getGrammarTablesForWord: RequestHandler = async (req, res) => {
     );
     res.json(tablesResult.rows);
   });
-};
+}
 
 export const getIrregularStemsForWord: RequestHandler = async (req, res) => {
   if(!isValidUUID(req.params.id)) {
@@ -346,7 +346,7 @@ export const getIrregularStemsForWord: RequestHandler = async (req, res) => {
     result[row.stemId] = row.form;
   }
   res.json(result);
-};
+}
 
 export const getIrregularForms: RequestHandler = async (req, res) => {
   if(!isValidUUID(req.params.id)) {
@@ -367,7 +367,7 @@ export const getIrregularForms: RequestHandler = async (req, res) => {
     [req.params.id, req.params.word]
   );
   res.json(value.rows);
-};
+}
 
 export const getLanguageGrammarTables: RequestHandler = async (req, res) => {
   if(!isValidUUID(req.params.id)) {
@@ -386,7 +386,7 @@ export const getLanguageGrammarTables: RequestHandler = async (req, res) => {
     [req.params.id]
   );
   res.json(value.rows);
-};
+}
 
 export const getLanguageWordStems: RequestHandler = async (req, res) => {
   if(!isValidUUID(req.params.id)) {
@@ -404,7 +404,7 @@ export const getLanguageWordStems: RequestHandler = async (req, res) => {
     [req.params.id]
   );
   res.json(value.rows);
-};
+}
 
 export const getLanguageWordStemsByPos: RequestHandler = async (req, res) => {
   if(!isValidUUID(req.params.id)) {
@@ -426,7 +426,7 @@ export const getLanguageWordStemsByPos: RequestHandler = async (req, res) => {
     [req.params.id, req.params.pos]
   );
   res.json(value.rows);
-};
+}
 
 export const getRandomWordForGrammarTable: RequestHandler = async (req, res) => {
   if(!isValidUUID(req.params.id)) {
@@ -493,7 +493,7 @@ export const getRandomWordForGrammarTable: RequestHandler = async (req, res) => 
       res.status(400).json({ message: runResult.message });
     }
   });
-};
+}
 
 export const runGrammarTableOnWord: RequestHandler = async (req, res) => {
   if(!isValidUUID(req.params.id)) {
@@ -523,7 +523,7 @@ export const runGrammarTableOnWord: RequestHandler = async (req, res) => {
       res.status(400).json({ message: result.message });
     }
   });
-};
+}
 
 export const updateGrammarForms: RequestHandler = async (req, res, next) => {
   try {
@@ -587,7 +587,7 @@ export const updateGrammarForms: RequestHandler = async (req, res, next) => {
       next(err);
     }
   }
-};
+}
 
 export const updateIrregularForms: RequestHandler = async (req, res) => {
   if(!isValidUUID(req.params.id)) {
@@ -646,7 +646,7 @@ export const updateIrregularForms: RequestHandler = async (req, res) => {
   });
 
   res.status(204).send();
-};
+}
 
 export const updateLanguageWordStems: RequestHandler = async (req, res, next) => {
   try {
@@ -719,4 +719,4 @@ export const updateLanguageWordStems: RequestHandler = async (req, res, next) =>
       next(err);
     }
   }
-};
+}

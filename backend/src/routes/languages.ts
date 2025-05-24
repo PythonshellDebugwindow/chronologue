@@ -96,7 +96,7 @@ export const addLanguage: RequestHandler = async (req, res, next) => {
       next(err);
     }
   }
-};
+}
 
 export const deleteLanguage: RequestHandler = async (req, res) => {
   if(!isValidUUID(req.params.id)) {
@@ -125,7 +125,7 @@ export const deleteLanguage: RequestHandler = async (req, res) => {
   });
 
   res.status(204).send();
-};
+}
 
 export const editLanguage: RequestHandler = async (req, res, next) => {
   try {
@@ -229,7 +229,7 @@ export const editLanguage: RequestHandler = async (req, res, next) => {
       next(err);
     }
   }
-};
+}
 
 export const getDescendants: RequestHandler = async (req, res) => {
   if(!isValidUUID(req.params.id)) {
@@ -261,7 +261,7 @@ export const getDescendants: RequestHandler = async (req, res) => {
     [req.params.id]
   );
   res.json(value.rows);
-};
+}
 
 export const getDictionarySettings: RequestHandler = async (req, res) => {
   if(!isValidUUID(req.params.id)) {
@@ -286,7 +286,7 @@ export const getDictionarySettings: RequestHandler = async (req, res) => {
       title: "Language not found", message: "The requested language was not found."
     });
   }
-};
+}
 
 export const getLanguage: RequestHandler = async (req, res) => {
   if(!isValidUUID(req.params.id)) {
@@ -314,7 +314,7 @@ export const getLanguage: RequestHandler = async (req, res) => {
       title: "Language not found", message: "The requested language was not found."
     });
   }
-};
+}
 
 export const getOrthographySettings: RequestHandler = async (req, res) => {
   if(!isValidUUID(req.params.id)) {
@@ -348,7 +348,7 @@ export const getOrthographySettings: RequestHandler = async (req, res) => {
       title: "Language not found", message: "The requested language was not found."
     });
   }
-};
+}
 
 export const getSummaryNotes: RequestHandler = async (req, res) => {
   if(!isValidUUID(req.params.id)) {
@@ -374,7 +374,7 @@ export const getSummaryNotes: RequestHandler = async (req, res) => {
       title: "Language not found", message: "The requested language was not found."
     });
   }
-};
+}
 
 export const updateAlphabeticalOrder: RequestHandler = async (req, res) => {
   if(!isValidUUID(req.params.id)) {
@@ -395,7 +395,7 @@ export const updateAlphabeticalOrder: RequestHandler = async (req, res) => {
     [req.body.order, req.params.id]
   );
   res.json(req.body.order);
-};
+}
 
 export const updateDictionarySettings: RequestHandler = async (req, res) => {
   if(!isValidUUID(req.params.id)) {
@@ -418,7 +418,7 @@ export const updateDictionarySettings: RequestHandler = async (req, res) => {
     [req.body.showWordIpa, req.body.canEditIrregularStems, req.params.id]
   );
   res.status(204).send();
-};
+}
 
 export const updateOrthographySettings: RequestHandler = async (req, res) => {
   if(!isValidUUID(req.params.id)) {
@@ -439,7 +439,7 @@ export const updateOrthographySettings: RequestHandler = async (req, res) => {
     [req.body.caseSensitive, req.params.id]
   );
   res.status(204).send();
-};
+}
 
 export const updateSummaryNotes: RequestHandler = async (req, res) => {
   if(!isValidUUID(req.params.id)) {
@@ -463,4 +463,4 @@ export const updateSummaryNotes: RequestHandler = async (req, res) => {
     ]
   );
   res.status(204).send();
-};
+}

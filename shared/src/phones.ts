@@ -150,4 +150,4 @@ export function phoneToString(phone: IPartialPhone) {
     }
   }
   return result;
-};
+}

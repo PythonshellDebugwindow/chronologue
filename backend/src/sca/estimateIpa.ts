@@ -122,4 +122,4 @@ export async function makeEstimatePronunciation(langId: string) {
     return { success: true as const, estimate };
   });
   return result!;
-};
+}

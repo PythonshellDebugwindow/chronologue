@@ -1,22 +1,22 @@
 export interface IQueryError {
   code: string;
-};
+}
 
 export function hasAllArrays(body: { [key: string]: any }, fields: string[]) {
   return fields.every(field => body[field] instanceof Array);
-};
+}
 
 export function hasAllBooleans(body: { [key: string]: any }, fields: string[]) {
   return fields.every(field => typeof body[field] === 'boolean');
-};
+}
 
 export function hasAllStrings(body: { [key: string]: any }, fields: string[]) {
   return fields.every(field => typeof body[field] === 'string');
-};
+}
 
 export function isValidUUID(value: string) {
   return /^[0-9a-f]{32}$/.test(value);
-};
+}
 
 export const partsOfSpeech = [
   ['abb', 'abbreviation'],

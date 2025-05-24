@@ -174,4 +174,4 @@ export default async function runGrammarTableRules(
   }
 
   return { success: true as const, result };
-};
+}

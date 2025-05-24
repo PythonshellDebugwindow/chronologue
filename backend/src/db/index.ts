@@ -5,7 +5,8 @@ const pool = new Pool({
   connectionString: process.env.POSTGRES_URI
 });
 
-export default pool.query.bind(pool);
+const query = pool.query.bind(pool)
+export default query;
 
 export async function transact<T>(callback: (client: pg.PoolClient) => Promise<T>) {
   const client = await pool.connect();
@@ -21,4 +22,4 @@ export async function transact<T>(callback: (client: pg.PoolClient) => Promise<T
     client.release();
   }
   return value;
-};
+}

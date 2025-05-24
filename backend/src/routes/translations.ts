@@ -42,7 +42,7 @@ export const addLanguageTranslation: RequestHandler = async (req, res) => {
     ]
   );
   res.status(204).send();
-};
+}
 
 export const addTranslation: RequestHandler = async (req, res) => {
   if(!req.body.content || !(typeof req.body.notes === 'string')) {
@@ -59,7 +59,7 @@ export const addTranslation: RequestHandler = async (req, res) => {
     [req.body.content, req.body.notes]
   );
   res.status(201).json(value.rows[0].id.replaceAll("-", ""));
-};
+}
 
 export const deleteLanguageTranslation: RequestHandler = async (req, res) => {
   if(!isValidUUID(req.params.id)) {
@@ -80,7 +80,7 @@ export const deleteLanguageTranslation: RequestHandler = async (req, res) => {
     [req.params.id, req.params.langId]
   );
   res.status(204).send();
-};
+}
 
 export const deleteTranslation: RequestHandler = async (req, res) => {
   if(!isValidUUID(req.params.id)) {
@@ -95,7 +95,7 @@ export const deleteTranslation: RequestHandler = async (req, res) => {
     [req.params.id]
   );
   res.status(204).send();
-};
+}
 
 export const editTranslation: RequestHandler = async (req, res) => {
   if(!isValidUUID(req.params.id)) {
@@ -119,7 +119,7 @@ export const editTranslation: RequestHandler = async (req, res) => {
   );
 
   res.status(204).send();
-};
+}
 
 export const getAllLanguageTranslations: RequestHandler = async (req, res) => {
   if(!isValidUUID(req.params.id)) {
@@ -144,7 +144,7 @@ export const getAllLanguageTranslations: RequestHandler = async (req, res) => {
     [req.params.id]
   );
   res.json(value.rows);
-};
+}
 
 export const getAllTranslations: RequestHandler = async (req, res) => {
   const value = await query(
@@ -161,7 +161,7 @@ export const getAllTranslations: RequestHandler = async (req, res) => {
     `
   );
   res.json(value.rows);
-};
+}
 
 export const getLanguageTranslation: RequestHandler = async (req, res) => {
   if(!isValidUUID(req.params.id)) {
@@ -186,7 +186,7 @@ export const getLanguageTranslation: RequestHandler = async (req, res) => {
     [req.params.id, req.params.langId]
   );
   res.json(value.rows[0] ?? null);
-};
+}
 
 export const getLanguageTranslationIds: RequestHandler = async (req, res) => {
   if(!isValidUUID(req.params.id)) {
@@ -204,7 +204,7 @@ export const getLanguageTranslationIds: RequestHandler = async (req, res) => {
     rowMode: 'array'
   });
   res.json(value.rows.flat());
-};
+}
 
 export const getTranslation: RequestHandler = async (req, res) => {
   if(!isValidUUID(req.params.id)) {
@@ -228,7 +228,7 @@ export const getTranslation: RequestHandler = async (req, res) => {
       title: "Translation not found", message: "The requested translation was not found."
     });
   }
-};
+}
 
 export const getTranslationLanguages: RequestHandler = async (req, res) => {
   if(!isValidUUID(req.params.id)) {
@@ -250,4 +250,4 @@ export const getTranslationLanguages: RequestHandler = async (req, res) => {
     [req.params.id]
   );
   res.json(value.rows);
-};
+}

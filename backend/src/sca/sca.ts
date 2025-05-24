@@ -528,7 +528,7 @@ export class SCA {
     }
     return true;
   }
-};
+}
 
 const scaCategories = [
   { letter: "C", members: "bcdfghjklmnpqrstvwxz".split("") },
@@ -578,4 +578,4 @@ V/W/_s/c_/X
     console.error(e);
     throw e;
   }
-};
+}

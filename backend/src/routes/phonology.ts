@@ -42,7 +42,7 @@ export const applySCARules: RequestHandler = async (req, res) => {
   }
   const rewritten = req.body.words.map((word: string) => sca.applySoundChanges(word));
   res.json(rewritten);
-};
+}
 
 export const estimateWordIPA: RequestHandler = async (req, res) => {
   if(!isValidUUID(req.params.id)) {
@@ -65,7 +65,7 @@ export const estimateWordIPA: RequestHandler = async (req, res) => {
   } else {
     res.json(estimation.result);
   }
-};
+}
 
 export const getOrthographyCategories: RequestHandler = async (req, res) => {
   if(!isValidUUID(req.params.id)) {
@@ -82,7 +82,7 @@ export const getOrthographyCategories: RequestHandler = async (req, res) => {
     [req.params.id]
   );
   res.json(value.rows);
-};
+}
 
 export const getPhoneCategories: RequestHandler = async (req, res) => {
   if(!isValidUUID(req.params.id)) {
@@ -99,7 +99,7 @@ export const getPhoneCategories: RequestHandler = async (req, res) => {
     [req.params.id]
   );
   res.json(value.rows);
-};
+}
 
 export const getPhones: RequestHandler = async (req, res) => {
   if(!isValidUUID(req.params.id)) {
@@ -119,7 +119,7 @@ export const getPhones: RequestHandler = async (req, res) => {
     [req.params.id]
   );
   res.json(value.rows);
-};
+}
 
 export const getPronunciationEstimation: RequestHandler = async (req, res) => {
   if(!isValidUUID(req.params.id)) {
@@ -140,9 +140,9 @@ export const getPronunciationEstimation: RequestHandler = async (req, res) => {
   } else {
     res.json({ letterReplacements: "", rewriteRules: "" });
   }
-};
+}
 
-const makeUpdateCategories = (tableName: 'orthography_categories' | 'phonology_categories') => {
+function makeUpdateCategories(tableName: 'orthography_categories' | 'phonology_categories') {
   const escapedTableName = escapeIdentifier(tableName);
   const updateFn: RequestHandler = async (req, res, next) => {
     try {
@@ -216,7 +216,7 @@ const makeUpdateCategories = (tableName: 'orthography_categories' | 'phonology_c
     }
   };
   return updateFn;
-};
+}
 
 export const updateOrthographyCategories = makeUpdateCategories('orthography_categories');
 
@@ -314,7 +314,7 @@ export const updatePhones: RequestHandler = async (req, res) => {
     );
     res.json(langPhones.rows);
   });
-};
+}
 
 export const updatePronunciationEstimation: RequestHandler = async (req, res) => {
   if(!isValidUUID(req.params.id)) {
@@ -340,4 +340,4 @@ export const updatePronunciationEstimation: RequestHandler = async (req, res) =>
     [req.params.id, req.body.letterReplacements, req.body.rewriteRules]
   );
   res.status(204).send();
-};
+}

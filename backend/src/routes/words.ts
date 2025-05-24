@@ -68,7 +68,7 @@ export const addWord: RequestHandler = async (req, res) => {
 
     res.status(201).json(addedId);
   });
-};
+}
 
 export const deleteWord: RequestHandler = async (req, res) => {
   if(!isValidUUID(req.params.id)) {
@@ -81,7 +81,7 @@ export const deleteWord: RequestHandler = async (req, res) => {
     [req.params.id]
   );
   res.status(204).send();
-};
+}
 
 export const editWord: RequestHandler = async (req, res) => {
   if(!isValidUUID(req.params.id)) {
@@ -165,7 +165,7 @@ export const editWord: RequestHandler = async (req, res) => {
   });
 
   res.status(204).send();
-};
+}
 
 export const getLanguageWords: RequestHandler = async (req, res) => {
   if(!isValidUUID(req.params.id)) {
@@ -184,7 +184,7 @@ export const getLanguageWords: RequestHandler = async (req, res) => {
     [req.params.id]
   );
   res.json(value.rows);
-};
+}
 
 export const getLanguageWordCount: RequestHandler = async (req, res) => {
   if(!isValidUUID(req.params.id)) {
@@ -207,11 +207,11 @@ export const getLanguageWordCount: RequestHandler = async (req, res) => {
       title: "Language not found", message: "The requested language was not found."
     });
   }
-};
+}
 
 export const getPartsOfSpeech: RequestHandler = async (req, res) => {
   res.json(partsOfSpeech);
-};
+}
 
 export const getWord: RequestHandler = async (req, res) => {
   if(!isValidUUID(req.params.id)) {
@@ -238,7 +238,7 @@ export const getWord: RequestHandler = async (req, res) => {
       title: "Word not found", message: "The requested word was not found."
     });
   }
-};
+}
 
 export const getWordClassesByLanguage: RequestHandler = async (req, res) => {
   if(!isValidUUID(req.params.id)) {
@@ -256,7 +256,7 @@ export const getWordClassesByLanguage: RequestHandler = async (req, res) => {
     [req.params.id]
   );
   res.json(value.rows);
-};
+}
 
 export const getWordClassIdsByWord: RequestHandler = async (req, res) => {
   if(!isValidUUID(req.params.id)) {
@@ -276,7 +276,7 @@ export const getWordClassIdsByWord: RequestHandler = async (req, res) => {
     rowMode: 'array'
   });
   res.json(value.rows.flat());
-};
+}
 
 export const getWordClassesByWord: RequestHandler = async (req, res) => {
   if(!isValidUUID(req.params.id)) {
@@ -296,7 +296,7 @@ export const getWordClassesByWord: RequestHandler = async (req, res) => {
     [req.params.id]
   );
   res.json(value.rows);
-};
+}
 
 export const importWords: RequestHandler = async (req, res) => {
   if(!isValidUUID(req.params.id)) {
@@ -369,7 +369,7 @@ export const importWords: RequestHandler = async (req, res) => {
   });
 
   res.status(204).send();
-};
+}
 
 export const massEditLanguageDictionary: RequestHandler = async (req, res) => {
   if(!isValidUUID(req.params.id)) {
@@ -400,7 +400,7 @@ export const massEditLanguageDictionary: RequestHandler = async (req, res) => {
   );
 
   res.status(204).send();
-};
+}
 
 export const purgeLanguageDictionary: RequestHandler = async (req, res) => {
   if(!isValidUUID(req.params.id)) {
@@ -416,7 +416,7 @@ export const purgeLanguageDictionary: RequestHandler = async (req, res) => {
     [req.params.id]
   );
   res.status(204).send();
-};
+}
 
 export const updateWordClasses: RequestHandler = async (req, res, next) => {
   try {
@@ -502,4 +502,4 @@ export const updateWordClasses: RequestHandler = async (req, res, next) => {
       next(err);
     }
   }
-};
+}
