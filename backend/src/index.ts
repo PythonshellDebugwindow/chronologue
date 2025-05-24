@@ -3,6 +3,7 @@ import type { ErrorRequestHandler } from 'express';
 
 import * as families from './routes/families.js';
 import * as grammar from './routes/grammar.js';
+import * as grammarTables from './routes/grammarTables.js';
 import * as languages from './routes/languages.js';
 import * as phonology from './routes/phonology.js';
 import * as translations from './routes/translations.js';
@@ -35,17 +36,17 @@ app.get('/families/:id/members', families.getFamilyMembers);
 app.get('/grammar-forms', grammar.getGrammarForms);
 app.put('/grammar-forms', grammar.updateGrammarForms);
 
-app.post('/grammar-tables', grammar.addGrammarTable);
-app.get('/grammar-tables/:id', grammar.getGrammarTable);
-app.put('/grammar-tables/:id', grammar.editGrammarTable);
-app.delete('/grammar-tables/:id', grammar.deleteGrammarTable);
-app.get('/grammar-tables/:id/classes', grammar.getGrammarTableClasses);
-app.get('/grammar-tables/:id/class-ids', grammar.getGrammarTableClassIds);
-app.get('/grammar-tables/:id/filled-cells', grammar.getGrammarTableFilledCells);
+app.post('/grammar-tables', grammarTables.addGrammarTable);
+app.get('/grammar-tables/:id', grammarTables.getGrammarTable);
+app.put('/grammar-tables/:id', grammarTables.editGrammarTable);
+app.delete('/grammar-tables/:id', grammarTables.deleteGrammarTable);
+app.get('/grammar-tables/:id/classes', grammarTables.getGrammarTableClasses);
+app.get('/grammar-tables/:id/class-ids', grammarTables.getGrammarTableClassIds);
+app.get('/grammar-tables/:id/filled-cells', grammarTables.getGrammarTableFilledCells);
 app.get('/grammar-tables/:id/irregular-forms/:word', grammar.getIrregularForms);
 app.put('/grammar-tables/:id/irregular-forms/:word', grammar.updateIrregularForms);
-app.get('/grammar-tables/:id/random-word', grammar.getRandomWordForGrammarTable);
-app.post('/grammar-tables/:id/run-on-word', grammar.runGrammarTableOnWord);
+app.get('/grammar-tables/:id/random-word', grammarTables.getRandomWordForGrammarTable);
+app.post('/grammar-tables/:id/run-on-word', grammarTables.runGrammarTableOnWord);
 
 app.get('/language-isolates', families.getLanguageIsolates);
 
@@ -59,7 +60,7 @@ app.get('/languages/:id/descendants', languages.getDescendants);
 app.get('/languages/:id/dictionary-settings', languages.getDictionarySettings);
 app.put('/languages/:id/dictionary-settings', languages.updateDictionarySettings);
 app.post('/languages/:id/estimate-ipa', phonology.estimateWordIPA);
-app.get('/languages/:id/grammar-tables', grammar.getLanguageGrammarTables);
+app.get('/languages/:id/grammar-tables', grammarTables.getLanguageGrammarTables);
 app.post('/languages/:id/import-words', words.importWords);
 app.post('/languages/:id/mass-edit-dictionary', words.massEditLanguageDictionary);
 app.get('/languages/:id/orth-categories', phonology.getOrthographyCategories);
@@ -105,7 +106,7 @@ app.put('/words/:id', words.editWord);
 app.delete('/words/:id', words.deleteWord);
 app.get('/words/:id/classes', words.getWordClassesByWord);
 app.get('/words/:id/class-ids', words.getWordClassIdsByWord);
-app.get('/words/:id/grammar-tables', grammar.getGrammarTablesForWord);
+app.get('/words/:id/grammar-tables', grammarTables.getGrammarTablesForWord);
 app.get('/words/:id/irregular-stems', grammar.getIrregularStemsForWord);
 
 app.use(((err, req, res, _next) => {
