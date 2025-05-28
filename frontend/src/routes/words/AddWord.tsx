@@ -58,18 +58,16 @@ function WordAddedMessage({ prevId, copyWordData }: IWordAddedMessage) {
         {wordName(prevWordQuery)}
       </Link>
       ' added successfully
-      {
-        prevWordQuery.isSuccess && (
-          <>
-            <br />
-            <small>
-              <LinkButton onClick={copyFields}>
-                (copy fields)
-              </LinkButton>
-            </small>
-          </>
-        )
-      }
+      {prevWordQuery.isSuccess && (
+        <>
+          <br />
+          <small>
+            <LinkButton onClick={copyFields}>
+              (copy fields)
+            </LinkButton>
+          </small>
+        </>
+      )}
     </p>
   );
 }
@@ -198,14 +196,12 @@ function AddWordInner({ language, dictSettings, langClasses, langPartsOfSpeech }
         Add a word to{" "}
         <Link to={'/language/' + language.id}>{language.name}</Link>'s dictionary.
       </p>
-      {
-        searchParams.has('prev') && (
-          <WordAddedMessage
-            prevId={searchParams.get('prev')!}
-            copyWordData={copyWordData}
-          />
-        )
-      }
+      {searchParams.has('prev') && (
+        <WordAddedMessage
+          prevId={searchParams.get('prev')!}
+          copyWordData={copyWordData}
+        />
+      )}
       {copyingMessage && <p>{copyingMessage}</p>}
       {message && <p>{message}</p>}
       <form className="chronologue-form">
@@ -223,16 +219,14 @@ function AddWordInner({ language, dictSettings, langClasses, langPartsOfSpeech }
             state={meaning}
             setState={setMeaning}
           />
-          {
-            dictSettings.showWordIpa && (
-              <CIpaTextInput
-                languageId={language.id}
-                ipa={ipa}
-                setIpa={setIpa}
-                word={word}
-              />
-            )
-          }
+          {dictSettings.showWordIpa && (
+            <CIpaTextInput
+              languageId={language.id}
+              ipa={ipa}
+              setIpa={setIpa}
+              word={word}
+            />
+          )}
           <POSAndClassesSelect
             pos={pos}
             setPos={setPos}

@@ -27,7 +27,8 @@ function DeleteWordInner({ word }: { word: IWord }) {
     <>
       <h2>Delete Word</h2>
       <p>
-        Really delete word <Link to={'/word/' + word.id}>{word.word}</Link> ({word.meaning})?
+        Really delete the word <Link to={'/word/' + word.id}>{word.word}</Link>{" "}
+        ({word.meaning})?
       </p>
       <p>
         <b>This action cannot be undone!</b>

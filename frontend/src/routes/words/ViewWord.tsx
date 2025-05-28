@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 
-import LanguageLink from '@/components/LanguageLink';
+import DisplayDate from '@/components/DisplayDate';
 import WordGrammarTable from '@/components/WordGrammarTable';
 
 import {
@@ -10,20 +10,20 @@ import {
   useRunGrammarTableOnWordQuery,
   useWordGrammarTables
 } from '@/hooks/grammar';
+import { useLanguage } from '@/hooks/languages';
 import { usePartsOfSpeech, useWord, useWordClasses } from '@/hooks/words';
 
 import { IGrammarTableIdAndName } from '@/types/grammar';
+import { ILanguage } from '@/types/languages';
 import { IPartOfSpeech, IWord, IWordClassNoPOS } from '@/types/words';
 
 import { useSetPageTitle } from '@/utils/global/hooks';
 import { renderDatalessQueryResult } from '@/utils/global/queries';
 
 import {
-  formatDictionaryFieldValue,
   formatPosFieldValue,
   formatWordClasses,
-  formatWordEtymology,
-  userFacingFieldName
+  formatWordEtymology
 } from '@/utils/words';
 
 interface IDisplayWordGrammarTable {
@@ -52,7 +52,7 @@ function DisplayWordGrammarTable({ word, tableOverview, partsOfSpeech }: IDispla
       }
     }
     return (
-      <div className="word-grammar-table-container" style={{ margin: "0 0 1em" }}>
+      <div className="word-grammar-table-container">
         <small>
           <Link to={'/grammar-table/' + tableOverview.id}>
             [view table]
@@ -76,7 +76,7 @@ function DisplayWordGrammarTable({ word, tableOverview, partsOfSpeech }: IDispla
   })();
 
   return (
-    <li>
+    <div>
       <label>
         <input
           type="checkbox"
@@ -84,10 +84,12 @@ function DisplayWordGrammarTable({ word, tableOverview, partsOfSpeech }: IDispla
           onChange={e => setShowTable(e.target.checked)}
         />
         {" "}
-        {tableOverview.name || `[${formatPosFieldValue(word.pos, partsOfSpeech)}]`}
+        <span>
+          {tableOverview.name || `[${formatPosFieldValue(word.pos, partsOfSpeech)}]`}
+        </span>
       </label>
       {tableNode}
-    </li>
+    </div>
   );
 }
 
@@ -95,58 +97,69 @@ interface IViewWordInner {
   word: IWord;
   classes: IWordClassNoPOS[];
   tables: IGrammarTableIdAndName[];
+  language: ILanguage;
   partsOfSpeech: IPartOfSpeech[];
 }
 
-function ViewWordInner({ word, classes, tables, partsOfSpeech }: IViewWordInner) {
-  const fields = [
-    'word', 'ipa', 'meaning', 'pos', 'classes',
-    'etymology', 'notes', 'created', 'updated'
-  ] as (keyof IWord | 'classes')[];
-
-  function formatFieldValue(field: keyof IWord | 'classes') {
-    switch(field) {
-      case 'pos':
-        return formatPosFieldValue(word.pos, partsOfSpeech);
-      case 'classes':
-        return formatWordClasses(classes);
-      case 'etymology':
-        return formatWordEtymology(word[field]);
-      default:
-        return formatDictionaryFieldValue(word, field);
-    }
-  }
-
+function ViewWordInner({ word, classes, tables, language, partsOfSpeech }: IViewWordInner) {
   return (
     <>
       <h2>View Word</h2>
-      <table className="info-table">
-        <tbody>
-          <tr>
-            <th>Language:</th>
-            <td>
-              <LanguageLink id={word.langId} />
-            </td>
-          </tr>
-          {fields.map(field => (
-            (field === 'classes' ? classes.length > 0 : word[field]) && (
-              <tr key={field}>
-                <th>{userFacingFieldName(field)}:</th>
-                <td style={{ whiteSpace: "pre-wrap" }}>
-                  {formatFieldValue(field)}
-                </td>
-              </tr>
-            )
-          ))}
-        </tbody>
-      </table>
-      <p><Link to={'/edit-word/' + word.id}>Edit word</Link></p>
-      <p><Link to={`/add-word/${word.langId}?copy=${word.id}`}>Copy word</Link></p>
-      <p><Link to={'/delete-word/' + word.id}>Delete word</Link></p>
+      <div className="word-table">
+        <div className="word-pos">
+          [{formatPosFieldValue(word.pos, partsOfSpeech)}]
+        </div>
+        {classes.length > 0 && (
+          <div className="word-classes">
+            {formatWordClasses(classes)}
+          </div>
+        )}
+        <div className="word-word">
+          {language.status === 'proto' && "*"}{word.word}
+        </div>
+        {word.ipa && (
+          <div className="word-ipa">
+            [{word.ipa}]
+          </div>
+        )}
+        <div className="word-meaning" style={{ paddingTop: word.ipa ? "2px" : "5px" }}>
+          {word.meaning}
+        </div>
+        <div className="word-language">
+          <Link to={'/language/' + language.id}>{language.name}</Link>
+        </div>
+        {word.etymology && (
+          <div className="word-etymology">
+            <div className="word-label">Etymology</div>
+            <div className="word-bordered">{formatWordEtymology(word.etymology)}</div>
+          </div>
+        )}
+        {word.notes && (
+          <div className="word-notes">
+            <div className="word-label">Notes</div>
+            <div className="word-bordered">{word.notes}</div>
+          </div>
+        )}
+        <div className="word-date">
+          Created <DisplayDate date={word.created} />
+        </div>
+        {word.updated && (
+          <div className="word-date">
+            Updated <DisplayDate date={word.updated} />
+          </div>
+        )}
+      </div>
+      <p>
+        <Link to={'/edit-word/' + word.id}>Edit</Link>
+        {" "}&bull;{" "}
+        <Link to={`/add-word/${word.langId}?copy=${word.id}`}>Copy</Link>
+        {" "}&bull;{" "}
+        <Link to={'/delete-word/' + word.id}>Delete</Link>
+      </p>
       {tables.length > 0 && (
         <>
           <h3>Grammar Tables</h3>
-          <ul className="word-grammar-tables-list">
+          <div className="word-grammar-tables-list">
             {tables.map(table => (
               <DisplayWordGrammarTable
                 word={word}
@@ -155,10 +168,45 @@ function ViewWordInner({ word, classes, tables, partsOfSpeech }: IViewWordInner)
                 key={table.id}
               />
             ))}
-          </ul>
+          </div>
         </>
       )}
     </>
+  );
+}
+
+function ViewWordWithWord({ word }: { word: IWord }) {
+  const classesResponse = useWordClasses(word.id);
+  const tablesResponse = useWordGrammarTables(word.id);
+  const languageResponse = useLanguage(word.langId);
+  const partsOfSpeechResponse = usePartsOfSpeech();
+
+  useSetPageTitle("View Word");
+
+  if(classesResponse.status !== 'success') {
+    return renderDatalessQueryResult(classesResponse);
+  }
+
+  if(tablesResponse.status !== 'success') {
+    return renderDatalessQueryResult(tablesResponse);
+  }
+
+  if(languageResponse.status !== 'success') {
+    return renderDatalessQueryResult(languageResponse);
+  }
+
+  if(partsOfSpeechResponse.status !== 'success') {
+    return renderDatalessQueryResult(partsOfSpeechResponse);
+  }
+
+  return (
+    <ViewWordInner
+      word={word}
+      classes={classesResponse.data}
+      tables={tablesResponse.data}
+      language={languageResponse.data}
+      partsOfSpeech={partsOfSpeechResponse.data}
+    />
   );
 }
 
@@ -169,9 +217,6 @@ export default function ViewWord() {
   }
 
   const wordResponse = useWord(id);
-  const classesResponse = useWordClasses(id);
-  const tablesResponse = useWordGrammarTables(id);
-  const partsOfSpeechResponse = usePartsOfSpeech();
 
   useSetPageTitle("View Word");
 
@@ -179,24 +224,5 @@ export default function ViewWord() {
     return renderDatalessQueryResult(wordResponse);
   }
 
-  if(classesResponse.status !== 'success') {
-    return renderDatalessQueryResult(classesResponse);
-  }
-
-  if(tablesResponse.status !== 'success') {
-    return renderDatalessQueryResult(tablesResponse);
-  }
-
-  if(partsOfSpeechResponse.status !== 'success') {
-    return renderDatalessQueryResult(partsOfSpeechResponse);
-  }
-
-  return (
-    <ViewWordInner
-      word={wordResponse.data}
-      classes={classesResponse.data}
-      tables={tablesResponse.data}
-      partsOfSpeech={partsOfSpeechResponse.data}
-    />
-  );
+  return <ViewWordWithWord word={wordResponse.data} />;
 }

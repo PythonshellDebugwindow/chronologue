@@ -480,14 +480,45 @@
 }
 
 .word-grammar-tables-list {
-  display: inline-block;
   text-align: left;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 50vw;
 }
-.word-grammar-tables-list > li > label > input {
+.word-grammar-tables-list > div {
+  margin-top: 10px;
+  margin-bottom: 5px;
+  list-style: none;
+}
+.word-grammar-tables-list > div > label {
+  display: block;
+  cursor: pointer;
+  background: #eee;
+  min-width: 50vw;
+  margin: 0 auto;
+}
+.word-grammar-tables-list > div > label:hover {
+  background: #ddd;
+}
+.word-grammar-tables-list > div > label > input {
   position: relative;
-  top: 2px;
+  top: 1px;
+}
+.word-grammar-tables-list > div > label > span {
+  position: relative;
+  top: -0.5px;
 }
 
+.word-grammar-tables-list .word-grammar-table-container {
+  padding: 0 10px 10px;
+  margin-top: 5px;
+  border: 1px solid #ddd;
+  display: inline-block;
+  min-width: 100%;
+  box-sizing: border-box;
+}
 .word-grammar-table-container > small {
   display: inline-block;
   margin-bottom: 0.5em;
@@ -625,4 +656,54 @@
 .language-translations-table .translation-wip-text {
   color: #d00;
   font-size: 0.9em;
+}
+
+.word-table {
+  text-align: left;
+  max-width: 50%;
+  margin: 0 auto;
+}
+.word-table .word-label {
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+.word-table .word-bordered {
+  border: 1px solid #aaa;
+  padding: 5px;
+  line-height: 1.4em;
+  font-size: 0.9em;
+}
+.word-table .word-pos {
+  float: right;
+  font-size: 1.1em;
+}
+.word-table .word-classes {
+  clear: both;
+  float: right;
+  text-align: right;
+}
+.word-table .word-word {
+  font-size: 1.4em;
+  font-weight: bold;
+  line-height: 1em;
+}
+.word-table .word-ipa {
+  font-size: 1.2em;
+  color: #555;
+}
+.word-table .word-meaning {
+  font-size: 1.2em;
+  line-height: 1.4em;
+}
+.word-table .word-language {
+  margin: 1em 0;
+}
+.word-table .word-etymology,
+.word-table .word-notes {
+  margin: 1em 0;
+  white-space: pre-wrap;
+}
+.word-table .word-date {
+  text-align: center;
+  color: #555;
 }
