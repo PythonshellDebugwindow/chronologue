@@ -4,24 +4,26 @@ import { Link } from 'react-router-dom';
 import {
   DictionaryFilterSelect,
   DictionaryRow,
-  DictionaryTable
+  DictionaryTable,
+  EnableDictionaryFieldButtons
 } from '@/components/Dictionary';
+import { LetterButtonXNoShadow } from '@/components/LetterButtons';
 
 import { useLanguage, useLanguageDictionarySettings } from '@/hooks/languages';
 import { useLanguageWords, usePartsOfSpeech } from '@/hooks/words';
 
 import { IDictionarySettings, ILanguage } from '@/types/languages';
-import { IDictionaryFilter, IPartOfSpeech, IWord } from '@/types/words';
+import {
+  IDictionaryField,
+  IDictionaryFilter,
+  IPartOfSpeech,
+  IWord
+} from '@/types/words';
 
 import { useGetParamsOrSelectedId, useSetPageTitle } from '@/utils/global/hooks';
 import { renderDatalessQueryResult } from '@/utils/global/queries';
 
 import { sortAndFilterWords, userFacingFieldName } from '@/utils/words';
-
-interface IDictionaryField {
-  name: keyof IWord;
-  isDisplaying: boolean;
-}
 
 function getAllFields(dictSettings: IDictionarySettings) {
   const all = ['meaning', 'ipa', 'pos', 'etymology', 'notes', 'created', 'updated'];
@@ -57,11 +59,6 @@ function ViewDictionaryInner({ language, words, dictSettings, partsOfSpeech }: I
 
   const filteredWords = sortAndFilterWords(words, filter);
 
-  function enableField(field: IDictionaryField) {
-    const index = fields.indexOf(field);
-    setFields(fields.with(index, { name: field.name, isDisplaying: true }));
-  }
-
   function disableField(field: IDictionaryField) {
     const index = fields.indexOf(field);
     setFields(fields.with(index, { name: field.name, isDisplaying: false }));
@@ -75,15 +72,10 @@ function ViewDictionaryInner({ language, words, dictSettings, partsOfSpeech }: I
       </p>
       <p>
         More fields:
-        {fields.map(field => !field.isDisplaying && (
-          <button
-            className="enable-dictionary-field-button"
-            onClick={() => enableField(field)}
-            key={field.name}
-          >
-            + {userFacingFieldName(field.name)}
-          </button>
-        ))}
+        <EnableDictionaryFieldButtons
+          fields={fields}
+          setFields={setFields}
+        />
       </p>
       <DictionaryFilterSelect
         fields={fields.map(f => f.name)}
@@ -100,10 +92,7 @@ function ViewDictionaryInner({ language, words, dictSettings, partsOfSpeech }: I
             <th key={field.name}>
               {userFacingFieldName(field.name)}
               {field.name !== 'meaning' && (
-                <button
-                  className="letter-button letter-button-x"
-                  onClick={() => disableField(field)}
-                />
+                <LetterButtonXNoShadow onClick={() => disableField(field)} />
               )}
             </th>
           ))}

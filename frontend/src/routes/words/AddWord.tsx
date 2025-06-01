@@ -2,6 +2,7 @@ import { ReactNode, useCallback, useEffect, useState } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 
 import {
+  CForm,
   CFormBody,
   CIpaTextInput,
   CMultilineTextInput,
@@ -204,7 +205,7 @@ function AddWordInner({ language, dictSettings, langClasses, langPartsOfSpeech }
       )}
       {copyingMessage && <p>{copyingMessage}</p>}
       {message && <p>{message}</p>}
-      <form className="chronologue-form">
+      <CForm>
         <CFormBody>
           <CTextInputWithAlphabet
             langId={language.id}
@@ -267,7 +268,7 @@ function AddWordInner({ language, dictSettings, langClasses, langPartsOfSpeech }
           />
           Preserve fields after adding
         </label>
-      </form>
+      </CForm>
     </>
   );
 }

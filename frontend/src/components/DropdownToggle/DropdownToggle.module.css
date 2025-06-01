@@ -1,0 +1,7 @@
+.dropdownToggle {
+  padding: 0 4px;
+  cursor: pointer;
+}
+.dropdownToggle:hover {
+  background: #ddd;
+}

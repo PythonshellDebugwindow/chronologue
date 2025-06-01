@@ -1,0 +1,11 @@
+.alphabetTd {
+  text-align: center;
+}
+.alphabetGraph {
+  padding: 2px 4px;
+  display: inline-block;
+}
+.alphabetGraph > span:hover {
+  cursor: pointer;
+  background: #ddd;
+}

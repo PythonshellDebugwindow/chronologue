@@ -3,9 +3,11 @@ import { Link } from 'react-router-dom';
 
 import DisplayDate from '@/components/DisplayDate';
 import FamilyLink from '@/components/FamilyLink';
+import InfoTable from '@/components/InfoTable';
 import LanguageLink from '@/components/LanguageLink';
 import { LanguageTree } from '@/components/LanguageTree';
 import LinkButton from '@/components/LinkButton';
+import { UserNotesParagraph } from '@/components/Paragraphs';
 import { OrthographySection } from '@/components/ViewLanguageOrthography';
 import { PhonologySection } from '@/components/ViewLanguagePhonology';
 
@@ -50,62 +52,60 @@ function ViewLanguageInner({ language, summaryNotes }: IViewLanguageInner) {
           </LinkButton>
         </p>
       )}
-      <table className="info-table">
-        <tbody>
-          {language.autonym && (
-            <tr>
-              <th>Autonym:</th>
-              <td>{language.autonym}</td>
-            </tr>
-          )}
+      <InfoTable>
+        {language.autonym && (
           <tr>
-            <th>Family:</th>
+            <th>Autonym:</th>
+            <td>{language.autonym}</td>
+          </tr>
+        )}
+        <tr>
+          <th>Family:</th>
+          <td>
+            {
+              language.familyId !== null
+                ? <FamilyLink id={language.familyId} />
+                : "None"
+            }
+          </td>
+        </tr>
+        {language.parentId !== null && (
+          <tr>
+            <th>Parent:</th>
             <td>
-              {
-                language.familyId !== null
-                  ? <FamilyLink id={language.familyId} />
-                  : "None"
-              }
+              <LanguageLink id={language.parentId} />
             </td>
           </tr>
-          {language.parentId !== null && (
-            <tr>
-              <th>Parent:</th>
-              <td>
-                <LanguageLink id={language.parentId} />
-              </td>
-            </tr>
-          )}
+        )}
+        <tr>
+          <th>Created:</th>
+          <td>
+            <DisplayDate date={language.created} />
+          </td>
+        </tr>
+        <tr>
+          <th>Status:</th>
+          <td>
+            {formatLanguageStatus(language.status)}
+          </td>
+        </tr>
+        {language.era && (
           <tr>
-            <th>Created:</th>
-            <td>
-              <DisplayDate date={language.created} />
-            </td>
+            <th>Era:</th>
+            <td>{language.era}</td>
           </tr>
-          <tr>
-            <th>Status:</th>
-            <td>
-              {formatLanguageStatus(language.status)}
-            </td>
-          </tr>
-          {language.era && (
-            <tr>
-              <th>Era:</th>
-              <td>{language.era}</td>
-            </tr>
-          )}
-          <tr>
-            <th>Words:</th>
-            <td>
-              {useWordCount(language.id)}
-            </td>
-          </tr>
-        </tbody>
-      </table>
+        )}
+        <tr>
+          <th>Words:</th>
+          <td>
+            {useWordCount(language.id)}
+          </td>
+        </tr>
+      </InfoTable>
       {summaryNotes.description && (
-        <p className="user-notes-paragraph" style={{ marginTop: "1em" }}>
+        <UserNotesParagraph>
           {summaryNotes.description}
-        </p>
+        </UserNotesParagraph>
       )}
       <p><Link to={'/edit-language/' + language.id}>Edit language</Link></p>
       <LanguageTree root={language} />

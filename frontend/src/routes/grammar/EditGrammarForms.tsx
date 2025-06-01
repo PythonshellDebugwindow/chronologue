@@ -1,7 +1,13 @@
 import { useReducer, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 
+import {
+  LetterButtonPlus,
+  LetterButtonRefresh,
+  LetterButtonX
+} from '@/components/LetterButtons';
 import SaveChangesButton from '@/components/SaveChangesButton';
+import { SettingsTable, SettingsTableRow } from '@/components/SettingsTable';
 
 import { useGrammarForms } from '@/hooks/grammar';
 
@@ -208,88 +214,75 @@ function EditDictionarySettingsInner({ initialForms }: { initialForms: IGrammarF
           Save changes
         </SaveChangesButton>
       )}
-      <table className="settings-table">
-        <tbody>
-          <tr>
-            <th>Code</th>
-            <th>Name</th>
-            <th>&nbsp;</th>
-          </tr>
-          <tr>
-            <td>
-              <input
-                type="text"
-                value={newFormCode}
-                onChange={e => setNewFormCode(e.target.value.toUpperCase())}
-                style={{ width: "3em" }}
-              />
-            </td>
-            <td>
-              <input
-                type="text"
-                value={newFormName}
-                onChange={e => setNewFormName(e.target.value)}
-              />
-            </td>
-            <td>
-              <span className="hover-light-grey" onClick={() => addNewForm()}>
-                <span className="letter-button letter-button-small letter-button-t" />
-              </span>
-            </td>
-          </tr>
-          {
-            grammarForms.map((form, i) => {
-              const isDeleted = form.id !== UNADDED_FORM_ID && deletedForms.includes(form.id);
-              return (
-                <tr key={i} className={isDeleted ? "deleted-row" : undefined}>
-                  <td>
-                    <input
-                      type="text"
-                      value={form.code}
-                      onChange={e => editFormCode(form, e.target.value.toUpperCase())}
-                      style={{ width: "3em" }}
-                      disabled={isDeleted}
-                    />
-                  </td>
-                  <td>
-                    <input
-                      type="text"
-                      value={form.name}
-                      onChange={e => editFormName(form, e.target.value)}
-                      disabled={isDeleted}
-                    />
-                  </td>
-                  <td>
-                    {
-                      isDeleted
-                        ? <span onClick={() => restoreForm(form)} className="hover-light-grey">
-                            <span className="letter-button letter-button-small letter-button-refresh" />
-                          </span>
-                        : <span onClick={() => deleteForm(form)} className="hover-light-grey">
-                            <span className="letter-button letter-button-small letter-button-x" />
-                          </span>
-                    }
-                  </td>
-                </tr>
-              );
-            })
-          }
-        </tbody>
-      </table>
+      <SettingsTable>
+        <tr>
+          <th>Code</th>
+          <th>Name</th>
+          <th>&nbsp;</th>
+        </tr>
+        <tr>
+          <td>
+            <input
+              type="text"
+              value={newFormCode}
+              onChange={e => setNewFormCode(e.target.value.toUpperCase())}
+              style={{ width: "3em" }}
+            />
+          </td>
+          <td>
+            <input
+              type="text"
+              value={newFormName}
+              onChange={e => setNewFormName(e.target.value)}
+            />
+          </td>
+          <td>
+            <LetterButtonPlus onClick={addNewForm} />
+          </td>
+        </tr>
+        {grammarForms.map((form, i) => {
+          const isDeleted = form.id !== UNADDED_FORM_ID && deletedForms.includes(form.id);
+          return (
+            <SettingsTableRow deleted={isDeleted} key={i}>
+              <td>
+                <input
+                  type="text"
+                  value={form.code}
+                  onChange={e => editFormCode(form, e.target.value.toUpperCase())}
+                  style={{ width: "3em" }}
+                  disabled={isDeleted}
+                />
+              </td>
+              <td>
+                <input
+                  type="text"
+                  value={form.name}
+                  onChange={e => editFormName(form, e.target.value)}
+                  disabled={isDeleted}
+                />
+              </td>
+              <td>
+                {
+                  isDeleted
+                    ? <LetterButtonRefresh onClick={() => restoreForm(form)} />
+                    : <LetterButtonX onClick={() => deleteForm(form)} />
+                }
+              </td>
+            </SettingsTableRow>
+          );
+        })}
+      </SettingsTable>
       {!formsAreSaved && (
-        <>
-          <br />
-          <SaveChangesButton
-            isSaving={isSaving}
-            setIsSaving={setIsSaving}
-            saveQueryKey={['grammar-forms', 'update']}
-            saveQueryFn={saveForms}
-            handleSave={data => dispatchForms({ type: 'markSaved', newForms: data })}
-            style={{ marginTop: "0.8em" }}
-          >
-            Save changes
-          </SaveChangesButton>
-        </>
+        <SaveChangesButton
+          isSaving={isSaving}
+          setIsSaving={setIsSaving}
+          saveQueryKey={['grammar-forms', 'update']}
+          saveQueryFn={saveForms}
+          handleSave={data => dispatchForms({ type: 'markSaved', newForms: data })}
+          style={{ marginTop: "1em" }}
+        >
+          Save changes
+        </SaveChangesButton>
       )}
     </>
   );

@@ -1,10 +1,16 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  useDraggable, useDroppable, Active, DndContext, DragEndEvent, Over
+  Active, DndContext, DragEndEvent, Over, useDraggable, useDroppable
 } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
 
+import { InfoParagraph } from '@/components/Paragraphs';
+import {
+  GraphTableCell,
+  GraphTableCellDragged,
+  PhoneTable
+} from '@/components/PhoneTable';
 import SaveChangesButton from '@/components/SaveChangesButton';
 
 import { useLanguage, useLanguageOrthographySettings } from '@/hooks/languages';
@@ -61,8 +67,7 @@ function GraphCell({ graphs, index, orthSettings }: IGraphCell) {
   }
 
   return (
-    <td
-      className="graph-cell"
+    <GraphTableCell
       ref={setBothNodeRefs}
       style={style}
       {...drag.listeners}
@@ -78,16 +83,15 @@ function GraphCell({ graphs, index, orthSettings }: IGraphCell) {
             </big>
       }
       {index === drag.active?.id && (
-        <div
-          className="graph-cell-dragged"
+        <GraphTableCellDragged
           style={{ transform: CSS.Translate.toString(drag.transform) }}
         >
           <big>
             {formatGraphForAlphabet(graphs[index], orthSettings)}
           </big>
-        </div>
+        </GraphTableCellDragged>
       )}
-    </td>
+    </GraphTableCell>
   );
 }
 
@@ -164,10 +168,10 @@ function EditAlphabeticalOrder({ language, orthSettings, caseSensitive }: IEditA
 
   return (
     <>
-      <p className="help-paragraph">
+      <InfoParagraph>
         Edit {language.name}'s alphabetical order. You should only do this once you've
         finalised your orthography, as adding or removing letters will reset the order.
-      </p>
+      </InfoParagraph>
       {!graphsAreSaved && (
         <SaveChangesButton
           isSaving={isSavingGraphs}
@@ -181,11 +185,9 @@ function EditAlphabeticalOrder({ language, orthSettings, caseSensitive }: IEditA
         </SaveChangesButton>
       )}
       <DndContext onDragEnd={handleDragEnd}>
-        <table className="phone-table graph-table">
-          <tbody>
-            {rows}
-          </tbody>
-        </table>
+        <PhoneTable separate>
+          {rows}
+        </PhoneTable>
       </DndContext>
       {!graphsAreSaved && (
         <SaveChangesButton

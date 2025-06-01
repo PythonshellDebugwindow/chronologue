@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 
-import { CFormBody, CMultilineTextInput, CTextInput } from '@/components/CForm';
+import { CForm, CFormBody, CMultilineTextInput, CTextInput } from '@/components/CForm';
 
 import { useFamily } from '@/hooks/families';
 
@@ -40,7 +40,7 @@ function EditFamilyInner({ initialFamily }: { initialFamily: IFamily }) {
     <>
       <h2>Edit Family</h2>
       {errorMessage && <p>{errorMessage}</p>}
-      <form className="chronologue-form">
+      <CForm>
         <CFormBody>
           <CTextInput
             label="Name"
@@ -61,7 +61,7 @@ function EditFamilyInner({ initialFamily }: { initialFamily: IFamily }) {
         <button type="button" onClick={() => navigate('/family/' + initialFamily.id)}>
           Back
         </button>
-      </form>
+      </CForm>
       <h4>Delete Family</h4>
       <p>
         <Link to={'/delete-family/' + initialFamily.id}>

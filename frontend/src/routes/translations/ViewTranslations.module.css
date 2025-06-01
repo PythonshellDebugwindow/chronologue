@@ -1,0 +1,18 @@
+.translationsTable {
+  margin: 0 auto;
+  text-align: left;
+  border-collapse: collapse;
+}
+.translationsTable tr {
+  border-bottom: 1px solid #eee;
+}
+.translationsTable tr:hover {
+  border-bottom-color: lightgrey;
+}
+.unaddedTranslation {
+  background: lightyellow;
+}
+.translationsTable th,
+.translationsTable td {
+  padding: 1px 5px;
+}

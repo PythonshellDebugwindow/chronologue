@@ -1,6 +1,13 @@
 import { Link } from 'react-router-dom';
 
-import DisplayDate from '@/components/DisplayDate';
+import {
+  LanguageTranslationDateAndLinks,
+  LanguageTranslationsTable,
+  TranslationContent,
+  TranslationDateAndLinks,
+  TranslationRow,
+  TranslationWIPText
+} from '@/components/Translations';
 
 import { useLanguage } from '@/hooks/languages';
 import { useLanguageTranslations } from '@/hooks/translations';
@@ -20,52 +27,28 @@ function LanguageTranslationRow(
   { langTranslation: langTr, language }: ILanguageTranslationRow
 ) {
   return (
-    <tr className={langTr.workInProgress ? "translation-wip" : undefined}>
+    <TranslationRow workInProgress={langTr.workInProgress}>
       <td>
-        <p className="translation-date">
-          <Link to={`/translation/${langTr.translId}`}>
-            View translation
-          </Link>
-          <span style={{ float: "right" }}>
-            <Link to={`/edit-translation/${langTr.translId}`}>
-              [edit]
-            </Link>
-            {" "}
-            <Link to={`/delete-translation/${langTr.translId}`}>
-              [delete]
-            </Link>
-          </span>
-        </p>
-        <p className="translation-content">{langTr.translText}</p>
+        <TranslationDateAndLinks translationId={langTr.translId} />
+        <TranslationContent>{langTr.translText}</TranslationContent>
       </td>
       <td>
-        <p className="translation-date">
-          Added on <DisplayDate date={langTr.created} />
-          <span style={{ float: "right" }}>
-            <Link to={`/translation/${langTr.translId}?lang=${language.id}`}>
-              [link]
-            </Link>
-            {" "}
-            <Link to={`/translate-text/${langTr.translId}?lang=${language.id}`}>
-              [edit]
-            </Link>
-            {" "}
-            <Link to={`/delete-text-translation/${langTr.translId}?lang=${language.id}`}>
-              [delete]
-            </Link>
-          </span>
-        </p>
-        <p className="translation-content">
+        <LanguageTranslationDateAndLinks
+          created={langTr.created}
+          translationId={langTr.translId}
+          languageId={language.id}
+        />
+        <TranslationContent>
           {langTr.workInProgress && (
             <>
-              <span className="translation-wip-text">Work In Progress</span>
+              <TranslationWIPText />
               <br />
             </>
           )}
           {langTr.content}
-        </p>
+        </TranslationContent>
       </td>
-    </tr>
+    </TranslationRow>
   );
 }
 
@@ -84,21 +67,19 @@ function ViewLanguageTranslationsInner(
         Viewing <Link to={'/language/' + language.id}>{language.name}</Link>'s
         translations.
       </p>
-      <table className="language-translations-table ltt-equal">
-        <tbody>
-          <tr>
-            <th>Text</th>
-            <th>Translation</th>
-          </tr>
-          {langTranslations.map(langTr => (
-            <LanguageTranslationRow
-              langTranslation={langTr}
-              language={language}
-              key={langTr.translId}
-            />
-          ))}
-        </tbody>
-      </table>
+      <LanguageTranslationsTable>
+        <tr>
+          <th>Text</th>
+          <th>Translation</th>
+        </tr>
+        {langTranslations.map(langTr => (
+          <LanguageTranslationRow
+            langTranslation={langTr}
+            language={language}
+            key={langTr.translId}
+          />
+        ))}
+      </LanguageTranslationsTable>
       {langTranslations.length === 0 && (
         <p>You have not yet translated anything into {language.name}.</p>
       )}

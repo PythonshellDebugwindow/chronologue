@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 
 import Papa from 'papaparse';
 
-import { CFormBody, CSelect, CTextInput } from '@/components/CForm';
+import { CForm, CFormBody, CSelect, CTextInput } from '@/components/CForm';
 import { DictionaryRow, DictionaryTable } from '@/components/Dictionary';
 import SaveChangesButton from '@/components/SaveChangesButton';
 
@@ -234,7 +234,7 @@ function ImportWordsInner({ language, langClasses, partsOfSpeech }: IImportWords
         Class codes should be comma-separated.
       </p>
       {errorMessage && <p><b>{errorMessage}</b></p>}
-      <form className="chronologue-form">
+      <CForm>
         <CFormBody>
           <CTextInput
             label="Delimiter"
@@ -286,7 +286,7 @@ function ImportWordsInner({ language, langClasses, partsOfSpeech }: IImportWords
         <button type="button" onClick={importFromFile}>
           Preview Import
         </button>
-      </form>
+      </CForm>
       {imported && (
         <ImportPreview
           words={imported}

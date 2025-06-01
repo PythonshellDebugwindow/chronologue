@@ -1,0 +1,11 @@
+.infoTable {
+  max-width: 50%;
+  margin: 0 auto;
+}
+.infoTable th {
+  display: flex;
+  justify-content: flex-end;
+}
+.infoTable td {
+  text-align: left;
+}

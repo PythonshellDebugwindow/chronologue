@@ -1,7 +1,7 @@
 import { Fragment } from 'react';
 import { Link } from 'react-router-dom';
 
-import { FamilyTree } from '@/components/LanguageTree';
+import { FamilyTree, IsolateList } from '@/components/LanguageTree';
 
 import { useFamilies, useLanguageIsolates } from '@/hooks/families';
 
@@ -21,15 +21,7 @@ function LanguageIsolates({ languages }: { languages: ILanguage[] }) {
   return (
     <>
       <h3>Isolates</h3>
-      <ul className="language-tree-root">
-        {languages.map(lang => (
-          <li key={lang.id}>
-            <Link to={'/language/' + lang.id}>
-              {lang.name}
-            </Link>
-          </li>
-        ))}
-      </ul>
+      <IsolateList languages={languages} />
     </>
   );
 }

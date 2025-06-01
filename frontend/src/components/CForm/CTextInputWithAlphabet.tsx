@@ -9,6 +9,8 @@ import { IOrthographySettings } from '@/types/languages';
 import { assertUnreachable } from '@/utils/global/asserts';
 import { getGraphFormatTypeForAlphabet } from '@/utils/phones';
 
+import styles from './CTextInputWithAlphabet.module.css';
+
 interface IInsertAlphabetGraph {
   graph: string;
   insertGraph: (graph: string) => void;
@@ -70,9 +72,9 @@ function AlphabetListing({ langId, insertGraph }: IAlphabetListing) {
     return "You have not set any letters.";
   } else {
     return (
-      <div className="clickable-alphabet-listing">
+      <div>
         {orthSettings.alphabeticalOrder.map((graph, i) => (
-          <span key={i}>
+          <span className={styles.alphabetGraph} key={i}>
             <AlphabetListingGraph
               langId={langId}
               graph={graph}
@@ -128,7 +130,7 @@ export function CTextInputWithAlphabet(
   return (
     <>
       <tr>
-        <td className="clickable-alphabet-td" colSpan={2}>
+        <td className={styles.alphabetTd} colSpan={2}>
           <AlphabetListingDropdown
             langId={langId}
             insertGraph={insertGraph}

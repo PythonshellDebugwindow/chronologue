@@ -1,8 +1,10 @@
 import { Link } from 'react-router-dom';
 
+import helpPageHtmlRaw from '@/assets/chronosca-help.html?raw';
+
 import { useSetPageTitle } from '@/utils/global/hooks';
 
-import helpPageHtmlRaw from '@/assets/chronosca-help.html?raw';
+import styles from './ChronoSCAHelpPage.module.css';
 
 const helpPageHtmlObject = { __html: helpPageHtmlRaw };
 
@@ -30,7 +32,7 @@ function TableOfContents() {
   }
 
   return (
-    <ol className="chronosca-help-toc">
+    <ol className={styles.helpTOC}>
       {sections.map(section => (
         <li key={section.id}>
           <a href={"#" + section.id}>{section.title}</a>
@@ -57,12 +59,12 @@ export default function ChronoSCAHelpPage() {
         This is a guide to using <Link to="/chronosca">ChronoSCA</Link>,
         Chronologue's built-in sound change applicator.
       </p>
-      <div className="chronosca-help-toc-container">
+      <div className={styles.helpTOCContainer}>
         <p>Table of Contents</p>
         <TableOfContents />
       </div>
       <div
-        className="chronosca-help"
+        className={styles.help}
         dangerouslySetInnerHTML={helpPageHtmlObject}
       />
     </>

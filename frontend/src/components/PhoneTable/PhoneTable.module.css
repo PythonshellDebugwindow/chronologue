@@ -1,0 +1,59 @@
+.phoneTable {
+  border-collapse: collapse;
+  margin: 0 auto;
+  font-size: 0.95em;
+}
+.phoneTable tr:first-child {
+  vertical-align: top;
+}
+.phoneTable th,
+.phoneTable td
+{
+  padding: 2px;
+  border: 1px solid #999;
+  min-width: 1.5em;
+}
+.phoneTable th {
+  padding: 2px 3px;
+  font-weight: normal;
+  background: #fafafa;
+}
+.phoneTable th:first-child {
+  text-align: left;
+}
+.phoneCell {
+  background-color: #fafafa;
+}
+.added {
+  background-color: #5d5;
+}
+.pointer {
+  cursor: pointer;
+}
+.phoneCell sup {
+  position: relative;
+  top: -4px;
+  vertical-align: text-top;
+}
+
+.graphTable {
+  border-spacing: 5px;
+  border-collapse: separate;
+}
+.phoneTable .graphCell {
+  padding: 4px 7px;
+  min-width: 2em;
+  position: relative;
+  height: 2.5em;
+  line-height: 2.5em;
+}
+.graphCellDragged {
+  z-index: 1000;
+  top: 0;
+  left: 0;
+  min-width: 2em;
+  padding: 4px 7px;
+  height: 100%;
+  position: absolute;
+  background: #fafafa;
+}

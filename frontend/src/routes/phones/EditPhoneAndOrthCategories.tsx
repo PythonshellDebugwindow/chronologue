@@ -3,7 +3,9 @@ import { Link } from 'react-router-dom';
 
 import { phoneToString } from '@shared/phones';
 
+import { LetterButtonPlus } from '@/components/LetterButtons';
 import SaveChangesButton from '@/components/SaveChangesButton';
+import { SettingsTable } from '@/components/SettingsTable';
 
 import { useLanguage } from '@/hooks/languages';
 import {
@@ -204,64 +206,55 @@ function EditSpecificCategories({
           Save
         </SaveChangesButton>
       )}
-      <table className="settings-table">
-        <tbody>
-          <tr>
-            <th>&nbsp;</th>
-            <th>Letter</th>
-            <th>Members</th>
-            <th>&nbsp;</th>
-          </tr>
-          <tr>
-            <td>
-              <span style={{ visibility: "hidden" }}>
-                <span className="letter-button letter-button-small letter-button-t" />
-              </span>
-            </td>
+      <SettingsTable>
+        <tr>
+          <th>Letter</th>
+          <th>Members</th>
+          <th>&nbsp;</th>
+        </tr>
+        <tr>
+          <td style={{ textAlign: "center" }}>
+            <input
+              type="text"
+              value={newCategoryLetter}
+              onChange={e => setNewCategoryLetter(e.target.value.toUpperCase())}
+              style={{ width: "1.5em" }}
+            />
+          </td>
+          <td>
+            <input
+              type="text"
+              value={newCategoryMembers}
+              onChange={e => setNewCategoryMembers(e.target.value)}
+              style={{ width: "20em" }}
+            />
+          </td>
+          <td>
+            <LetterButtonPlus onClick={addNewCategory} />
+          </td>
+        </tr>
+        {categories.map((category, i) => (
+          <tr key={i}>
             <td style={{ textAlign: "center" }}>
               <input
                 type="text"
-                value={newCategoryLetter}
-                onChange={e => setNewCategoryLetter(e.target.value.toUpperCase())}
+                value={category.letter}
+                onChange={e => editCategoryLetter(category, e.target.value.toUpperCase())}
                 style={{ width: "1.5em" }}
               />
             </td>
             <td>
               <input
                 type="text"
-                value={newCategoryMembers}
-                onChange={e => setNewCategoryMembers(e.target.value)}
+                value={category.members}
+                onChange={e => editCategoryMembers(category, e.target.value)}
+                style={{ width: "20em" }}
               />
             </td>
-            <td>
-              <span className="hover-light-grey" onClick={addNewCategory}>
-                <span className="letter-button letter-button-small letter-button-t" />
-              </span>
-            </td>
+            <td>&nbsp;</td>
           </tr>
-          {categories.map((category, i) => (
-            <tr key={i}>
-              <td>&nbsp;</td>
-              <td style={{ textAlign: "center" }}>
-                <input
-                  type="text"
-                  value={category.letter}
-                  onChange={e => editCategoryLetter(category, e.target.value.toUpperCase())}
-                  style={{ width: "1.5em" }}
-                />
-              </td>
-              <td>
-                <input
-                  type="text"
-                  value={category.members}
-                  onChange={e => editCategoryMembers(category, e.target.value)}
-                />
-              </td>
-              <td>&nbsp;</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+        ))}
+      </SettingsTable>
       <div style={{ marginTop: "10px" }}>
         <button
           onClick={() => setCategory('C')}

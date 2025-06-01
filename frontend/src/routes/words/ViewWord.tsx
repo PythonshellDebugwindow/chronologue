@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 
 import DisplayDate from '@/components/DisplayDate';
+import { GrammarTableLinks } from '@/components/GrammarTable';
 import WordGrammarTable from '@/components/WordGrammarTable';
 
 import {
@@ -25,6 +26,8 @@ import {
   formatWordClasses,
   formatWordEtymology
 } from '@/utils/words';
+
+import styles from './ViewWord.module.css';
 
 interface IDisplayWordGrammarTable {
   word: IWord;
@@ -52,8 +55,8 @@ function DisplayWordGrammarTable({ word, tableOverview, partsOfSpeech }: IDispla
       }
     }
     return (
-      <div className="word-grammar-table-container">
-        <small>
+      <div className={styles.grammarTableContainer}>
+        <GrammarTableLinks>
           <Link to={'/grammar-table/' + tableOverview.id}>
             [view table]
           </Link>
@@ -65,7 +68,7 @@ function DisplayWordGrammarTable({ word, tableOverview, partsOfSpeech }: IDispla
           <Link to={`/irregular-forms/${tableOverview.id}?word=${word.id}`}>
             [irregular forms]
           </Link>
-        </small>
+        </GrammarTableLinks>
         <WordGrammarTable
           table={tableQuery.data!}
           grammarForms={grammarFormsQuery.data!}
@@ -105,46 +108,52 @@ function ViewWordInner({ word, classes, tables, language, partsOfSpeech }: IView
   return (
     <>
       <h2>View Word</h2>
-      <div className="word-table">
-        <div className="word-pos">
-          [{formatPosFieldValue(word.pos, partsOfSpeech)}]
-        </div>
-        {classes.length > 0 && (
-          <div className="word-classes">
-            {formatWordClasses(classes)}
+      <div className={styles.wordTable}>
+        <div className={styles.twoColumns}>
+          <div>
+            <div className={styles.word}>
+              {language.status === 'proto' && "*"}{word.word}
+            </div>
+            {word.ipa && (
+              <div className={styles.ipa}>
+                [{word.ipa}]
+              </div>
+            )}
+            <div className={styles.meaning} style={{ paddingTop: word.ipa ? "2px" : "5px" }}>
+              {word.meaning}
+            </div>
+            <div className={styles.language}>
+              <Link to={'/language/' + language.id}>{language.name}</Link>
+            </div>
           </div>
-        )}
-        <div className="word-word">
-          {language.status === 'proto' && "*"}{word.word}
-        </div>
-        {word.ipa && (
-          <div className="word-ipa">
-            [{word.ipa}]
+          <div>
+            <div className={styles.pos}>
+              [{formatPosFieldValue(word.pos, partsOfSpeech)}]
+            </div>
+            {classes.length > 0 && (
+              <div className={styles.classes}>
+                {formatWordClasses(classes)}
+              </div>
+            )}
           </div>
-        )}
-        <div className="word-meaning" style={{ paddingTop: word.ipa ? "2px" : "5px" }}>
-          {word.meaning}
-        </div>
-        <div className="word-language">
-          <Link to={'/language/' + language.id}>{language.name}</Link>
         </div>
         {word.etymology && (
-          <div className="word-etymology">
-            <div className="word-label">Etymology</div>
-            <div className="word-bordered">{formatWordEtymology(word.etymology)}</div>
+          <div className={styles.borderedText}>
+            <div>Etymology</div>
+            <div>{formatWordEtymology(word.etymology)}</div>
           </div>
         )}
         {word.notes && (
-          <div className="word-notes">
-            <div className="word-label">Notes</div>
-            <div className="word-bordered">{word.notes}</div>
+          <div className={styles.borderedText}>
+            <div>Notes</div>
+            <div>{word.notes}</div>
           </div>
         )}
-        <div className="word-date">
+        <div className={styles.date}>
           Created <DisplayDate date={word.created} />
         </div>
         {word.updated && (
-          <div className="word-date">
+          <div className={styles.date}>
             Updated <DisplayDate date={word.updated} />
           </div>
         )}
@@ -159,7 +168,7 @@ function ViewWordInner({ word, classes, tables, language, partsOfSpeech }: IView
       {tables.length > 0 && (
         <>
           <h3>Grammar Tables</h3>
-          <div className="word-grammar-tables-list">
+          <div className={styles.grammarTablesList}>
             {tables.map(table => (
               <DisplayWordGrammarTable
                 word={word}

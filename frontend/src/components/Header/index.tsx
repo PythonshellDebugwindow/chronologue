@@ -5,6 +5,8 @@ import SelectedLanguageContext from '@/contexts/SelectedLanguageContext';
 
 import chronologueLogo from '/chronologue.png';
 
+import styles from './Header.module.css';
+
 interface IMenuBarItem {
   name: string;
   items: ReactNode[];
@@ -13,12 +15,12 @@ interface IMenuBarItem {
 
 function MenuBarItem({ name, items, setCanHover }: IMenuBarItem) {
   return (
-    <div className="header-menu-item" onMouseEnter={() => setCanHover(true)}>
+    <div className={styles.topMenuItem} onMouseEnter={() => setCanHover(true)}>
       {name}
-      <div className="header-submenu">
+      <div className={styles.submenu}>
         {items.map((item, i) => (
           <div
-            className="header-submenu-item"
+            className={styles.submenuItem}
             onClick={() => setCanHover(false)}
             key={i}
           >
@@ -37,7 +39,7 @@ export default function Header() {
 
   return (
     <>
-      <p id="selected-language">
+      <p className={styles.selectedLanguage}>
         Selected:{" "}
         {
           selectedLanguage
@@ -45,11 +47,11 @@ export default function Header() {
             : "None"
         }
       </p>
-      <Link to="/" className="top-left-logo">
-        <img src={chronologueLogo} className="logo" alt="Chronologue logo" />
+      <Link to="/" className={styles.logoAndName}>
+        <img src={chronologueLogo} className={styles.logo} alt="Chronologue logo" />
         <h1>Chronologue</h1>
       </Link>
-      <div className={"header-menu" + (canHover ? "" : " no-dropdown")}>
+      <div className={styles.topMenu + (canHover ? " " + styles.canHover : "")}>
         <MenuBarItem
           name="Phonology"
           items={[

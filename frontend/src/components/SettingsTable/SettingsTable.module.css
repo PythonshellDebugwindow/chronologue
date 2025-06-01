@@ -1,0 +1,31 @@
+.settingsTable {
+  border-collapse: collapse;
+  margin: 0 auto;
+}
+.settingsTable td {
+  text-align: left;
+}
+.settingsTable th,
+.settingsTable td {
+  padding: 1px 10px;
+}
+.alignTop td {
+  vertical-align: top;
+}
+.settingsTable textarea {
+  margin-top: 3px;
+}
+.deletedRow td {
+  position: relative;
+}
+.deletedRow td:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  border-bottom: 1px solid #000;
+  top: 50%;
+  left: 0;
+  width: 100%;
+}
+.alignTop .deletedRow td:not(:last-child)::after {
+  top: 1em;
+}

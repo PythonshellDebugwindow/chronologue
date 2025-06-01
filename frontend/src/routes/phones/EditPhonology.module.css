@@ -1,0 +1,8 @@
+.phoneListTable {
+  margin: 10px auto 0;
+}
+.phoneListTable td:first-child,
+.phoneListTable td > input[type="text"] {
+  position: relative;
+  top: -2px;
+}

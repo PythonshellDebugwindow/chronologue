@@ -2,7 +2,12 @@ import { Dispatch, SetStateAction, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 
-import { DictionaryFilterSelect, DictionaryTable } from '@/components/Dictionary';
+import {
+  DictionaryFilterSelect,
+  DictionaryTable,
+  EnableDictionaryFieldButtons
+} from '@/components/Dictionary';
+import { LetterButtonXNoShadow } from '@/components/LetterButtons';
 import SaveChangesButton from '@/components/SaveChangesButton';
 
 import { useLanguage, useLanguageDictionarySettings } from '@/hooks/languages';
@@ -11,7 +16,12 @@ import { useLanguageWords, usePartsOfSpeech } from '@/hooks/words';
 
 import { IDictionarySettings, ILanguage } from '@/types/languages';
 import { ApplySCARulesQueryResult } from '@/types/phones';
-import { IDictionaryFilter, IPartOfSpeech, IWord } from '@/types/words';
+import {
+  IDictionaryField,
+  IDictionaryFilter,
+  IPartOfSpeech,
+  IWord
+} from '@/types/words';
 
 import {
   useGetParamsOrSelectedId,
@@ -37,11 +47,6 @@ async function sendPerformMassEditRequest(
     throw res.body;
   }
   return res.body;
-}
-
-interface IDictionaryField {
-  name: keyof IWord;
-  isDisplaying: boolean;
 }
 
 function getAllFields(dictSettings: IDictionarySettings) {
@@ -156,11 +161,6 @@ function SCAResultsPreview(
       : []
   ));
 
-  function enableField(field: IDictionaryField) {
-    const index = fields.indexOf(field);
-    setFields(fields.with(index, { name: field.name, isDisplaying: true }));
-  }
-
   function disableField(field: IDictionaryField) {
     const index = fields.indexOf(field);
     setFields(fields.with(index, { name: field.name, isDisplaying: false }));
@@ -192,17 +192,10 @@ function SCAResultsPreview(
       </p>
       <p>
         More fields:
-        {fields.map(field => (
-          !field.isDisplaying && !(field.name === 'ipa' && editField === 'ipa') && (
-            <button
-              className="enable-dictionary-field-button"
-              onClick={() => enableField(field)}
-              key={field.name}
-            >
-              + {userFacingFieldName(field.name)}
-            </button>
-          )
-        ))}
+        <EnableDictionaryFieldButtons
+          fields={fields}
+          setFields={setFields}
+        />
       </p>
       {!isSaved && (
         anyScaResultFailed
@@ -226,10 +219,7 @@ function SCAResultsPreview(
             <th key={f.name}>
               {userFacingFieldName(f.name)}
               {f.name !== 'word' && f.name !== 'meaning' && f.name !== editField && (
-                <button
-                  className="letter-button letter-button-x"
-                  onClick={() => disableField(f)}
-                />
+                <LetterButtonXNoShadow onClick={() => disableField(f)} />
               )}
             </th>
           ))}

@@ -36,3 +36,8 @@ export interface IDictionaryFilter {
   sortField: keyof IWord;
   sortDir: 'asc' | 'desc';
 }
+
+export interface IDictionaryField {
+  name: keyof IWord;
+  isDisplaying: boolean;
+}

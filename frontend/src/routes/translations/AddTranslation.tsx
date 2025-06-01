@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+import { TranslationInfo } from '@/components/Translations';
+
 import { useSetPageTitle } from '@/utils/global/hooks';
 import { sendBackendJson } from '@/utils/global/queries';
 
@@ -33,8 +35,8 @@ export default function AddTranslation() {
     <>
       <h2>Add Translation</h2>
       <p style={{ marginBottom: "0" }}>Add a translation.</p>
-      {message && <p><b>{message}</b></p>}
-      <div className="translation-info">
+      {message && <p style={{ marginBottom: "0" }}><b>{message}</b></p>}
+      <TranslationInfo>
         <h4>Text:</h4>
         <textarea
           value={content}
@@ -48,12 +50,10 @@ export default function AddTranslation() {
           onChange={e => setNotes(e.target.value)}
           spellCheck={false}
         />
-      </div>
+      </TranslationInfo>
       {message && <p style={{ marginTop: "0" }}><b>{message}</b></p>}
       <div style={{ marginTop: "0.5em" }}>
-        <button type="button" onClick={addFormTranslation}>
-          Add Translation
-        </button>
+        <button onClick={addFormTranslation}>Add Translation</button>
       </div>
     </>
   );

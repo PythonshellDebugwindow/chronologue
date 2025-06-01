@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 
+import { InfoParagraph } from '@/components/Paragraphs';
+
 import { useLanguage } from '@/hooks/languages';
 
 import { ILanguage } from '@/types/languages';
@@ -31,10 +33,10 @@ function PurgeDictionaryInner({ language }: { language: ILanguage }) {
       <p>
         Purging <Link to={'/language/' + language.id}>{language.name}</Link>'s dictionary.
       </p>
-      <p className="info-paragraph">
+      <InfoParagraph>
         This action will <b>irreversibly</b> delete all words you've added so far.
         Please ensure you have made a backup of any important data before proceeding.
-      </p>
+      </InfoParagraph>
       <p>
         Are you sure you want to go through with this?
       </p>

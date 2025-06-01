@@ -8,6 +8,8 @@ import { useLanguageDescendants } from '@/hooks/languages';
 
 import { ILanguage } from '@/types/languages';
 
+import styles from './LanguageTree.module.css';
+
 interface ILanguageTreeBranch {
   root: ILanguage;
   descendants: ILanguage[];
@@ -75,7 +77,7 @@ export function LanguageTree({ root }: { root: ILanguage }) {
     return (
       <>
         <h3>Descendants</h3>
-        <ul className="language-tree-root">
+        <ul className={styles.languageTreeRoot}>
           <LanguageTreeBranch
             root={root}
             descendants={descendants}
@@ -99,7 +101,7 @@ export function FamilyTree({ id, showSelect }: { id: string, showSelect: boolean
   } else {
     const root = descendants.find(language => language.parentId === null);
     return root && (
-      <ul className="language-tree-root">
+      <ul className={styles.languageTreeRoot}>
         <LanguageTreeBranch
           root={root}
           descendants={descendants}
@@ -108,4 +110,18 @@ export function FamilyTree({ id, showSelect }: { id: string, showSelect: boolean
       </ul>
     );
   }
+}
+
+export function IsolateList({ languages }: { languages: ILanguage[] }) {
+  return (
+    <ul className={styles.languageTreeRoot}>
+      {languages.map(lang => (
+        <li key={lang.id}>
+          <Link to={'/language/' + lang.id}>
+            {lang.name}
+          </Link>
+        </li>
+      ))}
+    </ul>
+  );
 }

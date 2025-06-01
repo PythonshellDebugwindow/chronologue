@@ -4,11 +4,13 @@ import { useQueryClient } from '@tanstack/react-query';
 
 import {
   CCheckbox,
+  CForm,
   CFormBody,
   CMultilineTextInput,
   CTextInput
 } from '@/components/CForm';
 import EditableGrammarTable from '@/components/EditableGrammarTable';
+import { InfoParagraph } from '@/components/Paragraphs';
 import POSAndClassesSelect from '@/components/POSAndClassesSelect';
 
 import {
@@ -209,7 +211,7 @@ function EditGrammarTableInner({
           Copy
         </button>
       </p>
-      <form className="chronologue-form" style={{ marginBottom: "1em" }}>
+      <CForm>
         <CFormBody>
           <CTextInput label="Name" name="name" state={name} setState={setName} />
           <POSAndClassesSelect
@@ -235,12 +237,12 @@ function EditGrammarTableInner({
             setState={setShowIpa}
           />
         </CFormBody>
-      </form>
-      <p className="info-paragraph">
+      </CForm>
+      <InfoParagraph>
         Rules in the below table are run through <Link to="/chronosca">ChronoSCA</Link>.
         Post rules are run on the result of each table cell after initial inflection.
         Empty table cells are treated as invalid forms.
-      </p>
+      </InfoParagraph>
       <EditableGrammarTable
         langId={table.langId}
         pos={pos}
@@ -251,8 +253,8 @@ function EditGrammarTableInner({
         setColumns={setColumns}
         setCells={setCells}
       />
-      {message && <p><b>{message}</b></p>}
-      <form className="chronologue-form" style={{ marginTop: "1em" }}>
+      {message ? <p><b>{message}</b></p> : <div style={{ height: "1em" }} />}
+      <CForm>
         <CFormBody>
           <CMultilineTextInput
             label="Post Rules"
@@ -275,7 +277,7 @@ function EditGrammarTableInner({
         <button type="button" onClick={() => navigate('/grammar-table/' + table.id)}>
           Back
         </button>
-      </form>
+      </CForm>
     </>
   );
 }

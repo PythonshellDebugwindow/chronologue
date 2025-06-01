@@ -1,7 +1,13 @@
 import { useReducer, useState } from 'react';
 import { Link } from 'react-router-dom';
 
+import {
+  LetterButtonPlus,
+  LetterButtonRefresh,
+  LetterButtonX
+} from '@/components/LetterButtons';
 import SaveChangesButton from '@/components/SaveChangesButton';
+import { SettingsTable, SettingsTableRow } from '@/components/SettingsTable';
 
 import { useLanguageWordStems } from '@/hooks/grammar';
 import { useLanguage } from '@/hooks/languages';
@@ -238,94 +244,86 @@ function EditStemsInner({ language, initialStems, partsOfSpeech }: IEditStemsInn
           Save changes
         </SaveChangesButton>
       )}
-      <table className="settings-table settings-table-top">
-        <tbody>
-          <tr>
-            <th>Name</th>
-            <th><abbr title="part of speech">POS</abbr></th>
-            <th>Rules</th>
-            <th>&nbsp;</th>
-          </tr>
-          <tr>
-            <td>
-              <input
-                type="text"
-                value={newStemName}
-                onChange={e => setNewStemName(e.target.value)}
-              />
-            </td>
-            <td>
-              <select
-                value={newStemPos}
-                onChange={e => setNewStemPos(e.target.value)}
-              >
-                <option value="">---</option>
-                {partsOfSpeech.map(
-                  pos => <option value={pos.code} key={pos.code}>{pos.name}</option>
-                )}
-              </select>
-            </td>
-            <td>
-              <textarea
-                value={newStemRules}
-                onChange={e => setNewStemRules(e.target.value)}
-              />
-            </td>
-            <td>
-              <span className="hover-light-grey" onClick={() => addNewStem()}>
-                <span className="letter-button letter-button-small letter-button-t" />
-              </span>
-            </td>
-          </tr>
-          {stems.map((stem, i) => {
-            const isDeleted = deletedStems.includes(stem.id);
-            return (
-              <tr key={i} className={isDeleted ? "deleted-row" : undefined}>
-                <td>
-                  <input
-                    type="text"
-                    value={stem.name}
-                    onChange={e => editStemName(stem, e.target.value)}
-                    disabled={isDeleted}
-                  />
-                </td>
-                <td>
-                  {
-                    stem.id === UNADDED_STEM_ID
-                      ? <select
-                          value={stem.pos}
-                          onChange={e => editStemPos(stem, e.target.value)}
-                        >
-                          {partsOfSpeech.map(
-                            pos => <option value={pos.code} key={pos.code}>{pos.name}</option>
-                          )}
-                        </select>
-                      : partsOfSpeech.find(p => p.code === stem.pos)?.name
-                  }
-                </td>
-                <td>
-                  <textarea
-                    value={stem.rules}
-                    onChange={e => editStemRules(stem, e.target.value)}
-                    disabled={isDeleted}
-                  />
-                </td>
-                <td>
-                  {
-                    isDeleted
-                      ? <span onClick={() => restoreStem(stem)} className="hover-light-grey">
-                          <span className="letter-button letter-button-small letter-button-refresh" />
-                        </span>
-                      : <span onClick={() => deleteStem(stem)} className="hover-light-grey">
-                          <span className="letter-button letter-button-small letter-button-x" />
-                        </span>
-                  }
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+      <SettingsTable alignTop>
+        <tr>
+          <th>Name</th>
+          <th><abbr title="part of speech">POS</abbr></th>
+          <th>Rules</th>
+          <th>&nbsp;</th>
+        </tr>
+        <tr>
+          <td>
+            <input
+              type="text"
+              value={newStemName}
+              onChange={e => setNewStemName(e.target.value)}
+            />
+          </td>
+          <td>
+            <select
+              value={newStemPos}
+              onChange={e => setNewStemPos(e.target.value)}
+            >
+              <option value="">---</option>
+              {partsOfSpeech.map(
+                pos => <option value={pos.code} key={pos.code}>{pos.name}</option>
+              )}
+            </select>
+          </td>
+          <td>
+            <textarea
+              value={newStemRules}
+              onChange={e => setNewStemRules(e.target.value)}
+            />
+          </td>
+          <td>
+            <LetterButtonPlus onClick={addNewStem} />
+          </td>
+        </tr>
+        {stems.map((stem, i) => {
+          const isDeleted = deletedStems.includes(stem.id);
+          return (
+            <SettingsTableRow deleted={isDeleted} key={i}>
+              <td>
+                <input
+                  type="text"
+                  value={stem.name}
+                  onChange={e => editStemName(stem, e.target.value)}
+                  disabled={isDeleted}
+                />
+              </td>
+              <td>
+                {
+                  stem.id === UNADDED_STEM_ID
+                    ? <select
+                        value={stem.pos}
+                        onChange={e => editStemPos(stem, e.target.value)}
+                      >
+                        {partsOfSpeech.map(
+                          pos => <option value={pos.code} key={pos.code}>{pos.name}</option>
+                        )}
+                      </select>
+                    : partsOfSpeech.find(p => p.code === stem.pos)?.name
+                }
+              </td>
+              <td>
+                <textarea
+                  value={stem.rules}
+                  onChange={e => editStemRules(stem, e.target.value)}
+                  disabled={isDeleted}
+                />
+              </td>
+              <td>
+                {
+                  isDeleted
+                    ? <LetterButtonRefresh onClick={() => restoreStem(stem)} />
+                    : <LetterButtonX onClick={() => deleteStem(stem)} />
+                }
+              </td>
+            </SettingsTableRow>
+          );
+        })}
+      </SettingsTable>
       {!stemsAreSaved && (
         <SaveChangesButton
           isSaving={isSaving}

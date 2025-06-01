@@ -1,0 +1,81 @@
+.hoverLightGrey {
+  cursor: pointer;
+  padding: 0 4px 4px 0;
+}
+.hoverLightGrey:hover {
+  background: #eee;
+  position: relative;
+}
+
+.letterButton {
+  border-radius: 0;
+  padding: 0.1ex;
+  margin-left: 0.5ex;
+  width: 1em;
+  height: 1em;
+  display: inline-flex;
+  position: relative;
+  top: -1px;
+  text-align: center;
+  font-weight: 500;
+  cursor: pointer;
+}
+.letterButton::after {
+  line-height: 1ex;
+  width: 100%;
+  height: 100%;
+  position: relative;
+  left: -0.2px;
+}
+.letterButton:focus {
+  outline: none;
+}
+.letterButton::-moz-focus-inner {
+  border: none;
+}
+.buttonSmall {
+  width: 0.8em;
+  height: 0.8em;
+}
+.buttonSmall::after {
+  left: 0;
+}
+
+.buttonPlus {
+  border: 1px solid green;
+  color: green;
+}
+.buttonPlus::after {
+  content: '+';
+  top: 1px;
+}
+.buttonPlus:hover,
+.hoverLightGrey:hover .buttonPlus
+{
+  border-color: #050;
+  color: #050;
+  background: #eee;
+}
+
+.buttonRefresh {
+  border: 1px solid black;
+}
+.buttonRefresh::after {
+  content: '↻';
+  top: 1px;
+}
+
+.buttonX {
+  border: 1px solid red;
+  color: red;
+}
+.buttonX::after {
+  content: 'x';
+}
+.buttonX:hover,
+.hoverLightGrey:hover .buttonX
+{
+  border-color: #e00;
+  color: #e00;
+  background: #eee;
+}

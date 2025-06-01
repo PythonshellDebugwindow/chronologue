@@ -1,0 +1,36 @@
+.grammarTable {
+  border-collapse: collapse;
+  margin: 0 auto;
+  text-align: center;
+}
+.grammarTable th,
+.grammarTable td {
+  border: 1px solid black;
+  min-width: 2em;
+}
+.grammarTable th {
+  background: #ddd;
+  height: 2em;
+}
+.grammarTable th input {
+  width: 5em;
+  margin: 0 0.5em;
+  text-align: center;
+}
+.padded th,
+.padded td
+{
+  box-sizing: border-box;
+  padding: 0 5px;
+}
+.grammarTable td:not(.emptyCell) {
+  background: #f3f3f3;
+}
+.grammarTable textarea {
+  height: 4em;
+}
+
+.grammarTableLinks {
+  display: inline-block;
+  margin-bottom: 0.5em;
+}

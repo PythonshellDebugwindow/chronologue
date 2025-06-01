@@ -1,7 +1,14 @@
 import { useParams, useSearchParams, Link } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 
+import {
+  EmptyGrammarTableCell,
+  GrammarTable,
+  GrammarTableLinks
+} from '@/components/GrammarTable';
+import InfoTable from '@/components/InfoTable';
 import LanguageLink from '@/components/LanguageLink';
+import { UserNotesParagraph } from '@/components/Paragraphs';
 import WordGrammarTable from '@/components/WordGrammarTable';
 
 import {
@@ -38,28 +45,26 @@ interface IGrammarTableDisplay {
 
 function GrammarTableDisplay({ table, filledCells, grammarForms }: IGrammarTableDisplay) {
   return (
-    <table className="grammar-table grammar-table-padded">
-      <tbody>
-        <tr>
-          <th>&nbsp;</th>
-          {table.columns.map((column, i) => (
-            <th key={i}>
-              {formatPeriodSeparatedGrammarForms(column, grammarForms)}
-            </th>
+    <GrammarTable padded>
+      <tr>
+        <th>&nbsp;</th>
+        {table.columns.map((column, i) => (
+          <th key={i}>
+            {formatPeriodSeparatedGrammarForms(column, grammarForms)}
+          </th>
+        ))}
+      </tr>
+      {table.rows.map((row, i) => (
+        <tr key={i}>
+          <th>{formatPeriodSeparatedGrammarForms(row, grammarForms)}</th>
+          {table.columns.map((_, j) => (
+            filledCells.some(c => i === c.row && j === c.column)
+              ? <td key={j}>&nbsp;</td>
+              : <EmptyGrammarTableCell key={j} />
           ))}
         </tr>
-        {table.rows.map((row, i) => (
-          <tr key={i}>
-            <th>{formatPeriodSeparatedGrammarForms(row, grammarForms)}</th>
-            {table.columns.map((_, j) => (
-              filledCells.some(c => i === c.row && j === c.column)
-                ? <td key={j}>&nbsp;</td>
-                : <td key={j} className="empty-cell">&nbsp;</td>
-            ))}
-          </tr>
-        ))}
-      </tbody>
-    </table>
+      ))}
+    </GrammarTable>
   );
 }
 
@@ -86,11 +91,8 @@ function DisplayRandomTableWord({ table, filledCells, grammarForms }: IDisplayRa
           <Link to={'/word/' + result.data.id}>{result.data.word}</Link>{" "}
           ({result.data.meaning})
         </p>
-        <div
-          className="word-grammar-table-container"
-          style={{ display: "inline-block", textAlign: "left" }}
-        >
-          <small>
+        <div style={{ display: "inline-block", textAlign: "left" }}>
+          <GrammarTableLinks>
             <Link to={'/edit-word/' + result.data.id}>
               [edit word]
             </Link>
@@ -98,7 +100,7 @@ function DisplayRandomTableWord({ table, filledCells, grammarForms }: IDisplayRa
             <Link to={`/irregular-forms/${table.id}?word=${result.data.id}`}>
               [irregular forms]
             </Link>
-          </small>
+          </GrammarTableLinks>
           <WordGrammarTable
             table={table}
             grammarForms={grammarForms}
@@ -142,29 +144,27 @@ function ViewGrammarTableInner(
   return (
     <>
       <h2>View Grammar Table{table.name && `: ${table.name}`}</h2>
-      <table className="info-table" style={{ marginBottom: "1em" }}>
-        <tbody>
+      <InfoTable>
+        <tr>
+          <th>Language:</th>
+          <td>
+            <LanguageLink id={table.langId} />
+          </td>
+        </tr>
+        <tr>
+          <th>{userFacingFieldName('pos')}:</th>
+          <td>{formatPosFieldValue(table.pos, partsOfSpeech)}</td>
+        </tr>
+        {classes.length > 0 && (
           <tr>
-            <th>Language:</th>
+            <th>Classes:</th>
             <td>
-              <LanguageLink id={table.langId} />
+              {formatWordClasses(classes)}
+              {table.invertClasses && "(exclusive)"}
             </td>
           </tr>
-          <tr>
-            <th>{userFacingFieldName('pos')}:</th>
-            <td>{formatPosFieldValue(table.pos, partsOfSpeech)}</td>
-          </tr>
-          {classes.length > 0 && (
-            <tr>
-              <th>Classes:</th>
-              <td>
-                {formatWordClasses(classes)}
-                {table.invertClasses && "(exclusive)"}
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </table>
+        )}
+      </InfoTable>
       <p>
         <Link to="?random" onClick={resetRandomWordQuery}>Random example</Link>
       </p>
@@ -182,14 +182,9 @@ function ViewGrammarTableInner(
             />
       }
       {table.notes && (
-        <div>
-          <p
-            className="user-notes-paragraph"
-            style={{ marginTop: "1em" }}
-          >
-            {table.notes}
-          </p>
-        </div>
+        <UserNotesParagraph>
+          {table.notes}
+        </UserNotesParagraph>
       )}
       <p><Link to={'/edit-grammar-table/' + table.id}>Edit table</Link></p>
       <p><Link to={`/add-grammar-table/${table.langId}?copy=${table.id}`}>Copy table</Link></p>

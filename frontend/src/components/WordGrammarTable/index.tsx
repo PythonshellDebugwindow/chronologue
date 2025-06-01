@@ -1,3 +1,5 @@
+import { EmptyGrammarTableCell, GrammarTable } from '../GrammarTable';
+
 import {
   IGrammarForm,
   IGrammarTable,
@@ -8,7 +10,7 @@ import { formatPeriodSeparatedGrammarForms } from '@/utils/grammar';
 
 function WordGrammarTableCell({ cell }: { cell: RunGrammarTableResultCell }) {
   if(cell === null) {
-    return <td className="empty-cell">&nbsp;</td>;
+    return <EmptyGrammarTableCell />;
   } else if(cell.success) {
     return (
       <td>
@@ -36,25 +38,23 @@ interface IWordGrammarTable {
 
 export default function WordGrammarTable({ table, grammarForms, cells }: IWordGrammarTable) {
   return (
-    <table className="grammar-table grammar-table-padded">
-      <tbody>
-        <tr>
-          <th>&nbsp;</th>
-          {table.columns.map((column, i) => (
-            <th key={i}>
-              {formatPeriodSeparatedGrammarForms(column, grammarForms)}
-            </th>
+    <GrammarTable padded>
+      <tr>
+        <th>&nbsp;</th>
+        {table.columns.map((column, i) => (
+          <th key={i}>
+            {formatPeriodSeparatedGrammarForms(column, grammarForms)}
+          </th>
+        ))}
+      </tr>
+      {table.rows.map((row, i) => (
+        <tr key={i}>
+          <th>{formatPeriodSeparatedGrammarForms(row, grammarForms)}</th>
+          {table.columns.map((_, j) => (
+            <WordGrammarTableCell cell={cells[i][j]} key={j} />
           ))}
         </tr>
-        {table.rows.map((row, i) => (
-          <tr key={i}>
-            <th>{formatPeriodSeparatedGrammarForms(row, grammarForms)}</th>
-            {table.columns.map((_, j) => (
-              <WordGrammarTableCell cell={cells[i][j]} key={j} />
-            ))}
-          </tr>
-        ))}
-      </tbody>
-    </table>
+      ))}
+    </GrammarTable>
   );
 }

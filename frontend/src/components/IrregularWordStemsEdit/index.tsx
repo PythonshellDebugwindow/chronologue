@@ -1,5 +1,7 @@
 import { Dispatch, SetStateAction, useEffect } from 'react';
 
+import { SettingsTable } from '../SettingsTable';
+
 import { useIrregularWordStems, useLanguageWordStemsByPOS } from '@/hooks/grammar';
 
 import { IrregularWordStems } from '@/types/grammar';
@@ -31,23 +33,21 @@ function IrregularStemsEditInner(
       <h4 style={{ textAlign: "center", margin: "10px 0" }}>
         Irregular Stems
       </h4>
-      <table className="settings-table">
-        <tbody>
-          {posStemsQuery.data.map(stem => (
-            <tr key={stem.id}>
-              <td>{stem.name}</td>
-              <td>
-                <input
-                  value={irregularStems?.[stem.id] ?? ""}
-                  onChange={e => {
-                    setIrregularStems({ ...irregularStems, [stem.id]: e.target.value });
-                  }}
-                />
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <SettingsTable>
+        {posStemsQuery.data.map(stem => (
+          <tr key={stem.id}>
+            <td>{stem.name}</td>
+            <td>
+              <input
+                value={irregularStems?.[stem.id] ?? ""}
+                onChange={e => {
+                  setIrregularStems({ ...irregularStems, [stem.id]: e.target.value });
+                }}
+              />
+            </td>
+          </tr>
+        ))}
+      </SettingsTable>
     </>
   );
 }
@@ -92,7 +92,7 @@ function IrregularStemsEditWithWord(
 }
 
 export default function IrregularWordStemsEdit(
-  { wordId = undefined, langId, pos, irregularStems, setIrregularStems }: IIrregularWordStemsEdit
+  { wordId, langId, pos, irregularStems, setIrregularStems }: IIrregularWordStemsEdit
 ) {
   if(wordId) {
     return (

@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query';
 
 import LinkButton from '@/components/LinkButton';
+import { TranslationInfo } from '@/components/Translations';
 
 import SelectedLanguageContext from '@/contexts/SelectedLanguageContext';
 
@@ -78,16 +79,16 @@ function TranslateTextInner(
         {" "}into <Link to={'/language/' + language.id}>{language.name}</Link>.
       </p>
       <div>
-        <div className="translation-info">
+        <TranslationInfo>
           <p>{translation.content}</p>
-        </div>
+        </TranslationInfo>
         {translation.notes && (
-          <div className="translation-info translation-info-small">
+          <TranslationInfo small>
             <p>{translation.notes}</p>
-          </div>
+          </TranslationInfo>
         )}
         {message && <p style={{ marginBottom: "0" }}><b>{message}</b></p>}
-        <div className="translation-info">
+        <TranslationInfo>
           <h4>Text:</h4>
           <textarea
             value={content}
@@ -118,7 +119,7 @@ function TranslateTextInner(
             onChange={e => setNotes(e.target.value)}
             spellCheck={false}
           />
-        </div>
+        </TranslationInfo>
       </div>
       <p style={{ marginTop: "5px" }}>
         <label>

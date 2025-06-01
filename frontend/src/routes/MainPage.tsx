@@ -1,5 +1,7 @@
 import { useEffect } from 'react';
 
+import { InfoParagraph } from '@/components/Paragraphs';
+
 export default function MainPage() {
   useEffect(() => {
     document.title = "Chronologue";
@@ -8,15 +10,15 @@ export default function MainPage() {
   return (
     <>
       <h2>Chronologue</h2>
-      <p className="info-paragraph">
+      <InfoParagraph>
         Chronologue is a site for the creation of constructed languages. It allows you to
         manage your languages' dictionaries, grammar, phonologies, orthographies, and more.
-      </p>
-      <p className="info-paragraph">
+      </InfoParagraph>
+      <InfoParagraph>
         Specifically, the site is intended to make it easier and more convenient to create
         and manage large language families (diachronic conlanging), but it also works well
         for creating individual languages.
-      </p>
+      </InfoParagraph>
     </>
   );
 }

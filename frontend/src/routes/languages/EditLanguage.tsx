@@ -2,7 +2,7 @@ import { Dispatch, SetStateAction, useContext, useEffect, useState } from 'react
 import { Link, useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 
-import { CFormBody, CSelect, CTextInput } from '@/components/CForm';
+import { CForm, CFormBody, CSelect, CTextInput } from '@/components/CForm';
 
 import SelectedLanguageContext from '@/contexts/SelectedLanguageContext';
 
@@ -167,7 +167,7 @@ function EditLanguageInner({ initialLanguage }: { initialLanguage: ILanguage }) 
     <>
       <h2>Edit Language</h2>
       {errorMessage && <p>{errorMessage}</p>}
-      <form className="chronologue-form">
+      <CForm>
         <CFormBody>
           <CTextInput
             label="Name"
@@ -211,7 +211,7 @@ function EditLanguageInner({ initialLanguage }: { initialLanguage: ILanguage }) 
         <button type="button" onClick={() => navigate('/language/' + initialLanguage.id)}>
           Back
         </button>
-      </form>
+      </CForm>
       <h4>Summary Notes</h4>
       <p>
         Provide a description of {initialLanguage.name} as a whole, and notes

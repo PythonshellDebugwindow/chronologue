@@ -1,9 +1,18 @@
-import { useContext, useState } from 'react';
+import { useContext } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 
-import LanguageLink from '@/components/LanguageLink';
 import DisplayDate from '@/components/DisplayDate';
-import DropdownToggle from '@/components/DropdownToggle';
+import InfoTable from '@/components/InfoTable';
+import LanguageLink from '@/components/LanguageLink';
+import {
+  LanguageTranslationDateAndLinks,
+  TranslationContent,
+  TranslationDropdowns,
+  TranslationInfo,
+  TranslationLanguagesTable,
+  TranslationRow,
+  TranslationWIPText
+} from '@/components/Translations';
 
 import SelectedLanguageContext, {
   ISelectedLanguageData
@@ -23,8 +32,6 @@ import { ILanguageTranslation, ITranslation } from '@/types/translations';
 import { useSetPageTitle } from '@/utils/global/hooks';
 import { renderDatalessQueryResult } from '@/utils/global/queries';
 
-import { formatTextWithGrammarForms } from '@/utils/grammar';
-
 interface ILanguageTranslationRow {
   languageTranslation: ILanguageTranslation;
   translationId: string;
@@ -34,72 +41,25 @@ interface ILanguageTranslationRow {
 function LanguageTranslationRow(
   { languageTranslation: langTr, translationId, grammarForms }: ILanguageTranslationRow
 ) {
-  const [showingIpa, setShowingIpa] = useState(false);
-  const [showingNotes, setShowingNotes] = useState(false);
-  const [showingGloss, setShowingGloss] = useState(false);
-
   return (
-    <tr className={langTr.workInProgress ? "translation-wip" : undefined}>
+    <TranslationRow workInProgress={langTr.workInProgress}>
       <td>
         <LanguageLink id={langTr.langId} />
       </td>
       <td>
-        <p className="translation-date">
-          Added on <DisplayDate date={langTr.created} />
-          <span style={{ float: "right" }}>
-            <Link to={`/translation/${translationId}?lang=${langTr.langId}`}>
-              [link]
-            </Link>
-            {" "}
-            <Link to={`/translate-text/${translationId}?lang=${langTr.langId}`}>
-              [edit]
-            </Link>
-            {" "}
-            <Link to={`/delete-text-translation/${translationId}?lang=${langTr.langId}`}>
-              [delete]
-            </Link>
-          </span>
-        </p>
-        {langTr.workInProgress && (
-          <span className="translation-wip-text">Work In Progress</span>
-        )}
-        <p className="translation-content">{langTr.content}</p>
-        <div className="translation-dropdowns">
-          {langTr.ipa && (
-            <DropdownToggle
-              label="IPA"
-              open={showingIpa}
-              setOpen={setShowingIpa}
-            />
-          )}
-          {langTr.gloss && (
-            <DropdownToggle
-              label="Gloss"
-              open={showingGloss}
-              setOpen={setShowingGloss}
-            />
-          )}
-          {langTr.notes && (
-            <DropdownToggle
-              label="Notes"
-              open={showingNotes}
-              setOpen={setShowingNotes}
-            />
-          )}
-        </div>
-        {showingIpa && (
-          <p className="translation-content-small">{langTr.ipa}</p>
-        )}
-        {showingGloss && (
-          <p className="translation-content-small">
-            {formatTextWithGrammarForms(langTr.gloss, grammarForms)}
-          </p>
-        )}
-        {showingNotes && (
-          <p className="translation-content-small">{langTr.notes}</p>
-        )}
+        <LanguageTranslationDateAndLinks
+          created={langTr.created}
+          translationId={translationId}
+          languageId={langTr.langId}
+        />
+        {langTr.workInProgress && <TranslationWIPText />}
+        <TranslationContent>{langTr.content}</TranslationContent>
+        <TranslationDropdowns
+          languageTranslation={langTr}
+          grammarForms={grammarForms}
+        />
       </td>
-    </tr>
+    </TranslationRow>
   );
 }
 
@@ -137,15 +97,13 @@ function SingleLanguageTranslation(
         <Link to={'/translation/' + translation.id}>View all translated languages</Link>
       </p>
       {langTr && (
-        <table className="language-translations-table">
-          <tbody>
-            <LanguageTranslationRow
-              languageTranslation={langTr}
-              translationId={translation.id}
-              grammarForms={grammarForms}
-            />
-          </tbody>
-        </table>
+        <TranslationLanguagesTable>
+          <LanguageTranslationRow
+            languageTranslation={langTr}
+            translationId={translation.id}
+            grammarForms={grammarForms}
+          />
+        </TranslationLanguagesTable>
       )}
       {!langTr && (
         <>
@@ -195,18 +153,16 @@ function AllLanguageTranslations(
         )
       )}
       {languageTranslations.length > 0 && (
-        <table className="language-translations-table">
-          <tbody>
-            {languageTranslations.map(langTr => (
-              <LanguageTranslationRow
-                languageTranslation={langTr}
-                translationId={translation.id}
-                grammarForms={grammarForms}
-                key={langTr.langId}
-              />
-            ))}
-          </tbody>
-        </table>
+        <TranslationLanguagesTable>
+          {languageTranslations.map(langTr => (
+            <LanguageTranslationRow
+              languageTranslation={langTr}
+              translationId={translation.id}
+              grammarForms={grammarForms}
+              key={langTr.langId}
+            />
+          ))}
+        </TranslationLanguagesTable>
       )}
       {languageTranslations.length === 0 && (
         <p>You have not yet translated this text into any languages.</p>
@@ -228,25 +184,23 @@ function ViewTranslationInner(
   return (
     <div>
       <h2>View Translation</h2>
-      <table className="info-table">
-        <tbody>
-          <tr>
-            <th>Created:</th>
-            <td>
-              <DisplayDate date={translation.created} />
-            </td>
-          </tr>
-        </tbody>
-      </table>
-      <div className="translation-info">
+      <InfoTable>
+        <tr>
+          <th>Created:</th>
+          <td>
+            <DisplayDate date={translation.created} />
+          </td>
+        </tr>
+      </InfoTable>
+      <TranslationInfo>
         <h4>Text:</h4>
         <p>{translation.content}</p>
-      </div>
+      </TranslationInfo>
       {translation.notes && (
-        <div className="translation-info translation-info-small">
+        <TranslationInfo small>
           <h4>Notes:</h4>
           <p>{translation.notes}</p>
-        </div>
+        </TranslationInfo>
       )}
       <p><Link to={'/edit-translation/' + translation.id}>Edit translation</Link></p>
       <h3>Languages</h3>

@@ -2,6 +2,8 @@ import { Dispatch, SetStateAction, useState } from 'react';
 import { useNavigate, useParams, useSearchParams, Link } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 
+import { CForm } from '@/components/CForm';
+import { GrammarTable } from '@/components/GrammarTable';
 import GrammarTableLink from '@/components/GrammarTableLink';
 
 import {
@@ -53,35 +55,33 @@ function EditableIrregularFormsTable(
   { rows, columns, cells, setCells, grammarForms }: IEditableIrregularFormsTable
 ) {
   return (
-    <table className="grammar-table">
-      <tbody>
-        <tr>
-          <th>&nbsp;</th>
-          {columns.map((column, i) => (
-            <th key={i}>
-              {formatPeriodSeparatedGrammarForms(column, grammarForms)}
-            </th>
+    <GrammarTable>
+      <tr>
+        <th>&nbsp;</th>
+        {columns.map((column, i) => (
+          <th key={i}>
+            {formatPeriodSeparatedGrammarForms(column, grammarForms)}
+          </th>
+        ))}
+      </tr>
+      {rows.map((row, i) => (
+        <tr key={i}>
+          <th>{formatPeriodSeparatedGrammarForms(row, grammarForms)}</th>
+          {columns.map((_, j) => (
+            <td key={j}>
+              <input
+                type="text"
+                value={cells[i][j]}
+                onChange={e => setCells(
+                  cells.with(i, cells[i].with(j, e.target.value))
+                )}
+                style={{ margin: "0 5px" }}
+              />
+            </td>
           ))}
         </tr>
-        {rows.map((row, i) => (
-          <tr key={i}>
-            <th>{formatPeriodSeparatedGrammarForms(row, grammarForms)}</th>
-            {columns.map((_, j) => (
-              <td key={j}>
-                <input
-                  type="text"
-                  value={cells[i][j]}
-                  onChange={e => setCells(
-                    cells.with(i, cells[i].with(j, e.target.value))
-                  )}
-                  style={{ margin: "0 5px" }}
-                />
-              </td>
-            ))}
-          </tr>
-        ))}
-      </tbody>
-    </table>
+      ))}
+    </GrammarTable>
   );
 }
 
@@ -136,14 +136,14 @@ function DefineIrregularFormsInner({
         setCells={setCells}
         grammarForms={grammarForms}
       />
-      <form className="chronologue-form">
+      <CForm>
         <button type="button" onClick={saveIrregularForms}>
           Save changes
         </button>
         <button type="button" onClick={() => navigate(-1)}>
           Back
         </button>
-      </form>
+      </CForm>
     </>
   );
 }

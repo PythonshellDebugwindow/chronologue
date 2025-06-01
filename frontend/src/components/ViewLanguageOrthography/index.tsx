@@ -1,5 +1,8 @@
 import { Link } from 'react-router-dom';
 
+import { UserNotesParagraph } from '../Paragraphs';
+import { GraphTableCell, PhoneTable } from '../PhoneTable';
+
 import { useLanguageOrthographySettings } from '@/hooks/languages';
 import { useLanguagePhones } from '@/hooks/phones';
 
@@ -16,11 +19,11 @@ interface IGraphCell {
 
 function GraphCell({ phones, orthSettings }: IGraphCell) {
   return (
-    <td className="graph-cell" style={{ background: "#fafafa" }}>
+    <GraphTableCell style={{ background: "#fafafa" }}>
       <big>{formatGraphForAlphabet(phones[0].graph, orthSettings)}</big>
       <br />
       {phones.map(phoneToStringWithBrackets).sort().join(", ")}
-    </td>
+    </GraphTableCell>
   );
 }
 
@@ -52,21 +55,19 @@ interface IOrthographyTableInner {
 
 function OrthographyTableInner({ phones, orthSettings, languageId }: IOrthographyTableInner) {
   return (
-    <table className="phone-table" style={{ border: "1px solid #999", marginTop: "10px" }}>
-      <tbody>
-        {renderOrthographyTableRows(phones, orthSettings)}
-        <tr>
-          <td colSpan={10} style={{ paddingLeft: "5px", paddingRight: "5px" }}>
-            {
-              orthSettings.hasSetAlphabeticalOrder
-                ? "Shown in correct order "
-                : "Order not set "
-            }
-            <Link to={'/orthography-settings/' + languageId}>[change]</Link>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    <PhoneTable style={{ border: "1px solid #999", marginTop: "10px" }}>
+      {renderOrthographyTableRows(phones, orthSettings)}
+      <tr>
+        <td colSpan={10} style={{ paddingLeft: "5px", paddingRight: "5px" }}>
+          {
+            orthSettings.hasSetAlphabeticalOrder
+              ? "Shown in correct order "
+              : "Order not set "
+          }
+          <Link to={'/orthography-settings/' + languageId}>[change]</Link>
+        </td>
+      </tr>
+    </PhoneTable>
   );
 }
 
@@ -100,7 +101,7 @@ export function OrthographySection({ languageId, notes }: { languageId: string, 
       {notes && (
         <>
           <h4>Notes</h4>
-          <p className="user-notes-paragraph">{notes}</p>
+          <UserNotesParagraph marginTop="0">{notes}</UserNotesParagraph>
         </>
       )}
     </>

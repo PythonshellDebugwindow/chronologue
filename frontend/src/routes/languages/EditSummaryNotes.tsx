@@ -10,6 +10,8 @@ import { ILanguage, ILanguageSummaryNotes } from '@/types/languages';
 import { useGetParamsOrSelectedId, useSetPageTitle } from '@/utils/global/hooks';
 import { renderDatalessQueryResult, sendBackendJson } from '@/utils/global/queries';
 
+import styles from './EditSummaryNotes.module.css';
+
 async function sendSaveNotesRequest(notes: ILanguageSummaryNotes, langId: string) {
   const reqBody = {
     description: notes.description,
@@ -58,10 +60,9 @@ function EditSummaryNotesInner({ language, summaryNotes }: IEditSummaryNotesInne
           Save changes
         </SaveChangesButton>
       )}
-      <label className="wide-textarea-label">
+      <label className={styles.wideTextareaLabel}>
         <p>Description</p>
         <textarea
-          className="wide-textarea"
           value={description}
           onChange={e => {
             setDescription(e.target.value);
@@ -69,10 +70,9 @@ function EditSummaryNotesInner({ language, summaryNotes }: IEditSummaryNotesInne
           }}
         />
       </label>
-      <label className="wide-textarea-label">
+      <label className={styles.wideTextareaLabel}>
         <p>Phonology notes</p>
         <textarea
-          className="wide-textarea"
           value={phonologyNotes}
           onChange={e => {
             setPhonologyNotes(e.target.value);
@@ -80,10 +80,9 @@ function EditSummaryNotesInner({ language, summaryNotes }: IEditSummaryNotesInne
           }}
         />
       </label>
-      <label className="wide-textarea-label">
+      <label className={styles.wideTextareaLabel}>
         <p>Orthography notes</p>
         <textarea
-          className="wide-textarea"
           value={orthographyNotes}
           onChange={e => {
             setOrthographyNotes(e.target.value);

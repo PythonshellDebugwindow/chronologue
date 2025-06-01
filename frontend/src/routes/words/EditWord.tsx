@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 
 import {
+  CForm,
   CFormBody,
   CIpaTextInput,
   CMultilineTextInput,
@@ -90,7 +91,7 @@ function EditWordInner(
     <>
       <h2>Edit Word</h2>
       {errorMessage && <p>{errorMessage}</p>}
-      <form className="chronologue-form">
+      <CForm>
         <CFormBody>
           <CTextInputWithAlphabet
             langId={initialWord.langId}
@@ -149,7 +150,7 @@ function EditWordInner(
         <button type="button" onClick={() => navigate('/word/' + initialWord.id)}>
           Back
         </button>
-      </form>
+      </CForm>
     </>
   );
 }

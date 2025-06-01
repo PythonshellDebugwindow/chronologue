@@ -11,6 +11,8 @@ import { ITranslationOverview } from '@/types/translations';
 import { useGetParamsOrSelectedId, useSetPageTitle } from '@/utils/global/hooks';
 import { renderDatalessQueryResult } from '@/utils/global/queries';
 
+import styles from './ViewTranslations.module.css';
+
 function summarise(text: string) {
   const maxLength = 50;
   if(text.length <= maxLength) {
@@ -33,7 +35,7 @@ function ViewTranslationsInner({ translations, langTranslations, language }: IVi
         Viewing all translations. Rows in yellow have not been translated to{" "}
         <Link to={'/language/' + language.id}>{language.name}</Link>.
       </p>
-      <table className="translations-table">
+      <table className={styles.translationsTable}>
         <tbody>
           <tr>
             <th>Summary</th>
@@ -42,7 +44,7 @@ function ViewTranslationsInner({ translations, langTranslations, language }: IVi
           </tr>
           {translations.map(translation => (
             <tr
-              className={langTranslations.includes(translation.id) ? "" : "unadded-translation"}
+              className={langTranslations.includes(translation.id) ? "" : styles.unaddedTranslation}
               key={translation.id}
             >
               <td>

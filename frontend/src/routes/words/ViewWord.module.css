@@ -1,0 +1,91 @@
+.wordTable {
+  text-align: left;
+  width: 50%;
+  margin: 0 auto;
+}
+.twoColumns {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1em;
+}
+.word {
+  font-size: 1.4em;
+  font-weight: bold;
+  line-height: 1em;
+}
+.ipa {
+  font-size: 1.2em;
+  color: #555;
+}
+.meaning {
+  font-size: 1.2em;
+  line-height: 1.4em;
+}
+.language {
+  margin-top: 1em;
+}
+.pos {
+  font-size: 1.1em;
+  text-align: right;
+}
+.classes {
+  text-align: right;
+}
+.borderedText {
+  margin-bottom: 1em;
+  white-space: pre-wrap;
+}
+.borderedText > div:first-child {
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+.borderedText > div:nth-child(2) {
+  border: 1px solid #aaa;
+  padding: 5px;
+  line-height: 1.4em;
+  font-size: 0.9em;
+}
+.date {
+  text-align: center;
+  color: #555;
+}
+
+.grammarTablesList {
+  text-align: left;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 50vw;
+}
+.grammarTablesList > div {
+  margin-top: 10px;
+  margin-bottom: 5px;
+  list-style: none;
+}
+.grammarTablesList > div > label {
+  display: block;
+  cursor: pointer;
+  background: #eee;
+  min-width: 50vw;
+  margin: 0 auto;
+}
+.grammarTablesList > div > label:hover {
+  background: #ddd;
+}
+.grammarTablesList > div > label > input {
+  position: relative;
+  top: 1px;
+}
+.grammarTablesList > div > label > span {
+  position: relative;
+  top: -0.5px;
+}
+.grammarTableContainer {
+  padding: 0 10px 10px;
+  margin-top: 5px;
+  border: 1px solid #ddd;
+  display: inline-block;
+  min-width: 100%;
+  box-sizing: border-box;
+}

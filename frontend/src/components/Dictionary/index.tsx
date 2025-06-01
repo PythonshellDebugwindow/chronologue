@@ -5,6 +5,7 @@ import { ILanguage } from '@/types/languages';
 import {
   DictionaryFilterField,
   DictionaryFilterType,
+  IDictionaryField,
   IDictionaryFilter,
   IPartOfSpeech,
   IWord
@@ -16,6 +17,8 @@ import {
   formatWordEtymology,
   userFacingFieldName
 } from '@/utils/words';
+
+import styles from './Dictionary.module.css';
 
 interface IDictionaryFilterSelect {
   filter: IDictionaryFilter;
@@ -119,7 +122,7 @@ export function DictionaryFilterSelect(
 
 export function DictionaryTable({ children }: { children: ReactNode }) {
   return (
-    <table className="dictionary-table" cellSpacing="0">
+    <table className={styles.dictionaryTable} cellSpacing="0">
       <tbody>
         {children}
       </tbody>
@@ -169,4 +172,28 @@ export function DictionaryRow<WordT extends Partial<IWord>>(
       ))}
     </tr>
   );
+}
+
+interface IEnableDictionaryFieldButtons {
+  fields: IDictionaryField[];
+  setFields: Dispatch<SetStateAction<IDictionaryField[]>>;
+}
+
+export function EnableDictionaryFieldButtons(
+  { fields, setFields }: IEnableDictionaryFieldButtons
+) {
+  function enableField(field: IDictionaryField) {
+    const index = fields.indexOf(field);
+    setFields(fields.with(index, { name: field.name, isDisplaying: true }));
+  }
+
+  return fields.map(field => !field.isDisplaying && (
+    <button
+      className={styles.enableDictionaryFieldButton}
+      onClick={() => enableField(field)}
+      key={field.name}
+    >
+      + {userFacingFieldName(field.name)}
+    </button>
+  ));
 }

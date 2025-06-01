@@ -5,12 +5,18 @@ import LinkButton from '../LinkButton';
 
 import { useEstimateWordIPAQuery } from '@/hooks/phones';
 
-export function CForm({ action, children }: { action: string, children: ReactNode }) {
+import styles from './CForm.module.css';
+
+export function CForm({ action, children }: { action?: string, children: ReactNode }) {
   return (
-    <Form method="post" action={action} className="chronologue-form">
+    <Form
+      method={action ? "post" : undefined}
+      action={action}
+      className={styles.cform}
+    >
       {children}
     </Form>
-  )
+  );
 }
 
 export function CFormBody({ children }: { children: ReactNode }) {
@@ -126,9 +132,14 @@ export function CMultilineTextInput({ label, name, state, setState, height }: IT
   return (
     <tr>
       <td>
-        <label htmlFor={"cmti-" + name} className="textarea-label">{label}:</label>
+        <label
+          htmlFor={"cmti-" + name}
+          className={styles.textareaLabel}
+        >
+          {label}:
+        </label>
       </td>
-      <td className="textarea-parent">
+      <td className={styles.textareaParent}>
         <textarea
           name={name}
           id={"cmti-" + name}

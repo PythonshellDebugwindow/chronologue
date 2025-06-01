@@ -1,7 +1,13 @@
 import { useReducer, useState } from 'react';
 import { Link } from 'react-router-dom';
 
+import {
+  LetterButtonPlus,
+  LetterButtonRefresh,
+  LetterButtonX
+} from '@/components/LetterButtons';
 import SaveChangesButton from '@/components/SaveChangesButton';
+import { SettingsTable, SettingsTableRow } from '@/components/SettingsTable';
 
 import {
   useLanguage,
@@ -244,112 +250,101 @@ function EditWordClasses({ language, initialClasses, partsOfSpeech }: IEditWordC
           Save changes
         </SaveChangesButton>
       )}
-      <table className="settings-table">
-        <tbody>
-          <tr>
-            <th>Code</th>
-            <th>Name</th>
-            <th><abbr title="part of speech">POS</abbr></th>
-            <th>&nbsp;</th>
-          </tr>
-          <tr>
-            <td>
-              <input
-                type="text"
-                value={newClassCode}
-                onChange={e => setNewClassCode(e.target.value)}
-                style={{ width: "3em" }}
-              />
-            </td>
-            <td>
-              <input
-                type="text"
-                value={newClassName}
-                onChange={e => setNewClassName(e.target.value)}
-              />
-            </td>
-            <td>
-              <select
-                value={newClassPos}
-                onChange={e => setNewClassPos(e.target.value)}
-              >
-                <option value="">---</option>
-                {partsOfSpeech.map(
-                  pos => <option value={pos.code} key={pos.code}>{pos.name}</option>
-                )}
-              </select>
-            </td>
-            <td>
-              <span className="hover-light-grey" onClick={() => addNewClass()}>
-                <span className="letter-button letter-button-small letter-button-t" />
-              </span>
-            </td>
-          </tr>
-          {classes.map((cls, i) => {
-            const isDeleted = deletedClasses.includes(cls.id);
-            return (
-              <tr key={i} className={isDeleted ? "deleted-row" : undefined}>
-                <td>
-                  <input
-                    type="text"
-                    value={cls.code}
-                    onChange={e => editClassCode(cls, e.target.value)}
-                    style={{ width: "3em" }}
-                    disabled={isDeleted}
-                  />
-                </td>
-                <td>
-                  <input
-                    type="text"
-                    value={cls.name}
-                    onChange={e => editClassName(cls, e.target.value)}
-                    disabled={isDeleted}
-                  />
-                </td>
-                <td>
-                  {
-                    cls.id === UNADDED_CLASS_ID
-                      ? <select
-                          value={cls.pos}
-                          onChange={e => editClassPos(cls, e.target.value)}
-                        >
-                          {partsOfSpeech.map(
-                            pos => <option value={pos.code} key={pos.code}>{pos.name}</option>
-                          )}
-                        </select>
-                      : partsOfSpeech.find(p => p.code === cls.pos)?.name
-                  }
-                </td>
-                <td>
-                  {
-                    isDeleted
-                      ? <span onClick={() => restoreClass(cls)} className="hover-light-grey">
-                          <span className="letter-button letter-button-small letter-button-refresh" />
-                        </span>
-                      : <span onClick={() => deleteClass(cls)} className="hover-light-grey">
-                          <span className="letter-button letter-button-small letter-button-x" />
-                        </span>
-                  }
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+      <SettingsTable>
+        <tr>
+          <th>Code</th>
+          <th>Name</th>
+          <th><abbr title="part of speech">POS</abbr></th>
+          <th>&nbsp;</th>
+        </tr>
+        <tr>
+          <td>
+            <input
+              type="text"
+              value={newClassCode}
+              onChange={e => setNewClassCode(e.target.value)}
+              style={{ width: "3em" }}
+            />
+          </td>
+          <td>
+            <input
+              type="text"
+              value={newClassName}
+              onChange={e => setNewClassName(e.target.value)}
+            />
+          </td>
+          <td>
+            <select
+              value={newClassPos}
+              onChange={e => setNewClassPos(e.target.value)}
+            >
+              <option value="">---</option>
+              {partsOfSpeech.map(
+                pos => <option value={pos.code} key={pos.code}>{pos.name}</option>
+              )}
+            </select>
+          </td>
+          <td>
+            <LetterButtonPlus onClick={addNewClass} />
+          </td>
+        </tr>
+        {classes.map((cls, i) => {
+          const isDeleted = deletedClasses.includes(cls.id);
+          return (
+            <SettingsTableRow deleted={isDeleted} key={i}>
+              <td>
+                <input
+                  type="text"
+                  value={cls.code}
+                  onChange={e => editClassCode(cls, e.target.value)}
+                  style={{ width: "3em" }}
+                  disabled={isDeleted}
+                />
+              </td>
+              <td>
+                <input
+                  type="text"
+                  value={cls.name}
+                  onChange={e => editClassName(cls, e.target.value)}
+                  disabled={isDeleted}
+                />
+              </td>
+              <td>
+                {
+                  cls.id === UNADDED_CLASS_ID
+                    ? <select
+                        value={cls.pos}
+                        onChange={e => editClassPos(cls, e.target.value)}
+                      >
+                        {partsOfSpeech.map(
+                          pos => <option value={pos.code} key={pos.code}>{pos.name}</option>
+                        )}
+                      </select>
+                    : partsOfSpeech.find(p => p.code === cls.pos)?.name
+                }
+              </td>
+              <td>
+                {
+                  isDeleted
+                    ? <LetterButtonRefresh onClick={() => restoreClass(cls)} />
+                    : <LetterButtonX onClick={() => deleteClass(cls)} />
+                }
+              </td>
+            </SettingsTableRow>
+          );
+        })}
+      </SettingsTable>
       {!classesAreSaved && (
-        <>
-          <br />
-          <SaveChangesButton
-            isSaving={isSaving}
-            setIsSaving={setIsSaving}
-            saveQueryKey={['languages', language.id, 'word-classes', 'update']}
-            saveQueryFn={async () => await sendSaveClassesRequest(classesState, language.id)}
-            handleSave={data => dispatchClasses({ type: 'markSaved', newClasses: data })}
-            style={{ marginTop: "0.8em" }}
-          >
-            Save changes
-          </SaveChangesButton>
-        </>
+        <SaveChangesButton
+          isSaving={isSaving}
+          setIsSaving={setIsSaving}
+          saveQueryKey={['languages', language.id, 'word-classes', 'update']}
+          saveQueryFn={async () => await sendSaveClassesRequest(classesState, language.id)}
+          handleSave={data => dispatchClasses({ type: 'markSaved', newClasses: data })}
+          style={{ marginTop: "1em" }}
+        >
+          Save changes
+        </SaveChangesButton>
       )}
     </>
   );

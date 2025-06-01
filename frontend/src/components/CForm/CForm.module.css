@@ -1,0 +1,34 @@
+.cform {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  width: 350px;
+  max-width: 75%;
+  margin: 0 auto;
+}
+.cform td:first-child {
+  width: 0;
+  padding-right: 10px;
+}
+.cform input[type="text"] {
+  width: calc(100% - 7px);
+  resize: none;
+}
+.textareaLabel {
+  position: relative;
+  top: -2px;
+}
+.textareaParent {
+  position: relative;
+  display: block;
+  width: 100%;
+}
+.cform textarea {
+  margin-top: 4px;
+  width: calc(100% - 1.5px);
+  height: 7em;
+  box-sizing: border-box;
+}
+.cform button {
+  margin-top: 20px;
+}

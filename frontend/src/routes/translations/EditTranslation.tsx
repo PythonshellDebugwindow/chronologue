@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 
+import { TranslationInfo } from '@/components/Translations';
+
 import { useTranslation } from '@/hooks/translations';
 
 import { ITranslation } from '@/types/translations';
@@ -38,8 +40,8 @@ function EditTranslationInner({ initialTranslation }: { initialTranslation: ITra
   return (
     <>
       <h2>Edit Translation</h2>
-      {message && <p>{message}</p>}
-      <div className="translation-info">
+      {message && <p style={{ marginBottom: "0" }}>{message}</p>}
+      <TranslationInfo>
         <h4>Text:</h4>
         <textarea
           value={content}
@@ -53,7 +55,7 @@ function EditTranslationInner({ initialTranslation }: { initialTranslation: ITra
           onChange={e => setNotes(e.target.value)}
           spellCheck={false}
         />
-      </div>
+      </TranslationInfo>
       {message && <p style={{ marginTop: "0" }}>{message}</p>}
       <div style={{ margin: "0.5em 0 1em" }}>
         <button type="button" onClick={editFormTranslation}>

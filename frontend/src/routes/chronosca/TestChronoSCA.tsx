@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 
+import { SettingsTable } from '@/components/SettingsTable';
+
 import { useLanguage } from '@/hooks/languages';
 import {
   useApplySCARulesQuery,
@@ -17,22 +19,20 @@ import { renderDatalessQueryResult } from '@/utils/global/queries';
 
 function DisplayCategories({ categories }: { categories: ICategory[] }) {
   return (
-    <table className="settings-table">
-      <tbody>
-        {categories.map(category => (
-          <tr key={category.letter}>
-            <td>{category.letter}</td>
-            <td>
-              <input
-                value={category.members.join(",")}
-                disabled
-                style={{ color: "black" }}
-              />
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
+    <SettingsTable>
+      {categories.map(category => (
+        <tr key={category.letter}>
+          <td>{category.letter}</td>
+          <td>
+            <input
+              value={category.members.join(",")}
+              disabled
+              style={{ color: "black" }}
+            />
+          </td>
+        </tr>
+      ))}
+    </SettingsTable>
   );
 }
 
@@ -40,22 +40,20 @@ function ScaQueryResults(
   { inputs, queryResults }: { inputs: string[], queryResults: ApplySCARulesQueryResult[] }
 ) {
   return (
-    <table style={{ textAlign: "left" }} className="settings-table">
-      <tbody>
-        <tr>
-          <th>Input</th>
-          <th>Output</th>
+    <SettingsTable>
+      <tr style={{ textAlign: "left" }}>
+        <th>Input</th>
+        <th>Output</th>
+      </tr>
+      {queryResults.map((qr, i) => (
+        <tr key={i}>
+          <td>{inputs[i]}</td>
+          <td style={qr.success ? undefined : { color: "red" }}>
+            {qr.success ? qr.result : qr.message}
+          </td>
         </tr>
-        {queryResults.map((qr, i) => (
-          <tr key={i}>
-            <td>{inputs[i]}</td>
-            <td style={qr.success ? undefined : { color: "red" }}>
-              {qr.success ? qr.result : qr.message}
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
+      ))}
+    </SettingsTable>
   );
 }
 

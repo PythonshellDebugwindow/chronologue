@@ -4,6 +4,8 @@ import ReactSelect from 'react-select';
 
 import { phoneToString, qualityData } from '@shared/phones';
 
+import { LetterButtonXNoShadow } from '@/components/LetterButtons';
+import { PhoneTable, PhoneTableCell } from '@/components/PhoneTable';
 import SaveChangesButton from '@/components/SaveChangesButton';
 
 import { useLanguage } from '@/hooks/languages';
@@ -21,6 +23,8 @@ import { renderDatalessQueryResult, sendBackendJson } from '@/utils/global/queri
 
 import { consonantData, hasDoubleWidthCell, vowelData } from '@/utils/phones';
 
+import styles from './EditPhonology.module.css';
+
 interface IPhoneTableHalfCell {
   type: PhoneType;
   phone: string;
@@ -31,20 +35,18 @@ interface IPhoneTableHalfCell {
 
 function PhoneTableHalfCell({ type, phone, addedPhones, addPhone, colSpan = 1 }: IPhoneTableHalfCell) {
   const isAdded = addedPhones.some(ap => ap.base === phone && ap.type === type);
-  const className = isAdded ? "phone-cell-added" : "phone-cell";
   return (
-    <td
-      className={className}
-      style={{ cursor: "pointer" }}
+    <PhoneTableCell
+      added={isAdded}
       onClick={() => addPhone(phone)}
       colSpan={colSpan}
     >
       {phone}
-    </td>
+    </PhoneTableCell>
   );
 }
 
-interface IPhoneTableCell {
+interface IPhoneTableCells {
   data: IPhoneTableData;
   addedPhones: IPhone[];
   addPhone: (base: string) => void;
@@ -52,7 +54,7 @@ interface IPhoneTableCell {
   col: number;
 }
 
-function PhoneTableCell({ data, addedPhones, addPhone, row, col }: IPhoneTableCell) {
+function PhoneTableCells({ data, addedPhones, addPhone, row, col }: IPhoneTableCells) {
   const hasLeft = data.phones[row][col * 2];
   const hasRight = data.phones[row][col * 2 + 1];
   if(!hasLeft && !hasRight) {
@@ -112,33 +114,31 @@ function PhonologyTable({ data, phones, dispatchPhones }: IPhonologyTable) {
   }
 
   return (
-    <table className="phone-table">
-      <tbody>
-        <tr>
-          <th><b>{data.type === 'consonant' ? "Consonants" : "Vowels"}</b></th>
-          {data.horizontal.map((label, i) => (
-            <th key={i} colSpan={2}>{label}</th>
+    <PhoneTable>
+      <tr>
+        <th><b>{data.type === 'consonant' ? "Consonants" : "Vowels"}</b></th>
+        {data.horizontal.map((label, i) => (
+          <th key={i} colSpan={2}>{label}</th>
+        ))}
+      </tr>
+      {data.vertical.map((label, i) => (
+        <tr key={i}>
+          <th>{label}</th>
+          {data.horizontal.map((_, j) => (
+            (data.phones[i][j * 2] || data.phones[i][j * 2 + 1])
+              ? <PhoneTableCells
+                  data={data}
+                  addedPhones={phones}
+                  addPhone={addPhone}
+                  row={i}
+                  col={j}
+                  key={j}
+                />
+              : <td key={j} colSpan={2}>&nbsp;</td>
           ))}
         </tr>
-        {data.vertical.map((label, i) => (
-          <tr key={i}>
-            <th>{label}</th>
-            {data.horizontal.map((_, j) => (
-              (data.phones[i][j * 2] || data.phones[i][j * 2 + 1])
-                ? <PhoneTableCell
-                    data={data}
-                    addedPhones={phones}
-                    addPhone={addPhone}
-                    row={i}
-                    col={j}
-                    key={j}
-                  />
-                : <td key={j} colSpan={2}>&nbsp;</td>
-            ))}
-          </tr>
-        ))}
-      </tbody>
-    </table>
+      ))}
+    </PhoneTable>
   );
 }
 
@@ -266,12 +266,7 @@ function PhoneListRow({ phone, allPhones, dispatchPhones }: IPhoneListRow) {
         />
       </td>
       <td>
-        <span
-          onClick={deletePhone}
-          title="Delete"
-          className="letter-button letter-button-small letter-button-x"
-          style={{ cursor: "pointer" }}
-        />
+        <LetterButtonXNoShadow onClick={deletePhone} />
       </td>
     </tr>
   );
@@ -285,7 +280,7 @@ interface IPhoneList {
 function PhoneList({ phones, dispatchPhones }: IPhoneList) {
   return (
     <div>
-      <table className="phone-list-table">
+      <table className={styles.phoneListTable}>
         <tbody>
           <tr>
             <th>Phone</th>

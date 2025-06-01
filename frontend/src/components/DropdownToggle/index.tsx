@@ -1,3 +1,5 @@
+import styles from './DropdownToggle.module.css';
+
 interface IDropdownToggle {
   label: string;
   open: boolean;
@@ -6,8 +8,8 @@ interface IDropdownToggle {
 
 export default function DropdownToggle({ label, open, setOpen }: IDropdownToggle) {
   return (
-    <div className="dropdown-toggle">
-      <span onClick={() => setOpen(!open)}>
+    <div>
+      <span className={styles.dropdownToggle} onClick={() => setOpen(!open)}>
         {label}&nbsp;{open ? "▼" : "▶"}
       </span>
     </div>

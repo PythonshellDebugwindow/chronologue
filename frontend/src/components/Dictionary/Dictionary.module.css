@@ -1,0 +1,27 @@
+.dictionaryTable {
+  border-collapse: collapse;
+  margin: 0 auto;
+}
+.dictionaryTable tr {
+  border-bottom: 1px solid #eee;
+}
+.dictionaryTable tr:hover {
+  border-bottom-color: lightgrey;
+}
+.dictionaryTable th:nth-child(even),
+.dictionaryTable td:nth-child(even) {
+  background: #fafafa;
+}
+.dictionaryTable th,
+.dictionaryTable td {
+  padding: 1px 5px;
+}
+.dictionaryTable td {
+  text-align: left;
+  white-space: pre-wrap;
+}
+
+.enableDictionaryFieldButton {
+  padding: 0.1em 0.3em 0.3em;
+  margin-left: 0.5em;
+}

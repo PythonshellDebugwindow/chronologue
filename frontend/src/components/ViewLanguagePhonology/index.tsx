@@ -1,5 +1,8 @@
 import { ReactNode } from 'react';
 
+import { UserNotesParagraph } from '../Paragraphs';
+import { PhoneTable, PhoneTableCell } from '../PhoneTable';
+
 import { useLanguagePhones } from '@/hooks/phones';
 
 import { IPhone, IPhoneTableData } from '@/types/phones';
@@ -11,6 +14,8 @@ import {
   hasDoubleWidthCell,
   vowelData
 } from '@/utils/phones';
+
+import styles from './ViewLanguagePhonology.module.css';
 
 interface IPhoneWithFormatted {
   phone: IPhone;
@@ -44,15 +49,15 @@ function PhoneTableHalfCell({ phone, addedPhones, phonesWithNotes, colSpan = 1 }
   });
 
   return (
-    <td className="phone-cell" colSpan={colSpan}>
+    <PhoneTableCell colSpan={colSpan}>
       &nbsp;
       {withNotes}
       &nbsp;
-    </td>
+    </PhoneTableCell>
   );
 }
 
-interface IPhoneTableCell {
+interface IPhoneTableCells {
   data: IPhoneTableData;
   phones: IPhoneWithFormatted[];
   phonesWithNotes: IPhone[];
@@ -61,7 +66,7 @@ interface IPhoneTableCell {
   col: number;
 }
 
-function PhoneTableCell({ data, phones, phonesWithNotes, phoneBases, row, col }: IPhoneTableCell) {
+function PhoneTableCells({ data, phones, phonesWithNotes, phoneBases, row, col }: IPhoneTableCells) {
   const hasLeft = phoneBases.includes(data.phones[row][col * 2]);
   const hasRight = phoneBases.includes(data.phones[row][col * 2 + 1]);
   if(!hasLeft && !hasRight) {
@@ -163,36 +168,34 @@ function PhonologyTable({ data, phones, marginTop = "" }: IPhonologyTable) {
 
   return (
     <>
-      <table className="phone-table" style={marginTop ? { marginTop } : {}}>
-        <tbody>
-          <tr>
-            <th><b>{data.type === 'consonant' ? "Consonants" : "Vowels"}</b></th>
-            {columnIndices.map(i => (
-              <th key={i} colSpan={2}>{data.horizontal[i]}</th>
-            ))}
-          </tr>
-          {data.vertical.map((label, i) => (
-            phoneBases.some(b => data.phones[i].includes(b)) && (
-              <tr key={i}>
-                <th>{label}</th>
-                {columnIndices.map(j => (
-                  <PhoneTableCell
-                    data={data}
-                    phones={phonesWithFormatting}
-                    phonesWithNotes={phonesWithNotes}
-                    phoneBases={phoneBases}
-                    row={i}
-                    col={j}
-                    key={j}
-                  />
-                ))}
-              </tr>
-            )
+      <PhoneTable style={marginTop ? { marginTop } : undefined}>
+        <tr>
+          <th><b>{data.type === 'consonant' ? "Consonants" : "Vowels"}</b></th>
+          {columnIndices.map(i => (
+            <th key={i} colSpan={2}>{data.horizontal[i]}</th>
           ))}
-        </tbody>
-      </table>
+        </tr>
+        {data.vertical.map((label, i) => (
+          phoneBases.some(b => data.phones[i].includes(b)) && (
+            <tr key={i}>
+              <th>{label}</th>
+              {columnIndices.map(j => (
+                <PhoneTableCells
+                  data={data}
+                  phones={phonesWithFormatting}
+                  phonesWithNotes={phonesWithNotes}
+                  phoneBases={phoneBases}
+                  row={i}
+                  col={j}
+                  key={j}
+                />
+              ))}
+            </tr>
+          )
+        ))}
+      </PhoneTable>
       {phonesWithNotes.length > 0 && (
-        <ol className="phone-notes-list">
+        <ol className={styles.phoneNotesList}>
           {phonesWithNotes.map((phone, i) => <li key={i}>{phone.notes}</li>)}
         </ol>
       )}
@@ -261,26 +264,24 @@ function OtherPhonesTable({ phones }: { phones: IPhone[] }) {
   const phonesWithNotes = otherPhones.filter(phone => phone.notes);
   for(let i = 0; i < otherPhones.length; i += 10) {
     phoneRows.push(otherPhones.slice(i, i + 10).map((phone, i) => (
-      <td className="phone-cell" key={i}>
+      <PhoneTableCell key={i}>
         {phone.base}
         {phone.notes && <sup>{phonesWithNotes.indexOf(phone) + 1}</sup>}
-      </td>
+      </PhoneTableCell>
     )));
   }
 
   return (
     <>
-      <table className="phone-table" style={{ border: "1px solid #999", marginTop: "15px" }}>
-        <tbody>
-          <tr>
-            <th rowSpan={phoneRows.length}><b>Other</b></th>
-            {phoneRows[0]}
-          </tr>
-          {phoneRows.slice(1).map((row, i) => <tr key={i}>{row}</tr>)}
-        </tbody>
-      </table>
+      <PhoneTable style={{ border: "1px solid #999", marginTop: "15px" }}>
+        <tr>
+          <th rowSpan={phoneRows.length}><b>Other</b></th>
+          {phoneRows[0]}
+        </tr>
+        {phoneRows.slice(1).map((row, i) => <tr key={i}>{row}</tr>)}
+      </PhoneTable>
       {phonesWithNotes.length > 0 && (
-        <ol className="phone-notes-list">
+        <ol className={styles.phoneNotesList}>
           {phonesWithNotes.map((phone, i) => <li key={i}>{phone.notes}</li>)}
         </ol>
       )}
@@ -322,7 +323,7 @@ export function PhonologySection({ languageId, notes }: { languageId: string, no
       {notes && (
         <>
           <h4>Notes</h4>
-          <p className="user-notes-paragraph">{notes}</p>
+          <UserNotesParagraph marginTop="0">{notes}</UserNotesParagraph>
         </>
       )}
     </>

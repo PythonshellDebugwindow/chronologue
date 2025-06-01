@@ -1,0 +1,47 @@
+.helpTOCContainer {
+  display: inline-block;
+}
+.helpTOCContainer p {
+  text-align: left;
+  margin: 0;
+  text-decoration: underline;
+  font-weight: bold;
+}
+.helpTOC {
+  display: inline-block;
+  text-align: left;
+  margin: 0;
+}
+.helpTOC ul {
+  list-style-type: disc;
+}
+
+.help {
+  text-align: left;
+  width: 85%;
+  margin: 0 auto;
+  counter-reset: chronosca-help-h3;
+}
+.help h3,
+.help h4
+{
+  scroll-margin-top: 30px;
+}
+.help h3 {
+  text-decoration: underline;
+}
+.help h3::before {
+  content: counter(chronosca-help-h3) ". ";
+  counter-increment: chronosca-help-h3;
+}
+.help table {
+  border-collapse: collapse;
+}
+.help table th {
+  border: 1px solid black;
+  padding: 1px 5px;
+}
+.help table td {
+  border: 1px solid black;
+  padding: 1px 5px;
+}

@@ -1,0 +1,11 @@
+.wideTextareaLabel {
+  display: block;
+}
+.wideTextareaLabel p {
+  margin-bottom: 2px;
+  font-weight: bold;
+}
+.wideTextareaLabel textarea {
+  width: 50%;
+  height: 8em;
+}

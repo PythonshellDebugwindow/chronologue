@@ -1,0 +1,84 @@
+.translationInfo {
+  white-space: pre-wrap;
+  width: 50%;
+  text-align: left;
+  margin: 0 auto;
+  padding: 5px;
+}
+.translationInfo h4 {
+  margin: 0 0 5px 0;
+  font-size: 1em;
+}
+.translationInfo p {
+  padding: 5px;
+  margin: 0;
+  border: 1px solid #aaa;
+  line-height: 1.4em;
+}
+.small p {
+  font-size: 0.9em;
+  padding: 3px;
+}
+.translationInfo textarea {
+  font-size: 0.9em;
+  padding: 5px;
+  width: 100%;
+  height: 3.5em;
+}
+
+.translationsTable {
+  margin: 0 auto;
+  text-align: left;
+  max-width: 90%;
+}
+.translationsTable td {
+  vertical-align: top;
+  padding-top: 1em;
+}
+.equal td {
+  width: 50%;
+}
+.equal tr:nth-child(2) td {
+  padding-top: 0.5em;
+}
+.translationsTable td:first-child {
+  max-width: 12em;
+  padding-right: 1em;
+}
+.translationsTable td:nth-child(2) {
+  width: 50vw;
+}
+
+.wip:not(:hover) {
+  opacity: 0.7;
+}
+.wipText {
+  color: #d00;
+  font-size: 0.9em;
+}
+
+.translationsTable p {
+  margin: 0;
+  white-space: pre-wrap;
+}
+.translationsTable .content,
+.translationsTable .contentSmall {
+  border: 1px solid #aaa;
+  padding: 3px;
+  margin-top: 5px;
+}
+.dateAndLinks,
+.contentSmall {
+  font-size: 0.9em;
+}
+.equal .dateAndLinks {
+  font-size: 0.95em;
+}
+.dropdowns {
+  display: flex;
+  margin: 3px 2em 0;
+  font-size: 0.9em;
+}
+.dropdowns > div:not(:first-child) {
+  margin-left: 33%;
+}

@@ -3,11 +3,13 @@ import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 
 import {
   CCheckbox,
+  CForm,
   CFormBody,
   CMultilineTextInput,
   CTextInput
 } from '@/components/CForm';
 import EditableGrammarTable from '@/components/EditableGrammarTable';
+import { InfoParagraph } from '@/components/Paragraphs';
 import POSAndClassesSelect from '@/components/POSAndClassesSelect';
 
 import {
@@ -147,16 +149,16 @@ function AddGrammarTableInner({ language, langClasses, langTables, partsOfSpeech
   return (
     <>
       <h2>Add Grammar Table</h2>
-      <p className="info-paragraph">
+      <InfoParagraph>
         Add a grammar table to <Link to={'/language/' + language.id}>{language.name}</Link>.
         Grammar tables are used to show inflected forms of words, like declensions or conjugations.
-      </p>
-      <p className="info-paragraph">
+      </InfoParagraph>
+      <InfoParagraph>
         If any classes are selected, the table will only apply to words with all those classes; if
         the "Invert classes" option is selected, then it will instead apply to words with none of
         them. Selecting "Show IPA" will cause an IPA estimation to be shown beneath each word form
         in the table.
-      </p>
+      </InfoParagraph>
       {copyingMessage && <p>{copyingMessage}</p>}
       {message && <p><b>{message}</b></p>}
       <p>
@@ -181,7 +183,7 @@ function AddGrammarTableInner({ language, langClasses, langTables, partsOfSpeech
           Copy
         </button>
       </p>
-      <form className="chronologue-form">
+      <CForm>
         <CFormBody>
           <CTextInput
             label="Name"
@@ -212,26 +214,26 @@ function AddGrammarTableInner({ language, langClasses, langTables, partsOfSpeech
             setState={setShowIpa}
           />
         </CFormBody>
-      </form>
-      <p className="info-paragraph">
+      </CForm>
+      <InfoParagraph>
         Below you can specify the table's row and column names, which should be grammatical
         abbreviations (codes) set on the <Link to="/grammar-forms">Grammar Forms page</Link>.
         For example, in a table for adjectives, the row names could be <code>SG</code> and{" "}
         <code>PL</code> and the column names could be <code>M</code> and <code>F</code> (assuming
         those forms are all defined).
-      </p>
-      <p className="info-paragraph">
+      </InfoParagraph>
+      <InfoParagraph>
         Multiple forms in a single row/header name can be separated with a period. The symbol
         Ø means "no form".
-      </p>
+      </InfoParagraph>
       <EditableGrammarTable
         rows={rows}
         columns={columns}
         setRows={setRows}
         setColumns={setColumns}
       />
-      {message && <p><b>{message}</b></p>}
-      <form className="chronologue-form" style={{ marginTop: "1em" }}>
+      {message ? <p><b>{message}</b></p> : <br />}
+      <CForm>
         <CFormBody>
           <CMultilineTextInput
             label="Notes"
@@ -244,7 +246,7 @@ function AddGrammarTableInner({ language, langClasses, langTables, partsOfSpeech
         <button type="button" onClick={addFormTable}>
           Add Grammar Table
         </button>
-      </form>
+      </CForm>
     </>
   );
 }

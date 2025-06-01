@@ -19,6 +19,8 @@ import {
   formatPeriodSeparatedGrammarForms
 } from '@/utils/grammar';
 
+import styles from './ViewGrammarTables.module.css';
+
 function formatGrammarFormsList(codes: string[], grammarForms: IGrammarForm[]) {
   return codes.map((code, i) => {
     const posNodes = formatPeriodSeparatedGrammarForms(code, grammarForms);
@@ -42,7 +44,7 @@ function ViewGrammarTablesInner({ language, tables, grammarForms, partsOfSpeech 
       <p>
         Viewing <Link to={'/language/' + language.id}>{language.name}</Link>'s grammar tables.
       </p>
-      <div className="grammar-tables-grid">
+      <div className={styles.grammarTablesGrid}>
         {tables.map(table => (
           <div key={table.id}>
             <GrammarTableLink
