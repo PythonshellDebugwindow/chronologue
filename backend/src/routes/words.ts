@@ -385,6 +385,14 @@ export const massEditLanguageDictionary: RequestHandler = async (req, res) => {
   const changes = req.body.changes;
   const changedIds = Object.keys(changes);
   const changedFields = changedIds.map(id => changes[id]);
+
+  if(req.body.field === 'word' || req.body.field === 'meaning') {
+    if(changedFields.some(f => f.length === 0)) {
+      res.status(400).json({ message: `Words cannot have an empty ${req.body.field} field.` });
+      return;
+    }
+  }
+
   const escapedField = escapeIdentifier(req.body.field);
 
   await query(
