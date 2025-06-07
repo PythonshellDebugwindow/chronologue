@@ -5,6 +5,12 @@ import Header from '@/components/Header';
 import ErrorPage from './ErrorPage';
 import MainPage from './MainPage';
 
+import AddArticle from './articles/AddArticle';
+import DeleteArticle from './articles/DeleteArticle';
+import EditArticle from './articles/EditArticle';
+import ViewArticle from './articles/ViewArticle';
+import ViewArticles from './articles/ViewArticles';
+
 import ChronoSCAHelpPage from './chronosca/ChronoSCAHelpPage';
 import TestChronoSCA from './chronosca/TestChronoSCA';
 
@@ -70,6 +76,10 @@ export const appRouter = createBrowserRouter([
         element: <MainPage />
       },
       {
+        path: "add-article",
+        element: <AddArticle />
+      },
+      {
         path: "add-family",
         element: <AddFamily />,
         action: addFamilyAction
@@ -92,12 +102,24 @@ export const appRouter = createBrowserRouter([
         element: <AddWord />
       },
       {
+        path: "article/:id?",
+        element: <ViewArticle />
+      },
+      {
+        path: "articles",
+        element: <ViewArticles />
+      },
+      {
         path: "chronosca/:id?",
         element: <TestChronoSCA />
       },
       {
         path: "chronosca-help",
         element: <ChronoSCAHelpPage />
+      },
+      {
+        path: "delete-article/:id",
+        element: <DeleteArticle />
       },
       {
         path: "delete-family/:id",
@@ -134,6 +156,10 @@ export const appRouter = createBrowserRouter([
       {
         path: "dictionary-settings/:id?",
         element: <EditDictionarySettings />
+      },
+      {
+        path: "edit-article/:id",
+        element: <EditArticle />
       },
       {
         path: "edit-categories/:id?",

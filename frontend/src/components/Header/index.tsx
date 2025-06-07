@@ -91,7 +91,9 @@ export default function Header() {
           items={[
             <Link to="/translations">View Translations</Link>,
             <Link to="/add-translation">Add Translation</Link>,
-            <Link to="/language-translations">Language Translations</Link>
+            <Link to="/language-translations">Language Translations</Link>,
+            <Link to="/articles">View Articles</Link>,
+            <Link to="/add-article">Add Article</Link>
           ]}
           setCanHover={setCanHover}
         />

@@ -187,3 +187,17 @@ CREATE TABLE IF NOT EXISTS language_translations (
 	created timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	PRIMARY KEY (transl_id, lang_id)
 );
+
+CREATE TABLE IF NOT EXISTS articles (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  title text NOT NULL,
+  content text NOT NULL,
+  created timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated timestamptz
+);
+
+CREATE TABLE IF NOT EXISTS article_tags (
+  article_id uuid NOT NULL REFERENCES articles ON DELETE CASCADE,
+  tag text NOT NULL,
+  PRIMARY KEY (article_id, tag)
+);

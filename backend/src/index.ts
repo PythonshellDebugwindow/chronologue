@@ -1,6 +1,7 @@
 import express from 'express';
 import type { ErrorRequestHandler } from 'express';
 
+import * as articles from './routes/articles.js';
 import * as families from './routes/families.js';
 import * as grammar from './routes/grammar.js';
 import * as grammarTables from './routes/grammarTables.js';
@@ -25,6 +26,14 @@ app.use((req, res, next) => {
   console.log(req.url, req.body);
   next();
 });
+
+app.get('/article-tags', articles.getExistingTags);
+
+app.get('/articles', articles.getAllArticles);
+app.post('/articles', articles.addArticle);
+app.get('/articles/:id', articles.getArticle);
+app.put('/articles/:id', articles.editArticle);
+app.delete('/articles/:id', articles.deleteArticle);
 
 app.get('/families', families.getAllFamilies);
 app.post('/families', families.addFamily);
