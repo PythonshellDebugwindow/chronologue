@@ -1,8 +1,10 @@
-import { Link } from 'react-router-dom';
+import { useState } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 
+import ArticleTagList from '@/components/ArticleTagList';
 import DisplayDate from '@/components/DisplayDate';
 
-import { useArticles } from '@/hooks/articles';
+import { useArticles, useExistingArticleTags } from '@/hooks/articles';
 
 import { IArticleOverview } from '@/types/articles';
 
@@ -19,11 +21,68 @@ function summarise(text: string) {
   return text.substring(0, maxLength - 3) + "...";
 }
 
-function ViewArticlesInner({ articles }: { articles: IArticleOverview[] }) {
+function filterArticles(articles: IArticleOverview[], tag: string | null, content: string) {
+  const filteredByTag = tag ? articles.filter(a => a.tags.includes(tag)) : articles;
+  if(content) {
+    const lowercaseContent = content.toLowerCase();
+    return filteredByTag.filter(a => a.content.toLowerCase().includes(lowercaseContent));
+  } else {
+    return filteredByTag;
+  }
+}
+
+interface IViewArticlesInner {
+  articles: IArticleOverview[];
+  existingTags: string[];
+}
+
+function ViewArticlesInner({ articles, existingTags }: IViewArticlesInner) {
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const filteredTag = searchParams.get('tag');
+  const [searchContent, setSearchContent] = useState("");
+
+  const filteredArticles = filterArticles(articles, filteredTag, searchContent);
+
+  function setFilteredTag(tag: string) {
+    setSearchParams(params => {
+      if(tag) {
+        params.set('tag', tag);
+      } else {
+        params.delete('tag');
+      }
+      return params;
+    });
+  }
+
   return (
     <>
       <h2>View Articles</h2>
       <p>Viewing all articles.</p>
+      <p>
+        <label>
+          Filter by tag:{" "}
+          <select
+            value={filteredTag ?? ""}
+            onChange={e => setFilteredTag(e.target.value)}
+          >
+            <option value="">---</option>
+            {existingTags.map(tag => (
+              <option value={tag} key={tag}>{tag}</option>
+            ))}
+          </select>
+        </label>
+      </p>
+      <p>
+        <label>
+          Search for content:{" "}
+          <input
+            type="text"
+            value={searchContent}
+            onChange={e => setSearchContent(e.target.value)}
+          />
+        </label>
+      </p>
       <table className={styles.articlesTable}>
         <tbody>
           <tr>
@@ -31,17 +90,17 @@ function ViewArticlesInner({ articles }: { articles: IArticleOverview[] }) {
             <th>Tags</th>
             <th>Last edited</th>
           </tr>
-          {articles.map(article => (
+          {filteredArticles.map(article => (
             <tr key={article.id}>
               <td>
                 <Link to={'/article/' + article.id}>
                   {summarise(article.title)}
                 </Link>
                 <br />
-                {summarise(article.content)}
+                <small>{summarise(article.content)}</small>
               </td>
               <td>
-                {article.tags.join(", ")}
+                <ArticleTagList article={article} />
               </td>
               <td>
                 <DisplayDate date={article.updated} />
@@ -59,6 +118,7 @@ function ViewArticlesInner({ articles }: { articles: IArticleOverview[] }) {
 
 export default function ViewArticles() {
   const articlesResponse = useArticles();
+  const existingTagsResponse = useExistingArticleTags();
 
   useSetPageTitle("View Articles");
 
@@ -66,5 +126,14 @@ export default function ViewArticles() {
     return renderDatalessQueryResult(articlesResponse);
   }
 
-  return <ViewArticlesInner articles={articlesResponse.data} />;
+  if(existingTagsResponse.status !== 'success') {
+    return renderDatalessQueryResult(existingTagsResponse);
+  }
+
+  return (
+    <ViewArticlesInner
+      articles={articlesResponse.data}
+      existingTags={existingTagsResponse.data}
+    />
+  );
 }

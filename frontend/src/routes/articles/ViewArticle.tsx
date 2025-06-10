@@ -1,5 +1,6 @@
 import { Link, useParams } from 'react-router-dom';
 
+import ArticleTagList from '@/components/ArticleTagList';
 import DisplayDate from '@/components/DisplayDate';
 import InfoTable from '@/components/InfoTable';
 
@@ -35,7 +36,7 @@ function ViewArticleInner({ article }: { article: IArticle }) {
       {article.tags.length > 0 && (
         <div className={styles.tags}>
           <b>Tags:</b>
-          <span>{article.tags.join(", ")}</span>
+          <span><ArticleTagList article={article} /></span>
         </div>
       )}
       <p><Link to={'/edit-article/' + article.id}>Edit article</Link></p>

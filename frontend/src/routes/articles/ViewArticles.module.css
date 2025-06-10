@@ -13,6 +13,10 @@
 .articlesTable td {
   padding: 1px 5px;
 }
+.articlesTable td:first-child small {
+  display: block;
+  font-size: 0.9em;
+}
 .articlesTable td:nth-child(2) {
   max-width: 10em;
   word-wrap: break-word;
