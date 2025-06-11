@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 
 import helpPageHtmlRaw from '@/assets/chronosca-help.html?raw';
 
-import { useSetPageTitle } from '@/utils/global/hooks';
+import { useScrollToHashOnLoad, useSetPageTitle } from '@/utils/global/hooks';
 
 import styles from './ChronoSCAHelpPage.module.css';
 
@@ -51,6 +51,8 @@ function TableOfContents() {
 
 export default function ChronoSCAHelpPage() {
   useSetPageTitle("ChronoSCA Help");
+
+  useScrollToHashOnLoad();
 
   return (
     <>

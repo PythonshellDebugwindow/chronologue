@@ -9,6 +9,17 @@ export function useGetParamsOrSelectedId() {
   return paramsId ?? selectedId;
 }
 
+export function useScrollToHashOnLoad() {
+  useEffect(() => {
+    if(location.hash) {
+      const element = document.querySelector(location.hash);
+      if(element) {
+        element.scrollIntoView();
+      }
+    }
+  }, []);
+}
+
 export function useSetPageTitle(title: string) {
   useEffect(() => {
     document.title = title + " | Chronologue";
