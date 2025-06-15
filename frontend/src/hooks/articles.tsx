@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 
-import { IArticle, IArticleOverview } from '@/types/articles';
+import { IArticle, IArticleFolder, IArticleOverview } from '@/types/articles';
 import { ITitledError } from '@/types/titledError';
 
 import {
@@ -13,6 +13,13 @@ export function useArticle(id: string) {
   return useQuery<IArticle, ITitledError>({
     queryKey: ['articles', id],
     queryFn: async () => parseSingleRecordDates(await getBackendJson(`articles/${id}`))
+  });
+}
+
+export function useArticleFolders() {
+  return useQuery<IArticleFolder[], ITitledError>({
+    queryKey: ['article-folders'],
+    queryFn: async () => await getBackendJson('article-folders')
   });
 }
 

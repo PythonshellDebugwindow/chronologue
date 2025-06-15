@@ -4,13 +4,13 @@ import { Link, useParams } from 'react-router-dom';
 import DOMPurify from 'dompurify';
 import parse, { domToReact, Element, HTMLReactParserOptions } from 'html-react-parser';
 
-import ArticleTagList from '@/components/ArticleTagList';
+import { ArticleFolderLink, ArticleTagList } from '@/components/Articles';
 import DisplayDate from '@/components/DisplayDate';
 import InfoTable from '@/components/InfoTable';
 
-import { useArticle } from '@/hooks/articles';
+import { useArticle, useArticleFolders } from '@/hooks/articles';
 
-import { IArticle } from '@/types/articles';
+import { IArticle, IArticleFolder } from '@/types/articles';
 
 import { useScrollToHashOnLoad, useSetPageTitle } from '@/utils/global/hooks';
 import { parseAtSignLinkMarkup } from '@/utils/global/markup';
@@ -95,7 +95,12 @@ function ArticleContent({ content }: { content: string }) {
   );
 }
 
-function ViewArticleInner({ article }: { article: IArticle }) {
+interface IViewArticleInner {
+  article: IArticle;
+  folders: IArticleFolder[];
+}
+
+function ViewArticleInner({ article, folders }: IViewArticleInner) {
   return (
     <>
       <h2>Article: {article.title}</h2>
@@ -115,6 +120,17 @@ function ViewArticleInner({ article }: { article: IArticle }) {
           </tr>
         )}
       </InfoTable>
+      {article.folderId !== null && (
+        <div className={styles.tags}>
+          <b>Folder:</b>
+          <span>
+            <ArticleFolderLink
+              folderId={article.folderId}
+              allFolders={folders}
+            />
+          </span>
+        </div>
+      )}
       {article.tags.length > 0 && (
         <div className={styles.tags}>
           <b>Tags:</b>
@@ -136,6 +152,7 @@ export default function ViewArticle() {
   }
 
   const articleResponse = useArticle(id);
+  const foldersResponse = useArticleFolders();
 
   const article = articleResponse.data;
   useSetPageTitle(article ? "Article: " + article.title : "View Article");
@@ -144,5 +161,14 @@ export default function ViewArticle() {
     return renderDatalessQueryResult(articleResponse);
   }
 
-  return <ViewArticleInner article={articleResponse.data} />;
+  if(foldersResponse.status !== 'success') {
+    return renderDatalessQueryResult(foldersResponse);
+  }
+
+  return (
+    <ViewArticleInner
+      article={articleResponse.data}
+      folders={foldersResponse.data}
+    />
+  );
 }

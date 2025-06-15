@@ -1,5 +1,5 @@
 .articlesTable {
-  margin: 0 auto;
+  margin: 1em auto;
   text-align: left;
   border-collapse: collapse;
 }
@@ -17,7 +17,9 @@
   display: block;
   font-size: 0.9em;
 }
-.articlesTable td:nth-child(2) {
+.articlesTable td:nth-child(2),
+.articlesTable td:nth-child(3)
+{
   max-width: 10em;
   word-wrap: break-word;
   line-height: 1.4em;

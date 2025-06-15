@@ -93,7 +93,8 @@ export default function Header() {
             <Link to="/add-translation">Add Translation</Link>,
             <Link to="/language-translations">Language Translations</Link>,
             <Link to="/articles">View Articles</Link>,
-            <Link to="/add-article">Add Article</Link>
+            <Link to="/add-article">Add Article</Link>,
+            <Link to="/article-folders">Edit Article Folders</Link>
           ]}
           setCanHover={setCanHover}
         />

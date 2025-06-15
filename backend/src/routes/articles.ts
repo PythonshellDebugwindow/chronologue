@@ -1,7 +1,7 @@
 import type { RequestHandler } from 'express';
 
 import query, { transact } from '../db/index.js';
-import { isValidUUID } from '../utils.js';
+import { IQueryError, isValidUUID } from '../utils.js';
 
 export const addArticle: RequestHandler = async (req, res) => {
   if(!req.body.title || !req.body.content || !(req.body.tags instanceof Array)) {
@@ -11,8 +11,12 @@ export const addArticle: RequestHandler = async (req, res) => {
 
   await transact(async client => {
     const added = await client.query(
-      "INSERT INTO articles (title, content) VALUES ($1, $2) RETURNING id",
-      [req.body.title, req.body.content]
+      `
+        INSERT INTO articles (title, content, folder_id)
+        VALUES ($1, $2, $3)
+        RETURNING id
+      `,
+      [req.body.title, req.body.content, req.body.folderId]
     );
     const addedId = added.rows[0].id.replaceAll("-", "");
 
@@ -59,10 +63,10 @@ export const editArticle: RequestHandler = async (req, res) => {
     await client.query(
       `
         UPDATE articles
-        SET title = $1, content = $2, updated = CURRENT_TIMESTAMP
-        WHERE id = $3
+        SET title = $1, content = $2, folder_id = $3, updated = CURRENT_TIMESTAMP
+        WHERE id = $4
       `,
-      [req.body.title, req.body.content, articleId]
+      [req.body.title, req.body.content, req.body.folderId, articleId]
     );
 
     await client.query(
@@ -92,7 +96,7 @@ export const getAllArticles: RequestHandler = async (req, res) => {
     `
       SELECT
         translate(id::text, '-', '') AS id,
-        title, content,
+        title, content, folder_id AS "folderId",
         coalesce(updated, created) AS updated,
         coalesce(array_agg(tag) FILTER (WHERE tag IS NOT NULL), '{}') AS tags
       FROM articles AS a
@@ -114,7 +118,7 @@ export const getArticle: RequestHandler = async (req, res) => {
   const value = await query(
     `
       SELECT
-        title, content, created, updated,
+        title, content, folder_id AS "folderId", created, updated,
         coalesce(array_agg(tag) FILTER (WHERE tag IS NOT NULL), '{}') AS tags
       FROM articles AS a
       LEFT JOIN article_tags AS at
@@ -134,10 +138,67 @@ export const getArticle: RequestHandler = async (req, res) => {
   }
 }
 
+export const getArticleFolders: RequestHandler = async (req, res) => {
+  const folders = await query(
+    "SELECT id, name FROM article_folders"
+  );
+  res.json(folders.rows);
+}
+
 export const getExistingTags: RequestHandler = async (req, res) => {
   const tags = await query({
     text: "SELECT DISTINCT tag FROM article_tags",
     rowMode: 'array'
   });
   res.json(tags.rows.flat().sort());
+}
+
+export const updateArticleFolders: RequestHandler = async (req, res, next) => {
+  try {
+    if(!(req.body.new instanceof Array && req.body.deleted instanceof Array)) {
+      res.status(400).json({ message: "Invalid request body." });
+      return;
+    }
+    for(const folder of req.body.new) {
+      if(!folder.name) {
+        res.status(400).json({ message: "All folders must have a name." });
+        return;
+      }
+    }
+
+    const folders = await transact(async client => {
+      await client.query(
+        `
+          INSERT INTO article_folders (id, name)
+          SELECT
+            COALESCE(f.id, nextval(pg_get_serial_sequence('article_folders', 'id'))),
+            f.name
+          FROM json_populate_recordset(NULL::article_folders, $1) AS f
+          ON CONFLICT (id) DO UPDATE
+          SET name = EXCLUDED.name
+        `,
+        [JSON.stringify(req.body.new)]
+      );
+      await client.query(
+        "DELETE FROM article_folders WHERE id = ANY($1::bigint[])",
+        [req.body.deleted]
+      );
+
+      const newFolders = await client.query(
+        `
+          SELECT id, name
+          FROM article_folders
+          ORDER BY name
+        `
+      );
+      return newFolders.rows;
+    });
+    res.json(folders);
+  } catch(err) {
+    if((err as IQueryError).code === '23505') {
+      res.status(400).json({ message: "All folder names must be unique." });
+    } else {
+      next(err);
+    }
+  }
 }

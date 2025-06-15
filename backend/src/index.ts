@@ -27,6 +27,9 @@ app.use((req, res, next) => {
   next();
 });
 
+app.get('/article-folders', articles.getArticleFolders);
+app.put('/article-folders', articles.updateArticleFolders);
+
 app.get('/article-tags', articles.getExistingTags);
 
 app.get('/articles', articles.getAllArticles);

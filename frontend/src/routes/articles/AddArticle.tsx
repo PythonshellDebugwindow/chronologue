@@ -2,20 +2,28 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import CreatableSelect from 'react-select/creatable';
 
-import { CForm, CFormBody, CTextInput } from '@/components/CForm';
+import { CForm, CFormBody, CSelect, CTextInput } from '@/components/CForm';
 
-import { useExistingArticleTags } from '@/hooks/articles';
+import { useArticleFolders, useExistingArticleTags } from '@/hooks/articles';
+
+import { IArticleFolder } from '@/types/articles';
 
 import { useSetPageTitle } from '@/utils/global/hooks';
 import { renderDatalessQueryResult, sendBackendJson } from '@/utils/global/queries';
 
 import styles from './index.module.css';
 
-function AddArticleInner({ existingTags }: { existingTags: string[] }) {
+interface IAddArticleInner {
+  existingTags: string[];
+  folders: IArticleFolder[];
+}
+
+function AddArticleInner({ existingTags, folders }: IAddArticleInner) {
   const navigate = useNavigate();
 
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+  const [folderId, setFolderId] = useState<string | null>(null);
   const [tags, setTags] = useState<string[]>([]);
   const [message, setMessage] = useState("");
 
@@ -30,7 +38,7 @@ function AddArticleInner({ existingTags }: { existingTags: string[] }) {
       return;
     }
 
-    const data = { title, content, tags };
+    const data = { title, content, folderId, tags };
     const result = await sendBackendJson('articles', 'POST', data);
     if(!result.ok) {
       setMessage(result.body.message);
@@ -65,6 +73,18 @@ function AddArticleInner({ existingTags }: { existingTags: string[] }) {
       </div>
       <CForm>
         <CFormBody>
+          <CSelect
+            label="Folder"
+            name="folder"
+            state={folderId ?? ""}
+            setState={id => setFolderId(id || null)}
+            width="100%"
+          >
+            <option value="">None</option>
+            {folders.map(folder => (
+              <option value={folder.id} key={folder.id}>{folder.name}</option>
+            ))}
+          </CSelect>
           <tr>
             <td>Tags:</td>
             <td>
@@ -102,11 +122,21 @@ function AddArticleInner({ existingTags }: { existingTags: string[] }) {
 }
 
 export default function AddArticle() {
-  const existingTags = useExistingArticleTags();
+  const existingTagsResponse = useExistingArticleTags();
+  const foldersResponse = useArticleFolders();
 
-  if(existingTags.status !== 'success') {
-    return renderDatalessQueryResult(existingTags);
+  if(existingTagsResponse.status !== 'success') {
+    return renderDatalessQueryResult(existingTagsResponse);
   }
 
-  return <AddArticleInner existingTags={existingTags.data} />;
+  if(foldersResponse.status !== 'success') {
+    return renderDatalessQueryResult(foldersResponse);
+  }
+
+  return (
+    <AddArticleInner
+      existingTags={existingTagsResponse.data}
+      folders={foldersResponse.data}
+    />
+  );
 }

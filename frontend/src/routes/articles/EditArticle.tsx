@@ -3,11 +3,11 @@ import { useNavigate, useParams, Link } from 'react-router-dom';
 import CreatableSelect from 'react-select/creatable';
 import { useQueryClient } from '@tanstack/react-query';
 
-import { CForm, CFormBody, CTextInput } from '@/components/CForm';
+import { CForm, CFormBody, CSelect, CTextInput } from '@/components/CForm';
 
-import { useArticle, useExistingArticleTags } from '@/hooks/articles';
+import { useArticle, useArticleFolders, useExistingArticleTags } from '@/hooks/articles';
 
-import { IArticle } from '@/types/articles';
+import { IArticle, IArticleFolder } from '@/types/articles';
 
 import { useSetPageTitle } from '@/utils/global/hooks';
 import { renderDatalessQueryResult, sendBackendJson } from '@/utils/global/queries';
@@ -17,14 +17,16 @@ import styles from './index.module.css';
 interface IEditArticleInner {
   initialArticle: IArticle;
   existingTags: string[];
+  folders: IArticleFolder[];
 }
 
-function EditArticleInner({ initialArticle, existingTags }: IEditArticleInner) {
+function EditArticleInner({ initialArticle, existingTags, folders }: IEditArticleInner) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
   const [title, setTitle] = useState(initialArticle.title);
   const [content, setContent] = useState(initialArticle.content);
+  const [folderId, setFolderId] = useState(initialArticle.folderId);
   const [tags, setTags] = useState(initialArticle.tags);
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -34,7 +36,7 @@ function EditArticleInner({ initialArticle, existingTags }: IEditArticleInner) {
       return;
     }
 
-    const data = { title, content, tags };
+    const data = { title, content, folderId, tags };
     const result = await sendBackendJson(`articles/${initialArticle.id}`, 'PUT', data);
     if(!result.ok) {
       setErrorMessage(result.body.message);
@@ -69,6 +71,18 @@ function EditArticleInner({ initialArticle, existingTags }: IEditArticleInner) {
       </div>
       <CForm>
         <CFormBody>
+          <CSelect
+            label="Folder"
+            name="folder"
+            state={folderId ?? ""}
+            setState={id => setFolderId(id || null)}
+            width="100%"
+          >
+            <option value="">None</option>
+            {folders.map(folder => (
+              <option value={folder.id} key={folder.id}>{folder.name}</option>
+            ))}
+          </CSelect>
           <tr>
             <td>Tags:</td>
             <td>
@@ -121,7 +135,8 @@ export default function EditArticle() {
   }
 
   const articleResponse = useArticle(articleId);
-  const existingTags = useExistingArticleTags();
+  const existingTagsResponse = useExistingArticleTags();
+  const foldersResponse = useArticleFolders();
 
   useSetPageTitle("Edit Article");
 
@@ -129,14 +144,19 @@ export default function EditArticle() {
     return renderDatalessQueryResult(articleResponse);
   }
 
-  if(existingTags.status !== 'success') {
-    return renderDatalessQueryResult(existingTags);
+  if(existingTagsResponse.status !== 'success') {
+    return renderDatalessQueryResult(existingTagsResponse);
+  }
+
+  if(foldersResponse.status !== 'success') {
+    return renderDatalessQueryResult(foldersResponse);
   }
 
   return (
     <EditArticleInner
       initialArticle={articleResponse.data}
-      existingTags={existingTags.data}
+      existingTags={existingTagsResponse.data}
+      folders={foldersResponse.data}
     />
   );
 }

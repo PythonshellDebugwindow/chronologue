@@ -206,7 +206,7 @@ function EditDictionarySettingsInner({ initialForms }: { initialForms: IGrammarF
         <SaveChangesButton
           isSaving={isSaving}
           setIsSaving={setIsSaving}
-          saveQueryKey={['grammar-forms', 'update']}
+          saveQueryKey={['grammar-forms update']}
           saveQueryFn={saveForms}
           handleSave={data => dispatchForms({ type: 'markSaved', newForms: data })}
           style={{ marginBottom: "0.8em" }}
@@ -276,7 +276,7 @@ function EditDictionarySettingsInner({ initialForms }: { initialForms: IGrammarF
         <SaveChangesButton
           isSaving={isSaving}
           setIsSaving={setIsSaving}
-          saveQueryKey={['grammar-forms', 'update']}
+          saveQueryKey={['grammar-forms update']}
           saveQueryFn={saveForms}
           handleSave={data => dispatchForms({ type: 'markSaved', newForms: data })}
           style={{ marginTop: "1em" }}

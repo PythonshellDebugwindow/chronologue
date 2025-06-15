@@ -8,6 +8,7 @@ import MainPage from './MainPage';
 import AddArticle from './articles/AddArticle';
 import DeleteArticle from './articles/DeleteArticle';
 import EditArticle from './articles/EditArticle';
+import EditArticleFolders from './articles/EditArticleFolders';
 import ViewArticle from './articles/ViewArticle';
 import ViewArticles from './articles/ViewArticles';
 
@@ -104,6 +105,10 @@ export const appRouter = createBrowserRouter([
       {
         path: "article/:id?",
         element: <ViewArticle />
+      },
+      {
+        path: "article-folders",
+        element: <EditArticleFolders />
       },
       {
         path: "articles",

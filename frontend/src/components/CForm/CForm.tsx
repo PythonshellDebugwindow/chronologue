@@ -158,9 +158,10 @@ interface ICSelect {
   children: ReactNode;
   state?: string;
   setState?: (value: string) => void;
+  width?: string;
 }
 
-export function CSelect({ label, name, children, state, setState }: ICSelect) {
+export function CSelect({ label, name, children, state, setState, width }: ICSelect) {
   return (
     <tr>
       <td>
@@ -172,6 +173,7 @@ export function CSelect({ label, name, children, state, setState }: ICSelect) {
           id={"cs-" + name}
           value={state}
           onChange={setState && (e => setState(e.target.value))}
+          style={width ? { width } : undefined}
         >
           {children}
         </select>
