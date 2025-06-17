@@ -41,3 +41,9 @@ export interface IDictionaryField {
   name: keyof IWord;
   isDisplaying: boolean;
 }
+
+export interface IHomonymOverview {
+  id: string;
+  meaning: string;
+  pos: string;
+}

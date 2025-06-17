@@ -9,3 +9,8 @@
   cursor: pointer;
   background: #ddd;
 }
+
+.homonymsList {
+  margin: 0;
+  padding: 0 0 0 20px;
+}

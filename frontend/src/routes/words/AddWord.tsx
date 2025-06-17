@@ -6,8 +6,8 @@ import {
   CFormBody,
   CIpaTextInput,
   CMultilineTextInput,
-  CTextInput,
-  CTextInputWithAlphabet
+  CNewWordInput,
+  CTextInput
 } from '@/components/CForm';
 import IrregularWordStemsEdit from '@/components/IrregularWordStemsEdit';
 import LinkButton from '@/components/LinkButton';
@@ -207,7 +207,7 @@ function AddWordInner({ language, dictSettings, langClasses, langPartsOfSpeech }
       {message && <p>{message}</p>}
       <CForm>
         <CFormBody>
-          <CTextInputWithAlphabet
+          <CNewWordInput
             langId={language.id}
             label="Word"
             name="word"

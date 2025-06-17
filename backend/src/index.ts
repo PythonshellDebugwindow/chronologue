@@ -73,6 +73,7 @@ app.get('/languages/:id/dictionary-settings', languages.getDictionarySettings);
 app.put('/languages/:id/dictionary-settings', languages.updateDictionarySettings);
 app.post('/languages/:id/estimate-ipa', phonology.estimateWordIPA);
 app.get('/languages/:id/grammar-tables', grammarTables.getLanguageGrammarTables);
+app.post('/languages/:id/homonyms', words.getLanguageHomonyms);
 app.post('/languages/:id/import-words', words.importWords);
 app.post('/languages/:id/mass-edit-dictionary', words.massEditLanguageDictionary);
 app.get('/languages/:id/orth-categories', phonology.getOrthographyCategories);

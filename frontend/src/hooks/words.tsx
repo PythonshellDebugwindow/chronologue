@@ -1,13 +1,38 @@
 import { useQuery } from '@tanstack/react-query';
 
 import { ITitledError } from '@/types/titledError';
-import { IPartOfSpeech, IWord, IWordClassNoPOS } from '@/types/words';
+import { IHomonymOverview, IPartOfSpeech, IWord, IWordClassNoPOS } from '@/types/words';
 
 import {
   getBackendJson,
   parseRecordDates,
-  parseSingleRecordDates
+  parseSingleRecordDates,
+  sendBackendJsonForQuery
 } from '@/utils/global/queries';
+
+export function useLanguageHomonyms(langId: string, word: string) {
+  return useQuery<IHomonymOverview[], ITitledError>({
+    queryKey: ['languages', langId, 'homonyms', word],
+    queryFn: async () => await sendBackendJsonForQuery(
+      `languages/${langId}/homonyms`, 'POST', { word }
+    ),
+    staleTime: 0
+  });
+}
+
+export function useLanguageWordCount(id: string) {
+  return useQuery<number, ITitledError>({
+    queryKey: ['languages', id, 'word-count'],
+    queryFn: async () => await getBackendJson(`languages/${id}/word-count`)
+  });
+}
+
+export function useLanguageWords(id: string) {
+  return useQuery<IWord[], ITitledError>({
+    queryKey: ['languages', id, 'words'],
+    queryFn: async () => parseRecordDates(await getBackendJson(`languages/${id}/words`))
+  });
+}
 
 export function usePartsOfSpeech() {
   return useQuery<IPartOfSpeech[], ITitledError>({
@@ -36,19 +61,5 @@ export function useWordClasses(wordId: string) {
   return useQuery<IWordClassNoPOS[], ITitledError>({
     queryKey: ['words', wordId, 'classes'],
     queryFn: async () => await getBackendJson(`words/${wordId}/classes`)
-  });
-}
-
-export function useLanguageWordCount(id: string) {
-  return useQuery<number, ITitledError>({
-    queryKey: ['languages', id, 'word-count'],
-    queryFn: async () => await getBackendJson(`languages/${id}/word-count`)
-  });
-}
-
-export function useLanguageWords(id: string) {
-  return useQuery<IWord[], ITitledError>({
-    queryKey: ['languages', id, 'words'],
-    queryFn: async () => parseRecordDates(await getBackendJson(`languages/${id}/words`))
   });
 }

@@ -92,7 +92,7 @@ function IpaEstimationText({ languageId, setIpa, word }: IIpaTextInput) {
 export function CIpaTextInput({ languageId, ipa, setIpa, word }: IIpaTextInput) {
   return (
     <tr>
-      <td>
+      <td style={{ verticalAlign: "top" }}>
         <label htmlFor="cti-ipa">IPA:</label>
       </td>
       <td>

@@ -1,15 +1,18 @@
 import { Dispatch, ReactNode, SetStateAction, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
 
 import DropdownToggle from '../DropdownToggle';
+import LinkButton from '../LinkButton';
 
 import { useLanguageOrthographySettings } from '@/hooks/languages';
+import { useLanguageHomonyms } from '@/hooks/words';
 
 import { IOrthographySettings } from '@/types/languages';
 
 import { assertUnreachable } from '@/utils/global/asserts';
 import { getGraphFormatTypeForAlphabet } from '@/utils/phones';
 
-import styles from './CTextInputWithAlphabet.module.css';
+import styles from './CNewWordInput.module.css';
 
 interface IInsertAlphabetGraph {
   graph: string;
@@ -102,7 +105,52 @@ function AlphabetListingDropdown({ langId, insertGraph }: IAlphabetListing) {
   );
 }
 
-interface ITextInputWithAlphabet {
+function HomonymsList({ langId, word }: { langId: string, word: string }) {
+  const { status, error, data: homonyms } = useLanguageHomonyms(langId, word);
+  if(status === 'error') {
+    return <b>Error: {error.message}</b>;
+  } else if(status === 'pending') {
+    return "Loading...";
+  } else if(homonyms.length === 0) {
+    return "This word is unique.";
+  } else {
+    return (
+      <>
+        This word already means:
+        <ul className={styles.homonymsList}>
+          {homonyms.map(homonym => (
+            <li key={homonym.id}>
+              <Link to={'/word/' + homonym.id}>{homonym.meaning}</Link>
+              {" "}
+              [{homonym.pos}]
+            </li>
+          ))}
+        </ul>
+      </>
+    );
+  }
+}
+
+function HomonymsListDropdown({ langId, word }: { langId: string, word: string }) {
+  const [showHomonyms, setShowHomonyms] = useState(false);
+  return (
+    <small>
+      <LinkButton onClick={() => setShowHomonyms(!showHomonyms)}>
+        [{showHomonyms ? "hide" : "show"} homonyms]
+      </LinkButton>
+      {showHomonyms && (
+        <div>
+          <HomonymsList
+            langId={langId}
+            word={word}
+          />
+        </div>
+      )}
+    </small>
+  );
+}
+
+interface ICNewWordInput {
   langId: string;
   label: ReactNode;
   name: string;
@@ -110,8 +158,8 @@ interface ITextInputWithAlphabet {
   setState: Dispatch<SetStateAction<string>>;
 }
 
-export function CTextInputWithAlphabet(
-  { langId, label, name, state, setState }: ITextInputWithAlphabet
+export function CNewWordInput(
+  { langId, label, name, state, setState }: ICNewWordInput
 ) {
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -138,7 +186,7 @@ export function CTextInputWithAlphabet(
         </td>
       </tr>
       <tr>
-        <td>
+        <td style={{ verticalAlign: "top" }}>
           <label htmlFor={"cti-" + name}>{label}:</label>
         </td>
         <td>
@@ -150,6 +198,12 @@ export function CTextInputWithAlphabet(
             onChange={setState && (e => setState(e.target.value))}
             ref={inputRef}
           />
+          {state && (
+            <HomonymsListDropdown
+              langId={langId}
+              word={state}
+            />
+          )}
         </td>
       </tr>
     </>

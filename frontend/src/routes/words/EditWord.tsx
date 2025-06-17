@@ -7,8 +7,8 @@ import {
   CFormBody,
   CIpaTextInput,
   CMultilineTextInput,
-  CTextInput,
-  CTextInputWithAlphabet
+  CNewWordInput,
+  CTextInput
 } from '@/components/CForm';
 import IrregularWordStemsEdit from '@/components/IrregularWordStemsEdit';
 import POSAndClassesSelect from '@/components/POSAndClassesSelect';
@@ -93,7 +93,7 @@ function EditWordInner(
       {errorMessage && <p>{errorMessage}</p>}
       <CForm>
         <CFormBody>
-          <CTextInputWithAlphabet
+          <CNewWordInput
             langId={initialWord.langId}
             label="Word"
             name="word"
