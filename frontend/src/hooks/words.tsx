@@ -1,7 +1,12 @@
 import { useQuery } from '@tanstack/react-query';
 
 import { ITitledError } from '@/types/titledError';
-import { IHomonymOverview, IPartOfSpeech, IWord, IWordClassNoPOS } from '@/types/words';
+import {
+  IIdenticalWordOverview,
+  IPartOfSpeech,
+  IWord,
+  IWordClassNoPOS
+} from '@/types/words';
 
 import {
   getBackendJson,
@@ -10,8 +15,8 @@ import {
   sendBackendJsonForQuery
 } from '@/utils/global/queries';
 
-export function useLanguageHomonyms(langId: string, word: string) {
-  return useQuery<IHomonymOverview[], ITitledError>({
+export function useLanguageStringHomonyms(langId: string, word: string) {
+  return useQuery<IIdenticalWordOverview[], ITitledError>({
     queryKey: ['languages', langId, 'homonyms', word],
     queryFn: async () => await sendBackendJsonForQuery(
       `languages/${langId}/homonyms`, 'POST', { word }
@@ -24,6 +29,20 @@ export function useLanguageWordCount(id: string) {
   return useQuery<number, ITitledError>({
     queryKey: ['languages', id, 'word-count'],
     queryFn: async () => await getBackendJson(`languages/${id}/word-count`)
+  });
+}
+
+export function useLanguageWordHomonyms(wordId: string) {
+  return useQuery<IIdenticalWordOverview[], ITitledError>({
+    queryKey: ['words', wordId, 'homonyms'],
+    queryFn: async () => await getBackendJson(`words/${wordId}/homonyms`)
+  });
+}
+
+export function useLanguageWordSynonyms(wordId: string) {
+  return useQuery<IIdenticalWordOverview[], ITitledError>({
+    queryKey: ['words', wordId, 'synonyms'],
+    queryFn: async () => await getBackendJson(`words/${wordId}/synonyms`)
   });
 }
 

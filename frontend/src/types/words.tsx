@@ -42,8 +42,9 @@ export interface IDictionaryField {
   isDisplaying: boolean;
 }
 
-export interface IHomonymOverview {
+export interface IIdenticalWordOverview {
   id: string;
+  word: string;
   meaning: string;
   pos: string;
 }

@@ -89,3 +89,14 @@
   min-width: 100%;
   box-sizing: border-box;
 }
+
+.identicalWordsListContainer {
+  margin: 10px 0;
+}
+.identicalWordsList {
+  display: inline-block;
+  text-align: left;
+  list-style-position: inside;
+  padding: 0;
+  margin: 5px 0;
+}

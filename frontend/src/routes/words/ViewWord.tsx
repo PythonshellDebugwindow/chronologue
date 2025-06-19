@@ -12,11 +12,22 @@ import {
   useWordGrammarTables
 } from '@/hooks/grammar';
 import { useLanguage } from '@/hooks/languages';
-import { usePartsOfSpeech, useWord, useWordClasses } from '@/hooks/words';
+import {
+  useLanguageWordHomonyms,
+  useLanguageWordSynonyms,
+  usePartsOfSpeech,
+  useWord,
+  useWordClasses
+} from '@/hooks/words';
 
 import { IGrammarTableIdAndName } from '@/types/grammar';
 import { ILanguage } from '@/types/languages';
-import { IPartOfSpeech, IWord, IWordClassNoPOS } from '@/types/words';
+import {
+  IIdenticalWordOverview,
+  IPartOfSpeech,
+  IWord,
+  IWordClassNoPOS
+} from '@/types/words';
 
 import { useSetPageTitle } from '@/utils/global/hooks';
 import { renderDatalessQueryResult } from '@/utils/global/queries';
@@ -96,15 +107,47 @@ function DisplayWordGrammarTable({ word, tableOverview, partsOfSpeech }: IDispla
   );
 }
 
-interface IViewWordInner {
-  word: IWord;
-  classes: IWordClassNoPOS[];
-  tables: IGrammarTableIdAndName[];
+interface IIdenticalWordsList {
+  type: 'homonym' | 'synonym';
+  words: IIdenticalWordOverview[];
   language: ILanguage;
   partsOfSpeech: IPartOfSpeech[];
 }
 
-function ViewWordInner({ word, classes, tables, language, partsOfSpeech }: IViewWordInner) {
+function IdenticalWordsList({ type, words, language, partsOfSpeech }: IIdenticalWordsList) {
+  return (
+    <div className={styles.identicalWordsListContainer}>
+      Found {words.length} {type}{words.length !== 1 && "s"}.
+      <div>
+        <ul className={styles.identicalWordsList}>
+          {words.map(word => (
+            <li key={word.id}>
+              <Link to={'/word/' + word.id}>
+                {language.status === 'proto' && "*"}{word.word}
+              </Link>
+              {" "}({word.meaning}){" "}
+              [{formatPosFieldValue(word.pos, partsOfSpeech)}]
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  );
+}
+
+interface IViewWordInner {
+  word: IWord;
+  classes: IWordClassNoPOS[];
+  tables: IGrammarTableIdAndName[];
+  homonyms: IIdenticalWordOverview[];
+  synonyms: IIdenticalWordOverview[];
+  language: ILanguage;
+  partsOfSpeech: IPartOfSpeech[];
+}
+
+function ViewWordInner(
+  { word, classes, tables, homonyms, synonyms, language, partsOfSpeech }: IViewWordInner
+) {
   return (
     <>
       <h2>View Word</h2>
@@ -180,6 +223,28 @@ function ViewWordInner({ word, classes, tables, language, partsOfSpeech }: IView
           </div>
         </>
       )}
+      {homonyms.length > 0 && (
+        <>
+          <h3>Homonyms</h3>
+          <IdenticalWordsList
+            type="homonym"
+            words={homonyms}
+            language={language}
+            partsOfSpeech={partsOfSpeech}
+          />
+        </>
+      )}
+      {synonyms.length > 0 && (
+        <>
+          <h3>Synonyms</h3>
+          <IdenticalWordsList
+            type="synonym"
+            words={synonyms}
+            language={language}
+            partsOfSpeech={partsOfSpeech}
+          />
+        </>
+      )}
     </>
   );
 }
@@ -187,6 +252,8 @@ function ViewWordInner({ word, classes, tables, language, partsOfSpeech }: IView
 function ViewWordWithWord({ word }: { word: IWord }) {
   const classesResponse = useWordClasses(word.id);
   const tablesResponse = useWordGrammarTables(word.id);
+  const homonymsResponse = useLanguageWordHomonyms(word.id);
+  const synonymsResponse = useLanguageWordSynonyms(word.id);
   const languageResponse = useLanguage(word.langId);
   const partsOfSpeechResponse = usePartsOfSpeech();
 
@@ -198,6 +265,14 @@ function ViewWordWithWord({ word }: { word: IWord }) {
 
   if(tablesResponse.status !== 'success') {
     return renderDatalessQueryResult(tablesResponse);
+  }
+
+  if(homonymsResponse.status !== 'success') {
+    return renderDatalessQueryResult(homonymsResponse);
+  }
+
+  if(synonymsResponse.status !== 'success') {
+    return renderDatalessQueryResult(synonymsResponse);
   }
 
   if(languageResponse.status !== 'success') {
@@ -213,6 +288,8 @@ function ViewWordWithWord({ word }: { word: IWord }) {
       word={word}
       classes={classesResponse.data}
       tables={tablesResponse.data}
+      homonyms={homonymsResponse.data}
+      synonyms={synonymsResponse.data}
       language={languageResponse.data}
       partsOfSpeech={partsOfSpeechResponse.data}
     />

@@ -167,7 +167,7 @@ export const editWord: RequestHandler = async (req, res) => {
   res.status(204).send();
 }
 
-export const getLanguageHomonyms: RequestHandler = async (req, res) => {
+export const getLanguageStringHomonyms: RequestHandler = async (req, res) => {
   if(!isValidUUID(req.params.id)) {
     res.status(400).json({ title: "Invalid ID", message: "The given language ID is not valid." });
     return;
@@ -179,14 +179,74 @@ export const getLanguageHomonyms: RequestHandler = async (req, res) => {
 
   const homonyms = await query(
     `
-      SELECT translate(id::text, '-', '') AS id, meaning, pos
+      SELECT translate(id::text, '-', '') AS id, word, meaning, pos
       FROM words
-      WHERE lang_id = $1 AND word = $2
+      WHERE lang_id = $1 AND lower(word) = lower($2)
       ORDER BY pos, meaning
     `,
     [req.params.id, req.body.word]
   );
   res.json(homonyms.rows);
+}
+
+export const getLanguageWordHomonyms: RequestHandler = async (req, res) => {
+  if(!isValidUUID(req.params.id)) {
+    res.status(400).json({ title: "Invalid ID", message: "The given word ID is not valid." });
+    return;
+  }
+
+  await transact(async client => {
+    const wordResponse = await client.query(
+      "SELECT word, lang_id FROM words WHERE id = $1",
+      [req.params.id]
+    );
+    if(wordResponse.rows.length !== 1) {
+      res.status(400).json({ message: "The requested word was not found." });
+      return;
+    }
+    const word = wordResponse.rows[0];
+
+    const homonymsResponse = await client.query(
+      `
+        SELECT translate(id::text, '-', '') AS id, word, meaning, pos
+        FROM words
+        WHERE lang_id = $1 AND lower(word) = lower($2) AND id != $3
+        ORDER BY pos, meaning
+      `,
+      [word.lang_id, word.word, req.params.id]
+    );
+    res.json(homonymsResponse.rows);
+  });
+}
+
+export const getLanguageWordSynonyms: RequestHandler = async (req, res) => {
+  if(!isValidUUID(req.params.id)) {
+    res.status(400).json({ title: "Invalid ID", message: "The given word ID is not valid." });
+    return;
+  }
+
+  await transact(async client => {
+    const wordResponse = await client.query(
+      "SELECT meaning, lang_id FROM words WHERE id = $1",
+      [req.params.id]
+    );
+    if(wordResponse.rows.length !== 1) {
+      res.status(400).json({ message: "The requested word was not found." });
+      return;
+    }
+    const word = wordResponse.rows[0];
+
+    const synonymsResponse = await client.query(
+      `
+        SELECT translate(id::text, '-', '') AS id, word, meaning, pos
+        FROM words
+        WHERE lang_id = $1 AND meaning = $2 AND id != $3
+        ORDER BY pos, word
+      `,
+      [word.lang_id, word.meaning, req.params.id]
+    );
+    res.json(synonymsResponse.rows);
+  });
 }
 
 export const getLanguageWords: RequestHandler = async (req, res) => {

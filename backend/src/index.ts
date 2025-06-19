@@ -73,7 +73,7 @@ app.get('/languages/:id/dictionary-settings', languages.getDictionarySettings);
 app.put('/languages/:id/dictionary-settings', languages.updateDictionarySettings);
 app.post('/languages/:id/estimate-ipa', phonology.estimateWordIPA);
 app.get('/languages/:id/grammar-tables', grammarTables.getLanguageGrammarTables);
-app.post('/languages/:id/homonyms', words.getLanguageHomonyms);
+app.post('/languages/:id/homonyms', words.getLanguageStringHomonyms);
 app.post('/languages/:id/import-words', words.importWords);
 app.post('/languages/:id/mass-edit-dictionary', words.massEditLanguageDictionary);
 app.get('/languages/:id/orth-categories', phonology.getOrthographyCategories);
@@ -120,7 +120,9 @@ app.delete('/words/:id', words.deleteWord);
 app.get('/words/:id/classes', words.getWordClassesByWord);
 app.get('/words/:id/class-ids', words.getWordClassIdsByWord);
 app.get('/words/:id/grammar-tables', grammarTables.getGrammarTablesForWord);
+app.get('/words/:id/homonyms', words.getLanguageWordHomonyms);
 app.get('/words/:id/irregular-stems', grammar.getIrregularStemsForWord);
+app.get('/words/:id/synonyms', words.getLanguageWordSynonyms);
 
 app.use(((err, req, res, _next) => {
   res.status(500).json({ title: "Internal error", message: err.message });

@@ -5,7 +5,7 @@ import DropdownToggle from '../DropdownToggle';
 import LinkButton from '../LinkButton';
 
 import { useLanguageOrthographySettings } from '@/hooks/languages';
-import { useLanguageHomonyms } from '@/hooks/words';
+import { useLanguageStringHomonyms } from '@/hooks/words';
 
 import { IOrthographySettings } from '@/types/languages';
 
@@ -106,7 +106,7 @@ function AlphabetListingDropdown({ langId, insertGraph }: IAlphabetListing) {
 }
 
 function HomonymsList({ langId, word }: { langId: string, word: string }) {
-  const { status, error, data: homonyms } = useLanguageHomonyms(langId, word);
+  const { status, error, data: homonyms } = useLanguageStringHomonyms(langId, word);
   if(status === 'error') {
     return <b>Error: {error.message}</b>;
   } else if(status === 'pending') {
