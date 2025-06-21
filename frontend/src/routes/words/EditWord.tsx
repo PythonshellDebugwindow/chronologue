@@ -8,7 +8,7 @@ import {
   CIpaTextInput,
   CMultilineTextInput,
   CNewWordInput,
-  CTextInput
+  CNewWordMeaningInput
 } from '@/components/CForm';
 import IrregularWordStemsEdit from '@/components/IrregularWordStemsEdit';
 import POSAndClassesSelect from '@/components/POSAndClassesSelect';
@@ -100,7 +100,8 @@ function EditWordInner(
             state={word}
             setState={setWord}
           />
-          <CTextInput
+          <CNewWordMeaningInput
+            langId={initialWord.langId}
             label="Meaning"
             name="meaning"
             state={meaning}

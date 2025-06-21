@@ -90,6 +90,7 @@ app.put('/languages/:id/pronunciation-estimation', phonology.updatePronunciation
 app.delete('/languages/:id/purge-dictionary', words.purgeLanguageDictionary);
 app.get('/languages/:id/summary-notes', languages.getSummaryNotes);
 app.put('/languages/:id/summary-notes', languages.updateSummaryNotes);
+app.post('/languages/:id/synonyms', words.getLanguageStringSynonyms);
 app.get('/languages/:id/translation-ids', translations.getLanguageTranslationIds);
 app.get('/languages/:id/translations', translations.getAllLanguageTranslations);
 app.get('/languages/:id/word-classes', words.getWordClassesByLanguage);

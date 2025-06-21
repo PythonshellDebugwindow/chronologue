@@ -25,6 +25,16 @@ export function useLanguageStringHomonyms(langId: string, word: string) {
   });
 }
 
+export function useLanguageStringSynonyms(langId: string, meaning: string) {
+  return useQuery<IIdenticalWordOverview[], ITitledError>({
+    queryKey: ['languages', langId, 'synonyms', meaning],
+    queryFn: async () => await sendBackendJsonForQuery(
+      `languages/${langId}/synonyms`, 'POST', { meaning }
+    ),
+    staleTime: 0
+  });
+}
+
 export function useLanguageWordCount(id: string) {
   return useQuery<number, ITitledError>({
     queryKey: ['languages', id, 'word-count'],

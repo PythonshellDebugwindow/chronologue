@@ -2,7 +2,6 @@ import { Dispatch, ReactNode, SetStateAction, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import DropdownToggle from '../DropdownToggle';
-import LinkButton from '../LinkButton';
 
 import { useLanguageOrthographySettings } from '@/hooks/languages';
 import { useLanguageStringHomonyms } from '@/hooks/words';
@@ -117,7 +116,7 @@ function HomonymsList({ langId, word }: { langId: string, word: string }) {
     return (
       <>
         This word already means:
-        <ul className={styles.homonymsList}>
+        <ul className={styles.identicalWordsList}>
           {homonyms.map(homonym => (
             <li key={homonym.id}>
               <Link to={'/word/' + homonym.id}>{homonym.meaning}</Link>
@@ -129,25 +128,6 @@ function HomonymsList({ langId, word }: { langId: string, word: string }) {
       </>
     );
   }
-}
-
-function HomonymsListDropdown({ langId, word }: { langId: string, word: string }) {
-  const [showHomonyms, setShowHomonyms] = useState(false);
-  return (
-    <small>
-      <LinkButton onClick={() => setShowHomonyms(!showHomonyms)}>
-        [{showHomonyms ? "hide" : "show"} homonyms]
-      </LinkButton>
-      {showHomonyms && (
-        <div>
-          <HomonymsList
-            langId={langId}
-            word={word}
-          />
-        </div>
-      )}
-    </small>
-  );
 }
 
 interface ICNewWordInput {
@@ -199,10 +179,12 @@ export function CNewWordInput(
             ref={inputRef}
           />
           {state && (
-            <HomonymsListDropdown
-              langId={langId}
-              word={state}
-            />
+            <small>
+              <HomonymsList
+                langId={langId}
+                word={state}
+              />
+            </small>
           )}
         </td>
       </tr>

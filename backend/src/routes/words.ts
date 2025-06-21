@@ -189,6 +189,28 @@ export const getLanguageStringHomonyms: RequestHandler = async (req, res) => {
   res.json(homonyms.rows);
 }
 
+export const getLanguageStringSynonyms: RequestHandler = async (req, res) => {
+  if(!isValidUUID(req.params.id)) {
+    res.status(400).json({ title: "Invalid ID", message: "The given language ID is not valid." });
+    return;
+  }
+  if(typeof req.body.meaning !== 'string') {
+    res.status(400).json({ message: "Please provide all required fields." });
+    return;
+  }
+
+  const synonyms = await query(
+    `
+      SELECT translate(id::text, '-', '') AS id, word, meaning, pos
+      FROM words
+      WHERE lang_id = $1 AND meaning = $2
+      ORDER BY pos, word
+    `,
+    [req.params.id, req.body.meaning]
+  );
+  res.json(synonyms.rows);
+}
+
 export const getLanguageWordHomonyms: RequestHandler = async (req, res) => {
   if(!isValidUUID(req.params.id)) {
     res.status(400).json({ title: "Invalid ID", message: "The given word ID is not valid." });

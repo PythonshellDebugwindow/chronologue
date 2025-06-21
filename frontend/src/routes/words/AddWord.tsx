@@ -7,7 +7,7 @@ import {
   CIpaTextInput,
   CMultilineTextInput,
   CNewWordInput,
-  CTextInput
+  CNewWordMeaningInput
 } from '@/components/CForm';
 import IrregularWordStemsEdit from '@/components/IrregularWordStemsEdit';
 import LinkButton from '@/components/LinkButton';
@@ -214,7 +214,8 @@ function AddWordInner({ language, dictSettings, langClasses, langPartsOfSpeech }
             state={word}
             setState={setWord}
           />
-          <CTextInput
+          <CNewWordMeaningInput
+            langId={language.id}
             label="Meaning"
             name="meaning"
             state={meaning}
