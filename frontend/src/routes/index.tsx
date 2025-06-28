@@ -13,6 +13,7 @@ import ViewArticle from './articles/ViewArticle';
 import ViewArticles from './articles/ViewArticles';
 
 import ChronoSCAHelpPage from './chronosca/ChronoSCAHelpPage';
+import EditDerivationRules from './chronosca/EditDerivationRules';
 import TestChronoSCA from './chronosca/TestChronoSCA';
 
 import EditDictionarySettings from './dictionary/EditDictionarySettings';
@@ -149,6 +150,10 @@ export const appRouter = createBrowserRouter([
       {
         path: "delete-word/:id",
         element: <DeleteWord />
+      },
+      {
+        path: "derivation-rules",
+        element: <EditDerivationRules />
       },
       {
         path: "dictionary/:id?",

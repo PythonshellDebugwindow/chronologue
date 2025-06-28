@@ -1,0 +1,7 @@
+.rulesetLanguageTable {
+  margin: 0 auto;
+  text-align: left;
+}
+.rulesetLanguageTable td:first-child {
+  padding-right: 5px;
+}

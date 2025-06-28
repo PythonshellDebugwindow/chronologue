@@ -24,16 +24,14 @@ export function useFamily(id: string) {
   });
 }
 
-export function useFamilyMembers(id: string) {
+export function useFamilyMembers(id: string | null) {
+  const queryKey = id ? ['families', id, 'members'] : ['language-isolates'];
   return useQuery<ILanguage[], ITitledError>({
-    queryKey: ['families', id, 'members'],
-    queryFn: async () => parseRecordDates(await getBackendJson(`families/${id}/members`))
+    queryKey,
+    queryFn: async () => parseRecordDates(await getBackendJson(queryKey.join('/')))
   });
 }
 
 export function useLanguageIsolates() {
-  return useQuery<ILanguage[], ITitledError>({
-    queryKey: ['language-isolates'],
-    queryFn: async () => parseRecordDates(await getBackendJson('language-isolates'))
-  });
+  return useFamilyMembers(null);
 }

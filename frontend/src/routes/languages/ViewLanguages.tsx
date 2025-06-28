@@ -16,8 +16,6 @@ function LanguageIsolates({ languages }: { languages: ILanguage[] }) {
     return null;
   }
 
-  languages.sort((lang1, lang2) => lang1.name.localeCompare(lang2.name));
-
   return (
     <>
       <h3>Isolates</h3>
@@ -32,8 +30,6 @@ interface IViewLanguagesInner {
 }
 
 function ViewLanguagesInner({ families, isolates }: IViewLanguagesInner) {
-  families.sort((f1, f2) => f1.name.localeCompare(f2.name));
-
   return (
     <>
       <h2>View Languages</h2>

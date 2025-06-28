@@ -83,6 +83,36 @@ export const deleteWord: RequestHandler = async (req, res) => {
   res.status(204).send();
 }
 
+export const editDerivationRules: RequestHandler = async (req, res) => {
+  if(!isValidUUID(req.params.id)) {
+    res.status(400).json({ title: "Invalid ID", message: "The given language ID is not valid." });
+    return;
+  }
+  if(!isValidUUID(req.params.srcId)) {
+    res.status(400).json({
+      title: "Invalid ID", message: "The given source language ID is not valid."
+    });
+    return;
+  }
+  if(!req.body.rules) {
+    res.status(400).json({ message: "Please provide all required fields." });
+    return;
+  }
+
+  await query(
+    `
+      INSERT INTO language_derivation_rules (
+        dest_lang_id, src_lang_id, rules
+      )
+      VALUES ($1, $2, $3)
+      ON CONFLICT (dest_lang_id, src_lang_id) DO UPDATE
+      SET rules = EXCLUDED.rules
+    `,
+    [req.params.id, req.params.srcId, req.body.rules]
+  );
+  res.status(204).send();
+}
+
 export const editWord: RequestHandler = async (req, res) => {
   if(!isValidUUID(req.params.id)) {
     res.status(400).json({ title: "Invalid ID", message: "The given word ID is not valid." });
@@ -165,6 +195,51 @@ export const editWord: RequestHandler = async (req, res) => {
   });
 
   res.status(204).send();
+}
+
+export const getDerivationRules: RequestHandler = async (req, res) => {
+  if(!isValidUUID(req.params.id)) {
+    res.status(400).json({ title: "Invalid ID", message: "The given language ID is not valid." });
+    return;
+  }
+  if(!isValidUUID(req.params.srcId)) {
+    res.status(400).json({ title: "Invalid ID", message: "The given source language ID is not valid." });
+    return;
+  }
+
+  const rules = await query(
+    `
+      SELECT rules
+      FROM language_derivation_rules
+      WHERE dest_lang_id = $1 AND src_lang_id = $2
+    `,
+    [req.params.id, req.params.srcId]
+  );
+  res.json(rules.rows[0]?.rules ?? null);
+}
+
+export const getLanguageDerivationRulesets: RequestHandler = async (req, res) => {
+  if(!isValidUUID(req.params.id)) {
+    res.status(400).json({ title: "Invalid ID", message: "The given language ID is not valid." });
+    return;
+  }
+
+  const rulesets = await query(
+    `
+      SELECT
+        translate(ldr.src_lang_id::text, '-', '') AS "langId",
+        lg.name AS "langName",
+        translate(f.id::text, '-', '') AS "familyId",
+        f.name AS "familyName"
+      FROM language_derivation_rules AS ldr
+      LEFT JOIN languages AS lg ON ldr.src_lang_id = lg.id
+      LEFT JOIN families AS f ON lg.family_id = f.id
+      WHERE ldr.dest_lang_id = $1
+      ORDER BY f.name, lg.name
+    `,
+    [req.params.id]
+  );
+  res.json(rulesets.rows);
 }
 
 export const getLanguageStringHomonyms: RequestHandler = async (req, res) => {

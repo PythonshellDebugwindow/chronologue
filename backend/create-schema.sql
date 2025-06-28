@@ -207,3 +207,10 @@ CREATE TABLE IF NOT EXISTS article_tags (
   tag text NOT NULL,
   PRIMARY KEY (article_id, tag)
 );
+
+CREATE TABLE IF NOT EXISTS language_derivation_rules (
+  dest_lang_id uuid NOT NULL REFERENCES languages ON DELETE CASCADE,
+  src_lang_id uuid NOT NULL REFERENCES languages ON DELETE CASCADE,
+  rules text NOT NULL,
+  PRIMARY KEY (dest_lang_id, src_lang_id)
+);

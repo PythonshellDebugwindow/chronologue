@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 
 import { ITitledError } from '@/types/titledError';
 import {
+  IDerivationRulesetOverview,
   IIdenticalWordOverview,
   IPartOfSpeech,
   IWord,
@@ -14,6 +15,24 @@ import {
   parseSingleRecordDates,
   sendBackendJsonForQuery
 } from '@/utils/global/queries';
+
+export function useLanguageDerivationRules(destLangId: string, srcLangId: string) {
+  return useQuery<string | null, ITitledError>({
+    queryKey: ['languages', destLangId, 'derivation-rules', srcLangId],
+    queryFn: async () => await getBackendJson(
+      `languages/${destLangId}/derivation-rules/${srcLangId}`
+    ),
+    staleTime: 0
+  });
+}
+
+export function useLanguageDerivationRulesetIds(destLangId: string) {
+  return useQuery<IDerivationRulesetOverview[], ITitledError>({
+    queryKey: ['languages', destLangId, 'derivation-rules'],
+    queryFn: async () => await getBackendJson(`languages/${destLangId}/derivation-rules`),
+    staleTime: 0
+  });
+}
 
 export function useLanguageStringHomonyms(langId: string, word: string) {
   return useQuery<IIdenticalWordOverview[], ITitledError>({

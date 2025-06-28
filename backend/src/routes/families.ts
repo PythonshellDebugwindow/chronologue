@@ -90,6 +90,7 @@ export const getAllFamilies: RequestHandler = async (req, res) => {
         translate(id::text, '-', '') AS id,
         name, description, created
       FROM families
+      ORDER BY name
     `
   );
   res.json(families.rows);

@@ -72,6 +72,7 @@ export default function Header() {
             <Link to="/mass-edit-dictionary">Mass Edit Dictionary</Link>,
             <Link to="/dictionary-chronosca">Dictionary ChronoSCA</Link>,
             <Link to="/import-words">Import Words</Link>,
+            <Link to="/derivation-rules">Edit Derivation Rules</Link>,
             <Link to="/purge-dictionary">Purge Dictionary</Link>
           ]}
           setCanHover={setCanHover}

@@ -48,3 +48,14 @@ export interface IIdenticalWordOverview {
   meaning: string;
   pos: string;
 }
+
+export type IDerivationRulesetOverview = {
+  langId: string;
+  langName: string;
+} & ({
+  familyId: string;
+  familyName: string;
+} | {
+  familyId: null;
+  familyName: null;
+});
