@@ -59,3 +59,8 @@ export type IDerivationRulesetOverview = {
   familyId: null;
   familyName: null;
 });
+
+export interface IDerivationRuleset {
+  rules: string;
+  fromIpa: boolean;
+}

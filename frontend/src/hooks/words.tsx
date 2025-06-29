@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 
 import { ITitledError } from '@/types/titledError';
 import {
+  IDerivationRuleset,
   IDerivationRulesetOverview,
   IIdenticalWordOverview,
   IPartOfSpeech,
@@ -16,8 +17,8 @@ import {
   sendBackendJsonForQuery
 } from '@/utils/global/queries';
 
-export function useLanguageDerivationRules(destLangId: string, srcLangId: string) {
-  return useQuery<string | null, ITitledError>({
+export function useLanguageDerivationRuleset(destLangId: string, srcLangId: string) {
+  return useQuery<IDerivationRuleset | null, ITitledError>({
     queryKey: ['languages', destLangId, 'derivation-rules', srcLangId],
     queryFn: async () => await getBackendJson(
       `languages/${destLangId}/derivation-rules/${srcLangId}`

@@ -8,12 +8,12 @@ import SaveChangesButton from '@/components/SaveChangesButton';
 import { useFamilies, useFamilyMembers } from '@/hooks/families';
 import { useLanguage } from '@/hooks/languages';
 import {
-  useLanguageDerivationRules,
+  useLanguageDerivationRuleset,
   useLanguageDerivationRulesetIds
 } from '@/hooks/words';
 
 import { ILanguage } from '@/types/languages';
-import { IDerivationRulesetOverview } from '@/types/words';
+import { IDerivationRuleset, IDerivationRulesetOverview } from '@/types/words';
 
 import { useGetParamsOrSelectedId, useUnsavedPopup } from '@/utils/global/hooks';
 import { renderDatalessQueryResult, sendBackendJson } from '@/utils/global/queries';
@@ -69,10 +69,14 @@ function SourceLanguageSelectInner(
 interface ISourceLanguageSelect {
   languageId: string;
   setLanguageId: Dispatch<SetStateAction<string>>;
+  deriveFromIpa: boolean;
+  setDeriveFromIpa: (deriveFromIpa: boolean) => void;
   rulesets: IDerivationRulesetOverview[];
 }
 
-function SourceLanguageSelect({ languageId, setLanguageId, rulesets }: ISourceLanguageSelect) {
+function SourceLanguageSelect(
+  { languageId, setLanguageId, deriveFromIpa, setDeriveFromIpa, rulesets }: ISourceLanguageSelect
+) {
   const [familyId, setFamilyId] = useState("");
 
   const { isPending, error, data: families } = useFamilies();
@@ -109,6 +113,17 @@ function SourceLanguageSelect({ languageId, setLanguageId, rulesets }: ISourceLa
           setLanguageId={setLanguageId}
           rulesets={rulesets}
         />
+        {languageId && (
+          <CSelect
+            label="Derive from"
+            name="deriveFrom"
+            state={deriveFromIpa ? "ipa" : "word"}
+            setState={e => setDeriveFromIpa(e === "ipa")}
+          >
+            <option value="word">Word</option>
+            <option value="ipa">IPA</option>
+          </CSelect>
+        )}
       </tbody>
     </table>
   );
@@ -143,72 +158,46 @@ interface IRulesInput {
   destLangId: string;
   srcLangId: string;
   isNewRuleset: boolean;
-  rules: string;
-  setRules: Dispatch<SetStateAction<string>>;
+  ruleset: IDerivationRuleset;
+  setRuleset: Dispatch<SetStateAction<IDerivationRuleset>>;
+  hasEditedRuleset: boolean;
+  setHasEditedRuleset: Dispatch<SetStateAction<boolean>>;
 }
 
-function RulesInput({ destLangId, srcLangId, isNewRuleset, rules, setRules }: IRulesInput) {
-  const queryClient = useQueryClient();
+function RulesInput({
+  destLangId, srcLangId, isNewRuleset, ruleset, setRuleset, hasEditedRuleset, setHasEditedRuleset
+}: IRulesInput) {
+  const rulesetResponse = useLanguageDerivationRuleset(destLangId, srcLangId);
 
-  const rulesResponse = useLanguageDerivationRules(destLangId, srcLangId);
-
-  const [rulesAreSaved, setRulesAreSaved] = useState(true);
-  const [isSaving, setIsSaving] = useState(false);
-
-  useUnsavedPopup(!rulesAreSaved);
+  useUnsavedPopup(hasEditedRuleset);
 
   useEffect(() => {
-    if(!isNewRuleset && rulesResponse.status === 'success') {
-      setRules(rulesResponse.data ?? "");
-      setRulesAreSaved(true);
+    if(!isNewRuleset && rulesetResponse.status === 'success') {
+      setRuleset(rulesetResponse.data ?? { rules: "", fromIpa: false });
+      setHasEditedRuleset(false);
     }
-  }, [isNewRuleset, rulesResponse.data, rulesResponse.status, setRules]);
+  }, [
+    isNewRuleset, rulesetResponse.data, rulesetResponse.status,
+    setHasEditedRuleset, setRuleset
+  ]);
 
   function updateRules(newRules: string) {
-    setRules(newRules);
-    setRulesAreSaved(false);
+    setRuleset({ rules: newRules, fromIpa: ruleset.fromIpa });
+    setHasEditedRuleset(true);
   }
 
-  async function sendSaveRulesRequest() {
-    const res = await sendBackendJson(
-      `languages/${destLangId}/derivation-rules/${srcLangId}`, 'PUT', { rules }
-    );
-    if(!res.ok) {
-      throw res.body;
-    }
-
-    if(isNewRuleset) {
-      queryClient.resetQueries({ queryKey: ['languages', destLangId, 'derivation-rules'] });
-    }
-    return res.body;
-  }
-
-  if(rulesResponse.status === 'pending') {
+  if(rulesetResponse.status === 'pending') {
     return "Loading...";
-  } else if(rulesResponse.status === 'error') {
-    return rulesResponse.error.message;
+  } else if(rulesetResponse.status === 'error') {
+    return rulesetResponse.error.message;
   }
 
   return (
-    <>
-      <textarea
-        value={rules}
-        onChange={e => updateRules(e.target.value)}
-        style={{ width: "20em", height: "10em" }}
-      />
-      {!rulesAreSaved && (
-        <SaveChangesButton
-          isSaving={isSaving}
-          setIsSaving={setIsSaving}
-          saveQueryKey={['languages', destLangId, 'derivation-rules', srcLangId, 'update']}
-          saveQueryFn={sendSaveRulesRequest}
-          handleSave={() => setRulesAreSaved(true)}
-          style={{ marginTop: "0.5em" }}
-        >
-          Save changes
-        </SaveChangesButton>
-      )}
-    </>
+    <textarea
+      value={ruleset.rules}
+      onChange={e => updateRules(e.target.value)}
+      style={{ width: "20em", height: "10em" }}
+    />
   );
 }
 
@@ -218,23 +207,59 @@ interface IEditDerivationRulesInner {
 }
 
 function EditDerivationRulesInner({ language, rulesets }: IEditDerivationRulesInner) {
+  const queryClient = useQueryClient();
+
   const [ruleset, setRuleset] = useState<IDerivationRulesetOverview | 'new' | null>(null);
   const newRulesetId = '_new';
 
   const [languageId, setLanguageId] = useState("");
-  const [rules, setRules] = useState("");
+  const [rulesetData, setRulesetData] = useState<IDerivationRuleset>({
+    rules: "", fromIpa: false
+  });
+
+  const [hasEditedRuleset, setHasEditedRuleset] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+
+  function updateDeriveFromIpa(newValue: boolean) {
+    setRulesetData({ rules: rulesetData.rules, fromIpa: newValue });
+    setHasEditedRuleset(true);
+  }
 
   function updateRulesetId(newId: string | null) {
+    if(hasEditedRuleset) {
+      if(!confirm("This will overwrite any unsaved edits you have made below. Continue?")) {
+        return;
+      }
+    }
+
     if(newId === newRulesetId) {
       setRuleset('new');
       setLanguageId("");
-      setRules("");
+      setRulesetData({ rules: "", fromIpa: false });
+      setHasEditedRuleset(true);
     } else if(newId === null) {
       setRuleset(null);
     } else {
       setRuleset(rulesets.find(r => r.langId === newId) ?? null);
       setLanguageId(newId);
     }
+  }
+
+  async function sendSaveRulesRequest() {
+    const body = { rules: rulesetData.rules, fromIpa: rulesetData.fromIpa };
+    const res = await sendBackendJson(
+      `languages/${language.id}/derivation-rules/${languageId}`, 'PUT', body
+    );
+    if(!res.ok) {
+      throw res.body;
+    }
+
+    if(ruleset === 'new') {
+      queryClient.resetQueries({
+        queryKey: ['languages', language.id, 'derivation-rules']
+      });
+    }
+    return res.body;
   }
 
   return (
@@ -261,11 +286,25 @@ function EditDerivationRulesInner({ language, rulesets }: IEditDerivationRulesIn
             <SourceLanguageSelect
               languageId={languageId}
               setLanguageId={setLanguageId}
+              deriveFromIpa={rulesetData.fromIpa}
+              setDeriveFromIpa={updateDeriveFromIpa}
               rulesets={rulesets}
             />
           )}
           {ruleset !== 'new' && (
-            <SourceLanguageDisplay ruleset={ruleset} />
+            <>
+              <SourceLanguageDisplay ruleset={ruleset} />
+              <label style={{ display: "block", margin: "1em" }}>
+                Derive from:{" "}
+                <select
+                  value={rulesetData.fromIpa ? "ipa" : "word"}
+                  onChange={e => updateDeriveFromIpa(e.target.value === "ipa")}
+                >
+                  <option value="word">Word</option>
+                  <option value="ipa">IPA</option>
+                </select>
+              </label>
+            </>
           )}
           {languageId && (
             <>
@@ -274,9 +313,25 @@ function EditDerivationRulesInner({ language, rulesets }: IEditDerivationRulesIn
                 destLangId={language.id}
                 srcLangId={languageId}
                 isNewRuleset={ruleset === 'new'}
-                rules={rules}
-                setRules={setRules}
+                ruleset={rulesetData}
+                setRuleset={setRulesetData}
+                hasEditedRuleset={hasEditedRuleset}
+                setHasEditedRuleset={setHasEditedRuleset}
               />
+              {hasEditedRuleset && (
+                <SaveChangesButton
+                  isSaving={isSaving}
+                  setIsSaving={setIsSaving}
+                  saveQueryKey={[
+                    'languages', language.id, 'derivation-rules', languageId, 'update'
+                  ]}
+                  saveQueryFn={sendSaveRulesRequest}
+                  handleSave={() => setHasEditedRuleset(false)}
+                  style={{ marginTop: "0.5em" }}
+                >
+                  Save changes
+                </SaveChangesButton>
+              )}
             </>
           )}
         </>

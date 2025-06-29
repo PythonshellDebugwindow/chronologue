@@ -94,7 +94,7 @@ export const editDerivationRules: RequestHandler = async (req, res) => {
     });
     return;
   }
-  if(!req.body.rules) {
+  if(typeof req.body.rules !== 'string' || typeof req.body.fromIpa !== 'boolean') {
     res.status(400).json({ message: "Please provide all required fields." });
     return;
   }
@@ -102,13 +102,15 @@ export const editDerivationRules: RequestHandler = async (req, res) => {
   await query(
     `
       INSERT INTO language_derivation_rules (
-        dest_lang_id, src_lang_id, rules
+        dest_lang_id, src_lang_id, rules, from_ipa
       )
-      VALUES ($1, $2, $3)
+      VALUES ($1, $2, $3, $4)
       ON CONFLICT (dest_lang_id, src_lang_id) DO UPDATE
-      SET rules = EXCLUDED.rules
+      SET
+        rules = EXCLUDED.rules,
+        from_ipa = EXCLUDED.from_ipa
     `,
-    [req.params.id, req.params.srcId, req.body.rules]
+    [req.params.id, req.params.srcId, req.body.rules, req.body.fromIpa]
   );
   res.status(204).send();
 }
@@ -209,13 +211,13 @@ export const getDerivationRules: RequestHandler = async (req, res) => {
 
   const rules = await query(
     `
-      SELECT rules
+      SELECT rules, from_ipa AS "fromIpa"
       FROM language_derivation_rules
       WHERE dest_lang_id = $1 AND src_lang_id = $2
     `,
     [req.params.id, req.params.srcId]
   );
-  res.json(rules.rows[0]?.rules ?? null);
+  res.json(rules.rows.length === 1 ? rules.rows[0] : null);
 }
 
 export const getLanguageDerivationRulesets: RequestHandler = async (req, res) => {
@@ -230,7 +232,8 @@ export const getLanguageDerivationRulesets: RequestHandler = async (req, res) =>
         translate(ldr.src_lang_id::text, '-', '') AS "langId",
         lg.name AS "langName",
         translate(f.id::text, '-', '') AS "familyId",
-        f.name AS "familyName"
+        f.name AS "familyName",
+        ldr.from_ipa AS "fromIpa"
       FROM language_derivation_rules AS ldr
       LEFT JOIN languages AS lg ON ldr.src_lang_id = lg.id
       LEFT JOIN families AS f ON lg.family_id = f.id
