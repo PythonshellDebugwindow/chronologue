@@ -70,6 +70,28 @@ export const addWord: RequestHandler = async (req, res) => {
   });
 }
 
+export const deleteDerivationRules: RequestHandler = async (req, res) => {
+  if(!isValidUUID(req.params.id)) {
+    res.status(400).json({ title: "Invalid ID", message: "The given language ID is not valid." });
+    return;
+  }
+  if(!isValidUUID(req.params.srcId)) {
+    res.status(400).json({
+      title: "Invalid ID", message: "The given source language ID is not valid."
+    });
+    return;
+  }
+
+  await query(
+    `
+      DELETE FROM language_derivation_rules
+      WHERE dest_lang_id = $1 AND src_lang_id = $2
+    `,
+    [req.params.id, req.params.srcId]
+  );
+  res.status(204).send();
+}
+
 export const deleteWord: RequestHandler = async (req, res) => {
   if(!isValidUUID(req.params.id)) {
     res.status(400).json({ title: "Invalid ID", message: "The given word ID is not valid." });

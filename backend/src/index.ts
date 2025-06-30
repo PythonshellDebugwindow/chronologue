@@ -71,6 +71,7 @@ app.post('/languages/:id/apply-sca-rules', phonology.applySCARules);
 app.get('/languages/:id/derivation-rules', words.getLanguageDerivationRulesets);
 app.get('/languages/:id/derivation-rules/:srcId', words.getDerivationRules);
 app.put('/languages/:id/derivation-rules/:srcId', words.editDerivationRules);
+app.delete('/languages/:id/derivation-rules/:srcId', words.deleteDerivationRules);
 app.get('/languages/:id/descendants', languages.getDescendants);
 app.get('/languages/:id/dictionary-settings', languages.getDictionarySettings);
 app.put('/languages/:id/dictionary-settings', languages.updateDictionarySettings);

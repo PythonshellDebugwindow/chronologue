@@ -16,7 +16,11 @@ import { ILanguage } from '@/types/languages';
 import { IDerivationRuleset, IDerivationRulesetOverview } from '@/types/words';
 
 import { useGetParamsOrSelectedId, useUnsavedPopup } from '@/utils/global/hooks';
-import { renderDatalessQueryResult, sendBackendJson } from '@/utils/global/queries';
+import {
+  renderDatalessQueryResult,
+  sendBackendJson,
+  sendBackendRequest
+} from '@/utils/global/queries';
 
 import styles from './EditDerivationRules.module.css';
 
@@ -158,8 +162,8 @@ interface IRulesInput {
   destLangId: string;
   srcLangId: string;
   isNewRuleset: boolean;
-  ruleset: IDerivationRuleset;
-  setRuleset: Dispatch<SetStateAction<IDerivationRuleset>>;
+  ruleset: IDerivationRuleset | null;
+  setRuleset: (ruleset: IDerivationRuleset) => void;
   hasEditedRuleset: boolean;
   setHasEditedRuleset: Dispatch<SetStateAction<boolean>>;
 }
@@ -172,7 +176,7 @@ function RulesInput({
   useUnsavedPopup(hasEditedRuleset);
 
   useEffect(() => {
-    if(!isNewRuleset && rulesetResponse.status === 'success') {
+    if(!isNewRuleset && !ruleset && rulesetResponse.status === 'success') {
       setRuleset(rulesetResponse.data ?? { rules: "", fromIpa: false });
       setHasEditedRuleset(false);
     }
@@ -182,8 +186,10 @@ function RulesInput({
   ]);
 
   function updateRules(newRules: string) {
-    setRuleset({ rules: newRules, fromIpa: ruleset.fromIpa });
-    setHasEditedRuleset(true);
+    if(ruleset) {
+      setRuleset({ rules: newRules, fromIpa: ruleset.fromIpa });
+      setHasEditedRuleset(true);
+    }
   }
 
   if(rulesetResponse.status === 'pending') {
@@ -194,10 +200,57 @@ function RulesInput({
 
   return (
     <textarea
-      value={ruleset.rules}
+      value={ruleset?.rules}
       onChange={e => updateRules(e.target.value)}
       style={{ width: "20em", height: "10em" }}
     />
+  );
+}
+
+interface IDeleteRuleset {
+  destLangId: string;
+  ruleset: IDerivationRulesetOverview;
+  onCancel: () => void;
+}
+
+function DeleteRuleset({ destLangId, ruleset, onCancel }: IDeleteRuleset) {
+  const queryClient = useQueryClient();
+
+  const [message, setMessage] = useState("");
+
+  async function deleteRuleset() {
+    const result = await sendBackendRequest(
+      `languages/${destLangId}/derivation-rules/${ruleset.langId}`, 'DELETE'
+    );
+    if(!result.ok) {
+      setMessage(result.body.message);
+      return;
+    }
+
+    queryClient.resetQueries({
+      queryKey: ['languages', destLangId, 'derivation-rules']
+    });
+  }
+
+  return (
+    <>
+      <h2>Delete Derivation Ruleset</h2>
+      <p>
+        Really delete the derivation ruleset for{" "}
+        <Link to={'/language/' + ruleset.langId}>{ruleset.langName}</Link>?
+      </p>
+      <p>
+        <b>This action cannot be undone!</b>
+      </p>
+      <button onClick={deleteRuleset} style={{ marginBottom: "15px" }}>
+        Delete ruleset
+      </button>
+      <br />
+      <button onClick={onCancel}>
+        Go back
+      </button>
+      {message && <p><b>Error: {message}</b></p>}
+    </>
   );
 }
 
@@ -213,20 +266,22 @@ function EditDerivationRulesInner({ language, rulesets }: IEditDerivationRulesIn
   const newRulesetId = '_new';
 
   const [languageId, setLanguageId] = useState("");
-  const [rulesetData, setRulesetData] = useState<IDerivationRuleset>({
-    rules: "", fromIpa: false
-  });
+  const [rulesetData, setRulesetData] = useState<IDerivationRuleset | null>(null);
 
   const [hasEditedRuleset, setHasEditedRuleset] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
+  const [isDeletingRuleset, setIsDeletingRuleset] = useState(false);
+
   function updateDeriveFromIpa(newValue: boolean) {
-    setRulesetData({ rules: rulesetData.rules, fromIpa: newValue });
-    setHasEditedRuleset(true);
+    if(rulesetData) {
+      setRulesetData({ rules: rulesetData.rules, fromIpa: newValue });
+      setHasEditedRuleset(true);
+    }
   }
 
   function updateRulesetId(newId: string | null) {
-    if(hasEditedRuleset) {
+    if(hasEditedRuleset && languageId) {
       if(!confirm("This will overwrite any unsaved edits you have made below. Continue?")) {
         return;
       }
@@ -241,11 +296,16 @@ function EditDerivationRulesInner({ language, rulesets }: IEditDerivationRulesIn
       setRuleset(null);
     } else {
       setRuleset(rulesets.find(r => r.langId === newId) ?? null);
+      setRulesetData(null);
       setLanguageId(newId);
     }
   }
 
   async function sendSaveRulesRequest() {
+    if(!rulesetData) {
+      return;
+    }
+
     const body = { rules: rulesetData.rules, fromIpa: rulesetData.fromIpa };
     const res = await sendBackendJson(
       `languages/${language.id}/derivation-rules/${languageId}`, 'PUT', body
@@ -260,6 +320,16 @@ function EditDerivationRulesInner({ language, rulesets }: IEditDerivationRulesIn
       });
     }
     return res.body;
+  }
+
+  if(isDeletingRuleset && ruleset && ruleset !== 'new') {
+    return (
+      <DeleteRuleset
+        destLangId={language.id}
+        ruleset={ruleset}
+        onCancel={() => setIsDeletingRuleset(false)}
+      />
+    );
   }
 
   return (
@@ -282,7 +352,7 @@ function EditDerivationRulesInner({ language, rulesets }: IEditDerivationRulesIn
       {ruleset && (
         <>
           <h4>Source language:</h4>
-          {ruleset === 'new' && (
+          {ruleset === 'new' && rulesetData && (
             <SourceLanguageSelect
               languageId={languageId}
               setLanguageId={setLanguageId}
@@ -291,7 +361,7 @@ function EditDerivationRulesInner({ language, rulesets }: IEditDerivationRulesIn
               rulesets={rulesets}
             />
           )}
-          {ruleset !== 'new' && (
+          {ruleset !== 'new' && rulesetData && (
             <>
               <SourceLanguageDisplay ruleset={ruleset} />
               <label style={{ display: "block", margin: "1em" }}>
@@ -332,6 +402,11 @@ function EditDerivationRulesInner({ language, rulesets }: IEditDerivationRulesIn
                   Save changes
                 </SaveChangesButton>
               )}
+              <p>
+                <button onClick={() => setIsDeletingRuleset(true)}>
+                  Delete ruleset
+                </button>
+              </p>
             </>
           )}
         </>
