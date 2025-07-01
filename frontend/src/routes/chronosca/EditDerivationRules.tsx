@@ -7,6 +7,7 @@ import SaveChangesButton from '@/components/SaveChangesButton';
 
 import { useFamilies, useFamilyMembers } from '@/hooks/families';
 import { useLanguage } from '@/hooks/languages';
+import { useLanguageCategories } from '@/hooks/phones';
 import {
   useLanguageDerivationRuleset,
   useLanguageDerivationRulesetIds
@@ -15,13 +16,19 @@ import {
 import { ILanguage } from '@/types/languages';
 import { IDerivationRuleset, IDerivationRulesetOverview } from '@/types/words';
 
-import { useGetParamsOrSelectedId, useUnsavedPopup } from '@/utils/global/hooks';
+import {
+  useGetParamsOrSelectedId,
+  useSetPageTitle,
+  useUnsavedPopup
+} from '@/utils/global/hooks';
 import {
   renderDatalessQueryResult,
   sendBackendJson,
   sendBackendRequest
 } from '@/utils/global/queries';
 
+import ApplySCARules from './components/ApplySCARules';
+import DisplayCategories from './components/DisplayCategories';
 import styles from './EditDerivationRules.module.css';
 
 interface ISourceLanguageSelectInner {
@@ -180,10 +187,7 @@ function RulesInput({
       setRuleset(rulesetResponse.data ?? { rules: "", fromIpa: false });
       setHasEditedRuleset(false);
     }
-  }, [
-    isNewRuleset, rulesetResponse.data, rulesetResponse.status,
-    setHasEditedRuleset, setRuleset
-  ]);
+  }, [isNewRuleset, ruleset, rulesetResponse, setHasEditedRuleset, setRuleset]);
 
   function updateRules(newRules: string) {
     if(ruleset) {
@@ -250,6 +254,67 @@ function DeleteRuleset({ destLangId, ruleset, onCancel }: IDeleteRuleset) {
         Go back
       </button>
       {message && <p><b>Error: {message}</b></p>}
+    </>
+  );
+}
+
+interface ITestRuleset {
+  srcLangId: string;
+  ruleset: IDerivationRuleset;
+}
+
+function TestRuleset({ srcLangId, ruleset }: ITestRuleset) {
+  const queryClient = useQueryClient();
+
+  const [input, setInput] = useState("");
+  const [scaQueryInput, setSCAQueryInput] = useState<string | null>(null);
+
+  const categoryType = ruleset.fromIpa ? 'phone' : 'orth';
+  const categoriesResponse = useLanguageCategories(srcLangId, categoryType);
+
+  function applySCARules() {
+    const queryKey = ['languages', srcLangId, 'apply-sca-rules'];
+    queryClient.resetQueries({ queryKey });
+    queryClient.removeQueries({ queryKey });
+    setSCAQueryInput(input);
+  }
+
+  if(categoriesResponse.status !== 'success') {
+    return <p>{categoriesResponse.error?.message ?? "Loading..."}</p>;
+  }
+
+  return (
+    <>
+      <p>You can test this ruleset below. One input per line.</p>
+      <h4 style={{ marginTop: "0.5em" }}>Input:</h4>
+      <textarea
+        value={input}
+        onChange={e => setInput(e.target.value)}
+        style={{ width: "20em", height: "10em" }}
+      />
+
+      <h4>Categories:</h4>
+      <DisplayCategories
+        languageId={srcLangId}
+        categories={categoriesResponse.data}
+      />
+
+      <p>
+        <button onClick={applySCARules}>
+          Test rules
+        </button>
+      </p>
+      {scaQueryInput !== null && (
+        <>
+          <h4>Results:</h4>
+          <ApplySCARules
+            languageId={srcLangId}
+            input={scaQueryInput}
+            rules={ruleset.rules}
+            categoryType={categoryType}
+          />
+        </>
+      )}
     </>
   );
 }
@@ -402,11 +467,20 @@ function EditDerivationRulesInner({ language, rulesets }: IEditDerivationRulesIn
                   Save changes
                 </SaveChangesButton>
               )}
-              <p>
-                <button onClick={() => setIsDeletingRuleset(true)}>
-                  Delete ruleset
-                </button>
-              </p>
+              {ruleset !== 'new' && (
+                <p style={{ marginTop: hasEditedRuleset ? "0.8em" : "0.5em" }}>
+                  <button onClick={() => setIsDeletingRuleset(true)}>
+                    Delete ruleset
+                  </button>
+                </p>
+              )}
+
+              {rulesetData && (
+                <TestRuleset
+                  srcLangId={languageId}
+                  ruleset={rulesetData}
+                />
+              )}
             </>
           )}
         </>
@@ -423,6 +497,8 @@ export default function EditDerivationRules() {
 
   const languageResponse = useLanguage(languageId);
   const rulesetsResponse = useLanguageDerivationRulesetIds(languageId);
+
+  useSetPageTitle("Edit Derivation Rules");
 
   if(languageResponse.status !== 'success') {
     return renderDatalessQueryResult(languageResponse);

@@ -36,26 +36,27 @@ export function useEstimateWordIPAQuery(langId: string, word: string, enabled: b
   });
 }
 
-export function useLanguagePhones(id: string) {
-  return useQuery<IPhone[], ITitledError>({
-    queryKey: ['languages', id, 'phones'],
-    queryFn: async () => await getBackendJson(`languages/${id}/phones`)
+export function useLanguageCategories(id: string, type: 'orth' | 'phone') {
+  const queryKey = ['languages', id, type + '-categories']
+  return useQuery<ICategory[], ITitledError>({
+    queryKey,
+    queryFn: async () => await getBackendJson(queryKey.join('/')),
+    staleTime: 0
   });
 }
 
 export function useLanguageOrthographyCategories(id: string) {
-  return useQuery<ICategory[], ITitledError>({
-    queryKey: ['languages', id, 'orth-categories'],
-    queryFn: async () => await getBackendJson(`languages/${id}/orth-categories`),
-    staleTime: 0
-  });
+  return useLanguageCategories(id, 'orth');
 }
 
 export function useLanguagePhoneCategories(id: string) {
-  return useQuery<ICategory[], ITitledError>({
-    queryKey: ['languages', id, 'phone-categories'],
-    queryFn: async () => await getBackendJson(`languages/${id}/phone-categories`),
-    staleTime: 0
+  return useLanguageCategories(id, 'phone');
+}
+
+export function useLanguagePhones(id: string) {
+  return useQuery<IPhone[], ITitledError>({
+    queryKey: ['languages', id, 'phones'],
+    queryFn: async () => await getBackendJson(`languages/${id}/phones`)
   });
 }
 

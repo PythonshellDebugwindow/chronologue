@@ -2,60 +2,20 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 
-import { SettingsTable } from '@/components/SettingsTable';
-
 import { useLanguage } from '@/hooks/languages';
 import {
-  useApplySCARulesQuery,
   useLanguageOrthographyCategories,
   useLanguagePhoneCategories
 } from '@/hooks/phones';
 
 import { ILanguage } from '@/types/languages';
-import { ApplySCARulesQueryResult, ICategory } from '@/types/phones';
+import { ICategory } from '@/types/phones';
 
 import { useGetParamsOrSelectedId, useSetPageTitle } from '@/utils/global/hooks';
 import { renderDatalessQueryResult } from '@/utils/global/queries';
 
-function DisplayCategories({ categories }: { categories: ICategory[] }) {
-  return (
-    <SettingsTable>
-      {categories.map(category => (
-        <tr key={category.letter}>
-          <td>{category.letter}</td>
-          <td>
-            <input
-              value={category.members.join(",")}
-              disabled
-              style={{ color: "black" }}
-            />
-          </td>
-        </tr>
-      ))}
-    </SettingsTable>
-  );
-}
-
-function ScaQueryResults(
-  { inputs, queryResults }: { inputs: string[], queryResults: ApplySCARulesQueryResult[] }
-) {
-  return (
-    <SettingsTable>
-      <tr style={{ textAlign: "left" }}>
-        <th>Input</th>
-        <th>Output</th>
-      </tr>
-      {queryResults.map((qr, i) => (
-        <tr key={i}>
-          <td>{inputs[i]}</td>
-          <td style={qr.success ? undefined : { color: "red" }}>
-            {qr.success ? qr.result : qr.message}
-          </td>
-        </tr>
-      ))}
-    </SettingsTable>
-  );
-}
+import ApplySCARules from './components/ApplySCARules';
+import DisplayCategories from './components/DisplayCategories';
 
 interface ITestChronoSCAInner {
   language: ILanguage;
@@ -68,36 +28,16 @@ function TestChronoSCAInner({ language, orthCategories, phoneCategories }: ITest
 
   const [rules, setRules] = useState("");
   const [input, setInput] = useState("");
-  const [lastInput, setLastInput] = useState("");
+  const [scaQueryInput, setSCAQueryInput] = useState<string | null>(null);
   const [categoryType, setCategoryType] = useState<'orth' | 'phone'>('orth');
-  const [queryIsEnabled, setQueryIsEnabled] = useState(false);
-
-  const scaQuery = useApplySCARulesQuery(
-    language.id, input.split("\n"), rules, categoryType, queryIsEnabled
-  );
-  const queryResults = (() => {
-    if(!queryIsEnabled) {
-      return null;
-    } else if(scaQuery.status === 'pending') {
-      return <p>Loading...</p>;
-    } else if(scaQuery.status === 'error') {
-      return <p>Error: {scaQuery.error.message}</p>;
-    } else {
-      return (
-        <ScaQueryResults
-          inputs={lastInput.split("\n")}
-          queryResults={scaQuery.data}
-        />
-      );
-    }
-  })();
 
   const currentCategories = categoryType === 'orth' ? orthCategories : phoneCategories;
 
   function applySCARules() {
-    setLastInput(input);
-    setQueryIsEnabled(true);
-    queryClient.resetQueries({ queryKey: ['languages', language.id, 'apply-sca-rules'] });
+    const queryKey = ['languages', language.id, 'apply-sca-rules'];
+    queryClient.resetQueries({ queryKey });
+    queryClient.removeQueries({ queryKey });
+    setSCAQueryInput(input);
   }
 
   return (
@@ -134,26 +74,25 @@ function TestChronoSCAInner({ language, orthCategories, phoneCategories }: ITest
         <option value="orth">Orthography</option>
         <option value="phone">Phonology</option>
       </select>
-      {
-        currentCategories.length > 0
-          ? <DisplayCategories categories={currentCategories} />
-          : <p>No categories set</p>
-      }
-      <p style={{ marginTop: "0.4em" }}>
-        <small>
-          <Link to={'/edit-categories/' + language.id}>[edit categories]</Link>
-        </small>
-      </p>
+      <DisplayCategories
+        languageId={language.id}
+        categories={currentCategories}
+      />
 
       <p>
         <button onClick={applySCARules}>
           Apply
         </button>
       </p>
-      {queryResults && (
+      {scaQueryInput !== null && (
         <>
           <h4>Results:</h4>
-          {queryResults}
+          <ApplySCARules
+            languageId={language.id}
+            input={scaQueryInput}
+            rules={rules}
+            categoryType={categoryType}
+          />
         </>
       )}
     </>
