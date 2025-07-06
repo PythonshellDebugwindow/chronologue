@@ -2,8 +2,10 @@ import type { RequestHandler } from 'express';
 import pg from 'pg';
 const { escapeIdentifier } = pg;
 
+import { SCA } from '../sca/sca.js';
+
 import query, { transact } from '../db/index.js';
-import { hasAllStrings, isValidUUID, partsOfSpeech, IQueryError } from '../utils.js';
+import { hasAllStrings, IQueryError, isValidUUID, partsOfSpeech } from '../utils.js';
 
 export const addWord: RequestHandler = async (req, res) => {
   if(!isValidUUID(req.body.langId)) {
@@ -219,6 +221,71 @@ export const editWord: RequestHandler = async (req, res) => {
   });
 
   res.status(204).send();
+}
+
+export const getDerivationIntoLanguage: RequestHandler = async (req, res) => {
+  if(!isValidUUID(req.params.id)) {
+    res.status(400).json({ title: "Invalid ID", message: "The given word ID is not valid." });
+    return;
+  }
+  if(!isValidUUID(req.params.langId)) {
+    res.status(400).json({ title: "Invalid ID", message: "The given language ID is not valid." });
+    return;
+  }
+
+  await transact(async client => {
+    const wordQuery = await client.query(
+      `
+        SELECT lang_id AS "langId", word, ipa
+        FROM words
+        WHERE id = $1
+      `,
+      [req.params.id]
+    );
+    if(wordQuery.rows.length !== 1) {
+      res.status(404).json({ message: "The requested word was not found." });
+      return;
+    }
+
+    const word = wordQuery.rows[0];
+
+    const rulesetQuery = await client.query(
+      `
+        SELECT rules, from_ipa AS "fromIpa"
+        FROM language_derivation_rules
+        WHERE dest_lang_id = $1 AND src_lang_id = $2
+      `,
+      [req.params.langId, word.langId]
+    );
+    if(rulesetQuery.rows.length !== 1) {
+      res.json({ derived: null });
+      return;
+    }
+
+    const ruleset = rulesetQuery.rows[0];
+
+    const tableName = escapeIdentifier(
+      ruleset.fromIpa ? "phonology_categories" : "orthography_categories"
+    );
+
+    const categoriesQuery = await client.query(
+      `
+        SELECT letter, string_to_array(members, ',') AS members
+        FROM ${tableName}
+        WHERE lang_id = $1
+      `,
+      [word.langId]
+    );
+
+    const sca = new SCA(categoriesQuery.rows);
+    const setRulesResult = sca.setRules(ruleset.rules);
+    if(!setRulesResult.success) {
+      res.json({ derived: setRulesResult });
+      return;
+    }
+    const scaResult = sca.applySoundChanges(ruleset.fromIpa ? word.ipa : word.word);
+    res.json({ derived: scaResult });
+  });
 }
 
 export const getDerivationRules: RequestHandler = async (req, res) => {

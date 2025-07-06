@@ -15,10 +15,11 @@ import {
   parseSingleRecordDates
 } from '@/utils/global/queries';
 
-export function useLanguage(id: string) {
+export function useLanguage(id: string, enabled: boolean = true) {
   return useQuery<ILanguage, ITitledError>({
     queryKey: ['languages', id],
-    queryFn: async () => parseSingleRecordDates(await getBackendJson(`languages/${id}`))
+    queryFn: async () => parseSingleRecordDates(await getBackendJson(`languages/${id}`)),
+    enabled
   });
 }
 

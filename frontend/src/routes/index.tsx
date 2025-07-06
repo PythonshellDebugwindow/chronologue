@@ -152,7 +152,7 @@ export const appRouter = createBrowserRouter([
         element: <DeleteWord />
       },
       {
-        path: "derivation-rules",
+        path: "derivation-rules/:id?",
         element: <EditDerivationRules />
       },
       {

@@ -7,7 +7,8 @@ import {
   IIdenticalWordOverview,
   IPartOfSpeech,
   IWord,
-  IWordClassNoPOS
+  IWordClassNoPOS,
+  IWordDerivation
 } from '@/types/words';
 
 import {
@@ -110,5 +111,13 @@ export function useWordClasses(wordId: string) {
   return useQuery<IWordClassNoPOS[], ITitledError>({
     queryKey: ['words', wordId, 'classes'],
     queryFn: async () => await getBackendJson(`words/${wordId}/classes`)
+  });
+}
+
+export function useWordDerivationIntoLanguage(wordId: string, langId: string, enabled: boolean) {
+  return useQuery<IWordDerivation, ITitledError>({
+    queryKey: ['words', wordId, 'derivation', langId],
+    queryFn: async () => await getBackendJson(`words/${wordId}/derivation/${langId}`),
+    enabled
   });
 }

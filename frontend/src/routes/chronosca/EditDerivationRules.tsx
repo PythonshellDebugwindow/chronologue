@@ -1,11 +1,9 @@
-import { Dispatch, SetStateAction, useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Dispatch, SetStateAction, useCallback, useEffect, useState } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 
-import { CSelect } from '@/components/CForm';
 import SaveChangesButton from '@/components/SaveChangesButton';
 
-import { useFamilies, useFamilyMembers } from '@/hooks/families';
 import { useLanguage } from '@/hooks/languages';
 import { useLanguageCategories } from '@/hooks/phones';
 import {
@@ -29,141 +27,10 @@ import {
 
 import ApplySCARules from './components/ApplySCARules';
 import DisplayCategories from './components/DisplayCategories';
-import styles from './EditDerivationRules.module.css';
-
-interface ISourceLanguageSelectInner {
-  familyId: string;
-  languageId: string;
-  setLanguageId: Dispatch<SetStateAction<string>>;
-  rulesets: IDerivationRulesetOverview[];
-}
-
-function SourceLanguageSelectInner(
-  { familyId, languageId, setLanguageId, rulesets }: ISourceLanguageSelectInner
-) {
-  const { isPending, error, data: allLanguages } = useFamilyMembers(familyId || null);
-  const languages = allLanguages?.filter(lang => !rulesets.some(r => r.langId === lang.id));
-
-  useEffect(() => {
-    if(!languageId && languages && languages.length > 0) {
-      setLanguageId(languages[0].id);
-    }
-  }, [languageId, languages, setLanguageId]);
-
-  if(isPending || error || !languages) {
-    return (
-      <tr>
-        <td>Language:</td>
-        <td>{isPending ? "Loading..." : error?.message}</td>
-      </tr>
-    );
-  }
-
-  return (
-    <CSelect
-      label="Language"
-      name="language"
-      state={languageId}
-      setState={setLanguageId}
-    >
-      {
-        languages.length > 0
-          ? languages.map(language => (
-              <option value={language.id} key={language.id}>{language.name}</option>
-            ))
-          : <option value="">(none found)</option>
-      }
-    </CSelect>
-  );
-}
-
-interface ISourceLanguageSelect {
-  languageId: string;
-  setLanguageId: Dispatch<SetStateAction<string>>;
-  deriveFromIpa: boolean;
-  setDeriveFromIpa: (deriveFromIpa: boolean) => void;
-  rulesets: IDerivationRulesetOverview[];
-}
-
-function SourceLanguageSelect(
-  { languageId, setLanguageId, deriveFromIpa, setDeriveFromIpa, rulesets }: ISourceLanguageSelect
-) {
-  const [familyId, setFamilyId] = useState("");
-
-  const { isPending, error, data: families } = useFamilies();
-  if(isPending) {
-    return "Loading...";
-  } else if(error) {
-    return error.message;
-  }
-
-  function setFamilyIdWrapper(id: string) {
-    setFamilyId(id);
-    setLanguageId("");
-  }
-
-  return (
-    <table className={styles.rulesetLanguageTable}>
-      <tbody>
-        <CSelect
-          label="Family"
-          name="family"
-          state={familyId}
-          setState={setFamilyIdWrapper}
-        >
-          <option value="">(isolates)</option>
-          {families.map(family => (
-            <option value={family.id} key={family.id}>
-              {family.name}
-            </option>
-          ))}
-        </CSelect>
-        <SourceLanguageSelectInner
-          familyId={familyId}
-          languageId={languageId}
-          setLanguageId={setLanguageId}
-          rulesets={rulesets}
-        />
-        {languageId && (
-          <CSelect
-            label="Derive from"
-            name="deriveFrom"
-            state={deriveFromIpa ? "ipa" : "word"}
-            setState={e => setDeriveFromIpa(e === "ipa")}
-          >
-            <option value="word">Word</option>
-            <option value="ipa">IPA</option>
-          </CSelect>
-        )}
-      </tbody>
-    </table>
-  );
-}
-
-function SourceLanguageDisplay({ ruleset }: { ruleset: IDerivationRulesetOverview }) {
-  return (
-    <table className={styles.rulesetLanguageTable}>
-      <tbody>
-        <tr>
-          <td>Family:</td>
-          <td>
-            {
-              ruleset.familyId
-                ? <Link to={'/family/' + ruleset.familyId}>{ruleset.familyName}</Link>
-                : "(isolate)"
-            }
-          </td>
-        </tr>
-        <tr>
-          <td>Language:</td>
-          <td>
-            <Link to={'/language/' + ruleset.langId}>{ruleset.langName}</Link>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  );
-}
+import {
+  SourceLanguageDisplay,
+  SourceLanguageSelect
+} from './components/SourceLanguage';
 
 interface IRulesInput {
   destLangId: string;
@@ -325,7 +192,11 @@ interface IEditDerivationRulesInner {
 }
 
 function EditDerivationRulesInner({ language, rulesets }: IEditDerivationRulesInner) {
+  const [searchParams] = useSearchParams();
   const queryClient = useQueryClient();
+
+  const rulesetIdParam = searchParams.get('src');
+  const [shouldUseParamRuleset, setShouldUseParamRuleset] = useState(!!rulesetIdParam);
 
   const [ruleset, setRuleset] = useState<IDerivationRulesetOverview | 'new' | null>(null);
   const newRulesetId = '_new';
@@ -338,31 +209,35 @@ function EditDerivationRulesInner({ language, rulesets }: IEditDerivationRulesIn
 
   const [isDeletingRuleset, setIsDeletingRuleset] = useState(false);
 
-  function updateDeriveFromIpa(newValue: boolean) {
-    if(rulesetData) {
-      setRulesetData({ rules: rulesetData.rules, fromIpa: newValue });
-      setHasEditedRuleset(true);
-    }
-  }
-
-  function updateRulesetId(newId: string | null) {
+  const updateRulesetId = useCallback((newId: string | null) => {
     if(hasEditedRuleset && languageId) {
       if(!confirm("This will overwrite any unsaved edits you have made below. Continue?")) {
         return;
       }
     }
 
-    if(newId === newRulesetId) {
-      setRuleset('new');
-      setLanguageId("");
-      setRulesetData({ rules: "", fromIpa: false });
-      setHasEditedRuleset(true);
-    } else if(newId === null) {
+    if(newId === null) {
       setRuleset(null);
-    } else {
-      setRuleset(rulesets.find(r => r.langId === newId) ?? null);
-      setRulesetData(null);
-      setLanguageId(newId);
+      return;
+    }
+    const theRuleset = newId !== newRulesetId && rulesets.find(r => r.langId === newId);
+    setRuleset(theRuleset || 'new');
+    setLanguageId(newId === newRulesetId ? "" : newId);
+    setRulesetData(theRuleset ? null : { rules: "", fromIpa: false });
+    setHasEditedRuleset(true);
+  }, [hasEditedRuleset, languageId, rulesets]);
+
+  useEffect(() => {
+    if(shouldUseParamRuleset && rulesetIdParam) {
+      updateRulesetId(rulesetIdParam);
+      setShouldUseParamRuleset(false);
+    }
+  }, [rulesetIdParam, shouldUseParamRuleset, updateRulesetId]);
+
+  function updateDeriveFromIpa(newValue: boolean) {
+    if(rulesetData) {
+      setRulesetData({ rules: rulesetData.rules, fromIpa: newValue });
+      setHasEditedRuleset(true);
     }
   }
 

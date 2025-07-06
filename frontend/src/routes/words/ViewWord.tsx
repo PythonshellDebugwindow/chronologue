@@ -206,6 +206,8 @@ function ViewWordInner(
         {" "}&bull;{" "}
         <Link to={`/add-word/${word.langId}?copy=${word.id}`}>Copy</Link>
         {" "}&bull;{" "}
+        <Link to={`/add-word/?derive=${word.id}`}>Derive</Link>
+        {" "}&bull;{" "}
         <Link to={'/delete-word/' + word.id}>Delete</Link>
       </p>
       {tables.length > 0 && (

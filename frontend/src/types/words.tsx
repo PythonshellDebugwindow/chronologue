@@ -64,3 +64,13 @@ export interface IDerivationRuleset {
   rules: string;
   fromIpa: boolean;
 }
+
+export interface IWordDerivation {
+  derived: null | {
+    success: true;
+    result: string;
+  } | {
+    success: false;
+    message: string;
+  };
+}
