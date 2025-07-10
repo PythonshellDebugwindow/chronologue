@@ -1,6 +1,31 @@
+import { Link } from 'react-router-dom';
+
 import FamilyLink from '@/components/FamilyLink';
 import LanguageLink from '@/components/LanguageLink';
-import WordLink from '@/components/WordLink';
+
+import { useWordOverviewWithLanguage } from '@/hooks/words';
+
+function LanguageAndWordLink({ wordId }: { wordId: string }) {
+  const { status, error, data: overview } = useWordOverviewWithLanguage(wordId);
+  if(status === 'pending') {
+    return <Link to={'/word/' + wordId}>Loading...</Link>;
+  } else if(status === 'error') {
+    return <Link to={'/word/' + wordId}>Error: {error.message}</Link>;
+  }
+
+  return (
+    <>
+      <Link to={'/language/' + overview.langId}>{overview.langName}</Link>
+      {" "}
+      <i>
+        <Link to={'/word/' + wordId}>
+          {overview.langStatus === 'proto' && "*"}
+          {overview.word}
+        </Link>
+      </i>
+    </>
+  );
+}
 
 export function parseAtSignLinkMarkup(text: string) {
   const result = [];
@@ -17,7 +42,7 @@ export function parseAtSignLinkMarkup(text: string) {
       switch(linkType) {
         case "D":
         case "W":
-          result.push(<WordLink id={id} key={result.length} />);
+          result.push(<LanguageAndWordLink wordId={id} key={result.length} />);
           i += 3 + 32;
           break;
         case "F":

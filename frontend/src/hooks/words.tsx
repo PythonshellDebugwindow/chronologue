@@ -8,7 +8,8 @@ import {
   IPartOfSpeech,
   IWord,
   IWordClassNoPOS,
-  IWordDerivation
+  IWordDerivation,
+  IWordOverviewWithLanguage
 } from '@/types/words';
 
 import {
@@ -119,5 +120,12 @@ export function useWordDerivationIntoLanguage(wordId: string, langId: string, en
     queryKey: ['words', wordId, 'derivation', langId],
     queryFn: async () => await getBackendJson(`words/${wordId}/derivation/${langId}`),
     enabled
+  });
+}
+
+export function useWordOverviewWithLanguage(wordId: string) {
+  return useQuery<IWordOverviewWithLanguage, ITitledError>({
+    queryKey: ['words', wordId, 'overview-with-language'],
+    queryFn: async () => await getBackendJson(`words/${wordId}/overview-with-language`)
   });
 }

@@ -128,6 +128,7 @@ app.get('/words/:id/derivation/:langId', words.getDerivationIntoLanguage);
 app.get('/words/:id/grammar-tables', grammarTables.getGrammarTablesForWord);
 app.get('/words/:id/homonyms', words.getLanguageWordHomonyms);
 app.get('/words/:id/irregular-stems', grammar.getIrregularStemsForWord);
+app.get('/words/:id/overview-with-language', words.getWordOverviewWithLanguage);
 app.get('/words/:id/synonyms', words.getLanguageWordSynonyms);
 
 app.use(((err, req, res, _next) => {

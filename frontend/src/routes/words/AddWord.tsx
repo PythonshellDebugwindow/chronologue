@@ -151,7 +151,7 @@ function AddWordInner({ language, dictSettings, langClasses, langPartsOfSpeech }
           ...copied,
           word: derived ? (derived.success ? derived.result : "") : copied.word,
           ipa: derived ? "" : copied.ipa,
-          etymology: derived ? `@D(${copied.id})` : copied.etymology
+          etymology: hasDeriveParam ? `@D(${copied.id})` : copied.etymology
         };
         setShouldCopyWord(false);
         copyWordData(newWord, copyWordClassesQuery.data ?? []);

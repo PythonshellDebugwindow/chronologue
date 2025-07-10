@@ -1,3 +1,5 @@
+import { LanguageStatus } from './languages';
+
 export interface IWord {
   id: string;
   word: string;
@@ -73,4 +75,11 @@ export interface IWordDerivation {
     success: false;
     message: string;
   };
+}
+
+export interface IWordOverviewWithLanguage {
+  langId: string;
+  langName: string;
+  langStatus: LanguageStatus;
+  word: string;
 }
