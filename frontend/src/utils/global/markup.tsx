@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 
 import FamilyLink from '@/components/FamilyLink';
 import LanguageLink from '@/components/LanguageLink';
+import WordLink from '@/components/WordLink';
 
 import { useWordOverviewWithLanguage } from '@/hooks/words';
 
@@ -43,6 +44,11 @@ export function parseAtSignLinkMarkup(text: string) {
         case "D":
         case "W":
           result.push(<LanguageAndWordLink wordId={id} key={result.length} />);
+          i += 3 + 32;
+          break;
+        case "d":
+        case "w":
+          result.push(<WordLink id={id} key={result.length} />);
           i += 3 + 32;
           break;
         case "F":
