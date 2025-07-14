@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom';
 
 import DisplayDate from '@/components/DisplayDate';
 import { GrammarTableLinks } from '@/components/GrammarTable';
+import WordDescendantsTree from '@/components/WordDescendantsTree';
 import WordGrammarTable from '@/components/WordGrammarTable';
 
 import {
@@ -247,6 +248,10 @@ function ViewWordInner(
           />
         </>
       )}
+      <WordDescendantsTree
+        root={word}
+        language={language}
+      />
     </>
   );
 }

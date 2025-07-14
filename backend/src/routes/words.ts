@@ -569,6 +569,41 @@ export const getWordClassesByWord: RequestHandler = async (req, res) => {
   res.json(value.rows);
 }
 
+export const getWordDescendants: RequestHandler = async (req, res) => {
+  if(!isValidUUID(req.params.id)) {
+    res.status(400).json({ title: "Invalid ID", message: "The given word ID is not valid." });
+    return;
+  }
+
+  const value = await query(
+    `
+      WITH RECURSIVE descendants AS (
+          SELECT id, word, lang_id, $1::text AS parent_id
+          FROM words
+          WHERE etymology LIKE '%@D(' || $1::text || ')%'
+        UNION
+          SELECT
+            d.id, d.word, d.lang_id,
+            translate(a.id::text, '-', '') AS parent_id
+          FROM words d
+          INNER JOIN descendants a
+          ON d.etymology LIKE '%@D(' || translate(a.id::text, '-', '') || ')%'
+      )
+      SELECT
+        translate(d.id::text, '-', '') AS id,
+        d.word,
+        translate(d.lang_id::text, '-', '') AS "langId",
+        lg.name AS "langName",
+        lg.status AS "langStatus",
+        d.parent_id AS "parentId"
+      FROM descendants d
+      JOIN languages lg ON d.lang_id = lg.id
+    `,
+    [req.params.id]
+  );
+  res.json(value.rows);
+}
+
 export const getWordOverviewWithLanguage: RequestHandler = async (req, res) => {
   if(!isValidUUID(req.params.id)) {
     res.status(400).json({ title: "Invalid ID", message: "The given word ID is not valid." });

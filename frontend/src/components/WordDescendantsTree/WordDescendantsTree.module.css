@@ -1,0 +1,8 @@
+.wordDescendantsTreeRoot {
+  display: inline-block;
+  text-align: left;
+  margin-bottom: 0;
+}
+.wordDescendantsTreeRoot ul {
+  list-style-type: disc;
+}

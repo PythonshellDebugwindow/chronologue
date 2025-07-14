@@ -23,14 +23,6 @@ export function useLanguage(id: string, enabled: boolean = true) {
   });
 }
 
-export function useLanguageSummaryNotes(id: string) {
-  return useQuery<ILanguageSummaryNotes, ITitledError>({
-    queryKey: ['languages', id, 'summary-notes'],
-    queryFn: async () => parseSingleRecordDates(await getBackendJson(`languages/${id}/summary-notes`)),
-    staleTime: 0
-  });
-}
-
 export function useLanguageDescendants(id: string) {
   return useQuery<ILanguage[], ITitledError>({
     queryKey: ['languages', id, 'descendants'],
@@ -50,6 +42,14 @@ export function useLanguageOrthographySettings(id: string) {
   return useQuery<IOrthographySettings, ITitledError>({
     queryKey: ['languages', id, 'orth-settings'],
     queryFn: async () => await getBackendJson(`languages/${id}/orth-settings`)
+  });
+}
+
+export function useLanguageSummaryNotes(id: string) {
+  return useQuery<ILanguageSummaryNotes, ITitledError>({
+    queryKey: ['languages', id, 'summary-notes'],
+    queryFn: async () => parseSingleRecordDates(await getBackendJson(`languages/${id}/summary-notes`)),
+    staleTime: 0
   });
 }
 

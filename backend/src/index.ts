@@ -125,6 +125,7 @@ app.delete('/words/:id', words.deleteWord);
 app.get('/words/:id/classes', words.getWordClassesByWord);
 app.get('/words/:id/class-ids', words.getWordClassIdsByWord);
 app.get('/words/:id/derivation/:langId', words.getDerivationIntoLanguage);
+app.get('/words/:id/descendants', words.getWordDescendants);
 app.get('/words/:id/grammar-tables', grammarTables.getGrammarTablesForWord);
 app.get('/words/:id/homonyms', words.getLanguageWordHomonyms);
 app.get('/words/:id/irregular-stems', grammar.getIrregularStemsForWord);

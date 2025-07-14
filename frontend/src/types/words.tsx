@@ -83,3 +83,12 @@ export interface IWordOverviewWithLanguage {
   langStatus: LanguageStatus;
   word: string;
 }
+
+export interface IWordDescendantOverview {
+  id: string;
+  word: string;
+  langId: string;
+  langName: string;
+  langStatus: LanguageStatus;
+  parentId: string;
+}

@@ -9,6 +9,7 @@ import {
   IWord,
   IWordClassNoPOS,
   IWordDerivation,
+  IWordDescendantOverview,
   IWordOverviewWithLanguage
 } from '@/types/words';
 
@@ -112,6 +113,13 @@ export function useWordClasses(wordId: string) {
   return useQuery<IWordClassNoPOS[], ITitledError>({
     queryKey: ['words', wordId, 'classes'],
     queryFn: async () => await getBackendJson(`words/${wordId}/classes`)
+  });
+}
+
+export function useWordDescendants(id: string) {
+  return useQuery<IWordDescendantOverview[], ITitledError>({
+    queryKey: ['words', id, 'descendants'],
+    queryFn: async () => await getBackendJson(`words/${id}/descendants`)
   });
 }
 
