@@ -18,13 +18,12 @@ function makeWordDescendantsTreeBranch(
   for(const word of directChildren) {
     seen.push(word);
   }
-  const jsxKey = seen.length;
   const childBranches = directChildren.map(word => (
     makeWordDescendantsTreeBranch(word, descendants, seen)
   ));
   const childBranchesJsx = directChildren.length > 0 ? <ul>{childBranches}</ul> : null;
   return (
-    <li key={jsxKey}>
+    <li key={root.id}>
       {root.langName + ": "}
       <Link to={'/word/' + root.id}>
         {root.langStatus === 'proto' && "*"}

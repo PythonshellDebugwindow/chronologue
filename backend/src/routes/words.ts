@@ -7,6 +7,36 @@ import { SCA } from '../sca/sca.js';
 import query, { transact } from '../db/index.js';
 import { hasAllStrings, IQueryError, isValidUUID, partsOfSpeech } from '../utils.js';
 
+async function updateWordDerivationsTable(
+  wordId: string, etymology: string, isNewWord: boolean, client: pg.PoolClient
+) {
+  const parentIdRegex = /(?:[^@]|^)(?:@@)*@[Dd]\(([0-9a-f]{32})\)/g;
+  const parentIdMatches = [...etymology.matchAll(parentIdRegex)];
+  const parentIds = parentIdMatches.map((match: string[]) => match[1]);
+
+  if(!isNewWord) {
+    await client.query(
+      `
+        DELETE FROM word_derivations
+        WHERE child_id = $1 AND NOT (parent_id = ANY($2::uuid[]))
+      `,
+      [wordId, parentIds]
+    );
+  }
+  if(parentIds.length > 0) {
+    await client.query(
+      `
+        INSERT INTO word_derivations (child_id, parent_id)
+        SELECT $1, parent_id
+        FROM unnest($2::uuid[]) AS parent_id
+        WHERE EXISTS (SELECT 1 FROM words WHERE id = parent_id)
+        ON CONFLICT DO NOTHING
+      `,
+      [wordId, parentIds]
+    );
+  }
+}
+
 export const addWord: RequestHandler = async (req, res) => {
   if(!isValidUUID(req.body.langId)) {
     res.status(400).json({ title: "Invalid ID", message: "The given language ID is not valid." });
@@ -66,6 +96,10 @@ export const addWord: RequestHandler = async (req, res) => {
         `,
         [JSON.stringify(filledIrregularStems)]
       );
+    }
+
+    if(req.body.etymology) {
+      await updateWordDerivationsTable(addedId, req.body.etymology, true, client);
     }
 
     res.status(201).json(addedId);
@@ -218,6 +252,8 @@ export const editWord: RequestHandler = async (req, res) => {
         [JSON.stringify(filledIrregularStems)]
       );
     }
+
+    await updateWordDerivationsTable(wordId, req.body.etymology, false, client);
   });
 
   res.status(204).send();
@@ -580,14 +616,17 @@ export const getWordDescendants: RequestHandler = async (req, res) => {
       WITH RECURSIVE descendants AS (
           SELECT id, word, lang_id, $1::text AS parent_id
           FROM words
-          WHERE etymology LIKE '%@D(' || $1::text || ')%'
+          WHERE EXISTS (
+            SELECT 1 FROM word_derivations
+            WHERE child_id = words.id AND parent_id = $1::text::uuid
+          )
         UNION
           SELECT
             d.id, d.word, d.lang_id,
             translate(a.id::text, '-', '') AS parent_id
           FROM words d
-          INNER JOIN descendants a
-          ON d.etymology LIKE '%@D(' || translate(a.id::text, '-', '') || ')%'
+          INNER JOIN word_derivations wd ON wd.child_id = d.id
+          INNER JOIN descendants a ON wd.parent_id = a.id
       )
       SELECT
         translate(d.id::text, '-', '') AS id,
@@ -598,6 +637,7 @@ export const getWordDescendants: RequestHandler = async (req, res) => {
         d.parent_id AS "parentId"
       FROM descendants d
       JOIN languages lg ON d.lang_id = lg.id
+      ORDER BY lg.name, d.word
     `,
     [req.params.id]
   );
@@ -701,6 +741,12 @@ export const importWords: RequestHandler = async (req, res) => {
       `,
       [JSON.stringify(wordClassesByWord)]
     );
+
+    for(let i = 0; i < addedIds.length; ++i) {
+      if(words[i].etymology) {
+        await updateWordDerivationsTable(addedIds[i].id, words[i].etymology, true, client);
+      }
+    }
   });
 
   res.status(204).send();
@@ -730,17 +776,25 @@ export const massEditLanguageDictionary: RequestHandler = async (req, res) => {
 
   const escapedField = escapeIdentifier(req.body.field);
 
-  await query(
-    `
-      UPDATE words
-      SET
-        ${escapedField} = updates.field,
-        updated = CURRENT_TIMESTAMP
-      FROM (SELECT unnest($1::uuid[]) AS id, unnest($2::text[]) AS field) AS updates
-      WHERE words.id = updates.id
-    `,
-    [changedIds, changedFields]
-  );
+  await transact(async client => {
+    await query(
+      `
+        UPDATE words
+        SET
+          ${escapedField} = updates.field,
+          updated = CURRENT_TIMESTAMP
+        FROM (SELECT unnest($1::uuid[]) AS id, unnest($2::text[]) AS field) AS updates
+        WHERE words.id = updates.id
+      `,
+      [changedIds, changedFields]
+    );
+
+    if(req.body.field === 'etymology') {
+      for(const wordId of changedIds) {
+        await updateWordDerivationsTable(wordId, changes[wordId], false, client);
+      }
+    }
+  });
 
   res.status(204).send();
 }

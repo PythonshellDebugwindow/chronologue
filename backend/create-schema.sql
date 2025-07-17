@@ -215,3 +215,9 @@ CREATE TABLE IF NOT EXISTS language_derivation_rules (
   from_ipa boolean NOT NULL,
   PRIMARY KEY (dest_lang_id, src_lang_id)
 );
+
+CREATE TABLE IF NOT EXISTS word_derivations (
+  child_id uuid NOT NULL REFERENCES words ON DELETE CASCADE,
+  parent_id uuid NOT NULL REFERENCES words ON DELETE CASCADE,
+  PRIMARY KEY (child_id, parent_id)
+);
