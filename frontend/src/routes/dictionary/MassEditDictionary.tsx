@@ -94,6 +94,26 @@ function MassEditDictionaryRow({
     }
   }
 
+  function editFieldInput() {
+    if(editField === 'etymology' || editField === 'notes') {
+      return (
+        <textarea
+          value={formatValue(editField as keyof IWord) as string}
+          onChange={e => updateEditField(e.target.value)}
+          style={{ width: "15em" }}
+        />
+      );
+    } else {
+      return (
+        <input
+          type="text"
+          value={formatValue(editField as keyof IWord) as string}
+          onChange={e => updateEditField(e.target.value)}
+        />
+      );
+    }
+  }
+
   return (
     <tr>
       {editField === 'word' && (
@@ -107,11 +127,7 @@ function MassEditDictionaryRow({
         <td key={i}>
           {
             field === editField
-              ? <input
-                  type="text"
-                  value={formatValue(field) as string}
-                  onChange={e => updateEditField(e.target.value)}
-                />
+              ? editFieldInput()
               : formatValue(field)
           }
         </td>
