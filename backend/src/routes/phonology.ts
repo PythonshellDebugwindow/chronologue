@@ -250,7 +250,7 @@ export const updatePhones: RequestHandler = async (req, res) => {
       type: p.type,
       qualities: p.qualities,
       is_allophone: p.isAllophone,
-      allophone_of: p.allophoneOf,
+      allophone_of: p.isAllophone ? p.allophoneOf : "",
       is_foreign: p.isForeign,
       notes: p.notes,
       graph: p.graph

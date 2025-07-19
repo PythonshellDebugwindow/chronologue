@@ -33,14 +33,14 @@ function PhoneTableHalfCell({ phone, addedPhones, phonesWithNotes, colSpan = 1 }
   const matchingPhones = addedPhones.filter(f => f.phone.base === phone);
   const seenWithoutNotes: string[] = [];
   const withNotes = matchingPhones.flatMap(({ phone, formatted }, i) => {
-    if(!phone.notes && seenWithoutNotes.includes(formatted)) {
+    if(!phone.notes && !phone.allophoneOf && seenWithoutNotes.includes(formatted)) {
       return [];
     }
     const res: ReactNode[] = [formatted];
     if(i > 0) {
       res.unshift(" \u00A0");
     }
-    if(phone.notes) {
+    if(phone.notes || phone.allophoneOf) {
       res.push(<sup key={i}>{phonesWithNotes.indexOf(phone) + 1}</sup>);
     } else {
       seenWithoutNotes.push(formatted);
@@ -152,7 +152,7 @@ function PhonologyTable({ data, phones, marginTop = "" }: IPhonologyTable) {
   });
 
   const phonesWithNotes = phonesWithFormatting.flatMap(
-    ({ phone }) => phone.notes ? [phone] : []
+    ({ phone }) => (phone.notes || phone.allophoneOf) ? [phone] : []
   );
   phonesWithNotes.sort((p1, p2) => {
     const p1Row = data.phones.findIndex(row => row.includes(p1.base));
@@ -196,7 +196,13 @@ function PhonologyTable({ data, phones, marginTop = "" }: IPhonologyTable) {
       </PhoneTable>
       {phonesWithNotes.length > 0 && (
         <ol className={styles.phoneNotesList}>
-          {phonesWithNotes.map((phone, i) => <li key={i}>{phone.notes}</li>)}
+          {phonesWithNotes.map((phone, i) => (
+            <li key={i}>
+              {phone.notes}
+              {phone.notes && phone.allophoneOf && " "}
+              {phone.allophoneOf && `allophone of /${phone.allophoneOf}/`}
+            </li>
+          ))}
         </ol>
       )}
     </>
