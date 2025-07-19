@@ -41,11 +41,13 @@ export function parseAtSignLinkMarkup(text: string) {
       const linkType = text[i + 1];
       const id = text.substring(i + 3, i + 3 + 32);
       switch(linkType) {
+        case "B":
         case "D":
         case "W":
           result.push(<LanguageAndWordLink wordId={id} key={result.length} />);
           i += 3 + 32;
           break;
+        case "b":
         case "d":
         case "w":
           result.push(<WordLink id={id} key={result.length} />);

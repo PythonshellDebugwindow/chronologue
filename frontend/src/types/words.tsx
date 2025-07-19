@@ -91,4 +91,5 @@ export interface IWordDescendantOverview {
   langName: string;
   langStatus: LanguageStatus;
   parentId: string;
+  isBorrowed: boolean;
 }

@@ -2,8 +2,8 @@ import { Link } from 'react-router-dom';
 
 import { useWordDescendants } from '@/hooks/words';
 
-import { IWord, IWordDescendantOverview } from '@/types/words';
 import { ILanguage } from '@/types/languages';
+import { IWord, IWordDescendantOverview } from '@/types/words';
 
 import styles from './WordDescendantsTree.module.css';
 
@@ -24,6 +24,14 @@ function makeWordDescendantsTreeBranch(
   const childBranchesJsx = directChildren.length > 0 ? <ul>{childBranches}</ul> : null;
   return (
     <li key={root.id}>
+      {root.isBorrowed && (
+        <>
+          <span title="borrowed" style={{ cursor: "help" }}>
+            →
+          </span>
+          {" "}
+        </>
+      )}
       {root.langName + ": "}
       <Link to={'/word/' + root.id}>
         {root.langStatus === 'proto' && "*"}
@@ -48,7 +56,10 @@ export default function WordDescendantsTree({ root, language }: { root: IWord, l
     return null;
   } else {
     const rootWithLanguageData = {
-      ...root, langName: language.name, langStatus: language.status
+      ...root,
+      langName: language.name,
+      langStatus: language.status,
+      isBorrowed: false
     };
     return (
       <>

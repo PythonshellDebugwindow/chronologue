@@ -10,9 +10,14 @@ import { hasAllStrings, IQueryError, isValidUUID, partsOfSpeech } from '../utils
 async function updateWordDerivationsTable(
   wordId: string, etymology: string, isNewWord: boolean, client: pg.PoolClient
 ) {
-  const parentIdRegex = /(?:[^@]|^)(?:@@)*@[Dd]\(([0-9a-f]{32})\)/g;
+  const parentIdRegex = /(?:[^@]|^)(?:@@)*@([BbDd])\(([0-9a-f]{32})\)/g;
   const parentIdMatches = [...etymology.matchAll(parentIdRegex)];
-  const parentIds = parentIdMatches.map((match: string[]) => match[1]);
+  const derivations = parentIdMatches.map(match => ({
+    child_id: wordId,
+    parent_id: match[2],
+    is_borrowing: match[1] === 'B' || match[1] === 'b'
+  }));
+  const parentIds = derivations.map(derivation => derivation.parent_id);
 
   if(!isNewWord) {
     await client.query(
@@ -23,16 +28,17 @@ async function updateWordDerivationsTable(
       [wordId, parentIds]
     );
   }
-  if(parentIds.length > 0) {
+  if(derivations.length > 0) {
     await client.query(
       `
-        INSERT INTO word_derivations (child_id, parent_id)
-        SELECT $1, parent_id
-        FROM unnest($2::uuid[]) AS parent_id
-        WHERE EXISTS (SELECT 1 FROM words WHERE id = parent_id)
-        ON CONFLICT DO NOTHING
+        INSERT INTO word_derivations (child_id, parent_id, is_borrowing)
+        SELECT wd.child_id, wd.parent_id, wd.is_borrowing
+        FROM json_populate_recordset(NULL::word_derivations, $1) AS wd
+        WHERE EXISTS (SELECT 1 FROM words WHERE id = wd.parent_id)
+        ON CONFLICT (child_id, parent_id) DO UPDATE
+        SET is_borrowing = EXCLUDED.is_borrowing
       `,
-      [wordId, parentIds]
+      [JSON.stringify(derivations)]
     );
   }
 }
@@ -614,16 +620,15 @@ export const getWordDescendants: RequestHandler = async (req, res) => {
   const value = await query(
     `
       WITH RECURSIVE descendants AS (
-          SELECT id, word, lang_id, $1::text AS parent_id
-          FROM words
-          WHERE EXISTS (
-            SELECT 1 FROM word_derivations
-            WHERE child_id = words.id AND parent_id = $1::text::uuid
-          )
+          SELECT w.id, w.word, w.lang_id, $1::text AS parent_id, wd.is_borrowing
+          FROM words w
+          INNER JOIN word_derivations wd
+          ON wd.child_id = w.id AND wd.parent_id = $1::text::uuid
         UNION
           SELECT
             d.id, d.word, d.lang_id,
-            translate(a.id::text, '-', '') AS parent_id
+            translate(a.id::text, '-', '') AS parent_id,
+            wd.is_borrowing
           FROM words d
           INNER JOIN word_derivations wd ON wd.child_id = d.id
           INNER JOIN descendants a ON wd.parent_id = a.id
@@ -634,10 +639,11 @@ export const getWordDescendants: RequestHandler = async (req, res) => {
         translate(d.lang_id::text, '-', '') AS "langId",
         lg.name AS "langName",
         lg.status AS "langStatus",
-        d.parent_id AS "parentId"
+        d.parent_id AS "parentId",
+        d.is_borrowing AS "isBorrowed"
       FROM descendants d
       JOIN languages lg ON d.lang_id = lg.id
-      ORDER BY lg.name, d.word
+      ORDER BY d.is_borrowing, lg.name, d.word
     `,
     [req.params.id]
   );

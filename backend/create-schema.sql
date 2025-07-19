@@ -219,5 +219,6 @@ CREATE TABLE IF NOT EXISTS language_derivation_rules (
 CREATE TABLE IF NOT EXISTS word_derivations (
   child_id uuid NOT NULL REFERENCES words ON DELETE CASCADE,
   parent_id uuid NOT NULL REFERENCES words ON DELETE CASCADE,
+  is_borrowing boolean NOT NULL,
   PRIMARY KEY (child_id, parent_id)
 );
