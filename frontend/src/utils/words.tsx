@@ -52,7 +52,7 @@ export function userFacingFieldName(field: string) {
   }
 }
 
-function filterWords(words: IWord[], filter: IDictionaryFilter) {
+function filterWords<WordT extends Partial<IWord>>(words: WordT[], filter: IDictionaryFilter) {
   if(!filter.field) {
     return words.slice();
   }
@@ -73,7 +73,7 @@ function filterWords(words: IWord[], filter: IDictionaryFilter) {
   })();
 
   return words.filter(word => {
-    const rawFieldValue = word[filter.field as keyof IWord] as string;
+    const rawFieldValue = word[filter.field as keyof WordT] as string;
     const fieldValue = filter.matchCase ? rawFieldValue : rawFieldValue.toLowerCase();
     switch(filter.type) {
       case 'begins':
@@ -92,7 +92,7 @@ function filterWords(words: IWord[], filter: IDictionaryFilter) {
   });
 }
 
-function sortWords(words: IWord[], filter: IDictionaryFilter) {
+function sortWords<WordT extends Partial<IWord>>(words: WordT[], filter: IDictionaryFilter) {
   const collator = new Intl.Collator();
 
   return words.sort((a, b) => {
@@ -115,7 +115,9 @@ function sortWords(words: IWord[], filter: IDictionaryFilter) {
   });
 }
 
-export function sortAndFilterWords(words: IWord[], filter: IDictionaryFilter) {
+export function sortAndFilterWords<WordT extends Partial<IWord>>(
+  words: WordT[], filter: IDictionaryFilter
+) {
   const filtered = filterWords(words, filter);
   return sortWords(filtered, filter);
 }

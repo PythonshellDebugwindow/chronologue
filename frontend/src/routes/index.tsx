@@ -17,6 +17,7 @@ import EditDerivationRules from './chronosca/EditDerivationRules';
 import TestChronoSCA from './chronosca/TestChronoSCA';
 
 import EditDictionarySettings from './dictionary/EditDictionarySettings';
+import ExportWords from './dictionary/ExportWords';
 import ImportWords from './dictionary/ImportWords';
 import MassEditDictionary from './dictionary/MassEditDictionary';
 import PurgeDictionary from './dictionary/PurgeDictionary';
@@ -202,6 +203,10 @@ export const appRouter = createBrowserRouter([
       {
         path: "estimate-ipa/:id?",
         element: <EditPronunciationEstimation />
+      },
+      {
+        path: "export-words/:id?",
+        element: <ExportWords />
       },
       {
         path: "family/:id",

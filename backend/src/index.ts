@@ -102,6 +102,7 @@ app.put('/languages/:id/word-classes', words.updateWordClasses);
 app.get('/languages/:id/word-stems', grammar.getLanguageWordStems);
 app.put('/languages/:id/word-stems', grammar.updateLanguageWordStems);
 app.get('/languages/:id/words', words.getLanguageWords);
+app.get('/languages/:id/words-with-classes', words.getLanguageWordsWithClasses);
 app.get('/languages/:id/word-count', words.getLanguageWordCount);
 
 app.get('/parts-of-speech', words.getPartsOfSpeech);

@@ -5,6 +5,7 @@ import {
   IDerivationRuleset,
   IDerivationRulesetOverview,
   IIdenticalWordOverview,
+  ILanguageWordWithClasses,
   IPartOfSpeech,
   IWord,
   IWordClassNoPOS,
@@ -83,6 +84,13 @@ export function useLanguageWords(id: string) {
   return useQuery<IWord[], ITitledError>({
     queryKey: ['languages', id, 'words'],
     queryFn: async () => parseRecordDates(await getBackendJson(`languages/${id}/words`))
+  });
+}
+
+export function useLanguageWordsWithClassIds(id: string) {
+  return useQuery<ILanguageWordWithClasses[], ITitledError>({
+    queryKey: ['languages', id, 'words-with-classes'],
+    queryFn: async () => parseRecordDates(await getBackendJson(`languages/${id}/words-with-classes`))
   });
 }
 

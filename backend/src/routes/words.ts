@@ -12,11 +12,17 @@ async function updateWordDerivationsTable(
 ) {
   const parentIdRegex = /(?:[^@]|^)(?:@@)*@([BbDd])\(([0-9a-f]{32})\)/g;
   const parentIdMatches = [...etymology.matchAll(parentIdRegex)];
-  const derivations = parentIdMatches.map(match => ({
-    child_id: wordId,
-    parent_id: match[2],
-    is_borrowing: match[1] === 'B' || match[1] === 'b'
-  }));
+  const derivations = parentIdMatches.flatMap(match => {
+    // Ensure that all IDs are unique
+    if(parentIdMatches.find(pm => pm[2] === match[2]) !== match) {
+      return [];
+    }
+    return [{
+      child_id: wordId,
+      parent_id: match[2],
+      is_borrowing: match[1] === 'B' || match[1] === 'b'
+    }];
+  });
   const parentIds = derivations.map(derivation => derivation.parent_id);
 
   if(!isNewWord) {
@@ -493,6 +499,31 @@ export const getLanguageWords: RequestHandler = async (req, res) => {
         word, ipa, meaning, pos, etymology, notes, created, updated
       FROM words
       WHERE lang_id = $1
+    `,
+    [req.params.id]
+  );
+  res.json(value.rows);
+}
+
+export const getLanguageWordsWithClasses: RequestHandler = async (req, res) => {
+  if(!isValidUUID(req.params.id)) {
+    res.status(400).json({ title: "Invalid ID", message: "The given language ID is not valid." });
+    return;
+  }
+
+  const value = await query(
+    `
+      SELECT
+        translate(w.id::text, '-', '') AS id,
+        w.word, w.ipa, w.meaning, w.pos, w.etymology, w.notes, w.created, w.updated,
+        coalesce(
+          array_agg(wc.code ORDER BY wc.code) FILTER (WHERE wc.code IS NOT NULL), '{}'
+        ) AS classes
+      FROM words AS w
+      LEFT JOIN word_classes_by_word AS bw ON bw.word_id = w.id
+      LEFT JOIN word_classes AS wc ON wc.id = bw.class_id
+      WHERE w.lang_id = $1
+      GROUP BY w.id
     `,
     [req.params.id]
   );
