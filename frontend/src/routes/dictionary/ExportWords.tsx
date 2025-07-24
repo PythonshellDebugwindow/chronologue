@@ -37,7 +37,8 @@ function handleExport(words: ILanguageWordWithClasses[], options: IExportOptions
     delimiter: options.delimiter,
     escapeChar: options.quoting,
     quoteChar: options.quoting,
-    header: options.includeHeader
+    header: options.includeHeader,
+    newline: '\n'
   });
   const csvBlob = new Blob([csvContents]);
   const linkElement = document.createElement('a');

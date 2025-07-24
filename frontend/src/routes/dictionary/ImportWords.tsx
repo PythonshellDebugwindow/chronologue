@@ -5,6 +5,7 @@ import Papa from 'papaparse';
 
 import { CForm, CFormBody, CSelect, CTextInput } from '@/components/CForm';
 import { DictionaryRow, DictionaryTable } from '@/components/Dictionary';
+import { InfoParagraph } from '@/components/Paragraphs';
 import SaveChangesButton from '@/components/SaveChangesButton';
 
 import { useLanguage, useLanguageWordClasses } from '@/hooks/languages';
@@ -102,7 +103,7 @@ interface IImportWordsInner {
 
 function ImportWordsInner({ language, langClasses, partsOfSpeech }: IImportWordsInner) {
   const possibleCsvFields: (keyof IImportedWord)[] = [
-    'word', 'ipa', 'meaning', 'pos', 'etymology', 'notes', 'classes'
+    'word', 'ipa', 'meaning', 'pos', 'classes', 'etymology', 'notes'
   ];
 
   const [csvFields, setCSVFields] = useState<(keyof IImportedWord | "")[]>(
@@ -110,6 +111,7 @@ function ImportWordsInner({ language, langClasses, partsOfSpeech }: IImportWords
   );
   const [delimiter, setDelimiter] = useState(",");
   const [quoting, setQuoting] = useState('"');
+  const [useHeaderFields, setUseHeaderFields] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
 
   const [imported, setImported] = useState<IImportedWord[] | null>(null);
@@ -117,8 +119,23 @@ function ImportWordsInner({ language, langClasses, partsOfSpeech }: IImportWords
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  function processImportedWords(results: Papa.ParseResult<string[]>) {
-    const usedCsvFields = csvFields.slice();
+  function processImportedWords(results: Papa.ParseResult<string[] | { [key: string]: string }>) {
+    const usedCsvFields = results.meta.fields ?? csvFields.slice();
+    for(const field of usedCsvFields) {
+      if(field === "") {
+        if(results.meta.fields) {
+          setErrorMessage("Error: Field names cannot be empty.");
+          return;
+        }
+      } else if(field.endsWith("_1") && usedCsvFields.includes(field.slice(0, -2))) {
+        const originalField = field.slice(0, -2);
+        setErrorMessage(`Error: Duplicate field name '${originalField}' found.`);
+        return;
+      } else if(!(possibleCsvFields as string[]).includes(field)) {
+        setErrorMessage(`Error: Invalid field name '${field}' found.`);
+        return;
+      }
+    }
     while(usedCsvFields[usedCsvFields.length - 1] === "") {
       usedCsvFields.pop();
     }
@@ -144,10 +161,8 @@ function ImportWordsInner({ language, langClasses, partsOfSpeech }: IImportWords
     }
     const importedWords: IImportedWord[] = [];
     for(const [row, result] of results.data.entries()) {
-      if(result.length <= 1 && !result[0]) {
-        continue;
-      }
-      if(result.length !== usedCsvFields.length) {
+      const resultIsArray = Array.isArray(result);
+      if(resultIsArray && result.length !== usedCsvFields.length) {
         setErrorMessage(
           `Error on row ${row + 1}: Wrong number of fields (found ${result.length}).`
         );
@@ -158,39 +173,53 @@ function ImportWordsInner({ language, langClasses, partsOfSpeech }: IImportWords
         word: "", ipa: "", meaning: "", pos: "", etymology: "", notes: "", classes: []
       };
 
-      const wordPos = result[usedCsvFields.indexOf('pos')].toLowerCase();
+      const wordPosRaw = resultIsArray ? result[usedCsvFields.indexOf('pos')] : result.pos;
+      const wordPos = wordPosRaw.toLowerCase();
       if(!partsOfSpeech.some(pos => pos.code === wordPos)) {
-        setErrorMessage(`Error on row ${row + 1}: Invalid POS "${wordPos}".`);
+        const errorText = (
+          wordPos ? `Invalid POS "${wordPos}"` : "The POS field cannot be empty"
+        );
+        setErrorMessage(`Error on row ${row + 1}: ${errorText}.`);
         return;
       }
       word.pos = wordPos;
 
-      for(let i = 0; i < result.length; ++i) {
-        const field = usedCsvFields[i];
+      const resultFields = resultIsArray ? usedCsvFields : Object.keys(result);
+      for(let i = 0; i < resultFields.length; ++i) {
+        const field = resultFields[i];
+        const fieldValue = resultIsArray ? result[i] : result[field];
         if(field === 'classes') {
-          const classCodes = result[i] ? result[i].split(",") : [];
+          if(!fieldValue) {
+            continue;
+          }
+          const classCodes = fieldValue.split(",");
           const classIds = [];
-          if(classCodes.length > 0) {
-            for(const code of classCodes) {
-              const classes = langClasses.filter(cls => cls.code === code);
-              if(classes.length === 0) {
-                setErrorMessage(`Error on row ${row + 1}: Unknown class code "${code}".`);
-                return;
-              }
-              const cls = classes.find(cls => cls.pos === word.pos);
-              if(!cls) {
-                setErrorMessage(
-                  `Error on row ${row + 1}: No class "${code}" found for the given POS.`
-                );
-                return;
-              }
-              classIds.push(cls.id);
+          for(const code of classCodes) {
+            const classes = langClasses.filter(cls => cls.code === code);
+            if(classes.length === 0) {
+              setErrorMessage(`Error on row ${row + 1}: Unknown class code "${code}".`);
+              return;
             }
+            const cls = classes.find(cls => cls.pos === word.pos);
+            if(!cls) {
+              setErrorMessage(
+                `Error on row ${row + 1}: No class "${code}" found for the given POS.`
+              );
+              return;
+            }
+            classIds.push(cls.id);
           }
           word.classes = classIds;
         } else if(field !== 'pos') {
+          if((field === 'word' || field === 'meaning') && !fieldValue) {
+            setErrorMessage(`Error on row ${row + 1}: The ${field} field cannot be empty.`);
+            return;
+          } else if(!(possibleCsvFields as string[]).includes(field)) {
+            setErrorMessage(`Error on row ${row + 1}: Invalid field name '${field}'.`);
+            return;
+          }
           const index = field as keyof Omit<IImportedWord, 'classes'>;
-          word[index] = result[i];
+          word[index] = fieldValue;
         }
       }
       importedWords.push(word);
@@ -202,14 +231,16 @@ function ImportWordsInner({ language, langClasses, partsOfSpeech }: IImportWords
 
   async function importFromFile() {
     if(fileInputRef.current) {
-      if(!fileInputRef.current.files?.item(0)) {
+      const file = fileInputRef.current.files?.item(0);
+      if(!file) {
         setErrorMessage("Please select a file.");
         return;
       }
-      const file = fileInputRef.current.files.item(0)!;
-      Papa.parse<string[]>(file, {
+      Papa.parse(file, {
         delimiter,
         quoteChar: quoting,
+        header: useHeaderFields,
+        skipEmptyLines: true,
         complete: processImportedWords
       });
     }
@@ -233,7 +264,7 @@ function ImportWordsInner({ language, langClasses, partsOfSpeech }: IImportWords
       <p>
         Class codes should be comma-separated.
       </p>
-      {errorMessage && <p><b>{errorMessage}</b></p>}
+      {errorMessage && <InfoParagraph><b>{errorMessage}</b></InfoParagraph>}
       <CForm>
         <CFormBody>
           <CTextInput
@@ -253,7 +284,32 @@ function ImportWordsInner({ language, langClasses, partsOfSpeech }: IImportWords
           <tr>
             <td colSpan={2}><h4>Field order</h4></td>
           </tr>
-          {csvFields.map((field, i) => (
+          <tr>
+            <td colSpan={2}>
+              <label>
+                Use header fields?{" "}
+                <input
+                  type="checkbox"
+                  checked={useHeaderFields}
+                  onChange={e => setUseHeaderFields(e.target.checked)}
+                />
+              </label>
+            </td>
+          </tr>
+          <tr>
+            <td colSpan={2} style={{ fontSize: "0.9em" }}>
+              The first line will {!useHeaderFields && "not "}be treated as a header.
+              {useHeaderFields && (
+                <div>
+                  Valid field names:
+                  <code style={{ fontSize: "0.9em", margin: "0 20px", display: "block" }}>
+                    {possibleCsvFields.join(", ")}
+                  </code>
+                </div>
+              )}
+            </td>
+          </tr>
+          {!useHeaderFields && csvFields.map((field, i) => (
             <CSelect
               label={`Field ${i + 1}`}
               name={"field" + i}
@@ -287,6 +343,7 @@ function ImportWordsInner({ language, langClasses, partsOfSpeech }: IImportWords
           Preview Import
         </button>
       </CForm>
+      {errorMessage && <InfoParagraph><b>{errorMessage}</b></InfoParagraph>}
       {imported && (
         <ImportPreview
           words={imported}
