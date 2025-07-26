@@ -23,6 +23,7 @@ import MassEditDictionary from './dictionary/MassEditDictionary';
 import PurgeDictionary from './dictionary/PurgeDictionary';
 import RunDictionarySCA from './dictionary/RunDictionarySCA';
 import ViewDictionary from './dictionary/ViewDictionary';
+import ViewPOSDistribution from './dictionary/ViewPOSDistribution';
 
 import AddFamily, {
   action as addFamilyAction
@@ -255,6 +256,10 @@ export const appRouter = createBrowserRouter([
       {
         path: "phonology/:id?",
         element: <EditPhonology />
+      },
+      {
+        path: "pos-distribution/:id?",
+        element: <ViewPOSDistribution />
       },
       {
         path: "purge-dictionary/:id?",

@@ -106,6 +106,29 @@ export const getLanguageDerivationRulesets: RequestHandler = async (req, res) =>
   res.json(rulesets.rows);
 }
 
+export const getLanguagePosDistribution: RequestHandler = async (req, res) => {
+  if(!isValidUUID(req.params.id)) {
+    res.status(400).json({ title: "Invalid ID", message: "The given language ID is not valid." });
+    return;
+  }
+
+  const distribution = await query(
+    `
+      SELECT pos AS code, count(*) AS count
+      FROM words
+      WHERE lang_id = $1
+      GROUP BY pos
+      ORDER BY count DESC, pos
+    `,
+    [req.params.id]
+  );
+  for(const row of distribution.rows) {
+    const pos = partsOfSpeech.find(pos => pos.code === row.code);
+    row.name = pos?.name ?? "[unknown]";
+  }
+  res.json(distribution.rows);
+}
+
 export const getLanguageStringHomonyms: RequestHandler = async (req, res) => {
   if(!isValidUUID(req.params.id)) {
     res.status(400).json({ title: "Invalid ID", message: "The given language ID is not valid." });

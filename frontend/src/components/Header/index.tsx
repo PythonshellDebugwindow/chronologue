@@ -74,6 +74,7 @@ export default function Header() {
             <Link to="/import-words">Import Words</Link>,
             <Link to="/export-words">Export Words</Link>,
             <Link to="/derivation-rules">Edit Derivation Rules</Link>,
+            <Link to="/pos-distribution">View POS Distribution</Link>,
             <Link to="/purge-dictionary">Purge Dictionary</Link>
           ]}
           setCanHover={setCanHover}

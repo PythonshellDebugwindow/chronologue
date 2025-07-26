@@ -7,6 +7,7 @@ import {
   IIdenticalWordOverview,
   ILanguageWordWithClasses,
   IPartOfSpeech,
+  IPOSCount,
   IWord,
   IWordClassNoPOS,
   IWordDerivation,
@@ -36,6 +37,13 @@ export function useLanguageDerivationRulesetIds(destLangId: string) {
     queryKey: ['languages', destLangId, 'derivation-rules'],
     queryFn: async () => await getBackendJson(`languages/${destLangId}/derivation-rules`),
     staleTime: 0
+  });
+}
+
+export function useLanguagePOSDistribution(id: string) {
+  return useQuery<IPOSCount[], ITitledError>({
+    queryKey: ['languages', id, 'pos-distribution'],
+    queryFn: async () => await getBackendJson(`languages/${id}/pos-distribution`)
   });
 }
 

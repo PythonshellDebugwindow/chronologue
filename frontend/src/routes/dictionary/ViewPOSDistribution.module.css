@@ -1,0 +1,18 @@
+.distributionTable {
+  margin: 0 auto;
+  text-align: left;
+  width: 75%;
+}
+.distributionTable td {
+  padding: 2px 8px;
+  width: 0;
+  white-space: nowrap;
+}
+.distributionTable td:last-child {
+  width: 100%;
+}
+.distributionTable td:last-child div {
+  background: #aaa;
+  min-width: 2px;
+  height: 1.5em;
+}

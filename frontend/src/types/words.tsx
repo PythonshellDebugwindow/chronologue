@@ -96,4 +96,10 @@ export interface IWordDescendantOverview {
 
 export type ILanguageWordWithClasses = Omit<IWord, 'langId'> & {
   classes: string[];
+};
+
+export interface IPOSCount {
+  code: string;
+  name: string;
+  count: number;
 }
