@@ -49,6 +49,9 @@ function ImportPreview({ words, fields, language, langClasses, partsOfSpeech }: 
 
   return (
     <>
+      <p>
+        Importing {words.length} word{words.length !== 1 && "s"}.
+      </p>
       <SaveChangesButton
         isSaving={isSaving}
         setIsSaving={setIsSaving}

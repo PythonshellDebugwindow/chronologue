@@ -16,7 +16,9 @@ import * as sca from './sca/sca.js';
 const app = express();
 const port = process.env.EXPRESS_PORT!;
 
-app.use(express.json());
+app.use(/^(?!\/languages\/.*?\/import-words$)/, express.json());
+app.use(/^\/languages\/.*?\/import-words$/, express.json({ limit: '50mb' }));
+
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', process.env.FRONTEND_URL!);
   res.setHeader('Access-Control-Allow-Headers', 'Accept, Content-Type');
