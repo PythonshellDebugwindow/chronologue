@@ -81,6 +81,31 @@ export const getDerivationRules: RequestHandler = async (req, res) => {
   res.json(rules.rows.length === 1 ? rules.rows[0] : null);
 }
 
+export const getLanguageClassDistribution: RequestHandler = async (req, res) => {
+  if(!isValidUUID(req.params.id)) {
+    res.status(400).json({ title: "Invalid ID", message: "The given language ID is not valid." });
+    return;
+  }
+  if(!partsOfSpeech.some(pos => pos.code === req.params.pos)) {
+    res.status(400).json({ message: `Invalid part of speech '${req.params.pos}'.` });
+    return;
+  }
+
+  const distribution = await query(
+    `
+      SELECT wc.code, wc.name, count(*) AS count
+      FROM word_classes AS wc
+      JOIN word_classes_by_word AS bw ON bw.class_id = wc.id
+      JOIN words AS w ON w.id = bw.word_id
+      WHERE wc.lang_id = $1 AND wc.pos = $2
+      GROUP BY wc.id
+      ORDER BY count DESC, wc.code
+    `,
+    [req.params.id, req.params.pos]
+  );
+  res.json(distribution.rows);
+}
+
 export const getLanguageDerivationRulesets: RequestHandler = async (req, res) => {
   if(!isValidUUID(req.params.id)) {
     res.status(400).json({ title: "Invalid ID", message: "The given language ID is not valid." });

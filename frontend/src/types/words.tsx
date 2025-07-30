@@ -103,3 +103,9 @@ export interface IPOSCount {
   name: string;
   count: number;
 }
+
+export interface IWordClassCount {
+  code: string;
+  name: string;
+  count: number;
+}

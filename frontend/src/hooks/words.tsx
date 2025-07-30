@@ -9,6 +9,7 @@ import {
   IPartOfSpeech,
   IPOSCount,
   IWord,
+  IWordClassCount,
   IWordClassNoPOS,
   IWordDerivation,
   IWordDescendantOverview,
@@ -64,6 +65,13 @@ export function useLanguageStringSynonyms(langId: string, meaning: string) {
       `languages/${langId}/synonyms`, 'POST', { meaning }
     ),
     staleTime: 0
+  });
+}
+
+export function useLanguageWordClassDistribution(id: string, pos: string) {
+  return useQuery<IWordClassCount[], ITitledError>({
+    queryKey: ['languages', id, 'word-class-distribution', pos],
+    queryFn: async () => await getBackendJson(`languages/${id}/word-class-distribution/${pos}`)
   });
 }
 

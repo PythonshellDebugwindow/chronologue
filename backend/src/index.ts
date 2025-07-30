@@ -101,13 +101,14 @@ app.put('/languages/:id/summary-notes', languages.updateSummaryNotes);
 app.post('/languages/:id/synonyms', dictionary.getLanguageStringSynonyms);
 app.get('/languages/:id/translation-ids', translations.getLanguageTranslationIds);
 app.get('/languages/:id/translations', translations.getAllLanguageTranslations);
+app.get('/languages/:id/word-class-distribution/:pos', dictionary.getLanguageClassDistribution);
 app.get('/languages/:id/word-classes', dictionary.getWordClassesByLanguage);
 app.put('/languages/:id/word-classes', dictionary.updateWordClasses);
+app.get('/languages/:id/word-count', dictionary.getLanguageWordCount);
 app.get('/languages/:id/word-stems', grammar.getLanguageWordStems);
 app.put('/languages/:id/word-stems', grammar.updateLanguageWordStems);
 app.get('/languages/:id/words', dictionary.getLanguageWords);
 app.get('/languages/:id/words-with-classes', dictionary.getLanguageWordsWithClasses);
-app.get('/languages/:id/word-count', dictionary.getLanguageWordCount);
 
 app.get('/parts-of-speech', dictionary.getPartsOfSpeech);
 
