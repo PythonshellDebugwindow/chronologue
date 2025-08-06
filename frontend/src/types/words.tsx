@@ -109,3 +109,8 @@ export interface IWordClassCount {
   name: string;
   count: number;
 }
+
+export interface ILetterCount {
+  letter: string;
+  count: number;
+}

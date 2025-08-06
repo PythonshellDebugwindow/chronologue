@@ -82,6 +82,7 @@ app.post('/languages/:id/estimate-ipa', phonology.estimateWordIPA);
 app.get('/languages/:id/grammar-tables', grammarTables.getLanguageGrammarTables);
 app.post('/languages/:id/homonyms', dictionary.getLanguageStringHomonyms);
 app.post('/languages/:id/import-words', dictionary.importWords);
+app.get('/languages/:id/letter-distribution', dictionary.getLanguageLetterDistribution);
 app.post('/languages/:id/mass-edit-dictionary', dictionary.massEditLanguageDictionary);
 app.get('/languages/:id/orth-categories', phonology.getOrthographyCategories);
 app.put('/languages/:id/orth-categories', phonology.updateOrthographyCategories);

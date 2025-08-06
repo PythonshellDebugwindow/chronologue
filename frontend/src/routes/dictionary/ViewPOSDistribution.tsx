@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 
+import DistributionTable from '@/components/DistributionTable';
 import LinkButton from '@/components/LinkButton';
 import { InfoParagraph } from '@/components/Paragraphs';
 
@@ -11,12 +12,10 @@ import {
 } from '@/hooks/words';
 
 import { ILanguage } from '@/types/languages';
-import { IPartOfSpeech } from '@/types/words';
+import { IPartOfSpeech, IPOSCount, IWordClassCount } from '@/types/words';
 
 import { useGetParamsOrSelectedId, useSetPageTitle } from '@/utils/global/hooks';
 import { renderDatalessQueryResult } from '@/utils/global/queries';
-
-import styles from './ViewPOSDistribution.module.css';
 
 interface IPOSDistributionTable {
   language: ILanguage;
@@ -26,6 +25,14 @@ interface IPOSDistributionTable {
 function POSDistributionTable({ language, setPOS }: IPOSDistributionTable) {
   const distributionResponse = useLanguagePOSDistribution(language.id);
 
+  function firstColumn(posCount: IPOSCount) {
+    return (
+      <LinkButton onClick={() => setPOS(posCount)}>
+        {posCount.name}
+      </LinkButton>
+    );
+  }
+
   if(distributionResponse.status === 'pending') {
     return <p>Loading...</p>;
   } else if(distributionResponse.status === 'error') {
@@ -34,26 +41,17 @@ function POSDistributionTable({ language, setPOS }: IPOSDistributionTable) {
 
   const distribution = distributionResponse.data;
 
+  if(distribution.length === 0) {
+    return (
+      <p>No words were found in {language.name}'s dictionary.</p>
+    );
+  }
+
   return (
-    <table className={styles.distributionTable}>
-      <tbody>
-        {distribution.map(posCount => (
-          <tr key={posCount.code}>
-            <td>
-              <LinkButton onClick={() => setPOS(posCount)}>
-                {posCount.name}
-              </LinkButton>
-            </td>
-            <td>{posCount.count}</td>
-            <td>
-              <div
-                style={{ width: posCount.count / distribution[0].count * 100 + "%" }}
-              />
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
+    <DistributionTable
+      distribution={distributionResponse.data}
+      firstColumn={firstColumn}
+    />
   );
 }
 
@@ -65,6 +63,10 @@ interface IWordClassDistributionTable {
 
 function WordClassDistributionTable({ language, pos, setPOS }: IWordClassDistributionTable) {
   const distributionResponse = useLanguageWordClassDistribution(language.id, pos.code);
+
+  function firstColumn(classCount: IWordClassCount) {
+    return `[${classCount.code}] ${classCount.name}`;
+  }
 
   if(distributionResponse.status === 'pending') {
     return <p>Loading...</p>;
@@ -84,23 +86,10 @@ function WordClassDistributionTable({ language, pos, setPOS }: IWordClassDistrib
           ? <p>Showing word classes for a single part of speech ({pos.name}).</p>
           : <p>No word classes found for this part of speech ({pos.name}).</p>
       }
-      <table className={styles.distributionTable}>
-        <tbody>
-          {distribution.map(classCount => (
-            <tr key={classCount.code}>
-              <td>
-                [{classCount.code}] {classCount.name}
-              </td>
-              <td>{classCount.count}</td>
-              <td>
-                <div
-                  style={{ width: classCount.count / distribution[0].count * 100 + "%" }}
-                />
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <DistributionTable
+        distribution={distribution}
+        firstColumn={firstColumn}
+      />
     </>
   );
 }

@@ -23,6 +23,7 @@ import MassEditDictionary from './dictionary/MassEditDictionary';
 import PurgeDictionary from './dictionary/PurgeDictionary';
 import RunDictionarySCA from './dictionary/RunDictionarySCA';
 import ViewDictionary from './dictionary/ViewDictionary';
+import ViewLetterDistribution from './dictionary/ViewLetterDistribution';
 import ViewPOSDistribution from './dictionary/ViewPOSDistribution';
 
 import AddFamily, {
@@ -244,6 +245,10 @@ export const appRouter = createBrowserRouter([
       {
         path: "language-translations/:id?",
         element: <ViewLanguageTranslations />
+      },
+      {
+        path: "letter-distribution/:id?",
+        element: <ViewLetterDistribution />
       },
       {
         path: "mass-edit-dictionary/:id?",

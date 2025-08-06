@@ -131,6 +131,44 @@ export const getLanguageDerivationRulesets: RequestHandler = async (req, res) =>
   res.json(rulesets.rows);
 }
 
+export const getLanguageLetterDistribution: RequestHandler = async (req, res) => {
+  if(!isValidUUID(req.params.id)) {
+    res.status(400).json({ title: "Invalid ID", message: "The given language ID is not valid." });
+    return;
+  }
+
+  const orthSettings = await query(
+    `
+      SELECT case_sensitive
+      FROM orthography_settings
+      WHERE lang_id = $1
+    `,
+    [req.params.id]
+  );
+  if(orthSettings.rows.length !== 1) {
+    res.status(404).json({ message: "The requested language was not found." });
+    return;
+  }
+  const caseSensitive = orthSettings.rows[0].case_sensitive;
+  const distributionField = caseSensitive ? "word" : "lower(word)";
+
+  const distribution = await query(
+    `
+      SELECT letter, count(*) AS count
+      FROM (
+        SELECT unnest(string_to_array(${distributionField}, NULL)) AS letter
+        FROM words
+        WHERE lang_id = $1
+      )
+      WHERE letter !~ '[[:space:]]'
+      GROUP BY letter
+      ORDER BY count DESC, letter
+    `,
+    [req.params.id]
+  );
+  res.json(distribution.rows);
+}
+
 export const getLanguagePosDistribution: RequestHandler = async (req, res) => {
   if(!isValidUUID(req.params.id)) {
     res.status(400).json({ title: "Invalid ID", message: "The given language ID is not valid." });

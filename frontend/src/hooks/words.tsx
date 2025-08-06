@@ -6,6 +6,7 @@ import {
   IDerivationRulesetOverview,
   IIdenticalWordOverview,
   ILanguageWordWithClasses,
+  ILetterCount,
   IPartOfSpeech,
   IPOSCount,
   IWord,
@@ -38,6 +39,13 @@ export function useLanguageDerivationRulesetIds(destLangId: string) {
     queryKey: ['languages', destLangId, 'derivation-rules'],
     queryFn: async () => await getBackendJson(`languages/${destLangId}/derivation-rules`),
     staleTime: 0
+  });
+}
+
+export function useLanguageLetterDistribution(id: string) {
+  return useQuery<ILetterCount[], ITitledError>({
+    queryKey: ['languages', id, 'letter-distribution'],
+    queryFn: async () => await getBackendJson(`languages/${id}/letter-distribution`)
   });
 }
 
