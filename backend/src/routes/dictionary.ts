@@ -152,19 +152,19 @@ export const getLanguageLetterDistribution: RequestHandler = async (req, res) =>
   const caseSensitive = orthSettings.rows[0].case_sensitive;
   const distributionField = caseSensitive ? "word" : "lower(word)";
 
+  const ignorePunctuation = typeof req.query.ignorePunctuation === 'string';
+  const ignoredChars = `[[:space:]${ignorePunctuation ? '[:punct:]' : ''}]`;
+
   const distribution = await query(
     `
       SELECT letter, count(*) AS count
-      FROM (
-        SELECT unnest(string_to_array(${distributionField}, NULL)) AS letter
-        FROM words
-        WHERE lang_id = $1
-      )
-      WHERE letter !~ '[[:space:]]'
+      FROM words,
+      unnest(string_to_array(${distributionField}, NULL)) AS letter
+      WHERE lang_id = $1 AND letter !~ $2
       GROUP BY letter
       ORDER BY count DESC, letter
     `,
-    [req.params.id]
+    [req.params.id, ignoredChars]
   );
   res.json(distribution.rows);
 }

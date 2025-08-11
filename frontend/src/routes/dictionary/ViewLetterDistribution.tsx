@@ -1,5 +1,7 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 
+import { CCheckbox } from '@/components/CForm';
 import DistributionTable from '@/components/DistributionTable';
 import { InfoParagraph } from '@/components/Paragraphs';
 
@@ -11,8 +13,13 @@ import { ILanguage } from '@/types/languages';
 import { useGetParamsOrSelectedId, useSetPageTitle } from '@/utils/global/hooks';
 import { renderDatalessQueryResult } from '@/utils/global/queries';
 
-function ViewLetterDistributionInner({ language }: { language: ILanguage }) {
-  const distributionResponse = useLanguageLetterDistribution(language.id);
+interface ILetterDistributionTable {
+  language: ILanguage;
+  ignorePunctuation: boolean;
+}
+
+function LetterDistributionTable({ language, ignorePunctuation }: ILetterDistributionTable) {
+  const distributionResponse = useLanguageLetterDistribution(language.id, ignorePunctuation);
 
   if(distributionResponse.status === 'pending') {
     return <p>Loading...</p>;
@@ -22,6 +29,23 @@ function ViewLetterDistributionInner({ language }: { language: ILanguage }) {
 
   const distribution = distributionResponse.data;
 
+  if(distribution.length === 0) {
+    return (
+      <p>No valid graphs were found in {language.name}'s dictionary.</p>
+    );
+  }
+
+  return (
+    <DistributionTable
+      distribution={distribution}
+      firstColumn={letterCount => letterCount.letter}
+    />
+  );
+}
+
+function ViewLetterDistributionInner({ language }: { language: ILanguage }) {
+  const [ignorePunctuation, setIgnorePunctuation] = useState(true);
+
   return (
     <>
       <h2>View Letter Distribution</h2>
@@ -29,12 +53,19 @@ function ViewLetterDistributionInner({ language }: { language: ILanguage }) {
         Viewing the distribution of letters in{" "}
         <Link to={'/language/' + language.id}>{language.name}</Link>'s words.
       </InfoParagraph>
-      {distribution.length === 0 && (
-        <p>No valid graphs were found in {language.name}'s dictionary.</p>
-      )}
-      <DistributionTable
-        distribution={distribution}
-        firstColumn={letterCount => letterCount.letter}
+      <table style={{ textAlign: "left", margin: "0 auto" }}>
+        <tbody>
+          <CCheckbox
+            label="Ignore punctuation?"
+            name="punctuation"
+            state={ignorePunctuation}
+            setState={setIgnorePunctuation}
+          />
+        </tbody>
+      </table>
+      <LetterDistributionTable
+        language={language}
+        ignorePunctuation={ignorePunctuation}
       />
     </>
   );

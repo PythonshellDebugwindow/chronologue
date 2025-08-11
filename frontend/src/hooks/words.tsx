@@ -42,10 +42,12 @@ export function useLanguageDerivationRulesetIds(destLangId: string) {
   });
 }
 
-export function useLanguageLetterDistribution(id: string) {
+export function useLanguageLetterDistribution(id: string, ignorePunctuation: boolean) {
+  const queryKey = ['languages', id, 'letter-distribution', ignorePunctuation];
+  const queryParams = ignorePunctuation ? '?ignorePunctuation' : '';
   return useQuery<ILetterCount[], ITitledError>({
-    queryKey: ['languages', id, 'letter-distribution'],
-    queryFn: async () => await getBackendJson(`languages/${id}/letter-distribution`)
+    queryKey,
+    queryFn: async () => await getBackendJson(queryKey.slice(0, -1).join('/') + queryParams)
   });
 }
 
