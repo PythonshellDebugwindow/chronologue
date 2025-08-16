@@ -75,6 +75,7 @@ app.get('/languages/:id/derivation-rules', dictionary.getLanguageDerivationRules
 app.get('/languages/:id/derivation-rules/:srcId', dictionary.getDerivationRules);
 app.put('/languages/:id/derivation-rules/:srcId', dictionary.editDerivationRules);
 app.delete('/languages/:id/derivation-rules/:srcId', dictionary.deleteDerivationRules);
+app.get('/languages/:id/derive-first-word/:destId', dictionary.getLanguageFirstWordDerivation);
 app.get('/languages/:id/descendants', languages.getDescendants);
 app.get('/languages/:id/dictionary-settings', languages.getDictionarySettings);
 app.put('/languages/:id/dictionary-settings', languages.updateDictionarySettings);
@@ -132,6 +133,7 @@ app.delete('/words/:id', words.deleteWord);
 app.get('/words/:id/classes', words.getWordClassesByWord);
 app.get('/words/:id/class-ids', words.getWordClassIdsByWord);
 app.get('/words/:id/derivation/:langId', words.getDerivationIntoLanguage);
+app.get('/words/:id/derive-next-word/:destId', dictionary.getLanguageNextWordDerivation);
 app.get('/words/:id/descendants', words.getWordDescendants);
 app.get('/words/:id/grammar-tables', grammarTables.getGrammarTablesForWord);
 app.get('/words/:id/homonyms', words.getLanguageWordHomonyms);

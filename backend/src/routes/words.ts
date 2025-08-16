@@ -1,8 +1,6 @@
 import type { RequestHandler } from 'express';
-import pg from 'pg';
-const { escapeIdentifier } = pg;
 
-import { SCA } from '../sca/sca.js';
+import { getWordDerivationIntoLanguage } from '../sca/getWordDerivation.js';
 
 import query, { transact } from '../db/index.js';
 import { updateWordDerivationsTable } from '../utils/words.js';
@@ -202,42 +200,8 @@ export const getDerivationIntoLanguage: RequestHandler = async (req, res) => {
 
     const word = wordQuery.rows[0];
 
-    const rulesetQuery = await client.query(
-      `
-        SELECT rules, from_ipa AS "fromIpa"
-        FROM language_derivation_rules
-        WHERE dest_lang_id = $1 AND src_lang_id = $2
-      `,
-      [req.params.langId, word.langId]
-    );
-    if(rulesetQuery.rows.length !== 1) {
-      res.json({ derived: null });
-      return;
-    }
-
-    const ruleset = rulesetQuery.rows[0];
-
-    const tableName = escapeIdentifier(
-      ruleset.fromIpa ? "phonology_categories" : "orthography_categories"
-    );
-
-    const categoriesQuery = await client.query(
-      `
-        SELECT letter, string_to_array(members, ',') AS members
-        FROM ${tableName}
-        WHERE lang_id = $1
-      `,
-      [word.langId]
-    );
-
-    const sca = new SCA(categoriesQuery.rows);
-    const setRulesResult = sca.setRules(ruleset.rules);
-    if(!setRulesResult.success) {
-      res.json({ derived: setRulesResult });
-      return;
-    }
-    const scaResult = sca.applySoundChanges(ruleset.fromIpa ? word.ipa : word.word);
-    res.json({ derived: scaResult });
+    const derived = await getWordDerivationIntoLanguage(word, req.params.langId, client);
+    res.json({ derived });
   });
 }
 

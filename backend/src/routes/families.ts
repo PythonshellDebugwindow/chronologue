@@ -1,7 +1,7 @@
 import type { RequestHandler } from 'express';
 
 import query, { transact } from '../db/index.js';
-import { isValidUUID, IQueryError } from '../utils.js';
+import { IQueryError, isValidUUID } from '../utils.js';
 
 export const addFamily: RequestHandler = async (req, res, next) => {
   try {

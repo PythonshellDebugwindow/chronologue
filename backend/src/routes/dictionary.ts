@@ -2,6 +2,8 @@ import type { RequestHandler } from 'express';
 import pg from 'pg';
 const { escapeIdentifier } = pg;
 
+import { getWordDerivationIntoLanguage } from '../sca/getWordDerivation.js';
+
 import query, { transact } from '../db/index.js';
 import { updateWordDerivationsTable } from '../utils/words.js';
 import { hasAllStrings, IQueryError, isValidUUID, partsOfSpeech } from '../utils.js';
@@ -131,6 +133,49 @@ export const getLanguageDerivationRulesets: RequestHandler = async (req, res) =>
   res.json(rulesets.rows);
 }
 
+export const getLanguageFirstWordDerivation: RequestHandler = async (req, res) => {
+  if(!isValidUUID(req.params.id)) {
+    res.status(400).json({ title: "Invalid ID", message: "The given language ID is not valid." });
+    return;
+  }
+  if(!isValidUUID(req.params.destId)) {
+    res.status(400).json({ title: "Invalid ID", message: "The given language ID is not valid." });
+    return;
+  }
+
+  await transact(async client => {
+    const firstWordResponse = await client.query(
+      `
+        SELECT
+          translate(id::text, '-', '') AS id,
+          word, ipa, meaning, pos, notes, lang_id AS "langId"
+        FROM words
+        WHERE lang_id = $1
+        ORDER BY created, id
+        LIMIT 1
+      `,
+      [req.params.id]
+    );
+    if(firstWordResponse.rows.length !== 1) {
+      res.json(null);
+      return;
+    }
+    const firstWord = firstWordResponse.rows[0];
+
+    const derived = await getWordDerivationIntoLanguage(firstWord, req.params.destId, client);
+    if(derived !== null) {
+      if(!derived.success) {
+        res.json(derived);
+        return;
+      }
+      firstWord.word = derived.result;
+    }
+    delete firstWord.ipa;
+    delete firstWord.langId;
+    res.json({ success: true, result: firstWord });
+  });
+}
+
 export const getLanguageLetterDistribution: RequestHandler = async (req, res) => {
   if(!isValidUUID(req.params.id)) {
     res.status(400).json({ title: "Invalid ID", message: "The given language ID is not valid." });
@@ -167,6 +212,59 @@ export const getLanguageLetterDistribution: RequestHandler = async (req, res) =>
     [req.params.id, ignoredChars]
   );
   res.json(distribution.rows);
+}
+
+export const getLanguageNextWordDerivation: RequestHandler = async (req, res) => {
+  if(!isValidUUID(req.params.id)) {
+    res.status(400).json({ title: "Invalid ID", message: "The given word ID is not valid." });
+    return;
+  }
+  if(!isValidUUID(req.params.destId)) {
+    res.status(400).json({ title: "Invalid ID", message: "The given language ID is not valid." });
+    return;
+  }
+
+  await transact(async client => {
+    const givenWordResponse = await client.query(
+      "SELECT id, lang_id, created::text FROM words WHERE id = $1",
+      [req.params.id]
+    );
+    if(givenWordResponse.rows.length !== 1) {
+      res.status(404).json({ message: "The requested word was not found." });
+      return;
+    }
+    const givenWord = givenWordResponse.rows[0];
+
+    const nextWordResponse = await client.query(
+      `
+        SELECT
+          translate(id::text, '-', '') AS id,
+          word, ipa, meaning, pos, notes, lang_id AS "langId"
+        FROM words
+        WHERE lang_id = $1 AND (created, id) > ($2, $3)
+        ORDER BY created, id
+        LIMIT 1
+      `,
+      [givenWord.lang_id, givenWord.created, givenWord.id]
+    );
+    if(nextWordResponse.rows.length !== 1) {
+      res.json(null);
+      return;
+    }
+    const nextWord = nextWordResponse.rows[0];
+
+    const derived = await getWordDerivationIntoLanguage(nextWord, req.params.destId, client);
+    if(derived !== null) {
+      if(!derived.success) {
+        res.json(derived);
+        return;
+      }
+      nextWord.word = derived.result;
+    }
+    delete nextWord.ipa;
+    delete nextWord.langId;
+    res.json({ success: true, result: nextWord });
+  });
 }
 
 export const getLanguagePosDistribution: RequestHandler = async (req, res) => {
