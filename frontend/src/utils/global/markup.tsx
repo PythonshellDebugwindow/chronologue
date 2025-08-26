@@ -18,12 +18,10 @@ function LanguageAndWordLink({ wordId }: { wordId: string }) {
     <>
       <Link to={'/language/' + overview.langId}>{overview.langName}</Link>
       {" "}
-      <i>
-        <Link to={'/word/' + wordId}>
-          {overview.langStatus === 'proto' && "*"}
-          {overview.word}
-        </Link>
-      </i>
+      <Link to={'/word/' + wordId}>
+        {overview.langStatus === 'proto' && "*"}
+        <i>{overview.word}</i>
+      </Link>
     </>
   );
 }

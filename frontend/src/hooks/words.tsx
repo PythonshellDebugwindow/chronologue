@@ -14,7 +14,8 @@ import {
   IWordClassNoPOS,
   IWordDerivation,
   IWordDescendantOverview,
-  IWordOverviewWithLanguage
+  IWordOverviewWithLanguage,
+  IWordOverviewWithLanguageStatus
 } from '@/types/words';
 
 import {
@@ -169,5 +170,12 @@ export function useWordOverviewWithLanguage(wordId: string) {
   return useQuery<IWordOverviewWithLanguage, ITitledError>({
     queryKey: ['words', wordId, 'overview-with-language'],
     queryFn: async () => await getBackendJson(`words/${wordId}/overview-with-language`)
+  });
+}
+
+export function useWordOverviewWithLanguageStatus(wordId: string) {
+  return useQuery<IWordOverviewWithLanguageStatus, ITitledError>({
+    queryKey: ['words', wordId, 'overview-with-language-status'],
+    queryFn: async () => await getBackendJson(`words/${wordId}/overview-with-language-status`)
   });
 }

@@ -1,22 +1,27 @@
 import { Link } from 'react-router-dom';
 
-import { useWord } from '@/hooks/words';
+import { useWordOverviewWithLanguageStatus } from '@/hooks/words';
 
-function useWordString(id: string) {
-  const { isPending, error, data } = useWord(id);
+function WordDisplay({ id }: { id: string }) {
+  const { isPending, error, data } = useWordOverviewWithLanguageStatus(id);
   if(isPending) {
     return "Loading...";
   } else if(error) {
-    return error.message;
+    return "Error: " + error.message;
   } else {
-    return data.word;
+    return (
+      <>
+        {data.langStatus === 'proto' && "*"}
+        <i>{data.word}</i>
+      </>
+    );
   }
 }
 
 export default function WordLink({ id }: { id: string }) {
   return (
     <Link to={'/word/' + id}>
-      {useWordString(id)}
+      <WordDisplay id={id} />
     </Link>
   );
 }

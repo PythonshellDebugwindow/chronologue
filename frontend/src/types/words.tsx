@@ -84,6 +84,11 @@ export interface IWordOverviewWithLanguage {
   word: string;
 }
 
+export interface IWordOverviewWithLanguageStatus {
+  langStatus: LanguageStatus;
+  word: string;
+}
+
 export interface IWordDescendantOverview {
   id: string;
   word: string;

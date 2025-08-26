@@ -399,3 +399,30 @@ export const getWordOverviewWithLanguage: RequestHandler = async (req, res) => {
     });
   }
 }
+
+export const getWordOverviewWithLanguageStatus: RequestHandler = async (req, res) => {
+  if(!isValidUUID(req.params.id)) {
+    res.status(400).json({ title: "Invalid ID", message: "The given word ID is not valid." });
+    return;
+  }
+
+  const value = await query(
+    `
+      SELECT
+        lg.status AS "langStatus",
+        w.word
+      FROM words AS w
+      JOIN languages AS lg
+      ON w.lang_id = lg.id
+      WHERE w.id = $1
+    `,
+    [req.params.id]
+  );
+  if(value.rows.length === 1) {
+    res.json(value.rows[0]);
+  } else {
+    res.status(404).json({
+      title: "Word not found", message: "The requested word was not found."
+    });
+  }
+}
