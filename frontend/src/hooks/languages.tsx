@@ -7,7 +7,7 @@ import {
   IOrthographySettings
 } from '@/types/languages';
 import { ITitledError } from '@/types/titledError';
-import { IWordClass } from '@/types/words';
+import { IWordClass, IWordDerivationForDictionary } from '@/types/words';
 
 import {
   getBackendJson,
@@ -35,6 +35,22 @@ export function useLanguageDictionarySettings(id: string) {
     queryKey: ['languages', id, 'dictionary-settings'],
     queryFn: async () => await getBackendJson(`languages/${id}/dictionary-settings`),
     staleTime: 0
+  });
+}
+
+export function useLanguageWordDerivationForDictionary(
+  wordId: string | null, srcLangId: string | null, destLangId: string, enabled: boolean
+) {
+  const queryKey = (
+    wordId === null
+      ? ['languages', srcLangId, 'derive-first-word', destLangId]
+      : ['words', wordId, 'derive-next-word', destLangId]
+  );
+  return useQuery<IWordDerivationForDictionary | null, ITitledError>({
+    queryKey,
+    queryFn: async () => await getBackendJson(queryKey.join('/')),
+    staleTime: 0,
+    enabled: enabled && (wordId !== null || srcLangId !== null)
   });
 }
 

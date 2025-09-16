@@ -1,5 +1,5 @@
 import { ReactNode, useCallback, useEffect, useState } from 'react';
-import { useNavigate, useSearchParams, Link } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 
 import {
   CForm,
@@ -10,13 +10,15 @@ import {
   CNewWordMeaningInput
 } from '@/components/CForm';
 import IrregularWordStemsEdit from '@/components/IrregularWordStemsEdit';
+import LanguageLink from '@/components/LanguageLink';
 import LinkButton from '@/components/LinkButton';
 import POSAndClassesSelect from '@/components/POSAndClassesSelect';
 
 import {
   useLanguage,
   useLanguageDictionarySettings,
-  useLanguageWordClasses
+  useLanguageWordClasses,
+  useLanguageWordDerivationForDictionary
 } from '@/hooks/languages';
 import {
   usePartsOfSpeech,
@@ -69,7 +71,7 @@ function WordAddedMessage({ prevId, copyWordData }: IWordAddedMessage) {
           <br />
           <small>
             <LinkButton onClick={copyFields}>
-              (copy fields)
+              [copy fields]
             </LinkButton>
           </small>
         </>
@@ -93,13 +95,20 @@ function AddWordInner({ language, dictSettings, langClasses, langPartsOfSpeech }
   const hasCopyOrDeriveParam = !!wordIdToCopy;
   const hasCopyParam = !!searchParams.get('copy');
 
+  const isDerivingDictionary = searchParams.has('deriveDict');
+  const dictDerivationLangId = searchParams.get('deriveDict');
+
   const copyWordQuery = useWord(wordIdToCopy ?? "", hasCopyOrDeriveParam);
   const copyWordClassesQuery = useWordClassIds(wordIdToCopy ?? "", hasCopyParam);
-  const [shouldCopyWord, setShouldCopyWord] = useState(hasCopyOrDeriveParam);
+  const [shouldCopyWord, setShouldCopyWord] = useState(hasCopyOrDeriveParam || isDerivingDictionary);
 
-  const hasDeriveParam = !!searchParams.get('derive');
+  const hasDeriveParam = !!searchParams.get('derive') || isDerivingDictionary;
   const deriveWordQuery = useWordDerivationIntoLanguage(
-    searchParams.get('derive') ?? "", language.id, hasDeriveParam
+    searchParams.get('derive') ?? "", language.id, !!searchParams.get('derive')
+  );
+
+  const deriveWordForDictionaryQuery = useLanguageWordDerivationForDictionary(
+    searchParams.get('prevDerive'), dictDerivationLangId, language.id, isDerivingDictionary
   );
 
   const [word, setWord] = useState("");
@@ -114,8 +123,11 @@ function AddWordInner({ language, dictSettings, langClasses, langPartsOfSpeech }
   const [preserveFields, setPreserveFields] = useState(false);
   const [message, setMessage] = useState("");
   const [copyingMessage, setCopyingMessage] = useState<ReactNode>(null);
+  const [prevDictDerivationId, setPrevDictDerivationId] = useState<string | null>(null);
 
-  const copyWordData = useCallback((word: IWord, classIds: string[]) => {
+  type IWordToCopy = Omit<IWord, 'id' | 'created' | 'updated'>;
+
+  const copyWordData = useCallback((word: IWordToCopy, classIds: string[]) => {
     setWord(word.word);
     setIpa(word.ipa);
     setMeaning(word.meaning);
@@ -126,9 +138,78 @@ function AddWordInner({ language, dictSettings, langClasses, langPartsOfSpeech }
   }, [langClasses]);
 
   useEffect(() => {
+    setShouldCopyWord(true);
+    setCopyingMessage(null);
+  }, [searchParams]);
+
+  useEffect(() => {
     if(shouldCopyWord) {
       const pendingMessage = `${hasDeriveParam ? "Deriv" : "Copy"}ing word...`;
       const couldNot = `Could not ${hasDeriveParam ? "derive" : "copy"} word: `;
+      if(isDerivingDictionary) {
+        if(deriveWordForDictionaryQuery.error) {
+          setCopyingMessage(<b>{couldNot + deriveWordForDictionaryQuery.error.message}</b>);
+          setShouldCopyWord(false);
+        } else if(deriveWordForDictionaryQuery.status === 'pending') {
+          setCopyingMessage(pendingMessage);
+        } else if(deriveWordForDictionaryQuery.data === null) {
+          if(dictDerivationLangId) {
+            setCopyingMessage(
+              <>
+                There are no words in the given dictionary.
+                <small>
+                  <br />
+                  Mass-deriving from <LanguageLink id={dictDerivationLangId} />'s dictionary.
+                </small>
+              </>
+            );
+          } else {
+            setCopyingMessage(null);
+          }
+          setShouldCopyWord(false);
+        } else {
+          const derived = deriveWordForDictionaryQuery.data;
+          const derivedWord = derived.derived;
+          const newWord = {
+            ...derived,
+            word: derivedWord ? (derivedWord.success ? derivedWord.result : "") : derived.originalWord,
+            ipa: "",
+            etymology: `@D(${derived.originalId})`
+          };
+          setShouldCopyWord(false);
+          copyWordData(newWord, []);
+          setCopyingMessage(
+            <>
+              Deriving from:{" "}
+              <Link to={'/word/' + derived.originalId}>
+                {derived.originalWord}
+              </Link>
+              {" "}({derived.meaning})
+              <small>
+                <br />
+                {derivedWord === null && "No ruleset found "}
+                <Link to={`/derivation-rules/${language.id}?src=${derived.langId}`}>
+                  [{derivedWord ? "edit" : "add"} ruleset]
+                </Link>
+                <br />
+                Mass-deriving from <LanguageLink id={derived.langId} />'s dictionary.{" "}
+                <LinkButton onClick={() => {
+                  const prev = searchParams.has('prev') ? `prev=${searchParams.get('prev')}&` : '';
+                  navigate(`?${prev}prevDerive=${derived.originalId}&deriveDict`);
+                  setShouldCopyWord(true);
+                }}>
+                  [skip this word]
+                </LinkButton>
+              </small>
+            </>
+          );
+          if(derivedWord?.success === false) {
+            setMessage("Derivation ruleset error: " + derivedWord.message);
+          }
+          setPrevDictDerivationId(derived.originalId);
+        }
+        return;
+      }
       if(copyWordQuery.error) {
         setCopyingMessage(<b>{couldNot + copyWordQuery.error.message}</b>);
         setShouldCopyWord(false);
@@ -139,7 +220,7 @@ function AddWordInner({ language, dictSettings, langClasses, langPartsOfSpeech }
         setCopyingMessage(<b>{couldNot + deriveWordQuery.error.message}</b>);
         setShouldCopyWord(false);
       } else if(copyWordQuery.status === 'pending') {
-        setCopyingMessage(pendingMessage);
+        setCopyingMessage(hasCopyOrDeriveParam && pendingMessage);
       } else if(hasCopyParam && copyWordClassesQuery.status === 'pending') {
         setCopyingMessage(pendingMessage);
       } else if(hasDeriveParam && deriveWordQuery.status === 'pending') {
@@ -177,8 +258,9 @@ function AddWordInner({ language, dictSettings, langClasses, langPartsOfSpeech }
       }
     }
   }, [
-    copyWordClassesQuery, copyWordData, copyWordQuery, deriveWordQuery,
-    hasCopyParam, hasDeriveParam, language.id, shouldCopyWord
+    copyWordClassesQuery, copyWordData, copyWordQuery, deriveWordForDictionaryQuery,
+    deriveWordQuery, dictDerivationLangId, hasCopyParam, hasDeriveParam,
+    isDerivingDictionary, language.id, navigate, searchParams, shouldCopyWord
   ]);
 
   function resetFields() {
@@ -227,7 +309,13 @@ function AddWordInner({ language, dictSettings, langClasses, langPartsOfSpeech }
       resetFields();
     }
 
-    navigate(`/add-word/${language.id}/?prev=${result.body}`);
+    const dictDerivationParams = (
+      isDerivingDictionary ? `&prevDerive=${prevDictDerivationId ?? ""}&deriveDict` : ""
+    );
+    if(isDerivingDictionary) {
+      setShouldCopyWord(true);
+    }
+    navigate(`/add-word/${language.id}/?prev=${result.body}${dictDerivationParams}`);
   }
 
   return (

@@ -147,8 +147,9 @@ export const getLanguageFirstWordDerivation: RequestHandler = async (req, res) =
     const firstWordResponse = await client.query(
       `
         SELECT
-          translate(id::text, '-', '') AS id,
-          word, ipa, meaning, pos, notes, lang_id AS "langId"
+          translate(id::text, '-', '') AS "originalId",
+          word, ipa, meaning, pos, notes,
+          translate(lang_id::text, '-', '') AS "langId"
         FROM words
         WHERE lang_id = $1
         ORDER BY created, id
@@ -163,16 +164,11 @@ export const getLanguageFirstWordDerivation: RequestHandler = async (req, res) =
     const firstWord = firstWordResponse.rows[0];
 
     const derived = await getWordDerivationIntoLanguage(firstWord, req.params.destId, client);
-    if(derived !== null) {
-      if(!derived.success) {
-        res.json(derived);
-        return;
-      }
-      firstWord.word = derived.result;
-    }
+    firstWord.derived = derived;
+    firstWord.originalWord = firstWord.word;
+    delete firstWord.word;
     delete firstWord.ipa;
-    delete firstWord.langId;
-    res.json({ success: true, result: firstWord });
+    res.json(firstWord);
   });
 }
 
@@ -238,8 +234,9 @@ export const getLanguageNextWordDerivation: RequestHandler = async (req, res) =>
     const nextWordResponse = await client.query(
       `
         SELECT
-          translate(id::text, '-', '') AS id,
-          word, ipa, meaning, pos, notes, lang_id AS "langId"
+          translate(id::text, '-', '') AS "originalId",
+          word, ipa, meaning, pos, notes,
+          translate(lang_id::text, '-', '') AS "langId"
         FROM words
         WHERE lang_id = $1 AND (created, id) > ($2, $3)
         ORDER BY created, id
@@ -254,16 +251,11 @@ export const getLanguageNextWordDerivation: RequestHandler = async (req, res) =>
     const nextWord = nextWordResponse.rows[0];
 
     const derived = await getWordDerivationIntoLanguage(nextWord, req.params.destId, client);
-    if(derived !== null) {
-      if(!derived.success) {
-        res.json(derived);
-        return;
-      }
-      nextWord.word = derived.result;
-    }
+    nextWord.derived = derived;
+    nextWord.originalWord = nextWord.word;
+    delete nextWord.word;
     delete nextWord.ipa;
-    delete nextWord.langId;
-    res.json({ success: true, result: nextWord });
+    res.json(nextWord);
   });
 }
 

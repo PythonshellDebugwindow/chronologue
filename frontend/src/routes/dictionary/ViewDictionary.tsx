@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import {
@@ -8,6 +8,8 @@ import {
   EnableDictionaryFieldButtons
 } from '@/components/Dictionary';
 import { LetterButtonXNoShadow } from '@/components/LetterButtons';
+
+import SelectedLanguageContext from '@/contexts/SelectedLanguageContext';
 
 import { useLanguage, useLanguageDictionarySettings } from '@/hooks/languages';
 import { useLanguageWords, usePartsOfSpeech } from '@/hooks/words';
@@ -48,6 +50,8 @@ interface IViewDictionaryInner {
 }
 
 function ViewDictionaryInner({ language, words, dictSettings, partsOfSpeech }: IViewDictionaryInner) {
+  const { selectedLanguage } = useContext(SelectedLanguageContext);
+
   const [fields, setFields] = useState<IDictionaryField[]>(getAllFields(dictSettings));
 
   const [filter, setFilter] = useState<IDictionaryFilter>({
@@ -67,9 +71,18 @@ function ViewDictionaryInner({ language, words, dictSettings, partsOfSpeech }: I
   return (
     <>
       <h2>View Dictionary</h2>
-      <p>
+      <p style={{ marginBottom: "0.5em" }}>
         Viewing <Link to={'/language/' + language.id}>{language.name}</Link>'s dictionary.
       </p>
+      {selectedLanguage && selectedLanguage.id !== language.id && (
+        <p style={{ marginTop: "0" }}>
+          <small>
+            <Link to={`/add-word?deriveDict=${language.id}`}>
+              [mass-derive into {selectedLanguage.name}]
+            </Link>
+          </small>
+        </p>
+      )}
       <p>
         More fields:
         <EnableDictionaryFieldButtons

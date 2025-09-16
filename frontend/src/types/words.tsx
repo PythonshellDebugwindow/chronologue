@@ -77,6 +77,23 @@ export interface IWordDerivation {
   };
 }
 
+export interface IWordDerivationForDictionary {
+  originalId: string;
+  originalWord: string;
+  derived: null | {
+    success: true;
+    result: string;
+  } | {
+    success: false;
+    message: string;
+  };
+  meaning: string;
+  pos: string;
+  notes: string;
+  langId: string;
+  nextWordId: string | null;
+}
+
 export interface IWordOverviewWithLanguage {
   langId: string;
   langName: string;
