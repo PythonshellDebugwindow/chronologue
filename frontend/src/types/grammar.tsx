@@ -72,3 +72,14 @@ export interface IWordStem {
 }
 
 export type IWordStemNameOnly = Omit<IWordStem, 'pos' | 'rules'>;
+
+export interface IWordIrregularForm {
+  tableId: string;
+  tableName: string;
+  tablePos: string;
+  rowName: string;
+  columnName: string;
+  form: string;
+  wordId: string;
+  word: string;
+}

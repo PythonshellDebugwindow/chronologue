@@ -52,6 +52,33 @@ export const getIrregularStemsForWord: RequestHandler = async (req, res) => {
   res.json(result);
 }
 
+export const getLanguageIrregularForms: RequestHandler = async (req, res) => {
+  if(!isValidUUID(req.params.id)) {
+    res.status(400).json({ title: "Invalid ID", message: "The given language ID is not valid." });
+    return;
+  }
+
+  const value = await query(
+    `
+      SELECT
+        translate(gt.id::text, '-', '') AS "tableId",
+        gt.name AS "tableName",
+        gt.pos AS "tablePos",
+        gt.rows[if.row_index + 1] AS "rowName",
+        gt.columns[if.column_index + 1] AS "columnName",
+        if.form,
+        translate(if.word_id::text, '-', '') AS "wordId",
+        coalesce(w.word, '') AS word
+      FROM grammar_tables AS gt
+      JOIN grammar_table_irregular_forms AS if ON gt.id = if.table_id
+      LEFT JOIN words AS w ON w.id = if.word_id
+      WHERE gt.lang_id = $1
+    `,
+    [req.params.id]
+  );
+  res.json(value.rows);
+}
+
 export const getLanguageWordStems: RequestHandler = async (req, res) => {
   if(!isValidUUID(req.params.id)) {
     res.status(400).json({ title: "Invalid ID", message: "The given language ID is not valid." });

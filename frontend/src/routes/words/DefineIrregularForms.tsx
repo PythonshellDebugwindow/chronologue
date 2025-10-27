@@ -55,7 +55,7 @@ function EditableIrregularFormsTable(
   { rows, columns, cells, setCells, grammarForms }: IEditableIrregularFormsTable
 ) {
   return (
-    <GrammarTable>
+    <GrammarTable padded>
       <tr>
         <th>&nbsp;</th>
         {columns.map((column, i) => (
@@ -75,7 +75,7 @@ function EditableIrregularFormsTable(
                 onChange={e => setCells(
                   cells.with(i, cells[i].with(j, e.target.value))
                 )}
-                style={{ margin: "0 5px" }}
+                style={{ margin: "6px 2px" }}
               />
             </td>
           ))}

@@ -3,12 +3,13 @@ import { useQuery } from '@tanstack/react-query';
 import {
   IGrammarForm,
   IGrammarTable,
+  IGrammarTableCellWithPosition,
   IGrammarTableIdAndName,
   IGrammarTableIrregularFormCell,
   IGrammarTableOverview,
-  IGrammarTableCellWithPosition,
   IRandomGrammarTableWord,
   IrregularWordStems,
+  IWordIrregularForm,
   IWordStem,
   IWordStemNameOnly,
   RunGrammarTableResultCell
@@ -70,6 +71,13 @@ export function useLanguageGrammarTables(id: string) {
   return useQuery<IGrammarTableOverview[], ITitledError>({
     queryKey: ['languages', id, 'grammar-tables'],
     queryFn: async () => await getBackendJson(`languages/${id}/grammar-tables`)
+  });
+}
+
+export function useLanguageIrregularForms(id: string) {
+  return useQuery<IWordIrregularForm[], ITitledError>({
+    queryKey: ['languages', id, 'irregular-forms'],
+    queryFn: async () => await getBackendJson(`languages/${id}/irregular-forms`)
   });
 }
 

@@ -131,7 +131,7 @@ function formsReducer(state: IFormsReducerState, action: IFormsReducerAction) {
   }
 }
 
-function EditDictionarySettingsInner({ initialForms }: { initialForms: IGrammarForm[] }) {
+function EditGrammarFormsInner({ initialForms }: { initialForms: IGrammarForm[] }) {
   const queryClient = useQueryClient();
 
   const [newFormCode, setNewFormCode] = useState("");
@@ -298,7 +298,7 @@ export default function EditGrammarForms() {
   }
 
   return (
-    <EditDictionarySettingsInner
+    <EditGrammarFormsInner
       initialForms={grammarFormsResponse.data}
     />
   );

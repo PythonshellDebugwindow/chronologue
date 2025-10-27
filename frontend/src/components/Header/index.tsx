@@ -86,7 +86,8 @@ export default function Header() {
             <Link to="/grammar-tables">View Grammar Tables</Link>,
             <Link to="/add-grammar-table">Add Grammar Table</Link>,
             <Link to="/edit-stems">Edit Word Stems</Link>,
-            <Link to="/grammar-forms">Grammar Forms</Link>
+            <Link to="/grammar-forms">Grammar Forms</Link>,
+            <Link to="/irregular-forms-list">View Irregular Forms</Link>
           ]}
           setCanHover={setCanHover}
         />

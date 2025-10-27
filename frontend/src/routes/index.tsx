@@ -23,6 +23,7 @@ import MassEditDictionary from './dictionary/MassEditDictionary';
 import PurgeDictionary from './dictionary/PurgeDictionary';
 import RunDictionarySCA from './dictionary/RunDictionarySCA';
 import ViewDictionary from './dictionary/ViewDictionary';
+import ViewIrregularForms from './grammar/ViewIrregularForms';
 import ViewLetterDistribution from './dictionary/ViewLetterDistribution';
 import ViewPOSDistribution from './dictionary/ViewPOSDistribution';
 
@@ -233,6 +234,10 @@ export const appRouter = createBrowserRouter([
       {
         path: "irregular-forms/:id?",
         element: <DefineIrregularForms />
+      },
+      {
+        path: "irregular-forms-list/:id?",
+        element: <ViewIrregularForms />
       },
       {
         path: "language/:id?",
