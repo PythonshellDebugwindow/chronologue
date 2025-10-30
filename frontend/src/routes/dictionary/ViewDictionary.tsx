@@ -104,9 +104,7 @@ function ViewDictionaryInner({ language, words, dictSettings, partsOfSpeech }: I
           {fields.map(field => field.isDisplaying && (
             <th key={field.name}>
               {userFacingFieldName(field.name)}
-              {field.name !== 'meaning' && (
-                <LetterButtonXNoShadow onClick={() => disableField(field)} />
-              )}
+              <LetterButtonXNoShadow onClick={() => disableField(field)} />
             </th>
           ))}
         </tr>
