@@ -51,9 +51,10 @@
   flex-direction: column;
   position: absolute;
   left: -1px;
-  top: calc(100% + 1px);
+  top: calc(100%);
   width: 100%;
   background: #fff;
+  margin-top: 1px;
   padding-right: 1px;
 }
 .topMenuItem:nth-child(3) .submenu {
