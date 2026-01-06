@@ -214,3 +214,20 @@
   The else must be of the same form as the change; for example, the rule <code>B/P/V_V//h</code>
   would be invalid.
 </p>
+
+<h3 id="csca-advanced-features">Advanced features</h3>
+<h4 id="csca-temporary-categories">Temporary categories</h4>
+<p>
+  Temporary categories are categories which are only valid for a single rule. They remove the need
+  to assign letters to one-off categories.
+</p>
+<p>
+  A temporary category is indicated using commas. For example, <code>m,n,ŋ</code> could be used to
+  represent nasals. All members of a temporary category must be normal text (no special characters
+  are allowed).
+</p>
+<p>
+  Temporary categories can only be used as target, change, or else segments. For example, the rule
+  <code>m,n,ŋ/b,d,g/_#</code> would change <code>m</code> to <code>b</code>, <code>n</code> to
+  <code>d</code>, and <code>ŋ</code> to <code>g</code> word-finally.
+</p>

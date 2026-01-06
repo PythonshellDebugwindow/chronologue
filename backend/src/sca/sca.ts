@@ -7,7 +7,7 @@ interface ICategory {
   members: string[];
 }
 
-type RuleTokenType = 'hashtag' | 'pipe' | 'underscore' | 'category' | 'literal';
+type RuleTokenType = 'comma' | 'hashtag' | 'pipe' | 'underscore' | 'category' | 'literal';
 
 interface IRuleToken {
   type: RuleTokenType;
@@ -27,7 +27,7 @@ function failure(message: string) {
 }
 
 function parseRule(rule: string): TokeniseRuleResult {
-  const segments = [];
+  const segments: IRuleToken[][] = [];
   let tokens: IRuleToken[] = [];
   const isInEnvOrExp = () => segments.length === 2 || segments.length === 3;
 
@@ -36,10 +36,21 @@ function parseRule(rule: string): TokeniseRuleResult {
     if(char === "/") {
       if(segments.length === 4) {
         return failure("Too many segments");
-      } else if(tokens.length > 0 && isPipe(tokens[tokens.length - 1])) {
-        return failure("Empty condition");
+      } else if(tokens.length > 0) {
+        if(isComma(tokens[tokens.length - 1])) {
+          return failure("Empty temporary category member");
+        } else if(isPipe(tokens[tokens.length - 1])) {
+          return failure("Empty condition");
+        }
       }
-      segments.push(tokens);
+      if(tokens.some(isComma)) {
+        if(!tokens.every(t => isComma(t) || isLiteral(t))) {
+          return failure("Invalid temporary category");
+        }
+        segments.push(combineTemporaryCategoryLiteralMemberTokens(tokens));
+      } else {
+        segments.push(tokens);
+      }
       tokens = [];
     } else if(char === "!") {
       if(i + 1 >= rule.length) {
@@ -47,6 +58,13 @@ function parseRule(rule: string): TokeniseRuleResult {
       }
       ++i;
       tokens.push({ type: 'literal', char: rule[i] });
+    } else if(char === ",") {
+      if(isInEnvOrExp()) {
+        return failure("Comma inside ENV or EXP");
+      } else if(tokens.length === 0 || isComma(tokens[tokens.length - 1])) {
+        return failure("Empty temporary category member");
+      }
+      tokens.push({ type: 'comma', char });
     } else if(char === "#") {
       tokens.push({ type: 'hashtag', char });
     } else if(char === "|") {
@@ -80,9 +98,25 @@ function parseRule(rule: string): TokeniseRuleResult {
   } else if(tokens.length === 0 && isInEnvOrExp()) {
     return failure("Empty condition");
   }
-
-  segments.push(tokens);
+  if(tokens.some(isComma)) {
+    if(!tokens.every(t => isComma(t) || isLiteral(t))) {
+      return failure("Invalid temporary category");
+    } else if(isComma(tokens[tokens.length - 1])) {
+      return failure("Empty temporary category member");
+    }
+    segments.push(combineTemporaryCategoryLiteralMemberTokens(tokens));
+  } else {
+    segments.push(tokens);
+  }
   return { success: true, segments };
+}
+
+function combineTemporaryCategoryLiteralMemberTokens(tokens: IRuleToken[]) {
+  const split = splitTokens(tokens, 'comma');
+  return split.flatMap(tt => [
+    { type: 'comma', char: "," },
+    { type: 'literal', char: tokensToString(tt) }
+  ] as IRuleToken[]).slice(1);
 }
 
 function findLastIndex<T>(array: T[], predicate: (value: T) => boolean) {
@@ -94,6 +128,9 @@ function findLastIndex<T>(array: T[], predicate: (value: T) => boolean) {
   return -1;
 }
 
+function isComma(token: IRuleToken) {
+  return token.type === 'comma';
+}
 function isHashtag(token: IRuleToken) {
   return token.type === 'hashtag';
 }
@@ -105,6 +142,9 @@ function isUnderscore(token: IRuleToken) {
 }
 function isCategory(token: IRuleToken) {
   return token.type === 'category';
+}
+function isLiteral(token: IRuleToken) {
+  return token.type === 'literal';
 }
 
 function tokensToString(tokens: IRuleToken[]) {
@@ -253,26 +293,17 @@ export class SCA {
           this.#result = tokensToString(theChange);
         }
       }
-    } else if(target.length === 1 && isCategory(target[0])) {
+    } else if(this.#isCategory(target)) {
       // Category replacement
-      const targetMembers = this.#categories.get(target[0].char);
-      if(!targetMembers) {
-        return failure(`Invalid category ${target[0].char}`);
-      }
+      const targetMembers = this.#getCategoryMembers(target);
 
-      if(change.length === 1 && isCategory(change[0])) {
+      if(this.#isCategory(change)) {
         // With a category
-        if(elseChange && !(elseChange.length === 1 && isCategory(elseChange[0]))) {
+        if(elseChange && !this.#isCategory(elseChange)) {
           return failure("Change and else are not of the same form");
         }
-        const changeMembers = this.#categories.get(change[0].char);
-        if(!changeMembers) {
-          return failure(`Invalid category ${change[0].char}`);
-        }
-        const elseChangeMembers = elseChange && this.#categories.get(elseChange[0].char);
-        if(elseChange && !elseChangeMembers) {
-          return failure(`Invalid category ${change[0].char}`);
-        }
+        const changeMembers = this.#getCategoryMembers(change);
+        const elseChangeMembers = elseChange && this.#getCategoryMembers(elseChange);
         for(let i = 0; i < this.#result.length; ++i) {
           const index = targetMembers.indexOf(this.#result[i]);
           if(index >= 0) {
@@ -281,13 +312,15 @@ export class SCA {
             );
             if(matches && !(matches === 'exp' && !elseChange)) {
               const matchChangeMembers = matches === 'env' ? changeMembers : elseChangeMembers!;
-              this.#spliceResult(i, 1, matchChangeMembers[index] ?? "");
+              const replacement = matchChangeMembers[index] ?? "";
+              this.#spliceResult(i, 1, replacement);
+              i += replacement.length - 1;
             }
           }
         }
-      } else if(!change.some(isCategory)) {
+      } else if(change.every(isLiteral)) {
         // With constant text
-        if(elseChange?.some(isCategory)) {
+        if(elseChange && !elseChange.every(isLiteral)) {
           return failure("Change and else are not of the same form");
         }
         const changeString = tokensToString(change);
@@ -313,12 +346,12 @@ export class SCA {
       } else {
         return failure("Invalid change");
       }
-    } else if(!target.some(isCategory)) {
+    } else if(target.every(isLiteral)) {
       // Constant text replacement
-      if(change.some(isCategory)) {
+      if(!change.every(isLiteral)) {
         // With a category
         return failure("Invalid change");
-      } else if(elseChange?.some(isCategory)) {
+      } else if(elseChange && !elseChange.every(isLiteral)) {
         // With a category
         return failure("Invalid else");
       } else {
@@ -353,6 +386,24 @@ export class SCA {
       }
     } else {
       return failure("Invalid target");
+    }
+  }
+
+  #isCategory(segment: IRuleToken[]) {
+    return segment.length === 1 && isCategory(segment[0]) || segment.some(isComma);
+  }
+
+  #getCategoryMembers(segment: IRuleToken[]) {
+    if(segment.length === 1) {
+      const targetMembers = this.#categories.get(segment[0].char);
+      if(!targetMembers) {
+        throw new TypeError(`Invalid category ${segment[0].char}`);
+      }
+      return targetMembers;
+    } else if(segment.some(isComma)) {
+      return segment.flatMap(t => isComma(t) ? [] : [t.char]);
+    } else {
+      throw new SyntaxError("Internal error (invalid category provided)");
     }
   }
 
@@ -547,7 +598,7 @@ function runTests() {
   for(const [i, [initial, expected, ...rules]] of tests.entries()) {
     const setRulesResult = theSca.setRules(rules.join("\n"));
     if(!setRulesResult.success) {
-      console.error(`SCA test #${i + 1}: ${setRulesResult.message}`);
+      console.error(`SCA test #${i + 1} (line ${lineNumber}): ${setRulesResult.message}`);
       continue;
     }
     const actual = theSca.applySoundChanges(initial);
