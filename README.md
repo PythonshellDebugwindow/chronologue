@@ -23,7 +23,7 @@ Install and configure the repository:
 2. Run `npm i` to install dependencies.
 3. In both `backend` and `frontend`, copy `.env.example` to `.env.production` and fill out the variables. Also copy the files to `.env.development` if you will be running Chronologue in development mode.
 
-Setup Postgres:
+Set up Postgres:
 1. Create a user and database for Chronologue.
 2. Run `backend/create-schema.sql` in the new database.
 
@@ -34,5 +34,7 @@ Setup Postgres:
 * To run Chronologue in preview mode: `npm run preview`
 * To run Chronologue in development mode: `npm run dev`
 * To run ESLint: `npm run lint`
+
+You must first run `npm run shared` before you can run any of the other commands.
 
 By default, the frontend runs on port 5173 in development mode and on port 4173 in preview mode; this can be changed in `frontend/vite.config.ts`.

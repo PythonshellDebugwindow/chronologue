@@ -10,7 +10,7 @@
   a rule is as follows:
 </p>
 <p style="text-align: center">
-  <code>target/change/environment (ENV)/exception (EXC)/else</code>
+  <code>target/change/environment/exception/else</code>
 </p>
 <p>
   The <b>target</b> segment specifies what to search for within a word.
@@ -19,23 +19,23 @@
   The <b>change</b> segment specifies what to replace the target with.
 </p>
 <p>
-  The <b>environment</b> segment (or <b>ENV</b> for short) specifies what condition(s) must
-  be fulfilled in order for a change to occur.
+  The <b>environment</b> segment specifies what condition(s) must be fulfilled in order for a change
+  to occur.
 </p>
 <p>
-  The <b>exception</b> segment (or <b>EXC</b> for short) specifies what condition(s) must
-  <b>not</b> be fulfilled in order for a change to occur.
+  The <b>exception</b> segment specifies what condition(s) must <b>not</b> be fulfilled in order for
+  a change to occur.
 </p>
 <p>
-  The <b>else</b> segment specifies an alternate change to be used if the exception is
+  The <b>else</b> segment specifies an alternative change to be used if the exception is
   fulfilled.
 </p>
 <p>
-  Basically, a rule replaces the target with the change if the environment is fulfilled, unless
-  the exception is fulfilled, in which case it will be replaced by the else instead.
+  Basically, a rule replaces the target with the change if the environment is fulfilled, unless the
+  exception is fulfilled, in which case it will be replaced by the else instead.
 </p>
 <p>
-  All segments can be empty. An empty target means that the change or else should be inserted;
+  All segments can be empty. An empty target means that the change or else should simply be inserted;
   an empty change or else means that the target will be deleted; and an empty environment or
   exception will be ignored.
 </p>
@@ -55,7 +55,7 @@
   <code>N/m/_p</code> would change all three nasals to <code>m</code> before <code>p</code>.
 </p>
 <p>
-  Category members should be single letters only. Things like digraphs and secondary articulations
+  Category members should be single characters only. Things like digraphs and secondary articulations
   will not work correctly.
 </p>
 
@@ -114,21 +114,20 @@
   For example, <code>p/f</code> will replace all instances of <code>p</code> with <code>f</code>.
 </p>
 
-<h4 id="csca-category-replacement">Category replacement</h4>
+<h4 id="csca-category-replacement">Category replacements</h4>
 <p>
-  To replace all members of a category with constant text, use a slash.
-</p>
-<p>
-  For example, <code>V/o</code> will replace all members of <code>V</code> with <code>o</code>.
+  To replace all members of a category with constant text, use a slash. For example, <code>V/ə</code>
+  will replace all members of <code>V</code> with <code>ə</code>.
 </p>
 <p>
   It is also possible to perform a 1-to-1 replacement of category members.
   For example, if <code>P</code> is <code>p,t,k</code> and <code>B</code> is <code>b,d,g</code>
-  then <code>P/B</code> will replace <code>p</code> with <code>b</code> and so on.
+  then <code>P/B</code> will replace <code>p</code> with <code>b</code>, <code>t</code> with
+  <code>d</code>, and <code>k</code> with <code>g</code>.
 </p>
 <p>
   In a category replacement, if the change or target contains a category name, it must not
-  contain anything else. For example, <code>P/ʰP</code> and <code>Bh/P</code> would be invalid.
+  contain anything else. For example, <code>P/ʰP</code> and <code>Bh/P</code> would be invalid rules.
 </p>
 
 <h3 id="csca-global-rules">Global rules</h3>
@@ -136,8 +135,8 @@
 
 <h4 id="csca-affixes">Affixes</h4>
 <p>
-  Unconditional affixes use <code>#</code> as the target, and a <code>#</code>-separated
-  prefix and suffix as the change.
+  Affix rules use <code>#</code> as a target, and a <code>#</code>-separated prefix and suffix as a
+  change.
 </p>
 <p>
   For example, <code>#/#ing</code> will suffix <code>ing</code>, and
@@ -147,7 +146,15 @@
 <h4 id="csca-global-replacements">Global replacements</h4>
 <p>
   Global replacements can be used to replace the entire word. For example, <code>#/abc</code>
-  will replace the entire word with <code>abc</code>. Categories are not supported here.
+  will replace the entire word with <code>abc</code>.
+</p>
+<p>
+  They can also be used to perform word-initial or word-final text replacements. For example,
+  <code>er#/ons</code> will replace word-final <code>er</code> with <code>ons</code>, and
+  <code>#h/</code> will delete <code>h</code> word-initially.
+</p>
+<p>
+  Categories are not supported in global replacements.
 </p>
 
 <h3 id="csca-conditions">Conditions</h3>
@@ -170,16 +177,13 @@
     <code>s_</code> means that the target must be directly after <code>s</code>.
   </li>
   <li>
-    <code>_V</code> means that it must be before a member of <code>V</code>.
+    <code>_V</code> means that it must be directly before a member of <code>V</code>.
   </li>
   <li>
     <code>#p_r</code> means that the target must be between <code>p</code> and <code>r</code>,
-    and that it must be at the start of the word.
+    and that the <code>p</code> must be at the start of the word.
   </li>
 </ul>
-<p>
-  All global conditions are also valid as local conditions.
-</p>
 
 <h4 id="csca-global-conditions">Global conditions</h4>
 <p>
