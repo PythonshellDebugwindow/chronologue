@@ -1,7 +1,5 @@
 import { readFileSync } from 'fs';
 
-import type { RequestHandler } from 'express';
-
 interface ICategory {
   letter: string;
   members: string[];
@@ -170,7 +168,7 @@ export class SCA {
   #categories: Map<string, string[]>;
   #hasRules: boolean;
   #result: string;
-  #rules: ((IRuleToken[] | undefined)[] | null)[];
+  #rules: (IRuleToken[][] | null)[];
 
   constructor(categories: ICategory[]) {
     this.#categories = new Map();
@@ -204,12 +202,6 @@ export class SCA {
     }
     this.#hasRules = true;
     return { success: true as const };
-  }
-
-  #spliceResult(start: number, length: number, replacement: string) {
-    const before = this.#result.substring(0, start);
-    const after = this.#result.substring(start + length);
-    this.#result = before + replacement + after;
   }
 
   applySoundChanges(initialWord: string) {
@@ -304,20 +296,24 @@ export class SCA {
         }
         const changeMembers = this.#getCategoryMembers(change);
         const elseChangeMembers = elseChange && this.#getCategoryMembers(elseChange);
+        let replaced = this.#result;
         for(let i = 0; i < this.#result.length; ++i) {
           const index = targetMembers.indexOf(this.#result[i]);
           if(index >= 0) {
-            const matches = this.#resultMatchesLocalEnvOrExpAt(
-              env, exp, i, 1
-            );
+            const matches = this.#resultMatchesLocalEnvOrExpAt(env, exp, i, 1);
             if(matches && !(matches === 'exp' && !elseChange)) {
               const matchChangeMembers = matches === 'env' ? changeMembers : elseChangeMembers!;
               const replacement = matchChangeMembers[index] ?? "";
-              this.#spliceResult(i, 1, replacement);
-              i += replacement.length - 1;
+              const indexInReplaced = i - (this.#result.length - replaced.length);
+              replaced = (
+                replaced.substring(0, indexInReplaced)
+                + replacement
+                + replaced.substring(indexInReplaced + 1)
+              );
             }
           }
         }
+        this.#result = replaced;
       } else if(change.every(isLiteral)) {
         // With constant text
         if(elseChange && !elseChange.every(isLiteral)) {
@@ -328,12 +324,9 @@ export class SCA {
         let replaced = this.#result;
         for(let i = 0; i < this.#result.length; ++i) {
           if(targetMembers.includes(this.#result[i])) {
-            const matches = this.#resultMatchesLocalEnvOrExpAt(
-              env, exp, i, 1
-            );
+            const matches = this.#resultMatchesLocalEnvOrExpAt(env, exp, i, 1);
             if(matches && !(matches === 'exp' && !elseChange)) {
               const matchChangeString = matches === 'env' ? changeString : elseChangeString!;
-              this.#spliceResult(i, 1, matchChangeString);
               const indexInReplaced = i - (this.#result.length - replaced.length);
               replaced = (
                 replaced.substring(0, indexInReplaced)
@@ -343,6 +336,7 @@ export class SCA {
             }
           }
         }
+        this.#result = replaced;
       } else {
         return failure("Invalid change");
       }
@@ -614,19 +608,3 @@ function runTests() {
 }
 
 runTests();
-
-export const testSCA: RequestHandler = (req, res) => {
-  const setRulesResult = theSca.setRules(`
-V/W/_s/c_/X
-`.substring(1));
-  if(!setRulesResult.success) {
-    res.status(500).send(setRulesResult);
-    return;
-  }
-  try {
-    res.send(theSca.applySoundChanges("a bas cas ba ca b"));
-  } catch(e) {
-    console.error(e);
-    throw e;
-  }
-}

@@ -12,8 +12,6 @@ import * as recentActivity from './routes/recentActivity.js';
 import * as translations from './routes/translations.js';
 import * as words from './routes/words.js';
 
-import * as sca from './sca/sca.js';
-
 const app = express();
 const port = process.env.EXPRESS_PORT!;
 
@@ -117,8 +115,6 @@ app.get('/languages/:id/words-with-classes', dictionary.getLanguageWordsWithClas
 app.get('/parts-of-speech', dictionary.getPartsOfSpeech);
 
 app.get('/recent-activity', recentActivity.getRecentActivity);
-
-app.get('/sca', sca.testSCA);
 
 app.get('/translations', translations.getAllTranslations);
 app.post('/translations', translations.addTranslation);
