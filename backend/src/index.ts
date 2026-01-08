@@ -8,6 +8,7 @@ import * as grammar from './routes/grammar.js';
 import * as grammarTables from './routes/grammarTables.js';
 import * as languages from './routes/languages.js';
 import * as phonology from './routes/phonology.js';
+import * as recentActivity from './routes/recentActivity.js';
 import * as translations from './routes/translations.js';
 import * as words from './routes/words.js';
 
@@ -114,6 +115,8 @@ app.get('/languages/:id/words', dictionary.getLanguageWords);
 app.get('/languages/:id/words-with-classes', dictionary.getLanguageWordsWithClasses);
 
 app.get('/parts-of-speech', dictionary.getPartsOfSpeech);
+
+app.get('/recent-activity', recentActivity.getRecentActivity);
 
 app.get('/sca', sca.testSCA);
 

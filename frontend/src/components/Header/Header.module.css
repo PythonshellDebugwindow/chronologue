@@ -51,7 +51,7 @@
   flex-direction: column;
   position: absolute;
   left: -1px;
-  top: calc(100%);
+  top: 100%;
   width: 100%;
   background: #fff;
   margin-top: 1px;

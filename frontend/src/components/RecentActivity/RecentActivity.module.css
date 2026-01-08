@@ -1,0 +1,21 @@
+.recentActivity {
+  display: inline-block;
+  text-align: left;
+  width: 50%;
+  height: 23em;
+  overflow-y: scroll;
+  border: 1px solid #000;
+  margin-top: 1em;
+  padding: 2px 5px;
+  box-sizing: border-box;
+}
+.recentActivity > div {
+  margin: 3px 0;
+  padding: 2px 7px;
+}
+.recentActivity > div:hover {
+  background: #eee;
+}
+.recentActivity > div > i {
+  float: right;
+}

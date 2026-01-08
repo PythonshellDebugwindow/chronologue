@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 
 import { InfoParagraph } from '@/components/Paragraphs';
+import RecentActivity from '@/components/RecentActivity';
 
 export default function MainPage() {
   useEffect(() => {
@@ -19,6 +20,7 @@ export default function MainPage() {
         and manage large language families (diachronic conlanging), but it also works well
         for creating individual languages.
       </InfoParagraph>
+      <RecentActivity />
     </>
   );
 }

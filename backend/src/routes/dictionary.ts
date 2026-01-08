@@ -378,7 +378,7 @@ export const getLanguageWordCount: RequestHandler = async (req, res) => {
 
   const value = await query(
     `
-      SELECT COUNT(*)
+      SELECT count(*)
       FROM words
       WHERE lang_id = $1
     `,
