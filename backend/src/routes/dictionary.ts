@@ -460,9 +460,9 @@ export const importWords: RequestHandler = async (req, res) => {
     const importQuery = await client.query(
       `
         INSERT INTO words (
-          word, ipa, meaning, pos, etymology, notes, lang_id
+          word, ipa, meaning, pos, etymology, notes, lang_id, created
         )
-        SELECT w.word, w.ipa, w.meaning, w.pos, w.etymology, w.notes, $1
+        SELECT w.word, w.ipa, w.meaning, w.pos, w.etymology, w.notes, $1, clock_timestamp()
         FROM json_populate_recordset(NULL::words, $2) AS w
         RETURNING id
       `,
