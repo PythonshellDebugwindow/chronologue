@@ -95,24 +95,32 @@ function filterWords<WordT extends Partial<IWord>>(words: WordT[], filter: IDict
 function sortWords<WordT extends Partial<IWord>>(words: WordT[], filter: IDictionaryFilter) {
   const collator = new Intl.Collator();
 
-  return words.sort((a, b) => {
+  words.sort((a, b) => {
     const aField = a[filter.sortField]!;
     const bField = b[filter.sortField]!;
-    const sortDir = filter.sortDir === 'asc' ? 1 : -1;
 
     if(typeof aField === 'string' && typeof bField === 'string') {
       const lowComp = collator.compare(aField.toLowerCase(), bField.toLowerCase());
-      return (lowComp || collator.compare(aField, bField)) * sortDir;
+      return lowComp || collator.compare(aField, bField);
     }
 
     if(aField < bField) {
-      return sortDir * -1;
+      return -1;
     } else if(aField > bField) {
-      return sortDir;
+      return 1;
     } else {
       return 0;
     }
   });
+
+  if(filter.sortDir === 'desc') {
+    // The creation order of words which were imported at the same time can only be discerned from
+    // their initial order in the array; sorting in reverse would disrupt this order, so reverse
+    // the words after sorting instead
+    words.reverse();
+  }
+
+  return words;
 }
 
 export function sortAndFilterWords<WordT extends Partial<IWord>>(
