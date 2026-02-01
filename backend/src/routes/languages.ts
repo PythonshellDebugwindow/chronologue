@@ -9,8 +9,8 @@ export const addLanguage: RequestHandler = async (req, res, next) => {
       res.status(400).json({ message: "Please provide all required fields." });
       return;
     }
-    if(!req.body.familyId && req.body.parentId) {
-      res.status(400).json({ message: "Languages with no family cannot have a parent." });
+    if(req.body.parentId && !req.body.familyId) {
+      res.status(400).json({ message: "A language with no family cannot have a parent." });
       return;
     }
 
@@ -139,6 +139,10 @@ export const editLanguage: RequestHandler = async (req, res, next) => {
       res.status(400).json({ message: "Please provide all required fields." });
       return;
     }
+    if(req.body.parentId && !req.body.familyId) {
+      res.status(400).json({ message: "A language with no family cannot have a parent." });
+      return;
+    }
 
     await transact(async client => {
       const langId = req.params.id;
@@ -174,31 +178,36 @@ export const editLanguage: RequestHandler = async (req, res, next) => {
             return;
           }
         }
+      }
 
-        const descendantIds = (await query({
-          text: `
-            WITH RECURSIVE children AS (
-                SELECT id, parent_id
-                FROM languages
-                WHERE parent_id = $1
-              UNION ALL
-                SELECT p.id, p.parent_id
-                FROM languages p
-                INNER JOIN children c ON c.id = p.parent_id
-            )
-            SELECT
-              translate(id::text, '-', '') AS id
-            FROM children
-          `,
-          values: [langId],
-          rowMode: 'array'
-        })).rows.flat();
-        if(descendantIds.includes(req.body.parentId)) {
-          res.status(400).json({ message: "A language cannot be its own descendant." });
+      const descendantIds = (await client.query({
+        text: `
+          WITH RECURSIVE children AS (
+              SELECT id, parent_id
+              FROM languages
+              WHERE parent_id = $1
+            UNION ALL
+              SELECT p.id, p.parent_id
+              FROM languages p
+              INNER JOIN children c ON c.id = p.parent_id
+          )
+          SELECT translate(id::text, '-', '') AS id
+          FROM children
+        `,
+        values: [langId],
+        rowMode: 'array'
+      })).rows.flat();
+      if(req.body.parentId && descendantIds.includes(req.body.parentId)) {
+        res.status(400).json({ message: "A language cannot be its own descendant." });
+        return;
+      }
+
+      if(descendantIds.length > 0) {
+        if(!req.body.familyId) {
+          res.status(400).json({ message: "A language with descendants must belong to a family." });
           return;
         }
-
-        await query(
+        await client.query(
           `
             UPDATE languages
             SET family_id = $1
