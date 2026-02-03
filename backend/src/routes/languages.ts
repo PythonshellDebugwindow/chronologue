@@ -91,7 +91,8 @@ export const addLanguage: RequestHandler = async (req, res, next) => {
     });
   } catch(err) {
     if((err as IQueryError).code === '23505') {
-      res.status(400).json({ message: `The name '${req.body.name}' is already taken.` });
+      const by = req.body.familyId ? "language in this family" : "language isolate";
+      res.status(400).json({ message: `The name '${req.body.name}' is taken by another ${by}.` });
     } else {
       next(err);
     }
@@ -233,7 +234,8 @@ export const editLanguage: RequestHandler = async (req, res, next) => {
     res.status(204).send();
   } catch(err) {
     if((err as IQueryError).code === '23505') {
-      res.status(400).json({ message: `The name '${req.body.name}' is already taken.` });
+      const by = req.body.familyId ? "language in this family" : "language isolate";
+      res.status(400).json({ message: `The name '${req.body.name}' is taken by another ${by}.` });
     } else {
       next(err);
     }

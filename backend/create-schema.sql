@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS languages (
 	status language_status NOT NULL,
 	era text NOT NULL,
 	created timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
-	UNIQUE (family_id, name)
+	UNIQUE NULLS NOT DISTINCT (family_id, name)
 );
 
 CREATE TABLE IF NOT EXISTS words (
