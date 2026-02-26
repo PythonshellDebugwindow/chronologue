@@ -178,36 +178,38 @@ export const getLanguageLetterDistribution: RequestHandler = async (req, res) =>
     return;
   }
 
-  const orthSettings = await query(
-    `
-      SELECT case_sensitive
-      FROM orthography_settings
-      WHERE lang_id = $1
-    `,
-    [req.params.id]
-  );
-  if(orthSettings.rows.length !== 1) {
-    res.status(404).json({ message: "The requested language was not found." });
-    return;
-  }
-  const caseSensitive = orthSettings.rows[0].case_sensitive;
-  const distributionField = caseSensitive ? "word" : "lower(word)";
+  await transact(async client => {
+    const orthSettings = await client.query(
+      `
+        SELECT case_sensitive
+        FROM orthography_settings
+        WHERE lang_id = $1
+      `,
+      [req.params.id]
+    );
+    if(orthSettings.rows.length !== 1) {
+      res.status(404).json({ message: "The requested language was not found." });
+      return;
+    }
+    const caseSensitive = orthSettings.rows[0].case_sensitive;
+    const distributionField = caseSensitive ? "word" : "lower(word)";
 
-  const ignorePunctuation = typeof req.query.ignorePunctuation === 'string';
-  const ignoredChars = `[[:space:]${ignorePunctuation ? '[:punct:]' : ''}]`;
+    const ignorePunctuation = typeof req.query.ignorePunctuation === 'string';
+    const ignoredChars = `[[:space:]${ignorePunctuation ? '[:punct:]' : ''}]`;
 
-  const distribution = await query(
-    `
-      SELECT letter, count(*) AS count
-      FROM words,
-      unnest(string_to_array(${distributionField}, NULL)) AS letter
-      WHERE lang_id = $1 AND letter !~ $2
-      GROUP BY letter
-      ORDER BY count DESC, letter
-    `,
-    [req.params.id, ignoredChars]
-  );
-  res.json(distribution.rows);
+    const distribution = await client.query(
+      `
+        SELECT letter, count(*) AS count
+        FROM words,
+        unnest(string_to_array(${distributionField}, NULL)) AS letter
+        WHERE lang_id = $1 AND letter !~ $2
+        GROUP BY letter
+        ORDER BY count DESC, letter
+      `,
+      [req.params.id, ignoredChars]
+    );
+    res.json(distribution.rows);
+  });
 }
 
 export const getLanguageNextWordDerivation: RequestHandler = async (req, res) => {
@@ -489,9 +491,9 @@ export const importWords: RequestHandler = async (req, res) => {
         await updateWordDerivationsTable(addedIds[i].id, words[i].etymology, true, client);
       }
     }
-  });
 
-  res.status(204).send();
+    return () => res.status(204).send();
+  });
 }
 
 export const massEditLanguageDictionary: RequestHandler = async (req, res) => {
@@ -632,7 +634,7 @@ export const updateWordClasses: RequestHandler = async (req, res, next) => {
         `,
         [langId]
       );
-      res.json(langWordClasses.rows);
+      return () => res.json(langWordClasses.rows);
     });
   } catch(err) {
     if((err as IQueryError).code === '23505') {

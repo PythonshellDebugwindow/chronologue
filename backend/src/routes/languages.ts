@@ -86,8 +86,7 @@ export const addLanguage: RequestHandler = async (req, res, next) => {
         "INSERT INTO dictionary_settings (lang_id) VALUES ($1)",
         [addedLanguageId]
       );
-
-      res.status(201).json(addedLanguageId);
+      return () => res.status(201).json(addedLanguageId);
     });
   } catch(err) {
     if((err as IQueryError).code === '23505') {
@@ -123,9 +122,9 @@ export const deleteLanguage: RequestHandler = async (req, res) => {
       "DELETE FROM languages WHERE id = $1",
       [req.params.id]
     );
-  });
 
-  res.status(204).send();
+    return () => res.status(204).send();
+  });
 }
 
 export const editLanguage: RequestHandler = async (req, res, next) => {
@@ -229,9 +228,9 @@ export const editLanguage: RequestHandler = async (req, res, next) => {
           req.body.status, req.body.era, langId
         ]
       );
-    });
 
-    res.status(204).send();
+      return () => res.status(204).send();
+    });
   } catch(err) {
     if((err as IQueryError).code === '23505') {
       const by = req.body.familyId ? "language in this family" : "language isolate";

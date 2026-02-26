@@ -1,4 +1,4 @@
-import { transact } from '../db/index.js';
+import { transactWithResult } from '../db/index.js';
 
 import { phoneToString } from '../../../shared/dist/phones.js';
 import { SCA } from './sca.js';
@@ -24,7 +24,7 @@ function splitLetterReplacements(pe: IPronunciationEstimation) {
 }
 
 export async function makeEstimatePronunciation(langId: string) {
-  const result = await transact(async client => {
+  const result = await transactWithResult(async client => {
     const phonesQuery = await client.query(
       `
         SELECT base, qualities, graph
@@ -121,5 +121,5 @@ export async function makeEstimatePronunciation(langId: string) {
     };
     return { success: true as const, estimate };
   });
-  return result!;
+  return result;
 }

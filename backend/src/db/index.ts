@@ -8,18 +8,34 @@ const pool = new Pool({
 const query = pool.query.bind(pool);
 export default query;
 
-export async function transact<T>(callback: (client: pg.PoolClient) => Promise<T>) {
+export async function transact(callback: (client: pg.PoolClient) => Promise<void | (() => void)>) {
   const client = await pool.connect();
-  let value: T | undefined = undefined;
   try {
     await client.query('BEGIN');
-    value = await callback(client);
+    const onCommit = await callback(client);
     await client.query('COMMIT');
+    if(onCommit) {
+      onCommit();
+    }
   } catch(err) {
     await client.query('ROLLBACK');
     throw err;
   } finally {
     client.release();
   }
-  return value;
+}
+
+export async function transactWithResult<T>(callback: (client: pg.PoolClient) => Promise<T>) {
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const result = await callback(client);
+    await client.query('COMMIT');
+    return result;
+  } catch(err) {
+    await client.query('ROLLBACK');
+    throw err;
+  } finally {
+    client.release();
+  }
 }

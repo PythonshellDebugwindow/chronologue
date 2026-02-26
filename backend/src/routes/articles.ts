@@ -28,7 +28,7 @@ export const addArticle: RequestHandler = async (req, res) => {
       [addedId, req.body.tags]
     );
 
-    res.status(201).json(addedId);
+    return () => res.status(201).json(addedId);
   });
 }
 
@@ -166,7 +166,7 @@ export const updateArticleFolders: RequestHandler = async (req, res, next) => {
       }
     }
 
-    const folders = await transact(async client => {
+    await transact(async client => {
       await client.query(
         `
           INSERT INTO article_folders (id, name)
@@ -191,9 +191,8 @@ export const updateArticleFolders: RequestHandler = async (req, res, next) => {
           ORDER BY name
         `
       );
-      return newFolders.rows;
+      return () => res.json(newFolders.rows);
     });
-    res.json(folders);
   } catch(err) {
     if((err as IQueryError).code === '23505') {
       res.status(400).json({ message: "All folder names must be unique." });

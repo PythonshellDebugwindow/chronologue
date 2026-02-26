@@ -64,7 +64,7 @@ export const addGrammarTable: RequestHandler = async (req, res) => {
       [addedTableId, req.body.classIds]
     );
 
-    res.status(201).json(addedTableId);
+    return () => res.status(201).json(addedTableId);
   });
 }
 

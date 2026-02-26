@@ -205,7 +205,7 @@ function makeUpdateCategories(tableName: 'orthography_categories' | 'phonology_c
         req.body.categories.sort(
           (c1: any, c2: any) => c1.letter.localeCompare(c2.letter)
         );
-        res.json(req.body.categories);
+        return () => res.json(req.body.categories);
       });
     } catch(err) {
       if((err as IQueryError).code === '23505') {
@@ -312,7 +312,7 @@ export const updatePhones: RequestHandler = async (req, res) => {
       `,
       [langId]
     );
-    res.json(langPhones.rows);
+    return () => res.json(langPhones.rows);
   });
 }
 

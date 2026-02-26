@@ -17,13 +17,12 @@ export const addWord: RequestHandler = async (req, res) => {
     res.status(400).json({ message: "Please provide all required fields." });
     return;
   }
+  if(!partsOfSpeech.some(pos => req.body.pos === pos.code)) {
+    res.status(400).json({ message: "Please provide a valid part of speech." });
+    return;
+  }
 
   await transact(async client => {
-    if(!partsOfSpeech.some(pos => req.body.pos === pos.code)) {
-      res.status(400).json({ message: "Please provide a valid part of speech." });
-      return;
-    }
-
     const value = await client.query(
       `
         INSERT INTO words (word, ipa, meaning, pos, etymology, notes, lang_id)
@@ -71,7 +70,7 @@ export const addWord: RequestHandler = async (req, res) => {
       await updateWordDerivationsTable(addedId, req.body.etymology, true, client);
     }
 
-    res.status(201).json(addedId);
+    return () => res.status(201).json(addedId);
   });
 }
 

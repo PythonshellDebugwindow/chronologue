@@ -172,7 +172,7 @@ export const updateGrammarForms: RequestHandler = async (req, res, next) => {
           ORDER BY code
         `
       );
-      res.json(newGrammarForms.rows);
+      return () => res.json(newGrammarForms.rows);
     });
   } catch(err) {
     if((err as IQueryError).code === '23505') {
@@ -304,7 +304,7 @@ export const updateLanguageWordStems: RequestHandler = async (req, res, next) =>
         `,
         [langId]
       );
-      res.json(langWordStems.rows);
+      return () => res.json(langWordStems.rows);
     });
   } catch(err) {
     if((err as IQueryError).code === '23505') {
