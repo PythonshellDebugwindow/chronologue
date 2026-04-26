@@ -69,6 +69,7 @@ app.get('/languages/:id', languages.getLanguage);
 app.put('/languages/:id', languages.editLanguage);
 app.delete('/languages/:id', languages.deleteLanguage);
 app.put('/languages/:id/alphabetical-order', languages.updateAlphabeticalOrder);
+app.get('/languages/:id/all-homonyms', dictionary.getLanguageHomonymList);
 app.post('/languages/:id/apply-sca-rules', phonology.applySCARules);
 app.get('/languages/:id/derivation-rules', dictionary.getLanguageDerivationRulesets);
 app.get('/languages/:id/derivation-rules/:srcId', dictionary.getDerivationRules);

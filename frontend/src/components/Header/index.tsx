@@ -76,6 +76,7 @@ export default function Header() {
             <Link to="/derivation-rules">Edit Derivation Rules</Link>,
             <Link to="/letter-distribution">View Letter Distribution</Link>,
             <Link to="/pos-distribution">View POS Distribution</Link>,
+            <Link to="/homonyms">View Homonyms</Link>,
             <Link to="/purge-dictionary">Purge Dictionary</Link>
           ]}
           setCanHover={setCanHover}

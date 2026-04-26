@@ -43,6 +43,13 @@ export function useLanguageDerivationRulesetIds(destLangId: string) {
   });
 }
 
+export function useLanguageHomonyms(langId: string) {
+  return useQuery<IIdenticalWordOverview[][], ITitledError>({
+    queryKey: ['languages', langId, 'all-homonyms'],
+    queryFn: async () => await getBackendJson(`languages/${langId}/all-homonyms`)
+  });
+}
+
 export function useLanguageLetterDistribution(id: string, ignorePunctuation: boolean) {
   const queryKey = ['languages', id, 'letter-distribution', ignorePunctuation];
   const queryParams = ignorePunctuation ? '?ignorePunctuation' : '';

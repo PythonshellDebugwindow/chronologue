@@ -23,6 +23,7 @@ import MassEditDictionary from './dictionary/MassEditDictionary';
 import PurgeDictionary from './dictionary/PurgeDictionary';
 import RunDictionarySCA from './dictionary/RunDictionarySCA';
 import ViewDictionary from './dictionary/ViewDictionary';
+import ViewHomonyms from './dictionary/ViewHomonyms';
 import ViewIrregularForms from './grammar/ViewIrregularForms';
 import ViewLetterDistribution from './dictionary/ViewLetterDistribution';
 import ViewPOSDistribution from './dictionary/ViewPOSDistribution';
@@ -226,6 +227,10 @@ export const appRouter = createBrowserRouter([
       {
         path: "grammar-tables/:id?",
         element: <ViewGrammarTables />
+      },
+      {
+        path: "homonyms/:id?",
+        element: <ViewHomonyms />
       },
       {
         path: "import-words/:id?",

@@ -172,6 +172,32 @@ export const getLanguageFirstWordDerivation: RequestHandler = async (req, res) =
   });
 }
 
+export const getLanguageHomonymList: RequestHandler = async (req, res) => {
+  if(!isValidUUID(req.params.id)) {
+    res.status(400).json({ title: "Invalid ID", message: "The given language ID is not valid." });
+    return;
+  }
+
+  const homonyms = await query({
+    text: `
+      SELECT json_agg(
+        json_build_object(
+          'id', translate(id::text, '-', ''), 'word', word, 'meaning', meaning, 'pos', pos
+        )
+        ORDER BY pos, meaning
+      )
+      FROM words
+      WHERE lang_id = $1
+      GROUP BY word
+      HAVING count(*) > 1
+      ORDER BY word
+    `,
+    values: [req.params.id],
+    rowMode: 'array'
+  });
+  res.json(homonyms.rows.map(row => row[0]));
+}
+
 export const getLanguageLetterDistribution: RequestHandler = async (req, res) => {
   if(!isValidUUID(req.params.id)) {
     res.status(400).json({ title: "Invalid ID", message: "The given language ID is not valid." });
