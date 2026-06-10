@@ -14,3 +14,9 @@
   margin: 0;
   padding: 0 0 0 20px;
 }
+.synonymsList {
+  margin: 0;
+  padding: 0 0 0 20px;
+  max-height: 15em;
+  overflow-y: auto;
+}

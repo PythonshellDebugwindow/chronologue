@@ -82,7 +82,7 @@ export function useLanguageStringSynonyms(langId: string, meaning: string) {
     queryFn: async () => await sendBackendJsonForQuery(
       `languages/${langId}/synonyms`, 'POST', { meaning }
     ),
-    staleTime: 0
+    placeholderData: prev => prev
   });
 }
 
@@ -107,10 +107,12 @@ export function useLanguageWordHomonyms(wordId: string) {
   });
 }
 
-export function useLanguageWordSynonyms(wordId: string) {
+export function useLanguageWordSynonyms(word: IWord) {
   return useQuery<IIdenticalWordOverview[], ITitledError>({
-    queryKey: ['words', wordId, 'synonyms'],
-    queryFn: async () => await getBackendJson(`words/${wordId}/synonyms`)
+    queryKey: ['languages', word.langId, 'synonyms', word.meaning, word.id],
+    queryFn: async () => await sendBackendJsonForQuery(
+      `languages/${word.langId}/synonyms`, 'POST', { meaning: word.meaning, wordId: word.id }
+    )
   });
 }
 

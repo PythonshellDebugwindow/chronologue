@@ -7,27 +7,27 @@ import styles from './CNewWordInput.module.css';
 
 function SynonymsList({ langId, word }: { langId: string, word: string }) {
   const { status, error, data: synonyms } = useLanguageStringSynonyms(langId, word);
-  if(status === 'error') {
-    return <b>Error: {error.message}</b>;
-  } else if(status === 'pending') {
-    return "Loading...";
-  } else if(synonyms.length === 0) {
+  if(synonyms?.length === 0) {
     return "No synonyms found.";
-  } else {
+  } else if(synonyms) {
     return (
       <>
-        Synonyms:
-        <ul className={styles.identicalWordsList}>
+        Similar:
+        <ul className={styles.synonymsList}>
           {synonyms.map(synonym => (
             <li key={synonym.id}>
               <Link to={'/word/' + synonym.id}>{synonym.word}</Link>
               {" "}
-              [{synonym.pos}]
+              ({synonym.meaning}) [{synonym.pos}]
             </li>
           ))}
         </ul>
       </>
     );
+  } else if(status === 'error') {
+    return <b>Error: {error.message}</b>;
+  } else {
+    return "Loading...";
   }
 }
 

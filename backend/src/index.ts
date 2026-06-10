@@ -101,7 +101,7 @@ app.put('/languages/:id/pronunciation-estimation', phonology.updatePronunciation
 app.delete('/languages/:id/purge-dictionary', dictionary.purgeLanguageDictionary);
 app.get('/languages/:id/summary-notes', languages.getSummaryNotes);
 app.put('/languages/:id/summary-notes', languages.updateSummaryNotes);
-app.post('/languages/:id/synonyms', dictionary.getLanguageStringSynonyms);
+app.post('/languages/:id/synonyms', dictionary.getLanguageSynonyms);
 app.get('/languages/:id/translation-ids', translations.getLanguageTranslationIds);
 app.get('/languages/:id/translations', translations.getAllLanguageTranslations);
 app.get('/languages/:id/word-class-distribution/:pos', dictionary.getLanguageClassDistribution);
@@ -141,7 +141,6 @@ app.get('/words/:id/homonyms', words.getLanguageWordHomonyms);
 app.get('/words/:id/irregular-stems', grammar.getIrregularStemsForWord);
 app.get('/words/:id/overview-with-language', words.getWordOverviewWithLanguage);
 app.get('/words/:id/overview-with-language-status', words.getWordOverviewWithLanguageStatus);
-app.get('/words/:id/synonyms', words.getLanguageWordSynonyms);
 
 app.use(((err, req, res, _next) => {
   res.status(500).json({ title: "Internal error", message: err.message });

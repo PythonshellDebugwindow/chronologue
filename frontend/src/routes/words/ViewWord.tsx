@@ -260,7 +260,7 @@ function ViewWordWithWord({ word }: { word: IWord }) {
   const classesResponse = useWordClasses(word.id);
   const tablesResponse = useWordGrammarTables(word.id);
   const homonymsResponse = useLanguageWordHomonyms(word.id);
-  const synonymsResponse = useLanguageWordSynonyms(word.id);
+  const synonymsResponse = useLanguageWordSynonyms(word);
   const languageResponse = useLanguage(word.langId);
   const partsOfSpeechResponse = usePartsOfSpeech();
 

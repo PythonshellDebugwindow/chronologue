@@ -332,9 +332,13 @@ export const getLanguageStringHomonyms: RequestHandler = async (req, res) => {
   res.json(homonyms.rows);
 }
 
-export const getLanguageStringSynonyms: RequestHandler = async (req, res) => {
+export const getLanguageSynonyms: RequestHandler = async (req, res) => {
   if(!isValidUUID(req.params.id)) {
     res.status(400).json({ title: "Invalid ID", message: "The given language ID is not valid." });
+    return;
+  }
+  if(req.body.wordId && !isValidUUID(req.body.wordId)) {
+    res.status(400).json({ title: "Invalid ID", message: "The given word ID is not valid." });
     return;
   }
   if(typeof req.body.meaning !== 'string') {
@@ -344,12 +348,31 @@ export const getLanguageStringSynonyms: RequestHandler = async (req, res) => {
 
   const synonyms = await query(
     `
-      SELECT translate(id::text, '-', '') AS id, word, meaning, pos
-      FROM words
-      WHERE lang_id = $1 AND meaning = $2
-      ORDER BY pos, word
+      WITH words_fts AS (
+        SELECT
+          translate(id::text, '-', '') AS id, word, meaning, pos,
+          regexp_replace(meaning, '(?:\\(.*?\\))', '', 'g') AS meaning_fts,
+          regexp_replace($2, '(?:\\(.*?\\))', '', 'g') AS query_fts
+        FROM words
+        WHERE lang_id = $1 ${req.body.wordId ? 'AND id != $3' : ''}
+      )
+      SELECT id, word, pos, meaning
+      FROM words_fts
+      WHERE
+        CASE WHEN length(to_tsvector('english', query_fts)) > 0
+        THEN
+          to_tsvector('english', meaning_fts) @@ replace(
+            plainto_tsquery('english', query_fts)::text, '&', '|'
+          )::tsquery
+        ELSE
+          length(to_tsvector('english', meaning_fts)) = 0
+          AND to_tsvector('english_no_stopwords', meaning_fts) @@ replace(
+            plainto_tsquery('english_no_stopwords', query_fts)::text, '&', '|'
+          )::tsquery
+        END
+      ORDER BY meaning_fts <-> query_fts, meaning, pos, word
     `,
-    [req.params.id, req.body.meaning]
+    [req.params.id, req.body.meaning, ...(req.body.wordId ? [req.body.wordId] : [])]
   );
   res.json(synonyms.rows);
 }

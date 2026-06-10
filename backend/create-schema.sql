@@ -1,3 +1,5 @@
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
+
 CREATE TABLE IF NOT EXISTS families (
 	id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
 	name text UNIQUE NOT NULL,
@@ -35,6 +37,21 @@ CREATE TABLE IF NOT EXISTS words (
 	created timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	updated timestamptz
 );
+
+DO $$ BEGIN
+	CREATE TEXT SEARCH DICTIONARY english_stem_no_stopwords (
+		TEMPLATE = snowball,
+		Language = english
+	);
+	CREATE TEXT SEARCH CONFIGURATION english_no_stopwords (
+		COPY = english
+	);
+	ALTER TEXT SEARCH CONFIGURATION english_no_stopwords
+		ALTER MAPPING FOR asciiword, asciihword, hword_asciipart, word, hword, hword_part
+		WITH english_stem_no_stopwords;
+EXCEPTION
+	WHEN unique_violation THEN NULL;
+END $$;
 
 DO $$ BEGIN
 	CREATE TYPE phone_type AS ENUM ('consonant', 'vowel', 'other');

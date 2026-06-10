@@ -259,7 +259,7 @@ function AddWordInner({ language, dictSettings, langClasses, langPartsOfSpeech }
     }
   }, [
     copyWordClassesQuery, copyWordData, copyWordQuery, deriveWordForDictionaryQuery,
-    deriveWordQuery, dictDerivationLangId, hasCopyParam, hasDeriveParam,
+    deriveWordQuery, dictDerivationLangId, hasCopyOrDeriveParam, hasCopyParam, hasDeriveParam,
     isDerivingDictionary, language.id, navigate, searchParams, shouldCopyWord
   ]);
 
