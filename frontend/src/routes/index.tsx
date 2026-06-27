@@ -17,6 +17,7 @@ import EditDerivationRules from './chronosca/EditDerivationRules';
 import TestChronoSCA from './chronosca/TestChronoSCA';
 
 import EditDictionarySettings from './dictionary/EditDictionarySettings';
+import EditSwadeshList from './dictionary/EditSwadeshList';
 import ExportWords from './dictionary/ExportWords';
 import ImportWords from './dictionary/ImportWords';
 import MassEditDictionary from './dictionary/MassEditDictionary';
@@ -27,6 +28,7 @@ import ViewHomonyms from './dictionary/ViewHomonyms';
 import ViewIrregularForms from './grammar/ViewIrregularForms';
 import ViewLetterDistribution from './dictionary/ViewLetterDistribution';
 import ViewPOSDistribution from './dictionary/ViewPOSDistribution';
+import ViewSwadeshList from './dictionary/ViewSwadeshList';
 
 import AddFamily, {
   action as addFamilyAction
@@ -197,6 +199,10 @@ export const appRouter = createBrowserRouter([
         element: <EditStems />
       },
       {
+        path: "edit-swadesh-list",
+        element: <EditSwadeshList />
+      },
+      {
         path: "edit-translation/:id",
         element: <EditTranslation />
       },
@@ -283,6 +289,10 @@ export const appRouter = createBrowserRouter([
       {
         path: "summary-notes/:id?",
         element: <EditSummaryNotes />
+      },
+      {
+        path: "swadesh-list/:id?",
+        element: <ViewSwadeshList />
       },
       {
         path: "translate-text/:id",

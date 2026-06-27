@@ -136,3 +136,8 @@ export interface ILetterCount {
   letter: string;
   count: number;
 }
+
+export interface ILanguageSwadeshListEntry {
+  listWord: string;
+  languageWords: IIdenticalWordOverview[];
+}

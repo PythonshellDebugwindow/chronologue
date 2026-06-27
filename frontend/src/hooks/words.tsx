@@ -5,6 +5,7 @@ import {
   IDerivationRuleset,
   IDerivationRulesetOverview,
   IIdenticalWordOverview,
+  ILanguageSwadeshListEntry,
   ILanguageWordWithClasses,
   ILetterCount,
   IPartOfSpeech,
@@ -86,6 +87,13 @@ export function useLanguageStringSynonyms(langId: string, meaning: string) {
   });
 }
 
+export function useLanguageSwadeshListEntries(langId: string) {
+  return useQuery<ILanguageSwadeshListEntry[], ITitledError>({
+    queryKey: ['languages', langId, 'swadesh-list'],
+    queryFn: async () => await getBackendJson(`languages/${langId}/swadesh-list`)
+  });
+}
+
 export function useLanguageWordClassDistribution(id: string, pos: string) {
   return useQuery<IWordClassCount[], ITitledError>({
     queryKey: ['languages', id, 'word-class-distribution', pos],
@@ -133,7 +141,14 @@ export function useLanguageWordsWithClassIds(id: string) {
 export function usePartsOfSpeech() {
   return useQuery<IPartOfSpeech[], ITitledError>({
     queryKey: ['parts-of-speech'],
-    queryFn: async () => await getBackendJson(`parts-of-speech`)
+    queryFn: async () => await getBackendJson('parts-of-speech')
+  });
+}
+
+export function useSwadeshList() {
+  return useQuery<string[], ITitledError>({
+    queryKey: ['swadesh-list'],
+    queryFn: async () => await getBackendJson('swadesh-list')
   });
 }
 

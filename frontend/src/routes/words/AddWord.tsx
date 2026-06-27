@@ -98,6 +98,8 @@ function AddWordInner({ language, dictSettings, langClasses, langPartsOfSpeech }
   const isDerivingDictionary = searchParams.has('deriveDict');
   const dictDerivationLangId = searchParams.get('deriveDict');
 
+  const initialMeaning = searchParams.get('meaning') ?? "";
+
   const copyWordQuery = useWord(wordIdToCopy ?? "", hasCopyOrDeriveParam);
   const copyWordClassesQuery = useWordClassIds(wordIdToCopy ?? "", hasCopyParam);
   const [shouldCopyWord, setShouldCopyWord] = useState(hasCopyOrDeriveParam || isDerivingDictionary);
@@ -112,7 +114,7 @@ function AddWordInner({ language, dictSettings, langClasses, langPartsOfSpeech }
   );
 
   const [word, setWord] = useState("");
-  const [meaning, setMeaning] = useState("");
+  const [meaning, setMeaning] = useState(initialMeaning);
   const [ipa, setIpa] = useState("");
   const [pos, setPos] = useState("");
   const [classes, setClasses] = useState<IWordClass[]>([]);

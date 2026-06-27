@@ -332,6 +332,36 @@ export const getLanguageStringHomonyms: RequestHandler = async (req, res) => {
   res.json(homonyms.rows);
 }
 
+export const getLanguageSwadeshListEntries: RequestHandler = async (req, res) => {
+  if(!isValidUUID(req.params.id)) {
+    res.status(400).json({ title: "Invalid ID", message: "The given language ID is not valid." });
+    return;
+  }
+
+  const result = await query(
+    `
+      SELECT
+        sl.word AS "listWord",
+        coalesce(json_agg(
+          json_build_object(
+            'id', translate(id::text, '-', ''), 'word', w.word, 'meaning', meaning, 'pos', pos
+          )
+          ORDER BY pos, w.word
+        ) FILTER (WHERE id IS NOT NULL), '[]') AS "languageWords"
+      FROM swadesh_list AS sl
+      LEFT JOIN words AS w ON
+        lang_id = $1
+        AND regexp_replace(meaning, '(?:\\(.*?\\))', '', 'g') ~* (
+          '([,;]|^)\\s*' || regexp_replace(sl.word, '(?:\\(.*?\\))', '', 'g') || '\\s*([,;]|$)'
+        )
+      GROUP BY sl.word
+      ORDER BY sl.index
+    `,
+    [req.params.id]
+  );
+  res.json(result.rows);
+}
+
 export const getLanguageSynonyms: RequestHandler = async (req, res) => {
   if(!isValidUUID(req.params.id)) {
     res.status(400).json({ title: "Invalid ID", message: "The given language ID is not valid." });
@@ -446,6 +476,14 @@ export const getLanguageWordCount: RequestHandler = async (req, res) => {
 
 export const getPartsOfSpeech: RequestHandler = async (req, res) => {
   res.json(partsOfSpeech);
+}
+
+export const getSwadeshList: RequestHandler = async (req, res) => {
+  const result = await query({
+    text: "SELECT word FROM swadesh_list",
+    rowMode: 'array'
+  });
+  res.json(result.rows.flat());
 }
 
 export const getWordClassesByLanguage: RequestHandler = async (req, res) => {
@@ -606,6 +644,42 @@ export const purgeLanguageDictionary: RequestHandler = async (req, res) => {
     [req.params.id]
   );
   res.status(204).send();
+}
+
+export const updateSwadeshList: RequestHandler = async (req, res) => {
+  if(!(req.body.list instanceof Array)) {
+    res.status(400).json({ title: "Invalid ID", message: "Invalid request body." });
+    return;
+  }
+
+  for(const entry of req.body.list) {
+    if(typeof entry !== 'string') {
+      res.status(400).json({ message: "Invalid request body." });
+      return;
+    }
+  }
+
+  const list = (req.body.list as string[]).filter(entry => entry.length > 0);
+
+  const repeated = list.find((entry, i) => list.lastIndexOf(entry) !== i);
+  if(repeated) {
+    res.status(400).json({ message: `The entry "${repeated}" appears multiple times in the list.` });
+    return;
+  }
+
+  await transact(async client => {
+    await client.query(
+      "DELETE FROM swadesh_list"
+    );
+    await client.query(
+      `
+        INSERT INTO swadesh_list (word, index)
+        SELECT word, index from unnest($1::text[]) WITH ORDINALITY AS t(word, index)
+      `,
+      [list]
+    );
+    return () => res.status(204).send();
+  });
 }
 
 export const updateWordClasses: RequestHandler = async (req, res, next) => {

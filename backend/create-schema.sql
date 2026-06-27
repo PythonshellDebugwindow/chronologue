@@ -239,3 +239,8 @@ CREATE TABLE IF NOT EXISTS word_derivations (
   is_borrowing boolean NOT NULL,
   PRIMARY KEY (child_id, parent_id)
 );
+
+CREATE TABLE IF NOT EXISTS swadesh_list (
+  word text PRIMARY KEY,
+  index bigint NOT NULL
+);

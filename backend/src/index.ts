@@ -101,6 +101,7 @@ app.put('/languages/:id/pronunciation-estimation', phonology.updatePronunciation
 app.delete('/languages/:id/purge-dictionary', dictionary.purgeLanguageDictionary);
 app.get('/languages/:id/summary-notes', languages.getSummaryNotes);
 app.put('/languages/:id/summary-notes', languages.updateSummaryNotes);
+app.get('/languages/:id/swadesh-list', dictionary.getLanguageSwadeshListEntries);
 app.post('/languages/:id/synonyms', dictionary.getLanguageSynonyms);
 app.get('/languages/:id/translation-ids', translations.getLanguageTranslationIds);
 app.get('/languages/:id/translations', translations.getAllLanguageTranslations);
@@ -116,6 +117,9 @@ app.get('/languages/:id/words-with-classes', dictionary.getLanguageWordsWithClas
 app.get('/parts-of-speech', dictionary.getPartsOfSpeech);
 
 app.get('/recent-activity', recentActivity.getRecentActivity);
+
+app.get('/swadesh-list', dictionary.getSwadeshList);
+app.put('/swadesh-list', dictionary.updateSwadeshList);
 
 app.get('/translations', translations.getAllTranslations);
 app.post('/translations', translations.addTranslation);
