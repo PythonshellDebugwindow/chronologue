@@ -27,11 +27,10 @@
   a change to occur.
 </p>
 <p>
-  The <b>else</b> segment specifies an alternative change to be used if the exception is
-  fulfilled.
+  The <b>else</b> segment specifies an alternative change to be used if the exception is fulfilled.
 </p>
 <p>
-  Basically, a rule replaces the target with the change if the environment is fulfilled, unless the
+  To summarise, a rule replaces the target with the change if the environment is fulfilled, unless the
   exception is fulfilled, in which case it will be replaced by the else instead.
 </p>
 <p>
@@ -42,21 +41,17 @@
 
 <h4 id="csca-categories">Categories</h4>
 <p>
-  Categories are sets of sounds which can be referenced en masse in a rule. They can be edited
-  on the Edit Categories page.
+  Categories are sets of sounds which can be referenced together in a rule. They can be edited on the
+  Edit Categories page.
 </p>
-  All categories have a name (a single uppercase letter) and a list of members (single letters).
+  All categories have a name (a single uppercase letter) and a list of members (letters or phones).
   Categories can either be phonological or orthographical; the former are used in pronunciation
   estimation, while the latter are used by grammar tables.
 </p>
 <p>
-  While not strictly necessary, categories can reduce the length of rulesets. For example, if
+  While not strictly necessary, categories can greatly reduce the length of rulesets. For example, if
   the category <code>N</code> contains the members <code>m,n,ŋ</code>, then the rule
   <code>N/m/_p</code> would change all three nasals to <code>m</code> before <code>p</code>.
-</p>
-<p>
-  Category members should be single characters only. Things like digraphs and secondary articulations
-  will not work correctly.
 </p>
 
 <h4 id="csca-examples">Examples</h4>
@@ -103,8 +98,8 @@
   </tbody>
 </table>
 
-<h3 id="csca-local-replacements">Local replacements</h3>
-<p>Local replace rules are used to replace all instances of text.</p>
+<h3 id="csca-local-replacement">Local replacement</h3>
+<p>Local replacement rules are used to replace all instances of text.</p>
 
 <h4 id="csca-simple-replacement">Simple replacement</h4>
 <p>
@@ -114,7 +109,7 @@
   For example, <code>p/f</code> will replace all instances of <code>p</code> with <code>f</code>.
 </p>
 
-<h4 id="csca-category-replacement">Category replacements</h4>
+<h4 id="csca-category-replacement">Category replacement</h4>
 <p>
   To replace all members of a category with constant text, use a slash. For example, <code>V/ə</code>
   will replace all members of <code>V</code> with <code>ə</code>.
@@ -139,8 +134,8 @@
   change.
 </p>
 <p>
-  For example, <code>#/#ing</code> will suffix <code>ing</code>, and
-  <code>#/ge#t</code> will prefix <code>ge</code> and suffix <code>t</code>.
+  For example, <code>#/#ing</code> will add the suffix <code>ing</code>, and
+  <code>#/ge#t</code> will add the prefix <code>ge</code> and the suffix <code>t</code>.
 </p>
 
 <h4 id="csca-global-replacements">Global replacements</h4>
@@ -154,7 +149,7 @@
   <code>#h/</code> will delete <code>h</code> word-initially.
 </p>
 <p>
-  Categories are not supported in global replacements.
+  Categories are not supported in global replacements, except in conditions.
 </p>
 
 <h3 id="csca-conditions">Conditions</h3>
@@ -219,19 +214,49 @@
   would be invalid.
 </p>
 
-<h3 id="csca-advanced-features">Advanced features</h3>
+<h3 id="csca-miscellaneous">Miscellaneous</h3>
+<h4 id="csca-special-characters">Special characters</h4>
+<p>
+  Uppercase letters and <code>/#_|,!</code> are considered special, meaning that they are treated
+  differently from regular text. They can be escaped (treated as normal text) by prepending an
+  exclamation mark; for example, the rule <code>#/#!A</code> would append an uppercase <code>A</code>.
+</p>
+
 <h4 id="csca-temporary-categories">Temporary categories</h4>
 <p>
-  Temporary categories are categories which are only valid for a single rule. They remove the need
-  to assign letters to one-off categories.
+  Temporary categories are categories which only exist in a single segment. They remove the need to
+  assign letters to one-off categories.
 </p>
 <p>
-  A temporary category is indicated using commas. For example, <code>m,n,ŋ</code> could be used to
-  represent nasals. All members of a temporary category must be normal text (no special characters
-  are allowed).
+  A temporary category is indicated using commas. For example, the rule <code>m,n,ŋ/b,d,g/_#</code>
+  would change <code>m</code> to <code>b</code>, <code>n</code> to <code>d</code>, and <code>ŋ</code>
+  to <code>g</code> word-finally.
 </p>
 <p>
-  Temporary categories can only be used as target, change, or else segments. For example, the rule
-  <code>m,n,ŋ/b,d,g/_#</code> would change <code>m</code> to <code>b</code>, <code>n</code> to
-  <code>d</code>, and <code>ŋ</code> to <code>g</code> word-finally.
+  Temporary categories can only be used as target, change, or else segments. All members of a
+  temporary category must be normal text (no special characters are allowed, unless escaped), and they
+  must all be non-empty.
+</p>
+
+<h4 id="csca-multichar-category-members">Multi-character category members</h4>
+<p>
+  Category names in rules always refer to the <i>longest possible</i> category member which appears
+  starting at the relevant position in the word, even if this causes a condition to not be satisfied.
+</p>
+<p>
+  This means that potentially unexpected results can occur if multiple members of a category start or
+  end with the same letters (such as <code>s,sh</code> or <code>s,hs</code>), and that category is
+  used in a rule with an environment or exception segment.
+</p>
+<p>
+  For example, if <code>C</code> contains <code>s</code> and <code>sh</code>, then the rule
+  <code>a/e/_Ch</code> would not change the word <code>ash</code> to <code>esh</code>; this is because
+  the <code>C</code> in the rule would match <code>sh</code> rather than the shorter <code>s</code>,
+  despite the condition not being satisfied as a result. (For the same reason, the rule would change
+  the word <code>ashh</code> to <code>eshh</code>.)
+</p>
+<p>
+  This also applies if the category is the target of the rule; for example, if <code>C</code> contains
+  <code>s,sh</code>, then <code>C//e_h</code> would not change <code>esh</code> to <code>eh</code>,
+  but would change <code>eshh</code> to <code>eh</code>.
 </p>

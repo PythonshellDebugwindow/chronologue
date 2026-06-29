@@ -104,7 +104,7 @@ function PreviewChangesRow(
             : <span style={{ color: "red" }}>{result.message}</span>
         }
       </td>
-      {fields.map((field, i) => !(field === 'ipa' && editField === 'ipa') && (
+      {fields.map((field, i) => (
         <td key={i}>
           {formatValue(field)}
         </td>
@@ -218,7 +218,7 @@ function SCAResultsPreview(
           {fields.map(f => f.isDisplaying && (
             <th key={f.name}>
               {userFacingFieldName(f.name)}
-              {f.name !== 'word' && f.name !== 'meaning' && f.name !== editField && (
+              {f.name !== 'word' && f.name !== 'meaning' && (
                 <LetterButtonXNoShadow onClick={() => disableField(f)} />
               )}
             </th>

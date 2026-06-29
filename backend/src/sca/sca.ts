@@ -287,7 +287,9 @@ export class SCA {
       }
     } else if(this.#isCategory(target)) {
       // Category replacement
-      const targetMembers = this.#getCategoryMembers(target);
+      const rawTargetMembers = this.#getCategoryMembers(target);
+      const targetMembers = rawTargetMembers.map((m, i) => ({ match: m, index: i }));
+      targetMembers.sort((a, b) => b.match.length - a.match.length); // Test longer members first
 
       if(this.#isCategory(change)) {
         // With a category
@@ -298,18 +300,19 @@ export class SCA {
         const elseChangeMembers = elseChange && this.#getCategoryMembers(elseChange);
         let replaced = this.#result;
         for(let i = 0; i < this.#result.length; ++i) {
-          const index = targetMembers.indexOf(this.#result[i]);
-          if(index >= 0) {
-            const matches = this.#resultMatchesLocalEnvOrExpAt(env, exp, i, 1);
+          const target = targetMembers.find(m => this.#result.startsWith(m.match, i));
+          if(target) {
+            const matches = this.#resultMatchesLocalEnvOrExpAt(env, exp, i, target.match.length);
             if(matches && !(matches === 'exp' && !elseChange)) {
               const matchChangeMembers = matches === 'env' ? changeMembers : elseChangeMembers!;
-              const replacement = matchChangeMembers[index] ?? "";
+              const replacement = matchChangeMembers[target.index] ?? "";
               const indexInReplaced = i - (this.#result.length - replaced.length);
               replaced = (
                 replaced.substring(0, indexInReplaced)
                 + replacement
-                + replaced.substring(indexInReplaced + 1)
+                + replaced.substring(indexInReplaced + target.match.length)
               );
+              i += target.match.length - 1;
             }
           }
         }
@@ -323,16 +326,18 @@ export class SCA {
         const elseChangeString = elseChange && tokensToString(elseChange);
         let replaced = this.#result;
         for(let i = 0; i < this.#result.length; ++i) {
-          if(targetMembers.includes(this.#result[i])) {
-            const matches = this.#resultMatchesLocalEnvOrExpAt(env, exp, i, 1);
+          const target = targetMembers.find(m => this.#result.startsWith(m.match, i));
+          if(target) {
+            const matches = this.#resultMatchesLocalEnvOrExpAt(env, exp, i, target.match.length);
             if(matches && !(matches === 'exp' && !elseChange)) {
               const matchChangeString = matches === 'env' ? changeString : elseChangeString!;
               const indexInReplaced = i - (this.#result.length - replaced.length);
               replaced = (
                 replaced.substring(0, indexInReplaced)
                 + matchChangeString
-                + replaced.substring(indexInReplaced + 1)
+                + replaced.substring(indexInReplaced + target.match.length)
               );
+              i += target.match.length - 1;
             }
           }
         }
@@ -401,18 +406,23 @@ export class SCA {
     }
   }
 
-  #charMatchesToken(char: string, token: IRuleToken) {
+  #getResultTokenMatchLength(index: number, token: IRuleToken, direction: 'left' | 'right') {
     switch(token.type) {
       case 'category': {
         const members = this.#categories.get(token.char);
         if(!members) {
           throw new TypeError(`Unknown category: ${token.char}`);
         }
-        return members.includes(char);
+        const sorted = members.slice().sort((a, b) => b.length - a.length);
+        if(direction === 'left') {
+          return sorted.find(m => this.#result.endsWith(m, index + 1))?.length ?? 0;
+        } else {
+          return sorted.find(m => this.#result.startsWith(m, index))?.length ?? 0;
+        }
       }
 
       case 'literal':
-        return token.char === char;
+        return token.char === this.#result[index] ? 1 : 0;
 
       default:
         throw new Error(`Invalid token type: ${token.type}`);
@@ -426,49 +436,45 @@ export class SCA {
     if(underscoreIndex === -1) {
       return this.#resultMatchesSingleGlobalCondition(condition);
     } else if(underscoreIndex !== findLastIndex(condition, isUnderscore)) {
-      throw new SyntaxError("Multiple underscores (shouldn't happen)");
+      throw new SyntaxError("Multiple underscores (internal error)");
     }
-    if(isHashtag(condition[0])) {
-      // At beginning of result
-      --underscoreIndex;
-      if(start !== underscoreIndex) {
-        return false;
-      }
+
+    const hasInitialHashtag = isHashtag(condition[0]);
+    if(hasInitialHashtag) {
       condition = condition.slice(1);
+      --underscoreIndex;
     }
-    if(isHashtag(condition[condition.length - 1])) {
-      // At end of result
-      const charsAfterUnderscore = condition.length - 1 - (underscoreIndex + 1);
-      if(start + checkLength + charsAfterUnderscore !== this.#result.length) {
-        return false;
-      }
+
+    const hasFinalHashtag = isHashtag(condition[condition.length - 1]);
+    if(hasFinalHashtag) {
       condition = condition.slice(0, -1);
     }
+
     if(condition.some(isHashtag)) {
       throw new SyntaxError("Hashtag in middle of condition");
     }
-    if(start < underscoreIndex) {
-      // Too far to the left
-      return false;
+
+    let i, index;
+    for(i = underscoreIndex - 1, index = start - 1; i >= 0; --i) {
+      const length = this.#getResultTokenMatchLength(index, condition[i], 'left');
+      if(length === 0) {
+        return false;
+      }
+      index -= length;
     }
-    const charsAfterUnderscore = condition.length - underscoreIndex - 1;
-    const charsAfterMatch = this.#result.length - (start + checkLength);
-    if(charsAfterMatch < charsAfterUnderscore) {
-      // Too far to the right
+    if(hasInitialHashtag && index !== -1) {
       return false;
     }
 
-    for(let i = 0; i < underscoreIndex; ++i) {
-      const char = this.#result[start - underscoreIndex + i];
-      if(!this.#charMatchesToken(char, condition[i])) {
+    for(i = underscoreIndex + 1, index = start + checkLength; i < condition.length; ++i) {
+      const length = this.#getResultTokenMatchLength(index, condition[i], 'right');
+      if(length === 0) {
         return false;
       }
+      index += length;
     }
-    for(let i = underscoreIndex + 1; i < condition.length; ++i) {
-      const char = this.#result[start + checkLength + i - (underscoreIndex + 1)];
-      if(!this.#charMatchesToken(char, condition[i])) {
-        return false;
-      }
+    if(hasFinalHashtag && index !== this.#result.length) {
+      return false;
     }
     return true;
   }
@@ -532,44 +538,44 @@ export class SCA {
     if(hashtagIndex === -1) {
       // Word contains condition
       let matchIndex = 0;
-      for(let i = 0; i < this.#result.length; ++i) {
-        if(this.#charMatchesToken(this.#result[i], condition[matchIndex])) {
+      for(let i = 0; i < this.#result.length;) {
+        const length = this.#getResultTokenMatchLength(i, condition[matchIndex], 'right');
+        if(length > 0) {
           ++matchIndex;
           if(matchIndex === condition.length) {
             return true;
           }
+          i += length;
         } else {
           matchIndex = 0;
+          ++i;
         }
       }
       return false;
     } else if(hashtagIndex !== findLastIndex(condition, isHashtag)) {
-      throw new SyntaxError("Multiple hashtags (shouldn't happen)");
+      throw new SyntaxError("Multiple hashtags (internal error)");
     }
 
     if(hashtagIndex === 0) {
       const prefix = condition.slice(1);
-      if(this.#result.length < prefix.length) {
-        return false;
-      }
-      for(let i = 0; i < prefix.length; ++i) {
-        if(!this.#charMatchesToken(this.#result[i], prefix[i])) {
+      for(let i = 0, index = 0; i < prefix.length; ++i) {
+        const length = this.#getResultTokenMatchLength(index, prefix[i], 'right');
+        if(length === 0) {
           return false;
         }
+        index += length;
       }
     } else if(hashtagIndex === condition.length - 1) {
       const suffix = condition.slice(0, -1);
-      if(this.#result.length < suffix.length) {
-        return false;
-      }
-      const checkStart = this.#result.length - suffix.length;
-      for(let i = 0; i < suffix.length; ++i) {
-        if(!this.#charMatchesToken(this.#result[checkStart + i], suffix[i])) {
+      for(let i = suffix.length - 1, index = this.#result.length - 1; i >= 0; --i) {
+        const length = this.#getResultTokenMatchLength(index, suffix[i], 'left');
+        if(length === 0) {
           return false;
         }
+        index -= length;
       }
     } else {
-      throw new SyntaxError("Hastag in middle of condition");
+      throw new SyntaxError("Hashtag in middle of condition");
     }
     return true;
   }
@@ -579,29 +585,30 @@ const scaCategories = [
   { letter: "C", members: "bcdfghjklmnpqrstvwxz".split("") },
   { letter: "V", members: "aeiouy".split("") },
   { letter: "W", members: "ABCDEF".split("") },
-  { letter: "X", members: "123456".split("") }
+  { letter: "X", members: "123456".split("") },
+  { letter: "Y", members: ["a", "ab", "b"] }
 ];
 
 const theSca = new SCA(scaCategories);
 
 function runTests() {
   const tests = readFileSync("src/sca/sca-test.txt").toString().split("\n===\n").map(
-    line => line.split("\n")
+    lines => lines.split("\n")
   );
   let lineNumber = 1;
   for(const [i, [initial, expected, ...rules]] of tests.entries()) {
     const setRulesResult = theSca.setRules(rules.join("\n"));
     if(!setRulesResult.success) {
       console.error(`SCA test #${i + 1} (line ${lineNumber}): ${setRulesResult.message}`);
-      continue;
-    }
-    const actual = theSca.applySoundChanges(initial);
-    if(!actual.success) {
-      console.error(`SCA test #${i + 1} (line ${lineNumber}): ${actual.message}`);
-    } else if(actual.result !== expected) {
-      console.error(
-        `SCA test #${i + 1} (line ${lineNumber}): expected ${expected}, got ${actual.result}`
-      );
+    } else {
+      const actual = theSca.applySoundChanges(initial);
+      if(!actual.success) {
+        console.error(`SCA test #${i + 1} (line ${lineNumber}): ${actual.message}`);
+      } else if(actual.result !== expected) {
+        console.error(
+          `SCA test #${i + 1} (line ${lineNumber}): expected ${expected}, got ${actual.result}`
+        );
+      }
     }
     lineNumber += rules.length + 3;
   }

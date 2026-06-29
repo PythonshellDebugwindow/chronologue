@@ -15,7 +15,7 @@ export function useApplySCARulesQuery(
   enabled: boolean
 ) {
   return useQuery<ApplySCARulesQueryResult[], ITitledError>({
-    queryKey: ['languages', langId, 'apply-sca-rules'],
+    queryKey: ['languages', langId, 'apply-sca-rules', input, rules, categories],
     queryFn: async () => await sendBackendJsonForQuery(
       `languages/${langId}/apply-sca-rules`,
       'POST',

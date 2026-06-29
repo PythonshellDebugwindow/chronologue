@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useQueryClient } from '@tanstack/react-query';
 
 import { useLanguage } from '@/hooks/languages';
 import {
@@ -17,6 +16,12 @@ import { renderDatalessQueryResult } from '@/utils/global/queries';
 import ApplySCARules from './components/ApplySCARules';
 import DisplayCategories from './components/DisplayCategories';
 
+interface ISCAQueryInput {
+  input: string;
+  rules: string;
+  categoryType: 'orth' | 'phone';
+}
+
 interface ITestChronoSCAInner {
   language: ILanguage;
   orthCategories: ICategory[];
@@ -24,20 +29,15 @@ interface ITestChronoSCAInner {
 }
 
 function TestChronoSCAInner({ language, orthCategories, phoneCategories }: ITestChronoSCAInner) {
-  const queryClient = useQueryClient();
-
   const [rules, setRules] = useState("");
   const [input, setInput] = useState("");
-  const [scaQueryInput, setSCAQueryInput] = useState<string | null>(null);
   const [categoryType, setCategoryType] = useState<'orth' | 'phone'>('orth');
+  const [scaQueryInput, setSCAQueryInput] = useState<ISCAQueryInput | null>(null);
 
   const currentCategories = categoryType === 'orth' ? orthCategories : phoneCategories;
 
   function applySCARules() {
-    const queryKey = ['languages', language.id, 'apply-sca-rules'];
-    queryClient.resetQueries({ queryKey });
-    queryClient.removeQueries({ queryKey });
-    setSCAQueryInput(input);
+    setSCAQueryInput({ input, rules, categoryType });
   }
 
   return (
@@ -89,9 +89,9 @@ function TestChronoSCAInner({ language, orthCategories, phoneCategories }: ITest
           <h4>Results:</h4>
           <ApplySCARules
             languageId={language.id}
-            input={scaQueryInput}
-            rules={rules}
-            categoryType={categoryType}
+            input={scaQueryInput.input}
+            rules={scaQueryInput.rules}
+            categoryType={scaQueryInput.categoryType}
           />
         </>
       )}
