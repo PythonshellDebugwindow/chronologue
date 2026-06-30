@@ -82,9 +82,10 @@ interface IDeleteRuleset {
   destLangId: string;
   ruleset: IDerivationRulesetOverview;
   onCancel: () => void;
+  onDelete: () => void;
 }
 
-function DeleteRuleset({ destLangId, ruleset, onCancel }: IDeleteRuleset) {
+function DeleteRuleset({ destLangId, ruleset, onCancel, onDelete }: IDeleteRuleset) {
   const queryClient = useQueryClient();
 
   const [message, setMessage] = useState("");
@@ -101,6 +102,7 @@ function DeleteRuleset({ destLangId, ruleset, onCancel }: IDeleteRuleset) {
     queryClient.resetQueries({
       queryKey: ['languages', destLangId, 'derivation-rules']
     });
+    onDelete();
   }
 
   return (
@@ -186,12 +188,7 @@ function TestRuleset({ srcLangId, ruleset }: ITestRuleset) {
   );
 }
 
-interface IEditDerivationRulesInner {
-  language: ILanguage;
-  rulesets: IDerivationRulesetOverview[];
-}
-
-function EditDerivationRulesInner({ language, rulesets }: IEditDerivationRulesInner) {
+function EditDerivationRulesInner({ language }: { language: ILanguage }) {
   const [searchParams] = useSearchParams();
   const queryClient = useQueryClient();
 
@@ -201,6 +198,8 @@ function EditDerivationRulesInner({ language, rulesets }: IEditDerivationRulesIn
   const [ruleset, setRuleset] = useState<IDerivationRulesetOverview | 'new' | null>(null);
   const newRulesetId = '_new';
 
+  const [justAddedRulesetDestId, setJustAddedRulesetDestId] = useState<string | null>(null);
+
   const [languageId, setLanguageId] = useState("");
   const [rulesetData, setRulesetData] = useState<IDerivationRuleset | null>(null);
 
@@ -208,6 +207,9 @@ function EditDerivationRulesInner({ language, rulesets }: IEditDerivationRulesIn
   const [isSaving, setIsSaving] = useState(false);
 
   const [isDeletingRuleset, setIsDeletingRuleset] = useState(false);
+
+  const rulesetsResponse = useLanguageDerivationRulesetIds(language.id);
+  const rulesets = rulesetsResponse.data;
 
   const updateRulesetId = useCallback((newId: string | null) => {
     if(hasEditedRuleset && languageId) {
@@ -220,7 +222,7 @@ function EditDerivationRulesInner({ language, rulesets }: IEditDerivationRulesIn
       setRuleset(null);
       return;
     }
-    const theRuleset = newId !== newRulesetId && rulesets.find(r => r.langId === newId);
+    const theRuleset = newId !== newRulesetId && rulesets?.find(r => r.langId === newId);
     setRuleset(theRuleset || 'new');
     setLanguageId(newId === newRulesetId ? "" : newId);
     setRulesetData(theRuleset ? null : { rules: "", fromIpa: false });
@@ -233,6 +235,16 @@ function EditDerivationRulesInner({ language, rulesets }: IEditDerivationRulesIn
       setShouldUseParamRuleset(false);
     }
   }, [rulesetIdParam, shouldUseParamRuleset, updateRulesetId]);
+
+  useEffect(() => {
+    if(rulesets && justAddedRulesetDestId !== null) {
+      const theRuleset = rulesets.find(r => r.langId === justAddedRulesetDestId);
+      if(theRuleset) {
+        setRuleset(theRuleset);
+      }
+      setJustAddedRulesetDestId(null);
+    }
+  }, [justAddedRulesetDestId, rulesets]);
 
   function updateDeriveFromIpa(newValue: boolean) {
     if(rulesetData) {
@@ -255,11 +267,17 @@ function EditDerivationRulesInner({ language, rulesets }: IEditDerivationRulesIn
     }
 
     if(ruleset === 'new') {
+      setJustAddedRulesetDestId(languageId);
       queryClient.resetQueries({
-        queryKey: ['languages', language.id, 'derivation-rules']
+        queryKey: ['languages', language.id, 'derivation-rules'],
+        exact: true
       });
     }
-    return res.body;
+    return null;
+  }
+
+  if(rulesetsResponse.status !== 'success') {
+    return renderDatalessQueryResult(rulesetsResponse);
   }
 
   if(isDeletingRuleset && ruleset && ruleset !== 'new') {
@@ -268,6 +286,10 @@ function EditDerivationRulesInner({ language, rulesets }: IEditDerivationRulesIn
         destLangId={language.id}
         ruleset={ruleset}
         onCancel={() => setIsDeletingRuleset(false)}
+        onDelete={() => {
+          setRuleset(null);
+          setIsDeletingRuleset(false);
+        }}
       />
     );
   }
@@ -283,7 +305,7 @@ function EditDerivationRulesInner({ language, rulesets }: IEditDerivationRulesIn
       >
         <option value="">---</option>
         <option value={newRulesetId}>new ruleset</option>
-        {rulesets.map(ruleset => (
+        {rulesets!.map(ruleset => (
           <option value={ruleset.langId} key={ruleset.langId}>
             {ruleset.langName} ({ruleset.familyName ?? "isolate"})
           </option>
@@ -298,7 +320,7 @@ function EditDerivationRulesInner({ language, rulesets }: IEditDerivationRulesIn
               setLanguageId={setLanguageId}
               deriveFromIpa={rulesetData.fromIpa}
               setDeriveFromIpa={updateDeriveFromIpa}
-              rulesets={rulesets}
+              rulesets={rulesets!}
             />
           )}
           {ruleset !== 'new' && rulesetData && (
@@ -371,7 +393,6 @@ export default function EditDerivationRules() {
   }
 
   const languageResponse = useLanguage(languageId);
-  const rulesetsResponse = useLanguageDerivationRulesetIds(languageId);
 
   useSetPageTitle("Edit Derivation Rules");
 
@@ -379,14 +400,7 @@ export default function EditDerivationRules() {
     return renderDatalessQueryResult(languageResponse);
   }
 
-  if(rulesetsResponse.status !== 'success') {
-    return renderDatalessQueryResult(rulesetsResponse);
-  }
-
   return (
-    <EditDerivationRulesInner
-      language={languageResponse.data}
-      rulesets={rulesetsResponse.data}
-    />
+    <EditDerivationRulesInner language={languageResponse.data} />
   );
 }
