@@ -35,7 +35,7 @@ interface IApplySCARules {
   categoryType: 'orth' | 'phone';
 }
 
-export default function ApplySCARules({ languageId, input, rules, categoryType }: IApplySCARules) {
+export function ApplySCARules({ languageId, input, rules, categoryType }: IApplySCARules) {
   const scaQuery = useApplySCARulesQuery(
     languageId, input.split("\n"), rules, categoryType, true
   );

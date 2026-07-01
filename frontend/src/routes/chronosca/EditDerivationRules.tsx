@@ -2,6 +2,12 @@ import { Dispatch, SetStateAction, useCallback, useEffect, useState } from 'reac
 import { Link, useSearchParams } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 
+import {
+  ApplySCARules,
+  DisplayCategories,
+  SourceLanguageDisplay,
+  SourceLanguageSelect
+} from '@/components/ChronoSCA';
 import SaveChangesButton from '@/components/SaveChangesButton';
 
 import { useLanguage } from '@/hooks/languages';
@@ -24,13 +30,6 @@ import {
   sendBackendJson,
   sendBackendRequest
 } from '@/utils/global/queries';
-
-import ApplySCARules from './components/ApplySCARules';
-import DisplayCategories from './components/DisplayCategories';
-import {
-  SourceLanguageDisplay,
-  SourceLanguageSelect
-} from './components/SourceLanguage';
 
 interface IRulesInput {
   destLangId: string;
@@ -127,29 +126,37 @@ function DeleteRuleset({ destLangId, ruleset, onCancel, onDelete }: IDeleteRules
   );
 }
 
-interface ITestRuleset {
-  srcLangId: string;
-  ruleset: IDerivationRuleset;
+function LanguageName({ id }: { id: string }) {
+  const languageResponse = useLanguage(id);
+  if(languageResponse.status === 'pending') {
+    return "Loading...";
+  } else if(languageResponse.status === 'error') {
+    return "Error: " + languageResponse.error.message;
+  } else {
+    return languageResponse.data.name;
+  }
 }
 
-function TestRuleset({ srcLangId, ruleset }: ITestRuleset) {
-  const queryClient = useQueryClient();
+interface ISCAQueryInput {
+  input: string;
+  rules: string;
+  categoryType: 'orth' | 'phone';
+}
 
+interface ITestRuleset {
+  srcLangId: string;
+  rulesetData: IDerivationRuleset;
+}
+
+function TestRuleset({ srcLangId, rulesetData }: ITestRuleset) {
   const [input, setInput] = useState("");
-  const [scaQueryInput, setSCAQueryInput] = useState<string | null>(null);
+  const [scaQueryInput, setSCAQueryInput] = useState<ISCAQueryInput | null>(null);
 
-  const categoryType = ruleset.fromIpa ? 'phone' : 'orth';
+  const categoryType = rulesetData.fromIpa ? 'phone' : 'orth';
   const categoriesResponse = useLanguageCategories(srcLangId, categoryType);
 
   function applySCARules() {
-    const queryKey = ['languages', srcLangId, 'apply-sca-rules'];
-    queryClient.resetQueries({ queryKey });
-    queryClient.removeQueries({ queryKey });
-    setSCAQueryInput(input);
-  }
-
-  if(categoriesResponse.status !== 'success') {
-    return <p>{categoriesResponse.error?.message ?? "Loading..."}</p>;
+    setSCAQueryInput({ input, rules: rulesetData.rules, categoryType });
   }
 
   return (
@@ -163,10 +170,20 @@ function TestRuleset({ srcLangId, ruleset }: ITestRuleset) {
       />
 
       <h4>Categories:</h4>
-      <DisplayCategories
-        languageId={srcLangId}
-        categories={categoriesResponse.data}
-      />
+      <p style={{ margin: "0.5em 0" }}>
+        Using <LanguageName id={srcLangId} />'s{" "}
+        {categoryType === 'phone' ? "phonology" : "orthography"} categories.
+      </p>
+      {categoriesResponse.status === 'success' && (
+        <DisplayCategories
+          languageId={srcLangId}
+          categories={categoriesResponse.data}
+        />
+      )}
+      {categoriesResponse.status === 'pending' && <p>Loading categories...</p>}
+      {categoriesResponse.status === 'error' && (
+        <p>Could not load categories: {categoriesResponse.error.message}</p>
+      )}
 
       <p>
         <button onClick={applySCARules}>
@@ -178,9 +195,9 @@ function TestRuleset({ srcLangId, ruleset }: ITestRuleset) {
           <h4>Results:</h4>
           <ApplySCARules
             languageId={srcLangId}
-            input={scaQueryInput}
-            rules={ruleset.rules}
-            categoryType={categoryType}
+            input={scaQueryInput.input}
+            rules={scaQueryInput.rules}
+            categoryType={scaQueryInput.categoryType}
           />
         </>
       )}
@@ -269,8 +286,7 @@ function EditDerivationRulesInner({ language }: { language: ILanguage }) {
     if(ruleset === 'new') {
       setJustAddedRulesetDestId(languageId);
       queryClient.resetQueries({
-        queryKey: ['languages', language.id, 'derivation-rules'],
-        exact: true
+        queryKey: ['languages', language.id, 'derivation-rules']
       });
     }
     return null;
@@ -341,6 +357,9 @@ function EditDerivationRulesInner({ language }: { language: ILanguage }) {
           {languageId && (
             <>
               <h4>Rules:</h4>
+              <p style={{ marginTop: "0.5em" }}>
+                For help, see the <Link to="/chronosca-help">ChronoSCA help page</Link>.
+              </p>
               <RulesInput
                 destLangId={language.id}
                 srcLangId={languageId}
@@ -375,7 +394,7 @@ function EditDerivationRulesInner({ language }: { language: ILanguage }) {
               {rulesetData && (
                 <TestRuleset
                   srcLangId={languageId}
-                  ruleset={rulesetData}
+                  rulesetData={rulesetData}
                 />
               )}
             </>

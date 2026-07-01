@@ -32,7 +32,7 @@ interface IDisplayCategories {
   categories: ICategory[]
 }
 
-export default function DisplayCategories({ languageId, categories }: IDisplayCategories) {
+export function DisplayCategories({ languageId, categories }: IDisplayCategories) {
   return (
     <>
       <CategoriesList categories={categories} />

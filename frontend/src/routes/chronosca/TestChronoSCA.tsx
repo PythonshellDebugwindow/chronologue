@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 
+import { ApplySCARules, DisplayCategories } from '@/components/ChronoSCA';
+
 import { useLanguage } from '@/hooks/languages';
 import {
   useLanguageOrthographyCategories,
@@ -12,9 +14,6 @@ import { ICategory } from '@/types/phones';
 
 import { useGetParamsOrSelectedId, useSetPageTitle } from '@/utils/global/hooks';
 import { renderDatalessQueryResult } from '@/utils/global/queries';
-
-import ApplySCARules from './components/ApplySCARules';
-import DisplayCategories from './components/DisplayCategories';
 
 interface ISCAQueryInput {
   input: string;
@@ -81,7 +80,7 @@ function TestChronoSCAInner({ language, orthCategories, phoneCategories }: ITest
 
       <p>
         <button onClick={applySCARules}>
-          Apply
+          Apply rules
         </button>
       </p>
       {scaQueryInput !== null && (

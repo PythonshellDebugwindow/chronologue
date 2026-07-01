@@ -1,10 +1,17 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 
+import { DisplayCategories } from '@/components/ChronoSCA';
 import SaveChangesButton from '@/components/SaveChangesButton';
+import { SettingsTable } from '@/components/SettingsTable';
 
 import { useLanguage } from '@/hooks/languages';
-import { useLanguagePronunciationEstimationSettings } from '@/hooks/phones';
+import {
+  useEstimateWordIPAQuery,
+  useLanguagePhoneCategories,
+  useLanguagePronunciationEstimationSettings
+} from '@/hooks/phones';
 
 import { ILanguage } from '@/types/languages';
 import { IPronunciationEstimationSettings } from '@/types/phones';
@@ -19,6 +26,98 @@ async function sendSaveSettingsRequest(letterReplacements: string, rewriteRules:
     throw res.body;
   }
   return res.body;
+}
+
+function EstimationQueryResultsRow({ languageId, inputLine }: { languageId: string, inputLine: string }) {
+  const scaQuery = useEstimateWordIPAQuery(languageId, inputLine);
+  return (
+    <tr>
+      <td>{inputLine}</td>
+      <td>
+        {scaQuery.status === 'success' && scaQuery.data}
+        {scaQuery.status === 'pending' && "Loading..."}
+        {scaQuery.status === 'error' && (
+          <span style={{ color: "red" }}>{scaQuery.error.message}</span>
+        )}
+      </td>
+    </tr>
+  );
+}
+
+function EstimationQueryResults({ languageId, inputs }: { languageId: string, inputs: string[] }) {
+  return (
+    <SettingsTable>
+      <tr style={{ textAlign: "left" }}>
+        <th>Input</th>
+        <th>Output</th>
+      </tr>
+      {inputs.map((line, i) => (
+        <EstimationQueryResultsRow
+          languageId={languageId}
+          inputLine={line}
+          key={i}
+        />
+      ))}
+    </SettingsTable>
+  );
+}
+
+interface IEstimationQueryInput {
+  inputs: string[];
+  rules: string;
+}
+
+function TestPronunciationEstimation({ language, rules }: { language: ILanguage, rules: string }) {
+  const queryClient = useQueryClient();
+
+  const [input, setInput] = useState("");
+  const [queryInput, setQueryInput] = useState<IEstimationQueryInput | null>(null);
+
+  const categoriesResponse = useLanguagePhoneCategories(language.id);
+
+  function estimatePronunciation() {
+    setQueryInput({ inputs: input.length > 0 ? input.split("\n") : [], rules });
+    queryClient.resetQueries({
+      queryKey: ['languages', language.id, 'estimate-ipa']
+    });
+  }
+
+  return (
+    <>
+      <h3>Test Pronunciation Estimation</h3>
+      <p>One input per line. You must first save your changes above for them to take effect here.</p>
+
+      <h4>Input:</h4>
+      <textarea
+        value={input}
+        onChange={e => setInput(e.target.value)}
+        style={{ width: "20em", height: "10em" }}
+      />
+
+      <h4>Categories:</h4>
+      {categoriesResponse.status === 'success' && (
+        <DisplayCategories
+          languageId={language.id}
+          categories={categoriesResponse.data}
+        />
+      )}
+
+      <p>
+        <button onClick={estimatePronunciation}>
+          Estimate
+        </button>
+      </p>
+      {queryInput !== null && (
+        <>
+          <h4>Results:</h4>
+          <EstimationQueryResults
+            languageId={language.id}
+            inputs={queryInput.inputs}
+          />
+        </>
+      )}
+    </>
+  );
 }
 
 interface IEditPronunciationEstimationInner {
@@ -44,8 +143,8 @@ function EditPronunciationEstimationInner({ language, initialSettings }: IEditPr
       </p>
       <h4>Rewrite Rules</h4>
       <p>
-        Rewrite the generated IPA after initial estimation using ChronoSCA rules. Rules can be
-        tested on the <Link to={'/chronosca/' + language.id}>ChronoSCA testing page</Link>.
+        Rewrite the generated IPA after initial estimation using ChronoSCA rules. For help, see the{" "}
+        <Link to="/chronosca-help">ChronoSCA help page</Link>.
       </p>
       <textarea
         value={rewriteRules}
@@ -94,6 +193,11 @@ function EditPronunciationEstimationInner({ language, initialSettings }: IEditPr
           Save
         </SaveChangesButton>
       )}
+
+      <TestPronunciationEstimation
+        language={language}
+        rules={rewriteRules}
+      />
     </>
   );
 }
