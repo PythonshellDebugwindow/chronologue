@@ -72,7 +72,7 @@ function RulesInput({
     <textarea
       value={ruleset?.rules}
       onChange={e => updateRules(e.target.value)}
-      style={{ width: "20em", height: "10em" }}
+      style={{ width: "25em", height: "15em" }}
     />
   );
 }
@@ -144,16 +144,16 @@ interface ISCAQueryInput {
 }
 
 interface ITestRuleset {
-  srcLangId: string;
+  destLangId: string;
   rulesetData: IDerivationRuleset;
 }
 
-function TestRuleset({ srcLangId, rulesetData }: ITestRuleset) {
+function TestRuleset({ destLangId, rulesetData }: ITestRuleset) {
   const [input, setInput] = useState("");
   const [scaQueryInput, setSCAQueryInput] = useState<ISCAQueryInput | null>(null);
 
   const categoryType = rulesetData.fromIpa ? 'phone' : 'orth';
-  const categoriesResponse = useLanguageCategories(srcLangId, categoryType);
+  const categoriesResponse = useLanguageCategories(destLangId, categoryType);
 
   function applySCARules() {
     setSCAQueryInput({ input, rules: rulesetData.rules, categoryType });
@@ -169,14 +169,14 @@ function TestRuleset({ srcLangId, rulesetData }: ITestRuleset) {
         style={{ width: "20em", height: "10em" }}
       />
 
-      <h4>Categories:</h4>
+      <h4 style={{ marginTop: "0.5em" }}>Categories:</h4>
       <p style={{ margin: "0.5em 0" }}>
-        Using <LanguageName id={srcLangId} />'s{" "}
+        Using <LanguageName id={destLangId} />'s{" "}
         {categoryType === 'phone' ? "phonology" : "orthography"} categories.
       </p>
       {categoriesResponse.status === 'success' && (
         <DisplayCategories
-          languageId={srcLangId}
+          languageId={destLangId}
           categories={categoriesResponse.data}
         />
       )}
@@ -194,7 +194,7 @@ function TestRuleset({ srcLangId, rulesetData }: ITestRuleset) {
         <>
           <h4>Results:</h4>
           <ApplySCARules
-            languageId={srcLangId}
+            languageId={destLangId}
             input={scaQueryInput.input}
             rules={scaQueryInput.rules}
             categoryType={scaQueryInput.categoryType}
@@ -217,7 +217,7 @@ function EditDerivationRulesInner({ language }: { language: ILanguage }) {
 
   const [justAddedRulesetDestId, setJustAddedRulesetDestId] = useState<string | null>(null);
 
-  const [languageId, setLanguageId] = useState("");
+  const [languageId, setLanguageId] = useState(rulesetIdParam ?? "");
   const [rulesetData, setRulesetData] = useState<IDerivationRuleset | null>(null);
 
   const [hasEditedRuleset, setHasEditedRuleset] = useState(false);
@@ -229,7 +229,7 @@ function EditDerivationRulesInner({ language }: { language: ILanguage }) {
   const rulesets = rulesetsResponse.data;
 
   const updateRulesetId = useCallback((newId: string | null) => {
-    if(hasEditedRuleset && languageId) {
+    if(hasEditedRuleset) {
       if(!confirm("This will overwrite any unsaved edits you have made below. Continue?")) {
         return;
       }
@@ -237,21 +237,22 @@ function EditDerivationRulesInner({ language }: { language: ILanguage }) {
 
     if(newId === null) {
       setRuleset(null);
+      setHasEditedRuleset(false);
       return;
     }
     const theRuleset = newId !== newRulesetId && rulesets?.find(r => r.langId === newId);
     setRuleset(theRuleset || 'new');
     setLanguageId(newId === newRulesetId ? "" : newId);
     setRulesetData(theRuleset ? null : { rules: "", fromIpa: false });
-    setHasEditedRuleset(true);
-  }, [hasEditedRuleset, languageId, rulesets]);
+    setHasEditedRuleset(!!theRuleset);
+  }, [hasEditedRuleset, rulesets]);
 
   useEffect(() => {
-    if(shouldUseParamRuleset && rulesetIdParam) {
+    if(rulesets && shouldUseParamRuleset) {
       updateRulesetId(rulesetIdParam);
       setShouldUseParamRuleset(false);
     }
-  }, [rulesetIdParam, shouldUseParamRuleset, updateRulesetId]);
+  }, [rulesetIdParam, rulesets, shouldUseParamRuleset, updateRulesetId]);
 
   useEffect(() => {
     if(rulesets && justAddedRulesetDestId !== null) {
@@ -352,6 +353,9 @@ function EditDerivationRulesInner({ language }: { language: ILanguage }) {
                   <option value="ipa">IPA</option>
                 </select>
               </label>
+              <button onClick={() => setIsDeletingRuleset(true)}>
+                Delete ruleset
+              </button>
             </>
           )}
           {languageId && (
@@ -383,17 +387,10 @@ function EditDerivationRulesInner({ language }: { language: ILanguage }) {
                   Save changes
                 </SaveChangesButton>
               )}
-              {ruleset !== 'new' && (
-                <p style={{ marginTop: hasEditedRuleset ? "0.8em" : "0.5em" }}>
-                  <button onClick={() => setIsDeletingRuleset(true)}>
-                    Delete ruleset
-                  </button>
-                </p>
-              )}
 
               {rulesetData && (
                 <TestRuleset
-                  srcLangId={languageId}
+                  destLangId={language.id}
                   rulesetData={rulesetData}
                 />
               )}

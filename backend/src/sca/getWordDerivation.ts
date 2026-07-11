@@ -37,7 +37,7 @@ export async function getWordDerivationIntoLanguage(
       FROM ${tableName}
       WHERE lang_id = $1
     `,
-    [word.langId]
+    [destLangId]
   );
 
   const sca = new SCA(categoriesQuery.rows);
