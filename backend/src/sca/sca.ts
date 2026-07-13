@@ -5,7 +5,9 @@ interface ICategory {
   members: string[];
 }
 
-type RuleTokenType = 'comma' | 'hashtag' | 'pipe' | 'underscore' | 'category' | 'literal';
+type RuleTokenType = (
+  'comma' | 'hashtag' | 'pipe' | 'underscore' | 'percent' | 'category' | 'literal'
+);
 
 interface IRuleToken {
   type: RuleTokenType;
@@ -35,20 +37,17 @@ function parseRule(rule: string): TokeniseRuleResult {
       if(segments.length === 4) {
         return failure("Too many segments");
       } else if(tokens.length > 0) {
-        if(isComma(tokens[tokens.length - 1])) {
-          return failure("Empty temporary category member");
-        } else if(isPipe(tokens[tokens.length - 1])) {
+        if(isPipe(tokens[tokens.length - 1])) {
           return failure("Empty condition");
+        } else if(tokens.some(isComma)) {
+          if(isComma(tokens[tokens.length - 1])) {
+            return failure("Empty temporary category member");
+          } else if(!tokens.every(t => isComma(t) || isLiteral(t))) {
+            return failure("Invalid temporary category");
+          }
         }
       }
-      if(tokens.some(isComma)) {
-        if(!tokens.every(t => isComma(t) || isLiteral(t))) {
-          return failure("Invalid temporary category");
-        }
-        segments.push(combineTemporaryCategoryLiteralMemberTokens(tokens));
-      } else {
-        segments.push(tokens);
-      }
+      segments.push(tokens);
       tokens = [];
     } else if(char === "!") {
       if(i + 1 >= rule.length) {
@@ -84,10 +83,19 @@ function parseRule(rule: string): TokeniseRuleResult {
         }
       }
       tokens.push({ type: 'underscore', char });
+    } else if(char === "%") {
+      if(segments.length === 0) {
+        return failure("Percent sign in target");
+      }
+      tokens.push({ type: 'percent', char });
     } else if(/\p{Lu}/u.test(char)) {
       tokens.push({ type: 'category', char });
     } else {
-      tokens.push({ type: 'literal', char });
+      if(tokens.length > 0 && isLiteral(tokens[tokens.length - 1])) {
+        tokens[tokens.length - 1].char += char;
+      } else {
+        tokens.push({ type: 'literal', char });
+      }
     }
   }
 
@@ -95,26 +103,15 @@ function parseRule(rule: string): TokeniseRuleResult {
     return failure("Empty condition");
   } else if(tokens.length === 0 && isInEnvOrExp()) {
     return failure("Empty condition");
-  }
-  if(tokens.some(isComma)) {
-    if(!tokens.every(t => isComma(t) || isLiteral(t))) {
-      return failure("Invalid temporary category");
-    } else if(isComma(tokens[tokens.length - 1])) {
+  } else if(tokens.some(isComma)) {
+    if(isComma(tokens[tokens.length - 1])) {
       return failure("Empty temporary category member");
+    } else if(!tokens.every(t => isComma(t) || isLiteral(t))) {
+      return failure("Invalid temporary category");
     }
-    segments.push(combineTemporaryCategoryLiteralMemberTokens(tokens));
-  } else {
-    segments.push(tokens);
   }
+  segments.push(tokens);
   return { success: true, segments };
-}
-
-function combineTemporaryCategoryLiteralMemberTokens(tokens: IRuleToken[]) {
-  const split = splitTokens(tokens, 'comma');
-  return split.flatMap(tt => [
-    { type: 'comma', char: "," },
-    { type: 'literal', char: tokensToString(tt) }
-  ] as IRuleToken[]).slice(1);
 }
 
 function findLastIndex<T>(array: T[], predicate: (value: T) => boolean) {
@@ -138,15 +135,21 @@ function isPipe(token: IRuleToken) {
 function isUnderscore(token: IRuleToken) {
   return token.type === 'underscore';
 }
+function isPercentSign(token: IRuleToken) {
+  return token.type === 'percent';
+}
 function isCategory(token: IRuleToken) {
   return token.type === 'category';
 }
 function isLiteral(token: IRuleToken) {
   return token.type === 'literal';
 }
+function isLiteralOrPercentSign(token: IRuleToken) {
+  return token.type === 'literal' || token.type === 'percent';
+}
 
-function tokensToString(tokens: IRuleToken[]) {
-  return tokens.map(t => t.char).join("");
+function tokensToString(tokens: IRuleToken[], percentSignReplacement: string = "") {
+  return tokens.map(t => isPercentSign(t) ? percentSignReplacement : t.char).join("");
 }
 
 function splitTokens(tokens: IRuleToken[], type: RuleTokenType) {
@@ -261,9 +264,9 @@ export class SCA {
         if(hashtagIndex !== findLastIndex(theChange, isHashtag)) {
           return failure(matches === 'env' ? "Invalid change" : "Invalid else");
         }
-        const prefix = theChange.slice(0, hashtagIndex);
-        const suffix = theChange.slice(hashtagIndex + 1);
-        this.#result = tokensToString(prefix) + this.#result + tokensToString(suffix);
+        const prefixString = tokensToString(theChange.slice(0, hashtagIndex), this.#result);
+        const suffixString = tokensToString(theChange.slice(hashtagIndex + 1), this.#result);
+        this.#result = prefixString + this.#result + suffixString;
       } else {
         // Global replacement
         const hashtagIndex = target.findIndex(isHashtag);
@@ -274,15 +277,15 @@ export class SCA {
         } else if(condPrefix) {
           if(this.#result.startsWith(condPrefix)) {
             const after = this.#result.substring(condPrefix.length);
-            this.#result = tokensToString(theChange) + after;
+            this.#result = tokensToString(theChange, condPrefix) + after;
           }
         } else if(condSuffix) {
           if(this.#result.endsWith(condSuffix)) {
             const before = this.#result.substring(0, this.#result.length - condSuffix.length);
-            this.#result = before + tokensToString(theChange);
+            this.#result = before + tokensToString(theChange, condSuffix);
           }
         } else {
-          this.#result = tokensToString(theChange);
+          this.#result = tokensToString(theChange, this.#result);
         }
       }
     } else if(this.#isCategory(target)) {
@@ -317,20 +320,19 @@ export class SCA {
           }
         }
         this.#result = replaced;
-      } else if(change.every(isLiteral)) {
+      } else if(change.every(isLiteralOrPercentSign)) {
         // With constant text
-        if(elseChange && !elseChange.every(isLiteral)) {
+        if(elseChange && !elseChange.every(isLiteralOrPercentSign)) {
           return failure("Change and else are not of the same form");
         }
-        const changeString = tokensToString(change);
-        const elseChangeString = elseChange && tokensToString(elseChange);
         let replaced = this.#result;
         for(let i = 0; i < this.#result.length; ++i) {
           const target = targetMembers.find(m => this.#result.startsWith(m.match, i));
           if(target) {
             const matches = this.#resultMatchesLocalEnvOrExpAt(env, exp, i, target.match.length);
             if(matches && !(matches === 'exp' && !elseChange)) {
-              const matchChangeString = matches === 'env' ? changeString : elseChangeString!;
+              const matchChange = matches === 'env' ? change : elseChange!;
+              const matchChangeString = tokensToString(matchChange, target.match);
               const indexInReplaced = i - (this.#result.length - replaced.length);
               replaced = (
                 replaced.substring(0, indexInReplaced)
@@ -347,17 +349,17 @@ export class SCA {
       }
     } else if(target.every(isLiteral)) {
       // Constant text replacement
-      if(!change.every(isLiteral)) {
+      if(!change.every(isLiteralOrPercentSign)) {
         // With a category
         return failure("Invalid change");
-      } else if(elseChange && !elseChange.every(isLiteral)) {
+      } else if(elseChange && !elseChange.every(isLiteralOrPercentSign)) {
         // With a category
         return failure("Invalid else");
       } else {
         // With constant text
         const targetString = tokensToString(target);
-        const changeString = tokensToString(change);
-        const elseChangeString = elseChange && tokensToString(elseChange);
+        const changeString = tokensToString(change, targetString);
+        const elseChangeString = elseChange && tokensToString(elseChange, targetString);
         let replaced = this.#result;
         for(let i = 0; i <= this.#result.length; ) {
           const nextTargetIndex = this.#result.indexOf(targetString, i);
@@ -415,14 +417,18 @@ export class SCA {
         }
         const sorted = members.slice().sort((a, b) => b.length - a.length);
         if(direction === 'left') {
-          return sorted.find(m => this.#result.endsWith(m, index + 1))?.length ?? 0;
+          return sorted.find(m => this.#result.endsWith(m, index + 1))?.length ?? null;
         } else {
-          return sorted.find(m => this.#result.startsWith(m, index))?.length ?? 0;
+          return sorted.find(m => this.#result.startsWith(m, index))?.length ?? null;
         }
       }
 
       case 'literal':
-        return token.char === this.#result[index] ? 1 : 0;
+        if(direction === 'left') {
+          return this.#result.endsWith(token.char, index + 1) ? token.char.length : null;
+        } else {
+          return this.#result.startsWith(token.char, index) ? token.char.length : null;
+        }
 
       default:
         throw new Error(`Invalid token type: ${token.type}`);
@@ -457,7 +463,7 @@ export class SCA {
     let i, index;
     for(i = underscoreIndex - 1, index = start - 1; i >= 0; --i) {
       const length = this.#getResultTokenMatchLength(index, condition[i], 'left');
-      if(length === 0) {
+      if(length === null) {
         return false;
       }
       index -= length;
@@ -468,7 +474,7 @@ export class SCA {
 
     for(i = underscoreIndex + 1, index = start + checkLength; i < condition.length; ++i) {
       const length = this.#getResultTokenMatchLength(index, condition[i], 'right');
-      if(length === 0) {
+      if(length === null) {
         return false;
       }
       index += length;
@@ -483,8 +489,12 @@ export class SCA {
     env: IRuleToken[] | undefined, exp: IRuleToken[] | undefined, start: number,
     checkLength: number
   ) {
+    const percentReplacement: IRuleToken = {
+      type: 'literal', char: this.#result.slice(start, start + checkLength)
+    };
+    const replacePercentSigns = (t: IRuleToken) => isPercentSign(t) ? percentReplacement : t;
     if(exp && exp.length > 0) {
-      const expConditions = splitTokens(exp, 'pipe');
+      const expConditions = splitTokens(exp.map(replacePercentSigns), 'pipe');
       const matchesExp = expConditions.some(condition => (
         this.#resultMatchesSingleLocalConditionAt(condition, start, checkLength)
       ));
@@ -495,7 +505,7 @@ export class SCA {
     if(!env || env.length === 0) {
       return (exp && exp.length === 0) ? 'exp' : 'env';
     }
-    const envConditions = splitTokens(env, 'pipe');
+    const envConditions = splitTokens(env.map(replacePercentSigns), 'pipe');
     const matchesEnv = envConditions.some(condition => (
       this.#resultMatchesSingleLocalConditionAt(condition, start, checkLength)
     ));
@@ -508,6 +518,11 @@ export class SCA {
   #resultMatchesGlobalEnvOrExp(
     env: IRuleToken[] | undefined, exp: IRuleToken[] | undefined
   ) {
+    if(env?.some(isUnderscore) || exp?.some(isUnderscore)) {
+      throw new SyntaxError("Underscore in global condition");
+    } else if(env?.some(isPercentSign) || exp?.some(isPercentSign)) {
+      throw new SyntaxError("Percent sign in global condition");
+    }
     if(exp && exp.length > 0) {
       const expConditions = splitTokens(exp, 'pipe');
       const matchesExp = expConditions.some(
@@ -531,16 +546,13 @@ export class SCA {
   }
 
   #resultMatchesSingleGlobalCondition(condition: IRuleToken[]) {
-    if(condition.some(isUnderscore)) {
-      throw new SyntaxError("Underscore in global condition");
-    }
     const hashtagIndex = condition.findIndex(isHashtag);
     if(hashtagIndex === -1) {
       // Word contains condition
       let matchIndex = 0;
       for(let i = 0; i < this.#result.length;) {
         const length = this.#getResultTokenMatchLength(i, condition[matchIndex], 'right');
-        if(length > 0) {
+        if(length !== null) {
           ++matchIndex;
           if(matchIndex === condition.length) {
             return true;
@@ -560,7 +572,7 @@ export class SCA {
       const prefix = condition.slice(1);
       for(let i = 0, index = 0; i < prefix.length; ++i) {
         const length = this.#getResultTokenMatchLength(index, prefix[i], 'right');
-        if(length === 0) {
+        if(length === null) {
           return false;
         }
         index += length;
@@ -569,7 +581,7 @@ export class SCA {
       const suffix = condition.slice(0, -1);
       for(let i = suffix.length - 1, index = this.#result.length - 1; i >= 0; --i) {
         const length = this.#getResultTokenMatchLength(index, suffix[i], 'left');
-        if(length === 0) {
+        if(length === null) {
           return false;
         }
         index -= length;
@@ -581,17 +593,15 @@ export class SCA {
   }
 }
 
-const scaCategories = [
-  { letter: "C", members: "bcdfghjklmnpqrstvwxz".split("") },
-  { letter: "V", members: "aeiouy".split("") },
-  { letter: "W", members: "ABCDEF".split("") },
-  { letter: "X", members: "123456".split("") },
-  { letter: "Y", members: ["a", "ab", "b"] }
-];
-
-const theSca = new SCA(scaCategories);
-
 function runTests() {
+  const theSca = new SCA([
+    { letter: "C", members: "bcdfghjklmnpqrstvwxz".split("") },
+    { letter: "V", members: "aeiouy".split("") },
+    { letter: "W", members: "ABCDEF".split("") },
+    { letter: "X", members: "123456".split("") },
+    { letter: "Y", members: ["a", "ab", "b"] }
+  ]);
+
   const tests = readFileSync("src/sca/sca-test.txt").toString().split("\n===\n").map(
     lines => lines.split("\n")
   );

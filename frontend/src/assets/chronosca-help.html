@@ -1,13 +1,13 @@
 <h3 id="csca-introduction">Introduction</h3>
 <p>
-  Sound change applicators work by applying a list of rules to a word. They can be used to
-  estimate pronunciation, derive grammatical forms, or simulate historical sound changes.
+  Sound change applicators work by applying a list of rules to a word. They can be used to estimate
+  pronunciation, derive grammatical forms, or simulate historical sound changes.
 </p>
 
 <h4 id="csca-rule-structure">Rule structure</h4>
 <p>
-  Rules are made up of up to five segments, separated by slashes. The general structure of
-  a rule is as follows:
+  Rules are made up of up to five segments, separated by slashes. The general structure of a rule is
+  as follows:
 </p>
 <p style="text-align: center">
   <code>target/change/environment/exception/else</code>
@@ -37,6 +37,10 @@
   All segments can be empty. An empty target means that the change or else should simply be inserted;
   an empty change or else means that the target will be deleted; and an empty environment or
   exception will be ignored.
+</p>
+<p>
+  Each rule should appear on a separate line. Lines without a slash are ignored, and can be used for
+  annotating long rulesets.
 </p>
 
 <h4 id="csca-categories">Categories</h4>
@@ -217,9 +221,24 @@
 <h3 id="csca-miscellaneous">Miscellaneous</h3>
 <h4 id="csca-special-characters">Special characters</h4>
 <p>
-  Uppercase letters and <code>/#_|,!</code> are considered special, meaning that they are treated
+  Uppercase letters and <code>/#_|%,!</code> are considered special, meaning that they are treated
   differently from regular text. They can be escaped (treated as normal text) by prepending an
   exclamation mark; for example, the rule <code>#/#!A</code> would append an uppercase <code>A</code>.
+</p>
+
+<h4 id="csca-referencing-target">Referencing the target</h4>
+<p>
+  In segments other than the target, the percent sign <code>%</code> refers to the text being
+  replaced.
+</p>
+<p>
+  For example, the rule <code>V/%%/_#</code> would duplicate word-final vowels, <code>#/%%</code>
+  would duplicate the word, and <code>V//%_</code> would delete vowels which occur after a copy of
+  themselves (so it would change <code>aabaaa</code> to <code>aba</code>, and leave <code>ae</code>
+  unchanged).
+</p>
+<p>
+  Percent signs cannot appear in conditions in global rules.
 </p>
 
 <h4 id="csca-temporary-categories">Temporary categories</h4>
