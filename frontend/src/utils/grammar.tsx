@@ -18,8 +18,10 @@ export function formatPeriodSeparatedGrammarForms(code: string, grammarForms: IG
     if(code === "Ø") {
       return period + code;
     }
-    const formName = grammarForms.find(form => form.code === code)?.name ?? "unknown";
-    const formNode = <abbr title={formName}>{code}</abbr>;
+    const form = grammarForms.find(form => form.code === code);
+    const formName = form?.name ?? "unknown";
+    const formStyle = form ? {} : { color: "red" };
+    const formNode = <abbr title={formName} style={formStyle}>{code}</abbr>;
     return <Fragment key={i}>{period}{formNode}</Fragment>
   });
 }
@@ -35,8 +37,10 @@ export function formatTextWithGrammarForms(text: string, grammarForms: IGrammarF
     if(code === "Ø") {
       result.push(before + code);
     } else {
-      const formName = grammarForms.find(form => form.code === code)?.name ?? "unknown";
-      const formNode = <abbr title={formName} key={match.index}>{code}</abbr>;
+      const form = grammarForms.find(form => form.code === code);
+      const formName = form?.name ?? "unknown";
+      const formStyle = form ? {} : { color: "red" };
+      const formNode = <abbr title={formName} style={formStyle} key={match.index}>{code}</abbr>;
       result.push(before);
       result.push(formNode);
     }
