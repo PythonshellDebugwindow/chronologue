@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router';
 
 import DisplayDate from '@/components/DisplayDate';
 import { GrammarTableLinks } from '@/components/GrammarTable';

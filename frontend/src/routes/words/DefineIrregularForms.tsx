@@ -1,5 +1,5 @@
 import { Dispatch, SetStateAction, useState } from 'react';
-import { useNavigate, useParams, useSearchParams, Link } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams, Link } from 'react-router';
 import { useQueryClient } from '@tanstack/react-query';
 
 import { CForm } from '@/components/CForm';

@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 
 import FamilyLink from '@/components/FamilyLink';
 import LanguageLink from '@/components/LanguageLink';

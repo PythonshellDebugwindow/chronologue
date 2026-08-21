@@ -1,7 +1,5 @@
 import { useContext, useEffect, useState } from 'react';
-import {
-  json, useActionData, useLocation, useNavigate, ActionFunctionArgs
-} from 'react-router-dom';
+import { ActionFunctionArgs, useActionData, useLocation, useNavigate } from 'react-router';
 
 import { CForm, CFormBody, CSelect, CTextInput } from '@/components/CForm';
 
@@ -16,15 +14,15 @@ export async function action({ request }: ActionFunctionArgs) {
   const formJson = await getFormJson(request);
 
   if(!formJson.name) {
-    return json({ message: "Please enter a language name" });
+    return { message: "Please enter a language name" };
   }
 
   const result = await sendBackendJson('languages', 'POST', formJson);
   if(!result.ok) {
-    return json({ message: result.body.message });
+    return { message: result.body.message };
   }
 
-  return json({ addedId: result.body, addedName: formJson.name });
+  return { addedId: result.body, addedName: formJson.name };
 }
 
 function LanguageSelect({ familyId }: { familyId: string }) {

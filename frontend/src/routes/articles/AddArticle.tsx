@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import CreatableSelect from 'react-select/creatable';
 
 import { CForm, CFormBody, CSelect, CTextInput } from '@/components/CForm';

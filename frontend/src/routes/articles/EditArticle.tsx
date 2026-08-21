@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate, useParams, Link } from 'react-router-dom';
+import { useNavigate, useParams, Link } from 'react-router';
 import CreatableSelect from 'react-select/creatable';
 import { useQueryClient } from '@tanstack/react-query';
 

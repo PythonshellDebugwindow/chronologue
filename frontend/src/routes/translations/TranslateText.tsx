@@ -1,5 +1,5 @@
 import { useContext, useState } from 'react';
-import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router';
 import { useQueryClient } from '@tanstack/react-query';
 
 import LinkButton from '@/components/LinkButton';

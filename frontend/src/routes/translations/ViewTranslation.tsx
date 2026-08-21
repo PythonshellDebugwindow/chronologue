@@ -1,5 +1,5 @@
 import { useContext } from 'react';
-import { Link, useParams, useSearchParams } from 'react-router-dom';
+import { Link, useParams, useSearchParams } from 'react-router';
 
 import DisplayDate from '@/components/DisplayDate';
 import InfoTable from '@/components/InfoTable';

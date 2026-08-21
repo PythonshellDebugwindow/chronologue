@@ -1,5 +1,5 @@
 import { useReducer, useState, Dispatch } from 'react';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 import ReactSelect from 'react-select';
 
 import { phoneToString, qualityData } from '@shared/phones';

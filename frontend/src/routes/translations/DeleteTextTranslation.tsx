@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useParams, useNavigate, useSearchParams, Link } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams, Link } from 'react-router';
 
 import { useLanguage } from '@/hooks/languages';
 import { useLanguageTranslation, useTranslation } from '@/hooks/translations';

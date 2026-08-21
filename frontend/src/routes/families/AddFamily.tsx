@@ -1,4 +1,4 @@
-import { json, redirect, useActionData, ActionFunctionArgs } from 'react-router-dom';
+import { ActionFunctionArgs, redirect, useActionData } from 'react-router';
 
 import { CForm, CFormBody, CMultilineTextInput, CTextInput } from '@/components/CForm';
 
@@ -9,7 +9,7 @@ export async function action({ request }: ActionFunctionArgs) {
   const formJson = await getFormJson(request);
 
   if(!formJson.name) {
-    return json({ message: "Please enter a language name" });
+    return { message: "Please enter a language name" };
   }
 
   const data = {
@@ -18,7 +18,7 @@ export async function action({ request }: ActionFunctionArgs) {
   };
   const result = await sendBackendJson('families', 'POST', data);
   if(!result.ok) {
-    return json({ message: result.body.message });
+    return { message: result.body.message };
   }
 
   return redirect('/family/' + result.body);

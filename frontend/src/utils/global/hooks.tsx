@@ -1,5 +1,5 @@
 import { useContext, useEffect } from 'react';
-import { useBeforeUnload, useBlocker, useParams } from 'react-router-dom';
+import { useBeforeUnload, useBlocker, useParams } from 'react-router';
 
 import SelectedLanguageContext from '@/contexts/SelectedLanguageContext';
 

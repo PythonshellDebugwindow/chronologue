@@ -1,5 +1,5 @@
 import { ReactNode, useContext, useState } from 'react';
-import { Link, Outlet } from 'react-router-dom';
+import { Link, Outlet } from 'react-router';
 
 import SelectedLanguageContext from '@/contexts/SelectedLanguageContext';
 

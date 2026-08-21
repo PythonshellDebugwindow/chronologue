@@ -1,4 +1,4 @@
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router';
 
 import DisplayDate from '@/components/DisplayDate';
 import InfoTable from '@/components/InfoTable';

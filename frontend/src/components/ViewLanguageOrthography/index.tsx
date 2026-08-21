@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 
 import { UserNotesParagraph } from '../Paragraphs';
 import { GraphTableCell, PhoneTable } from '../PhoneTable';

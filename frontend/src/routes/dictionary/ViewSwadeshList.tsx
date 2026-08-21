@@ -1,5 +1,5 @@
 import { Fragment, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 
 import { DictionaryTable } from '@/components/Dictionary';
 import { InfoParagraph } from '@/components/Paragraphs';

@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router';
 
 import DOMPurify from 'dompurify';
 import parse, { domToReact, Element, HTMLReactParserOptions } from 'html-react-parser';

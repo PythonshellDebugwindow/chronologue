@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 
 import { CCheckbox } from '@/components/CForm';
 import DistributionTable from '@/components/DistributionTable';
