@@ -101,13 +101,13 @@ export const editGrammarTable: RequestHandler = async (req, res) => {
 
   const tableId = req.params.id;
   const cells = (req.body.cells as any[][]).flatMap((row, i) => (
-    row.flatMap((cell, j) => (cell.rules || cell.stemId) ? [{
+    row.map((cell, j) => ({
       table_id: tableId,
       row_index: i,
       column_index: j,
       rules: cell.rules,
       stem_id: cell.stemId
-    }] : [])
+    }))
   ));
   const cellPosRows = cells.map(cell => cell.row_index);
   const cellPosColumns = cells.map(cell => cell.column_index);
@@ -255,8 +255,7 @@ export const getGrammarTableFilledCells: RequestHandler = async (req, res) => {
 
   const value = await query(
     `
-      SELECT
-        row_index AS "row", column_index AS "column", rules, stem_id AS "stemId"
+      SELECT row_index AS "row", column_index AS "column", rules, stem_id AS "stemId"
       FROM grammar_table_cells
       WHERE table_id = $1
     `,

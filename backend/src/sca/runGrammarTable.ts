@@ -109,24 +109,20 @@ export default async function runGrammarTableRules(
   }
 
   for(const cell of filledCellsResult.rows) {
-    if(result[cell.row][cell.column]) {
+    if(result[cell.row][cell.column] || cell.rules === "!!!") {
       continue;
     }
 
     if(cell.stemId) {
       const stemRules = langStemRules.get(cell.stemId);
       if(stemRules === undefined) {
-        result[cell.row][cell.column] = {
-          success: false as const, message: "Invalid stem ID"
-        };
+        result[cell.row][cell.column] = { success: false, message: "Invalid stem ID" };
         continue;
       }
 
       const irregularStem = irregularStems.get(cell.stemId);
       if(irregularStem !== undefined) {
-        result[cell.row][cell.column] = {
-          success: true as const, result: irregularStem
-        };
+        result[cell.row][cell.column] = { success: true, result: irregularStem };
       } else {
         const setRulesResult = tableSCA.setRules(stemRules);
         if(!setRulesResult.success) {

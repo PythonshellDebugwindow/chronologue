@@ -192,14 +192,12 @@ function EditGrammarTableInner({
           Copy table:{" "}
           <select value={tableIdToCopy} onChange={e => setTableIdToCopy(e.target.value)}>
             <option value="">---</option>
-            {
-              langTables.map(langTable => langTable.id !== table.id && (
-                <option value={langTable.id} key={langTable.id}>
-                  {langTable.name && (langTable.name + " ")}
-                  [{formatPosFieldValue(langTable.pos, partsOfSpeech)}]
-                </option>
-              ))
-            }
+            {langTables.map(langTable => langTable.id !== table.id && (
+              <option value={langTable.id} key={langTable.id}>
+                {langTable.name && (langTable.name + " ")}
+                [{formatPosFieldValue(langTable.pos, partsOfSpeech)}]
+              </option>
+            ))}
           </select>
         </label>
         {" "}
@@ -240,8 +238,8 @@ function EditGrammarTableInner({
       </CForm>
       <InfoParagraph>
         Rules in the below table are run through <Link to="/chronosca">ChronoSCA</Link>.
-        Post rules are run on the result of each table cell after initial inflection.
-        Empty table cells are treated as invalid forms.
+        Post rules are then run on the results in each table cell. Cells filled with{" "}
+        <code>!!!</code> are treated as invalid form combinations.
       </InfoParagraph>
       <EditableGrammarTable
         langId={table.langId}

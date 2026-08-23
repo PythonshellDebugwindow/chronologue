@@ -58,7 +58,7 @@ function GrammarTableDisplay({ table, filledCells, grammarForms }: IGrammarTable
         <tr key={i}>
           <th>{formatPeriodSeparatedGrammarForms(row, grammarForms)}</th>
           {table.columns.map((_, j) => (
-            filledCells.some(c => i === c.row && j === c.column)
+            filledCells.some(c => c.row === i && c.column === j && c.rules !== "!!!")
               ? <td key={j}>&nbsp;</td>
               : <EmptyGrammarTableCell key={j} />
           ))}
