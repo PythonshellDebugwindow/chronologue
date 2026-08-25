@@ -4,9 +4,9 @@ import { ITitledError } from '@/types/titledError';
 import {
   IDerivationRuleset,
   IDerivationRulesetOverview,
+  IDictionaryWord,
   IIdenticalWordOverview,
   ILanguageSwadeshListEntry,
-  ILanguageWordWithClasses,
   ILetterCount,
   IPartOfSpeech,
   IPOSCount,
@@ -124,17 +124,12 @@ export function useLanguageWordSynonyms(word: IWord) {
   });
 }
 
-export function useLanguageWords(id: string) {
-  return useQuery<IWord[], ITitledError>({
-    queryKey: ['languages', id, 'words'],
-    queryFn: async () => parseRecordDates(await getBackendJson(`languages/${id}/words`))
-  });
-}
-
-export function useLanguageWordsWithClassIds(id: string) {
-  return useQuery<ILanguageWordWithClasses[], ITitledError>({
-    queryKey: ['languages', id, 'words-with-classes'],
-    queryFn: async () => parseRecordDates(await getBackendJson(`languages/${id}/words-with-classes`))
+export function useLanguageWords(id: string, classSeparator: string = ", ") {
+  return useQuery<IDictionaryWord[], ITitledError>({
+    queryKey: ['languages', id, 'words', classSeparator],
+    queryFn: async () => parseRecordDates(await getBackendJson(
+      `languages/${id}/words?classSeparator=${encodeURIComponent(classSeparator)}`
+    ))
   });
 }
 

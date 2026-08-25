@@ -412,23 +412,8 @@ export const getLanguageWords: RequestHandler = async (req, res) => {
     res.status(400).json({ title: "Invalid ID", message: "The given language ID is not valid." });
     return;
   }
-
-  const value = await query(
-    `
-      SELECT
-        translate(id::text, '-', '') AS id,
-        word, ipa, meaning, pos, etymology, notes, created, updated
-      FROM words
-      WHERE lang_id = $1
-    `,
-    [req.params.id]
-  );
-  res.json(value.rows);
-}
-
-export const getLanguageWordsWithClasses: RequestHandler = async (req, res) => {
-  if(!isValidUUID(req.params.id)) {
-    res.status(400).json({ title: "Invalid ID", message: "The given language ID is not valid." });
+  if(!req.query.classSeparator) {
+    res.status(400).json({ message: "Please provide all required fields." });
     return;
   }
 
@@ -437,16 +422,14 @@ export const getLanguageWordsWithClasses: RequestHandler = async (req, res) => {
       SELECT
         translate(w.id::text, '-', '') AS id,
         w.word, w.ipa, w.meaning, w.pos, w.etymology, w.notes, w.created, w.updated,
-        coalesce(
-          array_agg(wc.code ORDER BY wc.code) FILTER (WHERE wc.code IS NOT NULL), '{}'
-        ) AS classes
+        coalesce(string_agg(wc.code, $2 ORDER BY wc.code), '') AS classes
       FROM words AS w
       LEFT JOIN word_classes_by_word AS bw ON bw.word_id = w.id
       LEFT JOIN word_classes AS wc ON wc.id = bw.class_id
       WHERE w.lang_id = $1
       GROUP BY w.id
     `,
-    [req.params.id]
+    [req.params.id, req.query.classSeparator]
   );
   res.json(value.rows);
 }

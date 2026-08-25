@@ -7,8 +7,8 @@ import {
   DictionaryFilterType,
   IDictionaryField,
   IDictionaryFilter,
-  IPartOfSpeech,
-  IWord
+  IDictionaryWord,
+  IPartOfSpeech
 } from '@/types/words';
 
 import {
@@ -23,7 +23,7 @@ import styles from './Dictionary.module.css';
 interface IDictionaryFilterSelect {
   filter: IDictionaryFilter;
   setFilter: Dispatch<SetStateAction<IDictionaryFilter>>;
-  fields: (keyof IWord)[];
+  fields: (keyof IDictionaryWord)[];
   disabled?: boolean;
 }
 
@@ -37,7 +37,7 @@ export function DictionaryFilterSelect(
         <select
           value={filter.sortField}
           onChange={e => {
-            setFilter({ ...filter, sortField: e.target.value as keyof IWord });
+            setFilter({ ...filter, sortField: e.target.value as keyof IDictionaryWord });
           }}
           disabled={disabled}
         >
@@ -138,7 +138,7 @@ interface IDictionaryRow<WordT> {
   showLinkColumn?: boolean;
 }
 
-export function DictionaryRow<WordT extends Partial<IWord>>(
+export function DictionaryRow<WordT extends Partial<IDictionaryWord>>(
   { word, fields, language, partsOfSpeech, showLinkColumn = true }: IDictionaryRow<WordT>
 ) {
   function formatValue(field: keyof WordT) {
@@ -150,9 +150,7 @@ export function DictionaryRow<WordT extends Partial<IWord>>(
       case 'etymology':
         return formatWordEtymology(word.etymology!);
       default:
-        return word[field] && formatDictionaryFieldValue(
-          word as IWord, field as keyof IWord
-        );
+        return word[field] && formatDictionaryFieldValue(word, field);
     }
   }
 

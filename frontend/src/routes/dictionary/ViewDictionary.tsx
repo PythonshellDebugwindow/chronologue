@@ -18,8 +18,8 @@ import { IDictionarySettings, ILanguage } from '@/types/languages';
 import {
   IDictionaryField,
   IDictionaryFilter,
-  IPartOfSpeech,
-  IWord
+  IDictionaryWord,
+  IPartOfSpeech
 } from '@/types/words';
 
 import { useGetParamsOrSelectedId, useSetPageTitle } from '@/utils/global/hooks';
@@ -27,24 +27,25 @@ import { renderDatalessQueryResult } from '@/utils/global/queries';
 
 import { sortAndFilterWords, userFacingFieldName } from '@/utils/words';
 
-function getAllFields(dictSettings: IDictionarySettings) {
-  const all = ['meaning', 'ipa', 'pos', 'etymology', 'notes', 'created', 'updated'];
+function getAllFields(dictSettings: IDictionarySettings, words: IDictionaryWord[]) {
+  const all: (keyof IDictionaryWord)[] = [
+    'meaning', 'ipa', 'pos', 'classes', 'etymology', 'notes', 'created', 'updated'
+  ];
   if(!dictSettings.showWordIpa) {
     all.splice(all.indexOf('ipa'), 1);
   }
-  const fields: IDictionaryField[] = [];
-  for(const field of all) {
-    fields.push({
-      name: field as keyof IWord,
-      isDisplaying: field === 'meaning' || field === 'pos'
-    });
+  if(!words.some(word => word.classes.length > 0)) {
+    all.splice(all.indexOf('classes'), 1);
   }
-  return fields;
+  return all.map(field => ({
+    name: field,
+    isDisplaying: field === 'meaning' || field === 'pos'
+  }));
 }
 
 interface IViewDictionaryInner {
   language: ILanguage;
-  words: IWord[];
+  words: IDictionaryWord[];
   dictSettings: IDictionarySettings;
   partsOfSpeech: IPartOfSpeech[];
 }
@@ -52,7 +53,7 @@ interface IViewDictionaryInner {
 function ViewDictionaryInner({ language, words, dictSettings, partsOfSpeech }: IViewDictionaryInner) {
   const { selectedLanguage } = useContext(SelectedLanguageContext);
 
-  const [fields, setFields] = useState<IDictionaryField[]>(getAllFields(dictSettings));
+  const [fields, setFields] = useState(getAllFields(dictSettings, words));
 
   const [filter, setFilter] = useState<IDictionaryFilter>({
     field: 'meaning', type: 'begins', value: "", matchCase: false,

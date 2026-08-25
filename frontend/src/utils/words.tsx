@@ -1,17 +1,25 @@
 import DisplayDate from '@/components/DisplayDate';
 
-import { IDictionaryFilter, IPartOfSpeech, IWord, IWordClassNoPOS } from '@/types/words';
+import {
+  IDictionaryFilter,
+  IDictionaryWord,
+  IPartOfSpeech,
+  IWord,
+  IWordClassNoPOS
+} from '@/types/words';
 
 import { parseAtSignLinkMarkup } from './global/markup';
 
-export function formatDictionaryFieldValue(word: IWord, field: keyof IWord) {
+export function formatDictionaryFieldValue<WordT extends Partial<IDictionaryWord>>(
+  word: WordT, field: keyof WordT
+) {
   const value = word[field];
   if(field === 'ipa') {
     return "[" + value + "]";
   } else if(value instanceof Date) {
     return <DisplayDate date={value} />;
   } else {
-    return value;
+    return value as string;
   }
 }
 
@@ -45,8 +53,8 @@ export function formatWordEtymology(etymology: string) {
 export function userFacingFieldName(field: string) {
   if(field === 'pos') {
     return <abbr title="part of speech">POS</abbr>;
-  } else if(field === 'ipa') {
-    return "IPA";
+  } else if(field === 'ipa' || field === 'id') {
+    return field.toUpperCase();
   } else {
     return field[0].toUpperCase() + field.substring(1);
   }
@@ -92,7 +100,9 @@ function filterWords<WordT extends Partial<IWord>>(words: WordT[], filter: IDict
   });
 }
 
-function sortWords<WordT extends Partial<IWord>>(words: WordT[], filter: IDictionaryFilter) {
+function sortWords<WordT extends Partial<IDictionaryWord>>(
+  words: WordT[], filter: IDictionaryFilter
+) {
   const collator = new Intl.Collator();
 
   words.sort((a, b) => {

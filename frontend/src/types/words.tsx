@@ -27,20 +27,24 @@ export interface IWordClass {
 
 export type IWordClassNoPOS = Omit<IWordClass, 'pos'>;
 
-export type DictionaryFilterField = Omit<keyof IWord, 'langId' | 'created' | 'updated'> | '';
+export type IDictionaryWord = Omit<IWord, 'langId'> & {
+  classes: string;
+};
+
+export type DictionaryFilterField = Exclude<keyof IDictionaryWord, 'created' | 'updated'> | '';
 export type DictionaryFilterType = 'begins' | 'contains' | 'ends' | 'exact' | 'regexp';
 
-export interface IDictionaryFilter<WordT extends Partial<IWord> = IWord> {
+export interface IDictionaryFilter {
   field: DictionaryFilterField;
   type: DictionaryFilterType;
   value: string;
   matchCase: boolean;
-  sortField: keyof WordT;
+  sortField: keyof IDictionaryWord;
   sortDir: 'asc' | 'desc';
 }
 
 export interface IDictionaryField {
-  name: keyof IWord;
+  name: keyof IDictionaryWord;
   isDisplaying: boolean;
 }
 
@@ -115,10 +119,6 @@ export interface IWordDescendantOverview {
   parentId: string;
   isBorrowed: boolean;
 }
-
-export type ILanguageWordWithClasses = Omit<IWord, 'langId'> & {
-  classes: string[];
-};
 
 export interface IPOSCount {
   code: string;

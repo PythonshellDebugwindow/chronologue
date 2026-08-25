@@ -8,17 +8,17 @@ import { CForm, CFormBody, CSelect, CTextInput } from '@/components/CForm';
 import { DictionaryFilterSelect } from '@/components/Dictionary';
 
 import { useLanguage } from '@/hooks/languages';
-import { useLanguageWordsWithClassIds } from '@/hooks/words';
+import { useLanguageWords } from '@/hooks/words';
 
 import { ILanguage } from '@/types/languages';
-import { IDictionaryFilter, ILanguageWordWithClasses, IWord } from '@/types/words';
+import { IDictionaryFilter, IDictionaryWord } from '@/types/words';
 
 import { useGetParamsOrSelectedId, useSetPageTitle } from '@/utils/global/hooks';
 import { renderDatalessQueryResult } from '@/utils/global/queries';
 
 import { sortAndFilterWords } from '@/utils/words';
 
-type ExportField = keyof Omit<IWord, 'langId'> | 'classes';
+type ExportField = keyof IDictionaryWord;
 
 interface IExportOptions {
   fields: ExportField[];
@@ -28,7 +28,7 @@ interface IExportOptions {
   filter: IDictionaryFilter;
 }
 
-function handleExport(words: ILanguageWordWithClasses[], options: IExportOptions) {
+function handleExport(words: IDictionaryWord[], options: IExportOptions) {
   const wordsToExport = sortAndFilterWords(words, options.filter);
   const csvContents = Papa.unparse({
     fields: options.fields,
@@ -55,7 +55,7 @@ interface IRunWordExport {
 function RunWordExport({ options, language }: IRunWordExport) {
   const [hasExported, setHasExported] = useState(false);
 
-  const wordsResponse = useLanguageWordsWithClassIds(language.id);
+  const wordsResponse = useLanguageWords(language.id, ",");
 
   useEffect(() => {
     if(!hasExported && wordsResponse.status === 'success') {
@@ -82,13 +82,9 @@ function ExportWordsInner({ language }: { language: ILanguage }) {
     'word', 'ipa', 'meaning', 'pos', 'classes',
     'etymology', 'notes', 'id', 'created', 'updated'
   ];
-  const dictionaryFilterFields = possibleCsvFields.filter(
-    field => field !== 'word' && field !== 'classes'
-  );
+  const dictionaryFilterFields = possibleCsvFields.filter(field => field !== 'word');
 
-  const [csvFields, setCSVFields] = useState<(ExportField | "")[]>(
-    possibleCsvFields
-  );
+  const [csvFields, setCSVFields] = useState<(ExportField | "")[]>(possibleCsvFields);
   const [delimiter, setDelimiter] = useState(",");
   const [quoting, setQuoting] = useState('"');
   const [includeHeader, setIncludeHeader] = useState(true);
@@ -114,9 +110,7 @@ function ExportWordsInner({ language }: { language: ILanguage }) {
     }
 
     setExportedCsvFields(usedCsvFields as ExportField[]);
-    queryClient.resetQueries({
-      queryKey: ['languages', language.id, 'words-with-classes']
-    });
+    queryClient.resetQueries({ queryKey: ['languages', language.id, 'words'] });
   }
 
   return (

@@ -19,8 +19,8 @@ import { ApplySCARulesQueryResult } from '@/types/phones';
 import {
   IDictionaryField,
   IDictionaryFilter,
-  IPartOfSpeech,
-  IWord
+  IDictionaryWord,
+  IPartOfSpeech
 } from '@/types/words';
 
 import {
@@ -49,14 +49,19 @@ async function sendPerformMassEditRequest(
   return res.body;
 }
 
-function getAllFields(dictSettings: IDictionarySettings) {
-  const all = ['word', 'meaning', 'ipa', 'pos', 'etymology', 'notes', 'created', 'updated'];
+function getAllFields(dictSettings: IDictionarySettings, words: IDictionaryWord[]) {
+  const all: (keyof IDictionaryWord)[] = [
+    'word', 'meaning', 'ipa', 'pos', 'classes', 'etymology', 'notes', 'created', 'updated'
+  ];
   if(!dictSettings.showWordIpa) {
     all.splice(all.indexOf('ipa'), 1);
   }
+  if(!words.some(word => word.classes.length > 0)) {
+    all.splice(all.indexOf('classes'), 1);
+  }
   const displaying = ['word', 'meaning', 'pos'];
   return all.map(field => ({
-    name: field as keyof IWord,
+    name: field,
     isDisplaying: displaying.includes(field)
   }));
 }
@@ -64,8 +69,8 @@ function getAllFields(dictSettings: IDictionarySettings) {
 type IEditField = 'word' | 'ipa';
 
 interface IMassEditDictionaryRow {
-  word: IWord;
-  fields: (keyof IWord)[];
+  word: IDictionaryWord;
+  fields: (keyof IDictionaryWord)[];
   editField: IEditField;
   result: ApplySCARulesQueryResult;
   language: ILanguage;
@@ -75,7 +80,7 @@ interface IMassEditDictionaryRow {
 function PreviewChangesRow(
   { word, fields, editField, result, language, partsOfSpeech }: IMassEditDictionaryRow
 ) {
-  function formatValue(field: keyof IWord) {
+  function formatValue(field: keyof IDictionaryWord) {
     switch(field) {
       case 'word':
         return (
@@ -115,7 +120,7 @@ function PreviewChangesRow(
 
 interface ISCAResultsPreview {
   language: ILanguage;
-  words: IWord[];
+  words: IDictionaryWord[];
   editField: IEditField;
   rules: string;
   dictSettings: IDictionarySettings;
@@ -126,8 +131,7 @@ interface ISCAResultsPreview {
 function SCAResultsPreview(
   { language, words, editField, rules, dictSettings, partsOfSpeech, setIsPreviewing }: ISCAResultsPreview
 ) {
-  const allFields = getAllFields(dictSettings);
-  const [fields, setFields] = useState<IDictionaryField[]>(allFields);
+  const [fields, setFields] = useState(getAllFields(dictSettings, words));
 
   const displayedFieldNames = fields.flatMap(f => f.isDisplaying ? [f.name] : []);
 
@@ -254,34 +258,6 @@ function SCAResultsPreview(
   );
 }
 
-type ISCAResultsPreviewGetWords = Omit<ISCAResultsPreview, 'words'> & {
-  filter: IDictionaryFilter;
-};
-
-function SCAResultsPreviewGetWords({
-  language, filter, editField, rules, dictSettings, partsOfSpeech, setIsPreviewing
-}: ISCAResultsPreviewGetWords) {
-  const dictResponse = useLanguageWords(language.id);
-
-  if(dictResponse.status === 'pending') {
-    return <p>Loading...</p>;
-  } else if(dictResponse.status === 'error') {
-    return <p>Error: {dictResponse.error.message}</p>;
-  }
-
-  return (
-    <SCAResultsPreview
-      language={language}
-      words={sortAndFilterWords(dictResponse.data, filter)}
-      editField={editField}
-      rules={rules}
-      dictSettings={dictSettings}
-      partsOfSpeech={partsOfSpeech}
-      setIsPreviewing={setIsPreviewing}
-    />
-  );
-}
-
 interface IRunDictionarySCAInner {
   language: ILanguage;
   dictSettings: IDictionarySettings;
@@ -306,7 +282,15 @@ function RunDictionarySCAInner(
   const [previewFilter, setPreviewFilter] = useState<IDictionaryFilter | null>(null);
   const [previewField, setPreviewField] = useState<IEditField | null>(null);
 
-  const filterFieldNames = getAllFields(dictSettings).flatMap(f => (
+  const dictResponse = useLanguageWords(language.id);
+
+  if(dictResponse.status !== 'success') {
+    return renderDatalessQueryResult(dictResponse);
+  }
+
+  const words = dictResponse.data;
+
+  const filterFieldNames = getAllFields(dictSettings, words).flatMap(f => (
     f.name === 'word' ? [] : [f.name]
   ));
   const editFieldNames = dictSettings.showWordIpa ? ['word', 'ipa'] : ['word'];
@@ -343,7 +327,7 @@ function RunDictionarySCAInner(
       <p>
         Edit field:{" "}
         <select
-          value={editField as string}
+          value={editField}
           onChange={e => setEditField(e.target.value as IEditField)}
           disabled={isPreviewing}
         >
@@ -369,9 +353,9 @@ function RunDictionarySCAInner(
           : <button onClick={previewChanges}>Preview changes</button>
       }
       {previewFilter && previewField && (
-        <SCAResultsPreviewGetWords
+        <SCAResultsPreview
           language={language}
-          filter={previewFilter}
+          words={sortAndFilterWords(words, previewFilter)}
           editField={previewField}
           rules={rules}
           dictSettings={dictSettings}

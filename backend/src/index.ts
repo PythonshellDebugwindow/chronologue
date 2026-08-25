@@ -112,7 +112,6 @@ app.get('/languages/:id/word-count', dictionary.getLanguageWordCount);
 app.get('/languages/:id/word-stems', grammar.getLanguageWordStems);
 app.put('/languages/:id/word-stems', grammar.updateLanguageWordStems);
 app.get('/languages/:id/words', dictionary.getLanguageWords);
-app.get('/languages/:id/words-with-classes', dictionary.getLanguageWordsWithClasses);
 
 app.get('/parts-of-speech', dictionary.getPartsOfSpeech);
 
