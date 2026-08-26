@@ -150,12 +150,16 @@ export const getLanguageFirstWordDerivation: RequestHandler = async (req, res) =
           translate(id::text, '-', '') AS "originalId",
           word, ipa, meaning, pos, notes,
           translate(lang_id::text, '-', '') AS "langId"
-        FROM words
-        WHERE lang_id = $1
+        FROM words AS w
+        WHERE lang_id = $1 AND NOT EXISTS (
+          SELECT 1 FROM word_derivations AS wd
+          JOIN words AS c ON c.id = wd.child_id
+          WHERE wd.parent_id = w.id AND c.lang_id = $2 AND NOT is_borrowing
+        )
         ORDER BY created, id
         LIMIT 1
       `,
-      [req.params.id]
+      [req.params.id, req.params.destId]
     );
     if(firstWordResponse.rows.length !== 1) {
       res.json(null);
@@ -265,12 +269,16 @@ export const getLanguageNextWordDerivation: RequestHandler = async (req, res) =>
           translate(id::text, '-', '') AS "originalId",
           word, ipa, meaning, pos, notes,
           translate(lang_id::text, '-', '') AS "langId"
-        FROM words
-        WHERE lang_id = $1 AND (created, id) > ($2, $3)
+        FROM words AS w
+        WHERE lang_id = $1 AND (created, id) > ($2, $3) AND NOT EXISTS (
+          SELECT 1 FROM word_derivations AS wd
+          JOIN words AS c ON c.id = wd.child_id
+          WHERE wd.parent_id = w.id AND c.lang_id = $4 AND NOT is_borrowing
+        )
         ORDER BY created, id
         LIMIT 1
       `,
-      [givenWord.lang_id, givenWord.created, givenWord.id]
+      [givenWord.lang_id, givenWord.created, givenWord.id, req.params.destId]
     );
     if(nextWordResponse.rows.length !== 1) {
       res.json(null);
