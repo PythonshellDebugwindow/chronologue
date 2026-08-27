@@ -30,9 +30,7 @@ import ViewLetterDistribution from './dictionary/ViewLetterDistribution';
 import ViewPOSDistribution from './dictionary/ViewPOSDistribution';
 import ViewSwadeshList from './dictionary/ViewSwadeshList';
 
-import AddFamily, {
-  action as addFamilyAction
-} from './families/AddFamily';
+import AddFamily from './families/AddFamily';
 import DeleteFamily from './families/DeleteFamily';
 import EditFamily from './families/EditFamily';
 import ViewFamily from './families/ViewFamily';
@@ -45,9 +43,7 @@ import EditStems from './grammar/EditStems';
 import ViewGrammarTable from './grammar/ViewGrammarTable';
 import ViewGrammarTables from './grammar/ViewGrammarTables';
 
-import AddLanguage, {
-  action as addLanguageAction
-} from './languages/AddLanguage';
+import AddLanguage from './languages/AddLanguage';
 import DeleteLanguage from './languages/DeleteLanguage';
 import EditLanguage from './languages/EditLanguage';
 import EditSummaryNotes from './languages/EditSummaryNotes';
@@ -90,8 +86,7 @@ export const appRouter = createBrowserRouter([
       },
       {
         path: "add-family",
-        element: <AddFamily />,
-        action: addFamilyAction
+        element: <AddFamily />
       },
       {
         path: "add-grammar-table/:id?",
@@ -99,8 +94,7 @@ export const appRouter = createBrowserRouter([
       },
       {
         path: "add-language",
-        element: <AddLanguage />,
-        action: addLanguageAction
+        element: <AddLanguage />
       },
       {
         path: "add-translation",

@@ -7,13 +7,9 @@ import { useEstimateWordIPAQuery } from '@/hooks/phones';
 
 import styles from './CForm.module.css';
 
-export function CForm({ action, children }: { action?: string, children: ReactNode }) {
+export function CForm({ children }: { children: ReactNode }) {
   return (
-    <Form
-      method={action ? "post" : undefined}
-      action={action}
-      className={styles.cform}
-    >
+    <Form className={styles.cform}>
       {children}
     </Form>
   );
@@ -122,8 +118,8 @@ export function CIpaTextInput({ languageId, ipa, setIpa, word }: IIpaTextInput) 
 interface ITextInput {
   label: ReactNode;
   name: string;
-  state?: string;
-  setState?: Dispatch<SetStateAction<string>>;
+  state: string;
+  setState: Dispatch<SetStateAction<string>>;
   width?: string;
   height?: string;
 }
@@ -144,7 +140,7 @@ export function CMultilineTextInput({ label, name, state, setState, height }: IT
           name={name}
           id={"cmti-" + name}
           value={state}
-          onChange={setState && (e => setState(e.target.value))}
+          onChange={e => setState(e.target.value)}
           style={height ? { height } : undefined}
         />
       </td>
@@ -194,7 +190,7 @@ export function CTextInput({ label, name, state, setState, width }: ITextInput) 
           name={name}
           id={"cti-" + name}
           value={state}
-          onChange={setState && (e => setState(e.target.value))}
+          onChange={e => setState(e.target.value)}
           style={width ? { width } : undefined}
         />
       </td>

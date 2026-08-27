@@ -1,5 +1,5 @@
-import { useContext, useEffect, useState } from 'react';
-import { ActionFunctionArgs, useActionData, useLocation, useNavigate } from 'react-router';
+import { Dispatch, SetStateAction, useContext, useEffect, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router';
 
 import { CForm, CFormBody, CSelect, CTextInput } from '@/components/CForm';
 
@@ -8,25 +8,23 @@ import SelectedLanguageContext from '@/contexts/SelectedLanguageContext';
 import { useFamilies, useFamilyMembers } from '@/hooks/families';
 
 import { useSetPageTitle } from '@/utils/global/hooks';
-import { getFormJson, sendBackendJson } from '@/utils/global/queries';
+import { sendBackendJson } from '@/utils/global/queries';
 
-export async function action({ request }: ActionFunctionArgs) {
-  const formJson = await getFormJson(request);
-
-  if(!formJson.name) {
-    return { message: "Please enter a language name" };
-  }
-
-  const result = await sendBackendJson('languages', 'POST', formJson);
-  if(!result.ok) {
-    return { message: result.body.message };
-  }
-
-  return { addedId: result.body, addedName: formJson.name };
+interface IParentSelect {
+  familyId: string;
+  parentId: string;
+  setParentId: Dispatch<SetStateAction<string>>;
 }
 
-function LanguageSelect({ familyId }: { familyId: string }) {
+function ParentSelect({ familyId, parentId, setParentId }: IParentSelect) {
   const { isPending, error, data: languages } = useFamilyMembers(familyId);
+
+  useEffect(() => {
+    if(languages && languages.length > 0 && !parentId) {
+      setParentId(languages[0].id);
+    }
+  }, [languages, parentId, setParentId])
+
   if(isPending) {
     return (
       <tr>
@@ -44,7 +42,12 @@ function LanguageSelect({ familyId }: { familyId: string }) {
   }
 
   return (
-    <CSelect label="Parent" name="parentId">
+    <CSelect
+      label="Parent"
+      name="parentId"
+      state={parentId}
+      setState={setParentId}
+    >
       {
         languages.length > 0
           ? languages.map(language => (
@@ -56,9 +59,11 @@ function LanguageSelect({ familyId }: { familyId: string }) {
   );
 }
 
-function ParentSelect() {
-  const [familyId, setFamilyId] = useState("");
+type IFamilySelect = IParentSelect & {
+  setFamilyId: Dispatch<SetStateAction<string>>;
+};
 
+function FamilySelect({ familyId, setFamilyId, parentId, setParentId }: IFamilySelect) {
   const { isPending, error, data: families } = useFamilies();
   if(isPending) {
     return <tr><td>Family:</td><td>Loading...</td></tr>;
@@ -76,33 +81,53 @@ function ParentSelect() {
       >
         <option value="">None</option>
         {families.map(family => (
-          <option
-            value={family.id}
-            key={family.id}
-          >
+          <option value={family.id} key={family.id}>
             {family.name}
           </option>
         ))}
       </CSelect>
-      {familyId && <LanguageSelect familyId={familyId} />}
+      {familyId && (
+        <ParentSelect
+          familyId={familyId}
+          parentId={parentId}
+          setParentId={setParentId}
+        />
+      )}
     </>
   );
 }
 
 export default function AddLanguage() {
-  const actionData: any = useActionData();
   const location = useLocation();
   const navigate = useNavigate();
   const { setSelectedLanguage } = useContext(SelectedLanguageContext);
 
-  useEffect(() => {
-    if(actionData?.addedId) {
-      setSelectedLanguage({ id: actionData.addedId, name: actionData.addedName });
-      navigate('/language/' + actionData.addedId);
-    }
-  }, [actionData, navigate, setSelectedLanguage]);
+  const [name, setName] = useState("");
+  const [autonym, setAutonym] = useState("");
+  const [familyId, setFamilyId] = useState("");
+  const [parentId, setParentId] = useState("");
+  const [status, setStatus] = useState("living");
+  const [era, setEra] = useState("");
+  const [message, setMessage] = useState("");
 
   useSetPageTitle("Add Language");
+
+  async function addFormLanguage() {
+    if(!name) {
+      setMessage("Please enter a language name.");
+      return;
+    }
+
+    const data = { name, autonym, familyId, parentId, status, era };
+    const result = await sendBackendJson('languages', 'POST', data);
+    if(!result.ok) {
+      setMessage(result.body.message);
+      return;
+    }
+
+    setSelectedLanguage({ id: result.body, name });
+    navigate('/language/' + result.body);
+  }
 
   return (
     <>
@@ -111,21 +136,32 @@ export default function AddLanguage() {
       {location.state?.mustBefore && (
         <p><b>You need to add a language before {location.state.mustBefore}.</b></p>
       )}
-      {actionData?.message && <p><b>{actionData.message}</b></p>}
-      <CForm action="/add-language">
+      {message && <p><b>{message}</b></p>}
+      <CForm>
         <CFormBody>
           <CTextInput
             label="Name"
             name="name"
+            state={name}
+            setState={setName}
           />
           <CTextInput
             label="Autonym"
             name="autonym"
+            state={autonym}
+            setState={setAutonym}
           />
-          <ParentSelect />
+          <FamilySelect
+            familyId={familyId}
+            setFamilyId={setFamilyId}
+            parentId={parentId}
+            setParentId={setParentId}
+          />
           <CSelect
             label="Status"
             name="status"
+            state={status}
+            setState={setStatus}
           >
             <option value="living">Living</option>
             <option value="dead">Dead</option>
@@ -134,9 +170,13 @@ export default function AddLanguage() {
           <CTextInput
             label="Era"
             name="era"
+            state={era}
+            setState={setEra}
           />
         </CFormBody>
-        <button type="submit">Add Language</button>
+        <button type="button" onClick={addFormLanguage}>
+          Add Language
+        </button>
       </CForm>
     </>
   );

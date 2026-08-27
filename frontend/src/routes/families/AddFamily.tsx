@@ -1,51 +1,58 @@
-import { ActionFunctionArgs, redirect, useActionData } from 'react-router';
+import { useState } from 'react';
+import { useNavigate } from 'react-router';
 
 import { CForm, CFormBody, CMultilineTextInput, CTextInput } from '@/components/CForm';
 
 import { useSetPageTitle } from '@/utils/global/hooks';
-import { getFormJson, sendBackendJson } from '@/utils/global/queries';
-
-export async function action({ request }: ActionFunctionArgs) {
-  const formJson = await getFormJson(request);
-
-  if(!formJson.name) {
-    return { message: "Please enter a language name" };
-  }
-
-  const data = {
-    name: formJson.name,
-    description: formJson.description
-  };
-  const result = await sendBackendJson('families', 'POST', data);
-  if(!result.ok) {
-    return { message: result.body.message };
-  }
-
-  return redirect('/family/' + result.body);
-}
+import { sendBackendJson } from '@/utils/global/queries';
 
 export default function AddFamily() {
-  const actionData: any = useActionData();
+  const navigate = useNavigate();
+
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const [message, setMessage] = useState("");
 
   useSetPageTitle("Add Family");
+
+  async function addFormFamily() {
+    if(!name) {
+      setMessage("Please enter a family name.");
+      return;
+    }
+
+    const result = await sendBackendJson('families', 'POST', { name, description });
+    if(!result.ok) {
+      setMessage(result.body.message);
+      return;
+    }
+
+    navigate('/family/' + result.body);
+  }
 
   return (
     <>
       <h2>Add Family</h2>
       <p>Add a language family.</p>
-      {actionData?.message && <p><b>{actionData.message}</b></p>}
-      <CForm action="/add-family">
+      {message && <p><b>{message}</b></p>}
+      <CForm>
         <CFormBody>
           <CTextInput
             label="Name"
             name="name"
+            state={name}
+            setState={setName}
           />
           <CMultilineTextInput
             label="Description"
             name="description"
+            state={description}
+            setState={setDescription}
           />
         </CFormBody>
-        <button type="submit">Add Family</button>
+        <button type="button" onClick={addFormFamily}>
+          Add Family
+        </button>
       </CForm>
     </>
   );

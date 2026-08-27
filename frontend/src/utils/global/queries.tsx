@@ -2,24 +2,7 @@ import { UseQueryResult } from '@tanstack/react-query';
 
 import { ITitledError } from '@/types/titledError';
 
-interface IFormData {
-  [key: string]: string;
-}
-
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
-
-export async function getFormJson(request: Request) {
-  const formData = await request.formData();
-
-  const formJson: IFormData = {};
-  for(const [key, value] of [...formData.entries()]) {
-    if(typeof value === 'string') {
-      formJson[key] = value;
-    }
-  }
-
-  return formJson;
-}
 
 export async function sendBackendJson(
   url: string, method: 'POST' | 'PUT', requestBody: { [key: string]: any }
