@@ -12,7 +12,7 @@ export const consonantPhones = [
   "* * * * ɺ̪̊ ɺ̪ ɺ̥ ɺ * * * * * * * * * * * * * * * * * * * *",
   "ʘ * * * ǀ * ǃ * * * ‼ * ǁ * ǂ * * * ʞ * * * * * * * * *",
   "ɓ̥ ɓ * * ɗ̪̊ ɗ̪ ɗ̥ ɗ * * ᶑ̥ ᶑ * * ʄ̥ ʄ * * ɠ̊ ɠ ʛ̥ ʛ * * * * * *"
-].map(row => row.replace(/\*/g, "").split(" "))
+].map(row => row.replace(/\*/g, "").split(" "));
 
 export const vowelPhones = [
   "i y * * ɨ ʉ * * ɯ u",
@@ -22,7 +22,7 @@ export const vowelPhones = [
   "ɛ œ * * ɜ ɞ * * ʌ ɔ",
   "æ * * * ɐ * * * * *",
   "a ɶ * * ä * * * ɑ ɒ"
-].map(row => row.replace(/\*/g, "").split(" "))
+].map(row => row.replace(/\*/g, "").split(" "));
 
 export const qualityData = new Map([
   ["Advanced", "a̟"],
@@ -91,11 +91,11 @@ export const qualityData = new Map([
   ["Voiceless", "ḁ"]
 ]);
 
-const combiningQualities = [...qualityData.keys()].filter(name => (
-  /\p{M}/u.test(qualityData.get(name)!)
+const combiningQualities = [...qualityData.entries()].flatMap(([name, symbol]) => (
+  /\p{M}/u.test(symbol) ? [name] : []
 ));
 const finalQualities = [
-  "Aspirated", "Breathy voiced", "Ejective", "Preaspirated", "Prenasalised"
+  "Aspirated", "Breathy voiced", "Ejective", "Preaspirated"
 ];
 const noncombiningQualities = [...qualityData.keys()].filter(name => (
   !combiningQualities.includes(name) && !finalQualities.includes(name)
