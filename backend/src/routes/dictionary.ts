@@ -415,6 +415,31 @@ export const getLanguageSynonyms: RequestHandler = async (req, res) => {
   res.json(synonyms.rows);
 }
 
+export const getLanguageUnderivedWords: RequestHandler = async (req, res) => {
+  if(!isValidUUID(req.params.id)) {
+    res.status(400).json({ title: "Invalid ID", message: "The given language ID is not valid." });
+    return;
+  }
+  if(!(typeof req.query.maximum === 'string' && /^[0-9]+$/.test(req.query.maximum))) {
+    res.status(400).json({ message: "Please provide all required fields." });
+    return;
+  }
+
+  const result = await query(
+    `
+      SELECT translate(w.id::text, '-', '') AS id, w.word, w.meaning
+      FROM words AS w
+      LEFT JOIN word_derivations AS wd ON wd.parent_id = w.id
+      WHERE w.lang_id = $1
+      GROUP BY w.id
+      HAVING count(wd.child_id) <= $2
+      ORDER BY w.word, w.meaning, w.id
+    `,
+    [req.params.id, req.query.maximum]
+  );
+  res.json(result.rows);
+}
+
 export const getLanguageWords: RequestHandler = async (req, res) => {
   if(!isValidUUID(req.params.id)) {
     res.status(400).json({ title: "Invalid ID", message: "The given language ID is not valid." });

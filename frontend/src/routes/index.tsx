@@ -29,6 +29,7 @@ import ViewIrregularForms from './grammar/ViewIrregularForms';
 import ViewLetterDistribution from './dictionary/ViewLetterDistribution';
 import ViewPOSDistribution from './dictionary/ViewPOSDistribution';
 import ViewSwadeshList from './dictionary/ViewSwadeshList';
+import ViewUnderivedWords from './dictionary/ViewUnderivedWords';
 
 import AddFamily from './families/AddFamily';
 import DeleteFamily from './families/DeleteFamily';
@@ -299,6 +300,10 @@ export const appRouter = createBrowserRouter([
       {
         path: "translations",
         element: <ViewTranslations />
+      },
+      {
+        path: "underived-words/:id?",
+        element: <ViewUnderivedWords />
       },
       {
         path: "word/:id",

@@ -78,6 +78,7 @@ export default function Header() {
             <Link to="/pos-distribution">View POS Distribution</Link>,
             <Link to="/homonyms">View Homonyms</Link>,
             <Link to="/swadesh-list">View Swadesh List</Link>,
+            <Link to="/underived-words">View Underived Words</Link>,
             <Link to="/purge-dictionary">Purge Dictionary</Link>
           ]}
           setCanHover={setCanHover}

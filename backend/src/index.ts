@@ -105,6 +105,7 @@ app.get('/languages/:id/swadesh-list', dictionary.getLanguageSwadeshListEntries)
 app.post('/languages/:id/synonyms', dictionary.getLanguageSynonyms);
 app.get('/languages/:id/translation-ids', translations.getLanguageTranslationIds);
 app.get('/languages/:id/translations', translations.getAllLanguageTranslations);
+app.get('/languages/:id/underived-words', dictionary.getLanguageUnderivedWords);
 app.get('/languages/:id/word-class-distribution/:pos', dictionary.getLanguageClassDistribution);
 app.get('/languages/:id/word-classes', dictionary.getWordClassesByLanguage);
 app.put('/languages/:id/word-classes', dictionary.updateWordClasses);

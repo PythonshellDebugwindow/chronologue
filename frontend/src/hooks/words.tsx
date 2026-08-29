@@ -94,6 +94,15 @@ export function useLanguageSwadeshListEntries(langId: string) {
   });
 }
 
+export function useLanguageUnderivedWords(id: string, maxChildren: number = 0) {
+  return useQuery<IIdenticalWordOverview[], ITitledError>({
+    queryKey: ['languages', id, 'underived-words', maxChildren],
+    queryFn: async () => await getBackendJson(
+      `languages/${id}/underived-words?maximum=${maxChildren}`
+    )
+  });
+}
+
 export function useLanguageWordClassDistribution(id: string, pos: string) {
   return useQuery<IWordClassCount[], ITitledError>({
     queryKey: ['languages', id, 'word-class-distribution', pos],
