@@ -29,7 +29,7 @@
   z-index: 100;
 }
 .topMenuItem {
-  flex: 1 1 0px;
+  flex: 1 1 0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -50,27 +50,19 @@
   display: flex;
   flex-direction: column;
   position: absolute;
-  left: -1px;
   top: 100%;
   width: 100%;
   background: #fff;
-  margin-top: 1px;
-  padding-right: 1px;
-}
-.topMenuItem:nth-child(3) .submenu {
-  width: calc(100% + 0.5px) !important;
-}
-.topMenuItem:nth-child(4) .submenu {
-  left: -0.5px !important;
+  border: 1px solid #000;
 }
 .submenuItem {
-  min-width: 100%;
-  height: 2em;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid #000;
-  border-top: none;
+  height: 2em;
+}
+.submenuItem:not(:first-child) {
+  border-top: 1px solid #000;
 }
 .submenuItem:hover {
   background: #ddd;
