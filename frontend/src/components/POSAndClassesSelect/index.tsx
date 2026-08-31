@@ -55,11 +55,10 @@ export default function POSAndClassesSelect(
                 IndicatorSeparator: () => null
               }}
               styles={{
+                container: styles => ({ ...styles, zIndex: "100" }),
                 control: styles => ({ ...styles, minHeight: "unset", maxWidth: "15em", borderColor: "#767676" }),
                 dropdownIndicator: styles => ({ ...styles, padding: "0" }),
-                input: styles => ({
-                  ...styles, margin: "0", paddingBottom: "0", paddingTop: "0"
-                }),
+                input: styles => ({ ...styles, margin: "0", paddingTop: "0", paddingBottom: "0" }),
                 menu: styles => ({ ...styles, top: "auto", bottom: "100%", width: "12em" }),
                 multiValueLabel: styles => ({ ...styles, padding: "0", paddingLeft: "3px", paddingRight: "2px" }),
                 multiValueRemove: styles => ({ ...styles, paddingLeft: "3px", paddingRight: "3px" }),
