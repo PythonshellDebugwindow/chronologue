@@ -11,10 +11,11 @@ import {
   IPartOfSpeech
 } from '@/types/words';
 
+import { parseAtSignLinkMarkup } from '@/utils/global/markup';
+
 import {
   formatDictionaryFieldValue,
   formatPosAbbr,
-  formatWordEtymology,
   userFacingFieldName
 } from '@/utils/words';
 
@@ -148,7 +149,8 @@ export function DictionaryRow<WordT extends Partial<IDictionaryWord>>(
       case 'pos':
         return formatPosAbbr(word.pos!, partsOfSpeech);
       case 'etymology':
-        return formatWordEtymology(word.etymology!);
+      case 'notes':
+        return parseAtSignLinkMarkup(word[field] as string);
       default:
         return word[field] && formatDictionaryFieldValue(word, field);
     }

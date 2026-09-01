@@ -31,12 +31,12 @@ import {
 } from '@/types/words';
 
 import { useSetPageTitle } from '@/utils/global/hooks';
+import { parseAtSignLinkMarkup } from '@/utils/global/markup';
 import { renderDatalessQueryResult } from '@/utils/global/queries';
 
 import {
   formatPosFieldValue,
   formatWordClasses,
-  formatWordEtymology
 } from '@/utils/words';
 
 import styles from './ViewWord.module.css';
@@ -184,13 +184,13 @@ function ViewWordInner(
         {word.etymology && (
           <div className={styles.borderedText}>
             <div>Etymology</div>
-            <div>{formatWordEtymology(word.etymology)}</div>
+            <div>{parseAtSignLinkMarkup(word.etymology)}</div>
           </div>
         )}
         {word.notes && (
           <div className={styles.borderedText}>
             <div>Notes</div>
-            <div>{word.notes}</div>
+            <div>{parseAtSignLinkMarkup(word.notes)}</div>
           </div>
         )}
         <div className={styles.date}>

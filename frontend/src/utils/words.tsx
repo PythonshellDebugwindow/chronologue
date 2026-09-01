@@ -8,8 +8,6 @@ import {
   IWordClassNoPOS
 } from '@/types/words';
 
-import { parseAtSignLinkMarkup } from './global/markup';
-
 export function formatDictionaryFieldValue<WordT extends Partial<IDictionaryWord>>(
   word: WordT, field: keyof WordT
 ) {
@@ -44,10 +42,6 @@ export function formatWordClasses(classes: IWordClassNoPOS[]) {
       ))}
     </ul>
   );
-}
-
-export function formatWordEtymology(etymology: string) {
-  return parseAtSignLinkMarkup(etymology);
 }
 
 export function userFacingFieldName(field: string) {

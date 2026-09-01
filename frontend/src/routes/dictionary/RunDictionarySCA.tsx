@@ -28,12 +28,12 @@ import {
   useSetPageTitle,
   useUnsavedPopup
 } from '@/utils/global/hooks';
+import { parseAtSignLinkMarkup } from '@/utils/global/markup';
 import { renderDatalessQueryResult, sendBackendJson } from '@/utils/global/queries';
 
 import {
   formatDictionaryFieldValue,
   formatPosAbbr,
-  formatWordEtymology,
   sortAndFilterWords,
   userFacingFieldName
 } from '@/utils/words';
@@ -89,9 +89,10 @@ function PreviewChangesRow(
           </Link>
         );
       case 'pos':
-        return formatPosAbbr(word.pos!, partsOfSpeech);
+        return formatPosAbbr(word.pos, partsOfSpeech);
       case 'etymology':
-        return formatWordEtymology(word.etymology!);
+      case 'notes':
+        return parseAtSignLinkMarkup(word[field]);
       default:
         return word[field] && formatDictionaryFieldValue(word, field);
     }
