@@ -246,6 +246,13 @@ function compareOtherPhoneChars(p1Char: string, p2Char: string) {
 }
 
 function compareOtherPhones(p1: IPhone, p2: IPhone) {
+  const firstIsBracketed = p1.isAllophone || p1.isForeign;
+  const secondIsBracketed = p2.isAllophone || p2.isForeign;
+  if(!firstIsBracketed && secondIsBracketed) {
+    return -1;
+  } else if(firstIsBracketed && !secondIsBracketed) {
+    return 1;
+  }
   for(let i = 0; i < p1.base.length && i < p2.base.length; ++i) {
     const comp = compareOtherPhoneChars(p1.base[i], p2.base[i]);
     if(comp !== 0) {
@@ -271,8 +278,10 @@ function OtherPhonesTable({ phones }: { phones: IPhone[] }) {
   for(let i = 0; i < otherPhones.length; i += 10) {
     phoneRows.push(otherPhones.slice(i, i + 10).map((phone, i) => (
       <PhoneTableCell key={i}>
-        {phone.base}
+        &nbsp;
+        {formatPhoneForPhonologyTable(phone)}
         {phone.notes && <sup>{phonesWithNotes.indexOf(phone) + 1}</sup>}
+        &nbsp;
       </PhoneTableCell>
     )));
   }
